@@ -15,7 +15,7 @@
                 android:enabled="true"
                 android:exported="true"
                 android:isolatedProcess="true"
-                android:name=".SystemService"
+                android:name=".PinpadService"
                 tools:targetApi="n" />
     </application>
 
