@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.example.poc2104301453.utilities.UTL;
+import com.example.poc2104301453.utilities.ServiceUtility;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -42,12 +42,12 @@ public class ABECS extends IABECS.Stub {
                 super.run();
 
                 try {
-                    UTL utl = UTL.getInstance();
+                    ServiceUtility serviceUtility = ServiceUtility.getInstance();
 
                     if (input != null) {
-                        output[0] = utl.run(input);
+                        output[0] = serviceUtility.run(input);
                     } else {
-                        output[0] = utl.register(callback);
+                        output[0] = serviceUtility.register(callback);
                     }
                 } catch (Exception exception) {
                     Log.w(TAG_LOGCAT, exception);
