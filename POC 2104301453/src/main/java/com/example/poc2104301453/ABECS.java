@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.poc2104301453.utilities.ServiceUtility;
 
+import java.io.Serializable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -45,9 +46,9 @@ public class ABECS extends IABECS.Stub {
                     ServiceUtility serviceUtility = ServiceUtility.getInstance();
 
                     if (input != null) {
-                        output[0] = serviceUtility.run(input);
+                        output[0] = serviceUtility.run(sync, input);
                     } else {
-                        output[0] = serviceUtility.register(callback);
+                        output[0] = serviceUtility.register(sync, callback);
                     }
                 } catch (Exception exception) {
                     Log.w(TAG_LOGCAT, exception);
@@ -68,7 +69,7 @@ public class ABECS extends IABECS.Stub {
      * @return {@link ABECS}
      */
     public static ABECS getInstance() {
-        Log.w(TAG_LOGCAT, "getInstance");
+        Log.d(TAG_LOGCAT, "getInstance");
 
         return sABECS;
     }
@@ -81,6 +82,8 @@ public class ABECS extends IABECS.Stub {
      */
     @Override
     public Bundle register(boolean sync, IServiceCallback callback) {
+        Log.d(TAG_LOGCAT, "register::sync [" + sync + "], callback [" + callback + "]");
+
         return process(sync, callback, null);
     }
 
@@ -92,6 +95,8 @@ public class ABECS extends IABECS.Stub {
      */
     @Override
     public Bundle run(boolean sync, Bundle input) {
+        Log.d(TAG_LOGCAT, "run::sync [" + sync + "], input [" + ((input != null) ? input.toString() : null) + "]");
+
         return process(sync, null, input);
     }
 }

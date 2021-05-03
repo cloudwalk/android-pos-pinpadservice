@@ -4,7 +4,7 @@ import com.example.poc2104301453.IServiceCallback;
 
 /**
  * ABECS Service Callbacks Interface.<br>
- * Provides a interface set for status callbacks alongside ABECS classical processing callbacks.
+ * Provides an interface set for status callbacks alongside ABECS classical processing callbacks.
  */
 interface IServiceCallback {
     /**
