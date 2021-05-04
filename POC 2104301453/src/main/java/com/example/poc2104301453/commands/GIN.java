@@ -10,10 +10,6 @@ public class GIN {
 
     public static Bundle gin(Bundle input)
             throws Exception {
-        Bundle output = null;
-
-        Log.w(TAG_LOGCAT, new PendingDevelopmentException("GIN pending development"));
-
-        return null;
+        throw new PendingDevelopmentException(TAG_LOGCAT + "pending development");
     }
 }

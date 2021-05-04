@@ -10,10 +10,6 @@ public class OPN {
 
     public static Bundle opn(Bundle input)
             throws Exception {
-        Bundle output = null;
-
-        Log.w(TAG_LOGCAT, new PendingDevelopmentException("OPN pending development"));
-
-        return null;
+        throw new PendingDevelopmentException(TAG_LOGCAT + "pending development");
     }
 }

@@ -7,7 +7,6 @@ import android.util.Pair;
 
 import com.example.poc2104301453.IServiceCallback;
 import com.example.poc2104301453.commands.*;
-import com.example.poc2104301453.exceptions.PendingDevelopmentException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,7 @@ public class ServiceUtility {
         };
     }
 
-    /* TODO: private void remoteProcessingCallback() { ... } */
+    /* TODO: (2) private void callRemoteProcessingCallback() { ... } */
 
     /**
      *
@@ -209,15 +208,11 @@ public class ServiceUtility {
                 throw new Exception("Mandatory key \"" + KEY_REQUEST + "\" not found");
             }
 
-            IServiceCallback remoteCallback = (IServiceCallback) input.getSerializable("callback_stub");
-
-            if (remoteCallback != null) {
-                register(true, remoteCallback); /* TODO: test and update API accordingly (may deprecate public 'register' method)! */
-            }
+            /* TODO: (1) make the callback stub a parcelable to be retrieved from the input bundle?! */
 
             for (Pair<String, Runner> command : sCommandList) {
                 if (request.equals(command.first)) {
-                    /* TODO: deal with parallel processing several commands */
+                    /* TODO: (3) ensure safe and limited parallel processing */
 
                     output = command.second.run(input);
 

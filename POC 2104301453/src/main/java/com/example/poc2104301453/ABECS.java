@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.example.poc2104301453.utilities.ServiceUtility;
 
-import java.io.Serializable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,7 +34,9 @@ public class ABECS extends IABECS.Stub {
         final Bundle[] output = { null };
         Lock lock = new ReentrantLock(true);
 
-        lock.lock();
+        if (sync) {
+            lock.lock();
+        }
 
         new Thread() {
             @Override
@@ -53,7 +54,9 @@ public class ABECS extends IABECS.Stub {
                 } catch (Exception exception) {
                     Log.w(TAG_LOGCAT, exception);
                 } finally {
-                    lock.unlock();
+                    if (sync) {
+                        lock.unlock();
+                    }
                 }
             }
         }.start();
