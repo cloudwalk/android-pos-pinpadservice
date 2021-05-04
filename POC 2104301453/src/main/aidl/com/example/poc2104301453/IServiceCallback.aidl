@@ -20,9 +20,8 @@ interface IServiceCallback {
     /**
      * Status callback.<br>
      * As the name states, its called when the processing of a request finishes sucessfully.<br>
-     * {@code output} should return the "status" key at the bare minimum. Other keys may be
-     * present, conditionally to the request that was just processed. See the specification v2.12
-     * from ABECS for further details.
+     * {@code output} will return the "status" key. Other keys may be present, conditionally to the
+     * request that was just processed. See the specification v2.12 from ABECS for further details.
      *
      * @param Bundle {@link Bundle}
      */
