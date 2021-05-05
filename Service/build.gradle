@@ -13,6 +13,8 @@ android {
         versionCode 1
         versionName "1.0"
 
+        setProperty("archivesBaseName", "com.example.poc2104301453.service-$versionName")
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

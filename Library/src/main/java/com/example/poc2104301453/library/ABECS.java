@@ -1,4 +1,4 @@
-package com.example.library;
+package com.example.poc2104301453.library;
 
 import android.content.ComponentName;
 import android.content.Context;
