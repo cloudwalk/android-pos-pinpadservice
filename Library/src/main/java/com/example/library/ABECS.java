@@ -8,6 +8,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.service.IABECS;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class ABECS {
     private static final String TAG_LOGCAT = ABECS.class.getSimpleName();
 
@@ -178,13 +185,19 @@ public class ABECS {
      * optional keys (e.g. "OPN" may be requested along with the "callback" key).<br>
      * See the specification v2.12 from ABECS for further details.
      *
-     * @param sync indicates the type of operation. @{code false} is recommended (furthermore
-     * mandatory if the application intends to make a call from its main thread).
+     * @param context application context
      * @param input {@link Bundle}
      * @return {@link Bundle} (or {@code null} when {@code sync} is {@code false}).
      */
-    public static Bundle run(Context context, Bundle input) {
-        Bundle output = null;
+    public static Bundle run(@NotNull Context context, @NotNull Bundle input) {
+        final Bundle[] output = { null };
+        final boolean sync = input.getBoolean("operation_mode");
+
+        Lock lock = new ReentrantLock(true);
+
+        if (sync) {
+            lock.lock();
+        }
 
         Intent intent = new Intent("com.example.poc2104301453");
 
@@ -193,27 +206,41 @@ public class ABECS {
         boolean serviceBind = context.bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d(ABECS.TAG_LOGCAT, "onServiceConnected::name [" + name + "], service [" + service + "]");
+
                 try {
                     Bundle input = new Bundle();
 
                     input.putString("request", "OPN");
 
-                    // output = IABECS.Stub.asInterface(service).run(input);
+                    output[0] = IABECS.Stub.asInterface(service).run(input);
                 } catch (Exception exception) {
                     Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                 } finally {
                     context.unbindService(this);
+
+                    if (sync) {
+                        lock.unlock();
+                    }
                 }
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 Log.d(TAG_LOGCAT, "onServiceDisconnected::name [" + name + "]");
+
+                if (sync) {
+                    lock.unlock();
+                }
             }
         }, Context.BIND_AUTO_CREATE);
 
         Log.d(TAG_LOGCAT, "onCreate::serviceBind [" + serviceBind + "]");
 
-        return output;
+        if (sync) {
+            lock.lock();
+        }
+
+        return output[0];
     }
 }

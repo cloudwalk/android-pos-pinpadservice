@@ -185,12 +185,11 @@ public class ServiceUtility {
 
     /**
      *
-     * @param sync
      * @param input
      * @return
      */
-    public Bundle run(boolean sync, Bundle input) {
-        Log.d(TAG_LOGCAT, "run::sync [" + sync + "], input [" + ((input != null) ? input.toString() : null) + "]");
+    public Bundle run(Bundle input) {
+        Log.d(TAG_LOGCAT, "run::input [" + ((input != null) ? input.toString() : null) + "]");
 
         Bundle output = new Bundle();
 
@@ -226,7 +225,7 @@ public class ServiceUtility {
             output.putInt("status", 40);
             output.putSerializable("exception", exception);
         } finally {
-            if (!sync) {
+            if (!input.getBoolean("operation_mode")) {
                 try {
                     if (output.getInt("status") != 0) {
                         serviceCallback[0].status.onFailure(output);

@@ -5,9 +5,6 @@ import android.util.Log;
 
 import com.example.service.utilities.ServiceUtility;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  *
  */
@@ -34,42 +31,13 @@ public class ABECS extends IABECS.Stub {
 
     /**
      *
-     * @param sync
      * @param input
      * @return
      */
     @Override
-    public Bundle run(boolean sync, Bundle input) {
-        Log.d(TAG_LOGCAT, "run::sync [" + sync + "], input [" + ((input != null) ? input.toString() : null) + "]");
+    public Bundle run(Bundle input) {
+        Log.d(TAG_LOGCAT, "run::input [" + ((input != null) ? input.toString() : null) + "]");
 
-        final Bundle[] output = { null };
-        Lock lock = new ReentrantLock(true);
-
-        if (sync) {
-            lock.lock();
-        }
-
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                try {
-                    output[0] = ServiceUtility.getInstance().run(sync, input);
-                } catch (Exception exception) {
-                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
-                } finally {
-                    if (sync) {
-                        lock.unlock();
-                    }
-                }
-            }
-        }.start();
-
-        if (sync) {
-            lock.lock();
-        }
-
-        return output[0];
+        return ServiceUtility.getInstance().run(input);
     }
 }
