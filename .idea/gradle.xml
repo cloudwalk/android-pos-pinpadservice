@@ -11,8 +11,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/POC 2104301453" />
-            <option value="$PROJECT_DIR$/POC 2104301453/ABECS" />
+            <option value="$PROJECT_DIR$/Library" />
+            <option value="$PROJECT_DIR$/Service" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

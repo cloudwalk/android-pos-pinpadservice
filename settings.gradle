@@ -1,3 +1,3 @@
-include ':POC 2104301453'
+include ':Service'
 rootProject.name = "POC 2104301453"
-include ':POC 2104301453:ABECS'
+include ':Library'
