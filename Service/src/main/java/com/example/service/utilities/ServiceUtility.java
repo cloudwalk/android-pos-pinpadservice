@@ -1,11 +1,9 @@
 package com.example.service.utilities;
 
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.util.Pair;
 
-import com.example.service.IServiceCallback;
 import com.example.service.commands.*;
 
 import java.util.ArrayList;
@@ -13,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.example.service.IServiceMap.*;
+import static com.example.library.ABECS.*;
 
 /**
  *
@@ -27,7 +25,7 @@ public class ServiceUtility {
      *     <li>[1]: remote instance</li>
      * </ul>
      */
-    private static final IServiceCallback[] serviceCallback = { null, null };
+    private static final Callback[] serviceCallback = { null, null };
 
     private static final List<Pair<String, Runner>> sCommandList = new ArrayList<>(0);
 
@@ -75,7 +73,11 @@ public class ServiceUtility {
         // sCommandList.add(new Pair<>(VALUE_REQUEST_GOC, GOC::goc));
         // sCommandList.add(new Pair<>(VALUE_REQUEST_FNC, FNC::fnc));
 
-        serviceCallback[0] = new IServiceCallback.Stub() {
+        Callback.Process process = new Callback.Process() {
+            /* TODO */
+        };
+
+        Callback.Status status = new Callback.Status() {
             @Override
             public void onFailure(Bundle output) {
                 callRemoteStatusCallback(false, output);
@@ -86,22 +88,19 @@ public class ServiceUtility {
                 callRemoteStatusCallback(true, output);
             }
         };
+
+        serviceCallback[0] = new Callback(process, status);
     }
 
     /* TODO: (2) private void callRemoteProcessingCallback() { ... } */
 
-    /**
-     *
-     * @param success
-     * @param output
-     */
     private void callRemoteStatusCallback(boolean success, Bundle output) {
         sLockCallback.lock();
 
         if (serviceCallback[1] != null) {
             Log.d(TAG_LOGCAT, "Calling remote callback");
 
-            IServiceCallback remoteInstance = serviceCallback[1];
+            Callback.Status remoteInstance = serviceCallback[1].status;
 
             new Thread() {
                 @Override
@@ -114,10 +113,10 @@ public class ServiceUtility {
                         } else {
                             remoteInstance.onFailure(output);
                         }
-                    } catch (RemoteException exception) {
-                        Log.w(TAG_LOGCAT, exception);
+                    } catch (Exception exception) {
+                        Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                     } finally {
-                        Log.d(TAG_LOGCAT, "Returning from remote callback");
+                        Log.d(TAG_LOGCAT, "Ending remote callback execution");
                     }
                 }
             }.start();
@@ -149,13 +148,7 @@ public class ServiceUtility {
         return sServiceUtility;
     }
 
-    /**
-     *
-     * @param sync
-     * @param callback
-     * @return
-     */
-    public Bundle register(boolean sync, IServiceCallback callback) {
+    public Bundle register(boolean sync, Callback callback) {
         Log.d(TAG_LOGCAT, "register::callback [" + callback + "]");
 
         Bundle output = new Bundle();
@@ -177,12 +170,12 @@ public class ServiceUtility {
             if (!sync) {
                 try {
                     if (status != 0) {
-                        serviceCallback[0].onFailure(output);
+                        serviceCallback[0].status.onFailure(output);
                     } else {
-                        serviceCallback[0].onSuccess(output);
+                        serviceCallback[0].status.onSuccess(output);
                     }
-                } catch (RemoteException exception) {
-                    Log.w(TAG_LOGCAT, exception);
+                } catch (Exception exception) {
+                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                 }
             }
         }
@@ -236,12 +229,12 @@ public class ServiceUtility {
             if (!sync) {
                 try {
                     if (output.getInt("status") != 0) {
-                        serviceCallback[0].onFailure(output);
+                        serviceCallback[0].status.onFailure(output);
                     } else {
-                        serviceCallback[0].onSuccess(output);
+                        serviceCallback[0].status.onSuccess(output);
                     }
-                } catch (RemoteException exception) {
-                    Log.w(TAG_LOGCAT, exception);
+                } catch (Exception exception) {
+                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                 }
             }
         }

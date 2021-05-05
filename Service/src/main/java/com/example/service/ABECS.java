@@ -1,7 +1,6 @@
 package com.example.service;
 
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.example.service.utilities.ServiceUtility;
@@ -21,51 +20,7 @@ public class ABECS extends IABECS.Stub {
      * Constructor.
      */
     private ABECS() {
-        Log.w(TAG_LOGCAT, "ABECS");
-    }
-
-    /**
-     *
-     * @param sync
-     * @param callback
-     * @param input
-     */
-    private Bundle process(boolean sync, IServiceCallback callback, Bundle input) {
-        final Bundle[] output = { null };
-        Lock lock = new ReentrantLock(true);
-
-        if (sync) {
-            lock.lock();
-        }
-
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                try {
-                    ServiceUtility serviceUtility = ServiceUtility.getInstance();
-
-                    if (input != null) {
-                        output[0] = serviceUtility.run(sync, input);
-                    } else {
-                        output[0] = serviceUtility.register(sync, callback);
-                    }
-                } catch (Exception exception) {
-                    Log.w(TAG_LOGCAT, exception);
-                } finally {
-                    if (sync) {
-                        lock.unlock();
-                    }
-                }
-            }
-        }.start();
-
-        if (sync) {
-            lock.lock();
-        }
-
-        return output[0];
+        Log.d(TAG_LOGCAT, "ABECS");
     }
 
     /**
@@ -80,19 +35,6 @@ public class ABECS extends IABECS.Stub {
     /**
      *
      * @param sync
-     * @param callback
-     * @throws RemoteException
-     */
-    @Override
-    public Bundle register(boolean sync, IServiceCallback callback) {
-        Log.d(TAG_LOGCAT, "register::sync [" + sync + "], callback [" + callback + "]");
-
-        return process(sync, callback, null);
-    }
-
-    /**
-     *
-     * @param sync
      * @param input
      * @return
      */
@@ -100,6 +42,34 @@ public class ABECS extends IABECS.Stub {
     public Bundle run(boolean sync, Bundle input) {
         Log.d(TAG_LOGCAT, "run::sync [" + sync + "], input [" + ((input != null) ? input.toString() : null) + "]");
 
-        return process(sync, null, input);
+        final Bundle[] output = { null };
+        Lock lock = new ReentrantLock(true);
+
+        if (sync) {
+            lock.lock();
+        }
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                try {
+                    output[0] = ServiceUtility.getInstance().run(sync, input);
+                } catch (Exception exception) {
+                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
+                } finally {
+                    if (sync) {
+                        lock.unlock();
+                    }
+                }
+            }
+        }.start();
+
+        if (sync) {
+            lock.lock();
+        }
+
+        return output[0];
     }
 }

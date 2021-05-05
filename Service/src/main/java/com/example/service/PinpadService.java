@@ -21,7 +21,7 @@ public class PinpadService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.w(TAG_LOGCAT, "onBind");
+        Log.d(TAG_LOGCAT, "onBind");
 
         return ABECS.getInstance();
     }
