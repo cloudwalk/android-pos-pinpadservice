@@ -1,19 +1,19 @@
-package com.example.poc2104301453.utilities;
+package com.example.service.utilities;
 
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.Pair;
 
-import com.example.poc2104301453.IServiceCallback;
-import com.example.poc2104301453.commands.*;
+import com.example.service.IServiceCallback;
+import com.example.service.commands.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.example.poc2104301453.IServiceMap.*;
+import static com.example.service.IServiceMap.*;
 
 /**
  *

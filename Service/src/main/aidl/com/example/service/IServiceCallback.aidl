@@ -1,6 +1,6 @@
-package com.example.poc2104301453;
+package com.example.service;
 
-import com.example.poc2104301453.IServiceCallback;
+import com.example.service.IServiceCallback;
 
 /**
  * ABECS Service Callbacks Interface.<br>

@@ -1,4 +1,4 @@
-package com.example.poc2104301453;
+package com.example.service;
 
 import android.app.Service;
 import android.content.Intent;

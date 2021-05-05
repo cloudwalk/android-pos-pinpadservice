@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        package="com.example.poc2104301453">
+        package="com.example.service">
 
     <application
             android:allowBackup="true"
@@ -15,7 +15,7 @@
                 android:enabled="true"
                 android:exported="true"
                 android:isolatedProcess="true"
-                android:name=".PinpadService"
+                android:name="com.example.service.PinpadService"
                 tools:targetApi="n" />
     </application>
 

@@ -1,9 +1,8 @@
-package com.example.poc2104301453.commands;
+package com.example.service.commands;
 
 import android.os.Bundle;
-import android.util.Log;
 
-import com.example.poc2104301453.exceptions.PendingDevelopmentException;
+import com.example.service.exceptions.PendingDevelopmentException;
 
 public class CLO {
     private static final String TAG_LOGCAT = CLO.class.getSimpleName();

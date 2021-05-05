@@ -1,10 +1,10 @@
-package com.example.poc2104301453;
+package com.example.service;
 
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.example.poc2104301453.utilities.ServiceUtility;
+import com.example.service.utilities.ServiceUtility;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

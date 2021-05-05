@@ -1,7 +1,7 @@
-package com.example.poc2104301453;
+package com.example.service;
 
-import com.example.poc2104301453.IServiceCallback;
-import com.example.poc2104301453.IServiceMap;
+import com.example.service.IServiceCallback;
+import com.example.service.IServiceMap;
 
 /**
  * ABECS Service Interface by CloudWalk, Inc.<br>

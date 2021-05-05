@@ -1,4 +1,4 @@
-package com.example.poc2104301453.exceptions;
+package com.example.service.exceptions;
 
 public class PendingDevelopmentException extends Exception {
 

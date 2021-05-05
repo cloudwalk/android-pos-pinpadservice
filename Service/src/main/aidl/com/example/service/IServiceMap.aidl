@@ -1,6 +1,6 @@
-package com.example.poc2104301453;
+package com.example.service;
 
-import com.example.poc2104301453.IServiceMap;
+import com.example.service.IServiceMap;
 
 interface IServiceMap {
     const String KEY_REQUEST = "request";
