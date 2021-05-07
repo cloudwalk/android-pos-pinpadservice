@@ -1,5 +1,6 @@
 package com.example.poc2104301453.library;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +10,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.example.poc2104301453.service.IABECS;
-import com.example.poc2104301453.service.IStatusCallback;
+import com.example.poc2104301453.service.IServiceCallback;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -18,65 +19,78 @@ import java.util.concurrent.Semaphore;
 public class ABECS {
     private static final String TAG_LOGCAT = ABECS.class.getSimpleName();
 
+    private static final String CLASS_POC_2104301453_PINPAD_SERVICE = "com.example.poc2104301453.service.PinpadService";
+
     private static final String PACKAGE_POC_2104301453 = "com.example.poc2104301453.service";
 
-    private static final String CLASS_POC_2104301453_PINPAD = PACKAGE_POC_2104301453 + ".PinpadService";
+    private static Callback sCallback = null;
 
     private static final Semaphore sSemaphore = new Semaphore(1, true);
 
+    @SuppressLint("StaticFieldLeak")
+    private static Context sContext = null;
+
     /**
      *
-     * @param context
      * @param callback
+     * @return
+     */
+    private static IServiceCallback getServiceCallback(Callback callback) {
+        return new IServiceCallback.Stub() {
+            @Override
+            public void onFailure(Bundle output) {
+                if (callback != null) {
+                    if (callback.status != null) {
+                        callback.status.onFailure(output);
+                    }
+                }
+            }
+
+            @Override
+            public void onSuccess(Bundle output) {
+                if (callback != null) {
+                    if (callback.status != null) {
+                        callback.status.onSuccess(output);
+                    }
+                }
+            }
+        };
+    }
+
+    /**
+     *
      * @param input
      * @return
      */
-    private static Bundle queryService(Context context, Callback callback, Bundle input) {
-        Semaphore sSyncSemaphore = new Semaphore(0, true);
-
-        final IStatusCallback[] serviceCallback = { null };
-
-        if (callback != null) {
-            serviceCallback[0] = new IStatusCallback.Stub() {
-                @Override
-                public void onFailure(Bundle output) {
-                    callback.status.onFailure(output);
-                }
-
-                @Override
-                public void onSuccess(Bundle output) {
-                    callback.status.onSuccess(output);
-                }
-            };
-        }
+    private static Bundle queryService(Bundle input) {
+        final Bundle[] output = { null };
+        final Context[] context = { sContext };
+        final IServiceCallback[] serviceCallback = { getServiceCallback(sCallback) };
+        final Semaphore[] sSyncSemaphore = { new Semaphore(0, true) };
+        final boolean[] sync = { input.getBoolean("synchronous_operation") };
 
         Intent intent = new Intent();
 
-        intent.setClassName(PACKAGE_POC_2104301453, CLASS_POC_2104301453_PINPAD);
+        intent.setClassName(PACKAGE_POC_2104301453, CLASS_POC_2104301453_PINPAD_SERVICE);
 
-        final Bundle[] output = { null };
-        final boolean[] serviceBind = { false };
-        final boolean[] sync = { input.getBoolean("synchronous_operation") };
-
-        serviceBind[0] = context.bindService(intent, new ServiceConnection() {
+        boolean serviceBind = context[0].bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 Log.d(ABECS.TAG_LOGCAT, "onServiceConnected::name [" + name + "], service [" + service + "]");
 
                 try {
-                    output[0] = IABECS.Stub.asInterface(service).run(serviceCallback[0], input);
+                    output[0] = IABECS.Stub.asInterface(service).run(context[0].getPackageName(), serviceCallback[0], input);
 
-                    output[0].get(null); /* 2021-05-06: just to force the parcelable data
-                                          * printable */
+                    output[0].get(null); /* TODO */
 
-                    Log.d(TAG_LOGCAT, "onServiceConnected::output[0] [" + output[0].toString() + "]");
+                    Log.d(TAG_LOGCAT, "onServiceConnected::output[0] [" + ((output[0] != null) ? output[0].toString() : "null") + "]");
                 } catch (Exception exception) {
                     Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                 } finally {
-                    context.unbindService(this);
+                    context[0].unbindService(this);
 
                     if (sync[0]) {
-                        sSyncSemaphore.release();
+                        sSyncSemaphore[0].release();
                     }
                 }
             }
@@ -86,25 +100,21 @@ public class ABECS {
                 Log.d(TAG_LOGCAT, "onServiceDisconnected::name [" + name + "]");
 
                 if (sync[0]) {
-                    sSyncSemaphore.release();
+                    sSyncSemaphore[0].release();
                 }
             }
         }, Context.BIND_AUTO_CREATE);
 
-        Log.d(TAG_LOGCAT, "onCreate::serviceBind [" + serviceBind[0] + "]");
+        Log.d(TAG_LOGCAT, "onCreate::serviceBind [" + serviceBind + "]");
 
-        if (sync[0] && serviceBind[0]) {
-            sSyncSemaphore.acquireUninterruptibly();
+        if (sync[0] && serviceBind) {
+            sSyncSemaphore[0].acquireUninterruptibly();
         }
 
         return (sync[0]) ? output[0] : null;
     }
 
     public static final String KEY_REQUEST = "request";
-
-    /*
-     * 3.2 Comandos de controle
-     */
 
     public static final String VALUE_REQUEST_OPN = "OPN";
 
@@ -117,10 +127,6 @@ public class ABECS {
     public static final String VALUE_REQUEST_CLO = "CLO";
 
     // public static final String VALUE_REQUEST_CLX = "CLX";
-
-    /*
-     * 3.3 Comandos básicos
-     */
 
     public static final String VALUE_REQUEST_CKE = "CKE";
 
@@ -148,10 +154,6 @@ public class ABECS {
 
     // public static final String VALUE_REQUEST_RMC = "RMC";
 
-    /*
-     * 3.4 Comandos multimídia
-     */
-
     // public static final String VALUE_REQUEST_MLI = "MLI";
 
     // public static final String VALUE_REQUEST_MLR = "MLR";
@@ -164,10 +166,6 @@ public class ABECS {
 
     // public static final String VALUE_REQUEST_DSI = "DSI";
 
-    /*
-     * 3.5 Comandos para manutenção de Tabelas EMV
-     */
-
     public static final String VALUE_REQUEST_GTS = "GTS";
 
     public static final String VALUE_REQUEST_TLI = "TLI";
@@ -175,10 +173,6 @@ public class ABECS {
     public static final String VALUE_REQUEST_TLR = "TLR";
 
     public static final String VALUE_REQUEST_TLE = "TLE";
-
-    /*
-     * 3.6 Comandos de processamento de cartão (obsoletos)
-     */
 
     public static final String VALUE_REQUEST_GCR = "GCR";
 
@@ -188,10 +182,6 @@ public class ABECS {
 
     public static final String VALUE_REQUEST_FNC = "FNC";
 
-    /*
-     * 3.7 Comandos ABECS de processamento de cartão
-     */
-
     // public static final String VALUE_REQUEST_GCX = "GCX";
 
     // public static final String VALUE_REQUEST_GED = "GED";
@@ -200,37 +190,31 @@ public class ABECS {
 
     // public static final String VALUE_REQUEST_FCX = "FCX";
 
-    /*
-     * 3.8 Comandos genéricos
-     */
-
     // public static final String VALUE_REQUEST_GEN = "GEN";
 
     /**
-     * Callback interface for async. methods.
+     *
      */
     public static class Callback {
-        public Process process;
+        public Kernel kernel;
 
-        /*
-         * Note: mandatory for async. operation.
-         */
         public Status status;
 
-        public Callback(Process process, Status status) {
-            if (process == null && status == null) {
-                throw new NullPointerException("Both arguments cannot be null");
-            }
-
-            this.process = process;
-
+        public Callback(Kernel kernel, Status status) {
+            this.kernel = kernel;
             this.status = status;
         }
 
-        public static interface Process {
-            /* TODO: see Verifone's OPN command */
+        /**
+         *
+         */
+        public static interface Kernel {
+            /* TODO */
         }
 
+        /**
+         *
+         */
         public static interface Status {
             /**
              * Status callback.<br>
@@ -264,36 +248,42 @@ public class ABECS {
      *     <li>{@code request}</li>
      * </ul>
      * Conditional and optional keys: every request may have its own mandatory, conditional and/or
-     * optional keys (e.g. "OPN" may be requested along with the "callback" key).<br>
+     * optional keys.<br>
      * See the specification v2.12 from ABECS for further details.
      *
-     * @param context application context
      * @param input {@link Bundle}
-     * @return {@link Bundle} (or {@code null} when {@code sync} is {@code false}).
+     * @return {@link Bundle}
      */
-    public static Bundle run(@NotNull Context context, @NotNull Bundle input) {
+    public static Bundle run(@NotNull Bundle input) {
         sSemaphore.acquireUninterruptibly();
 
-        Bundle output = queryService(context, null, input);
+        if (sContext != null) {
+            queryService(input);
+        } else {
+            Log.e(TAG_LOGCAT, "Unable to identify the caller. Call ABECS#init(Context)");
+        }
 
         sSemaphore.release();
 
-        return output;
+        return null;
     }
 
-    /**
-     * Allows the caller to register a {@link ABECS.Callback} object to
-     * {@link ABECS#run(android.content.Context, android.os.Bundle)}.<br>
-     * Note: it is recommended over {@link ABECS#run(android.content.Context, android.os.Bundle)}.
-     *
-     * @param context application context
-     * @param callback {@link ABECS.Callback}
-     * @param input {@link Bundle}
-     */
-    public static void run(@NotNull Context context, Callback callback, @NotNull Bundle input) {
+    public static void init(@NotNull Context context) {
         sSemaphore.acquireUninterruptibly();
 
-        queryService(context, callback, input);
+        sCallback = null;
+
+        sContext = context;
+
+        sSemaphore.release();
+    }
+
+    public static void init(@NotNull Context context, Callback callback) {
+        sSemaphore.acquireUninterruptibly();
+
+        sCallback = callback;
+
+        sContext = context;
 
         sSemaphore.release();
     }

@@ -1,15 +1,15 @@
 package com.example.poc2104301453.service;
 
-import com.example.poc2104301453.service.IStatusCallback;
+import com.example.poc2104301453.service.IServiceCallback;
 
 /**
  * ABECS Service Interface.<br>
- * Wraps the obsolete set of commands from Protocolo de Comunicação e Funcionamento v2.12 under a
- * simplified key-value interface, supporting both sync. and async. operation.
+ * Wraps the obsolete set of commands from specification v2.12 under a simplified key-value
+ * interface, supporting both sync. and async. operation.
  */
 interface IABECS {
     /**
-     * @see com.example.library.ABECS#run(Bundle)
+     * @see com.example.poc2104301453.library.ABECS#run(Bundle)
      */
-    Bundle run(in IStatusCallback callback, in Bundle input);
+    Bundle run(in String caller, in IServiceCallback callback, in Bundle input);
 }

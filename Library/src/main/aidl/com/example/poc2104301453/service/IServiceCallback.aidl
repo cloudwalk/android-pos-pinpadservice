@@ -1,8 +1,8 @@
 package com.example.poc2104301453.service;
 
-import com.example.poc2104301453.service.IStatusCallback;
+import com.example.poc2104301453.service.IServiceCallback;
 
-interface IStatusCallback {
+interface IServiceCallback {
     /**
      * @see com.example.library.ABECS.Callback.Status#onFailure(Bundle)
      */

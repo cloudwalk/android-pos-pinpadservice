@@ -28,39 +28,51 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     private void initialDraft() {
+        ABECS.init(getApplicationContext());
+
+        ABECS.Callback.Kernel kernel =
+                new ABECS.Callback.Kernel() {
+                    /* TODO */
+                };
+
+        ABECS.Callback.Status status =
+                new ABECS.Callback.Status() {
+                    @Override
+                    public void onFailure(Bundle output) {
+                        output.get(null);
+
+                        Log.d(TAG_LOGCAT, "initialDraft::onFailure::output [" + output.toString() + "]");
+                    }
+
+                    @Override
+                    public void onSuccess(Bundle output) {
+                        output.get(null);
+
+                        Log.d(TAG_LOGCAT, "initialDraft::onSuccess::output [" + output.toString() + "]");
+                    }
+                };
+
         Bundle input = new Bundle();
+
         input.putString("request", ABECS.VALUE_REQUEST_OPN);
-        input.putBoolean("synchronous_operation", false);
 
-        ABECS.Callback.Process process = new ABECS.Callback.Process() {
-            /* TODO */
-        };
+        /* 2021-05-07: TEST 001 (async. call w/o registering a callback) */
 
-        ABECS.Callback.Status status = new ABECS.Callback.Status() {
-            @Override
-            public void onFailure(Bundle output) {
-                if (output != null) {
-                    output.get(null); /* 2021-05-05: just to force the parcelable data printable */
-                }
+        Log.d(TAG_LOGCAT, "initialDraft::TEST 0001");
 
-                Log.d(TAG_LOGCAT, "run::input [" + ((output != null) ? output.toString() : null) + "]");
-            }
+        Bundle output = ABECS.run(input);
 
-            @Override
-            public void onSuccess(Bundle output) {
-                if (output != null) {
-                    output.get(null); /* 2021-05-05: just to force the parcelable data printable */
-                }
+        Log.d(TAG_LOGCAT, "initialDraft::output [" + ((output != null) ? output.toString() : "null") + "]");
 
-                Log.d(TAG_LOGCAT, "run::input [" + ((output != null) ? output.toString() : null) + "]");
-            }
-        };
+        /* 2021-05-07: TEST 002 (async. call w/ a registered a callback) */
 
-        ABECS.Callback callback = new ABECS.Callback(process, status);
+        ABECS.init(getApplicationContext(), new ABECS.Callback(kernel, status));
 
-        ABECS.run(getApplicationContext(), input);
+        Log.d(TAG_LOGCAT, "initialDraft::TEST 0002");
 
-        ABECS.run(getApplicationContext(), callback, input);
+        output = ABECS.run(input);
+
+        Log.d(TAG_LOGCAT, "initialDraft::output [" + ((output != null) ? output.toString() : "null") + "]");
 
         new Thread() {
             @Override
@@ -74,14 +86,27 @@ public class MainActivity extends AppCompatActivity {
 
                         Bundle input = new Bundle();
 
+                        /* 2021-05-07: TEST 003 (sync. call w/ a registered a callback) */
+
                         input.putString("request", ABECS.VALUE_REQUEST_OPN);
+
                         input.putBoolean("synchronous_operation", true);
 
-                        ABECS.Callback callback = new ABECS.Callback(process, status);
+                        Log.d(TAG_LOGCAT, "initialDraft::TEST 0003");
 
-                        ABECS.run(getApplicationContext(), input);
+                        Bundle output = ABECS.run(input);
 
-                        ABECS.run(getApplicationContext(), callback, input);
+                        Log.d(TAG_LOGCAT, "initialDraft::output [" + ((output != null) ? output.toString() : "null") + "]");
+
+                        /* 2021-05-07: TEST 004 (sync. call w/o registering a callback) */
+
+                        ABECS.init(getApplicationContext());
+
+                        Log.d(TAG_LOGCAT, "initialDraft::TEST 0004");
+
+                        output = ABECS.run(input);
+
+                        Log.d(TAG_LOGCAT, "initialDraft::output [" + ((output != null) ? output.toString() : "null") + "]");
                     }
                 }.start();
             }
