@@ -9,14 +9,96 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.example.poc2104301453.service.IABECS;
+import com.example.poc2104301453.service.IServiceCallback;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 public class ABECS {
     private static final String TAG_LOGCAT = ABECS.class.getSimpleName();
+
+    private static final String PACKAGE_POC_2104301453 = "com.example.poc2104301453.service";
+
+    private static final String CLASS_POC_2104301453_PINPAD = PACKAGE_POC_2104301453 + ".PinpadService";
+
+    private static final Semaphore sSemaphore = new Semaphore(1, true);
+
+    /**
+     *
+     * @param context
+     * @param callback
+     * @param input
+     * @return
+     */
+    private static Bundle queryService(Context context, Callback callback, Bundle input) {
+        Semaphore sSyncSemaphore = new Semaphore(0, true);
+
+        final IServiceCallback[] serviceCallback = { null };
+
+        if (callback != null) {
+            serviceCallback[0] = new IServiceCallback.Stub() {
+                @Override
+                public void onFailure(Bundle output) {
+                    callback.status.onFailure(output);
+                }
+
+                @Override
+                public void onSuccess(Bundle output) {
+                    callback.status.onSuccess(output);
+                }
+            };
+        }
+
+        Intent intent = new Intent();
+
+        intent.setClassName(PACKAGE_POC_2104301453, CLASS_POC_2104301453_PINPAD);
+
+        final Bundle[] output = { null };
+        final boolean[] serviceBind = { false };
+        final boolean[] sync = { input.getBoolean("synchronous_operation") };
+
+        serviceBind[0] = context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d(ABECS.TAG_LOGCAT, "onServiceConnected::name [" + name + "], service [" + service + "]");
+
+                try {
+                    output[0] = IABECS.Stub.asInterface(service).run(serviceCallback[0], input);
+
+                    output[0].get(null); /* 2021-05-06: just to force the parcelable data
+                                          * printable */
+
+                    Log.d(TAG_LOGCAT, "onServiceConnected::output[0] [" + output[0].toString() + "]");
+                } catch (Exception exception) {
+                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
+                } finally {
+                    context.unbindService(this);
+
+                    if (sync[0]) {
+                        sSyncSemaphore.release();
+                    }
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                Log.d(TAG_LOGCAT, "onServiceDisconnected::name [" + name + "]");
+
+                if (sync[0]) {
+                    sSyncSemaphore.release();
+                }
+            }
+        }, Context.BIND_AUTO_CREATE);
+
+        Log.d(TAG_LOGCAT, "onCreate::serviceBind [" + serviceBind[0] + "]");
+
+        if (sync[0] && serviceBind[0]) {
+            sSyncSemaphore.acquireUninterruptibly();
+        }
+
+        return (sync[0]) ? output[0] : null;
+    }
 
     public static final String KEY_REQUEST = "request";
 
@@ -190,53 +272,29 @@ public class ABECS {
      * @return {@link Bundle} (or {@code null} when {@code sync} is {@code false}).
      */
     public static Bundle run(@NotNull Context context, @NotNull Bundle input) {
-        final Bundle[] output = { null };
-        final boolean sync = input.getBoolean("operation_mode");
+        sSemaphore.acquireUninterruptibly();
 
-        Lock lock = new ReentrantLock(true);
+        Bundle output = queryService(context, null, input);
 
-        if (sync) {
-            lock.lock();
-        }
+        sSemaphore.release();
 
-        Intent intent = new Intent("com.example.poc2104301453.service");
+        return output;
+    }
 
-        intent.setClassName("com.example.poc2104301453.service", "com.example.poc2104301453.service.PinpadService");
+    /**
+     * Allows the caller to register a {@link ABECS.Callback} object to
+     * {@link ABECS#run(android.content.Context, android.os.Bundle)}.<br>
+     * Note: it is recommended over {@link ABECS#run(android.content.Context, android.os.Bundle)}.
+     *
+     * @param context application context
+     * @param callback {@link ABECS.Callback}
+     * @param input {@link Bundle}
+     */
+    public static void run(@NotNull Context context, Callback callback, @NotNull Bundle input) {
+        sSemaphore.acquireUninterruptibly();
 
-        boolean serviceBind = context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d(ABECS.TAG_LOGCAT, "onServiceConnected::name [" + name + "], service [" + service + "]");
+        queryService(context, callback, input);
 
-                try {
-                    output[0] = IABECS.Stub.asInterface(service).run(input);
-                } catch (Exception exception) {
-                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
-                } finally {
-                    context.unbindService(this);
-
-                    if (sync) {
-                        lock.unlock();
-                    }
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(TAG_LOGCAT, "onServiceDisconnected::name [" + name + "]");
-
-                if (sync) {
-                    lock.unlock();
-                }
-            }
-        }, Context.BIND_AUTO_CREATE);
-
-        Log.d(TAG_LOGCAT, "onCreate::serviceBind [" + serviceBind + "]");
-
-        if (sync) {
-            lock.lock(); /* 2021-05-05: plays the part of a uninterruptible Lock#wait() */
-        }
-
-        return (sync) ? output[0] : null;
+        sSemaphore.release();
     }
 }

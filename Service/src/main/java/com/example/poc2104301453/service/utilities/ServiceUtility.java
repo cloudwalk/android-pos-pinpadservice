@@ -1,15 +1,18 @@
 package com.example.poc2104301453.service.utilities;
 
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.telecom.Call;
 import android.util.Log;
 import android.util.Pair;
 
+import com.example.poc2104301453.library.ABECS;
+import com.example.poc2104301453.service.IServiceCallback;
 import com.example.poc2104301453.service.commands.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 import static com.example.poc2104301453.library.ABECS.*;
 
@@ -29,7 +32,7 @@ public class ServiceUtility {
 
     private static final List<Pair<String, Runner>> sCommandList = new ArrayList<>(0);
 
-    private static final Lock sLockCallback = new ReentrantLock(true);
+    private static final Semaphore sSemaphoreCallback = new Semaphore(1, true);
 
     private static final ServiceUtility sServiceUtility = new ServiceUtility();
 
@@ -95,7 +98,7 @@ public class ServiceUtility {
     /* TODO: (2) private void callRemoteProcessingCallback() { ... } */
 
     private void callRemoteStatusCallback(boolean success, Bundle output) {
-        sLockCallback.lock();
+        sSemaphoreCallback.acquireUninterruptibly();
 
         if (serviceCallback[1] != null) {
             Log.d(TAG_LOGCAT, "Calling remote callback");
@@ -122,7 +125,7 @@ public class ServiceUtility {
             }.start();
         }
 
-        sLockCallback.unlock();
+        sSemaphoreCallback.release();
     }
 
     /**
@@ -148,36 +151,48 @@ public class ServiceUtility {
         return sServiceUtility;
     }
 
-    public Bundle register(boolean sync, Callback callback) {
+    public Bundle register(IServiceCallback callback) {
         Log.d(TAG_LOGCAT, "register::callback [" + callback + "]");
 
         Bundle output = new Bundle();
         int status = 40;
 
         try {
-            sLockCallback.lock();
+            sSemaphoreCallback.acquireUninterruptibly();
 
-            serviceCallback[1] = callback;
+            Callback.Process remoteProcess = new Callback.Process() {
+                /* TODO */
+            };
+
+            Callback.Status remoteStatus = new Callback.Status() {
+                @Override
+                public void onFailure(Bundle output) {
+                    try {
+                        callback.onFailure(output);
+                    } catch (RemoteException exception) {
+                        Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
+                    }
+                }
+
+                @Override
+                public void onSuccess(Bundle output) {
+                    try {
+                        callback.onSuccess(output);
+                    } catch (RemoteException exception) {
+                        Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
+                    }
+                }
+            };
+
+            serviceCallback[1] = new Callback(remoteProcess, remoteStatus);
 
             status = 0;
         } catch (Exception exception) {
             output.putSerializable("exception", exception);
         } finally {
-            sLockCallback.unlock();
+            sSemaphoreCallback.release();
 
             output.putInt("status", status);
-
-            if (!sync) {
-                try {
-                    if (status != 0) {
-                        serviceCallback[0].status.onFailure(output);
-                    } else {
-                        serviceCallback[0].status.onSuccess(output);
-                    }
-                } catch (Exception exception) {
-                    Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
-                }
-            }
         }
 
         return output;
@@ -188,7 +203,7 @@ public class ServiceUtility {
      * @param input
      * @return
      */
-    public Bundle run(Bundle input) {
+    public Bundle run(IServiceCallback callback, Bundle input) {
         if (input != null) {
             input.get(null); /* 2021-05-05: just to force the parcelable data printable */
         }
@@ -204,15 +219,17 @@ public class ServiceUtility {
                 throw new Exception("Mandatory key \"" + KEY_REQUEST + "\" not found");
             }
 
-            /* TODO: (1) make the callback stub a parcelable to be retrieved from the input bundle?! */
+            if (callback != null) {
+                output = register(callback);
+
+                if (output.getInt("status") != 0) {
+                    return output;
+                }
+            }
 
             for (Pair<String, Runner> command : sCommandList) {
                 if (request.equals(command.first)) {
-                    /* TODO: (3) ensure safe and limited parallel processing */
-
-                    output = command.second.run(input);
-
-                    return output;
+                    return command.second.run(input);
                 }
             }
 
@@ -229,7 +246,7 @@ public class ServiceUtility {
             output.putInt("status", 40);
             output.putSerializable("exception", exception);
         } finally {
-            if (!input.getBoolean("operation_mode")) {
+            if (!input.getBoolean("synchronous_operation")) {
                 try {
                     if (output.getInt("status") != 0) {
                         serviceCallback[0].status.onFailure(output);
