@@ -9,7 +9,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.example.poc2104301453.service.IABECS;
-import com.example.poc2104301453.service.IServiceCallback;
+import com.example.poc2104301453.service.IStatusCallback;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,10 +34,10 @@ public class ABECS {
     private static Bundle queryService(Context context, Callback callback, Bundle input) {
         Semaphore sSyncSemaphore = new Semaphore(0, true);
 
-        final IServiceCallback[] serviceCallback = { null };
+        final IStatusCallback[] serviceCallback = { null };
 
         if (callback != null) {
-            serviceCallback[0] = new IServiceCallback.Stub() {
+            serviceCallback[0] = new IStatusCallback.Stub() {
                 @Override
                 public void onFailure(Bundle output) {
                     callback.status.onFailure(output);

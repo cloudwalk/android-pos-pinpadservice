@@ -2,12 +2,10 @@ package com.example.poc2104301453.service.utilities;
 
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.telecom.Call;
 import android.util.Log;
 import android.util.Pair;
 
-import com.example.poc2104301453.library.ABECS;
-import com.example.poc2104301453.service.IServiceCallback;
+import com.example.poc2104301453.service.IStatusCallback;
 import com.example.poc2104301453.service.commands.*;
 
 import java.util.ArrayList;
@@ -119,7 +117,7 @@ public class ServiceUtility {
                     } catch (Exception exception) {
                         Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                     } finally {
-                        Log.d(TAG_LOGCAT, "Ending remote callback execution");
+                        Log.d(TAG_LOGCAT, "Returning from remote callback execution");
                     }
                 }
             }.start();
@@ -151,7 +149,7 @@ public class ServiceUtility {
         return sServiceUtility;
     }
 
-    public Bundle register(IServiceCallback callback) {
+    public Bundle register(IStatusCallback callback) {
         Log.d(TAG_LOGCAT, "register::callback [" + callback + "]");
 
         Bundle output = new Bundle();
@@ -184,7 +182,13 @@ public class ServiceUtility {
                 }
             };
 
-            serviceCallback[1] = new Callback(remoteProcess, remoteStatus);
+            Callback remoteCallback = null;
+
+            if (callback != null) {
+                remoteCallback = new Callback(remoteProcess, remoteStatus);
+            }
+
+            serviceCallback[1] = remoteCallback;
 
             status = 0;
         } catch (Exception exception) {
@@ -203,7 +207,7 @@ public class ServiceUtility {
      * @param input
      * @return
      */
-    public Bundle run(IServiceCallback callback, Bundle input) {
+    public Bundle run(IStatusCallback callback, Bundle input) {
         if (input != null) {
             input.get(null); /* 2021-05-05: just to force the parcelable data printable */
         }
@@ -219,12 +223,10 @@ public class ServiceUtility {
                 throw new Exception("Mandatory key \"" + KEY_REQUEST + "\" not found");
             }
 
-            if (callback != null) {
-                output = register(callback);
+            output = register(callback);
 
-                if (output.getInt("status") != 0) {
-                    return output;
-                }
+            if (output.getInt("status") != 0) {
+                return output;
             }
 
             for (Pair<String, Runner> command : sCommandList) {

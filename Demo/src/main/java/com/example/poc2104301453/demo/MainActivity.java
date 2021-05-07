@@ -72,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         super.run();
 
+                        Bundle input = new Bundle();
+
+                        input.putString("request", ABECS.VALUE_REQUEST_OPN);
                         input.putBoolean("synchronous_operation", true);
 
                         ABECS.Callback callback = new ABECS.Callback(process, status);

@@ -39,7 +39,7 @@ public class ABECS extends IABECS.Stub {
      * @return
      */
     @Override
-    public Bundle run(IServiceCallback callback, Bundle input) {
+    public Bundle run(IStatusCallback callback, Bundle input) {
         Log.d(TAG_LOGCAT, "run");
 
         sSemaphore.acquireUninterruptibly();

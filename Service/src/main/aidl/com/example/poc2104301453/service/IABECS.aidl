@@ -1,6 +1,6 @@
 package com.example.poc2104301453.service;
 
-import com.example.poc2104301453.service.IServiceCallback;
+import com.example.poc2104301453.service.IStatusCallback;
 
 /**
  * ABECS Service Interface.<br>
@@ -11,5 +11,5 @@ interface IABECS {
     /**
      * @see com.example.library.ABECS#run(Bundle)
      */
-    Bundle run(in IServiceCallback callback, in Bundle input);
+    Bundle run(in IStatusCallback callback, in Bundle input);
 }
