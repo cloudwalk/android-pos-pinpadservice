@@ -78,7 +78,7 @@ public class ServiceUtility {
         Bundle output = new Bundle();
 
         try {
-            input.get(null); /* TODO */
+            input.get(null);
 
             Log.d(TAG_LOGCAT, "run::input [" + input.toString() + "]");
 

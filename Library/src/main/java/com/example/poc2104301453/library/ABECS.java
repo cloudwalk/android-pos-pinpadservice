@@ -39,6 +39,8 @@ public class ABECS {
         return new IServiceCallback.Stub() {
             @Override
             public void onFailure(Bundle output) {
+                output.get(null);
+
                 if (callback != null) {
                     if (callback.status != null) {
                         callback.status.onFailure(output);
@@ -48,6 +50,8 @@ public class ABECS {
 
             @Override
             public void onSuccess(Bundle output) {
+                output.get(null);
+
                 if (callback != null) {
                     if (callback.status != null) {
                         callback.status.onSuccess(output);
@@ -80,16 +84,14 @@ public class ABECS {
 
                 try {
                     output[0] = IABECS.Stub.asInterface(service).run(context[0].getPackageName(), serviceCallback[0], input);
-
-                    output[0].get(null); /* TODO */
-
-                    Log.d(TAG_LOGCAT, "onServiceConnected::output[0] [" + ((output[0] != null) ? output[0].toString() : "null") + "]");
                 } catch (Exception exception) {
                     Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
                 } finally {
                     context[0].unbindService(this);
 
                     if (sync[0]) {
+                        output[0].get(null);
+
                         sSyncSemaphore[0].release();
                     }
                 }

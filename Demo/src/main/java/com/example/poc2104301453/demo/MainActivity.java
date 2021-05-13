@@ -39,15 +39,11 @@ public class MainActivity extends AppCompatActivity {
                 new ABECS.Callback.Status() {
                     @Override
                     public void onFailure(Bundle output) {
-                        output.get(null);
-
                         Log.d(TAG_LOGCAT, "initialDraft::onFailure::output [" + output.toString() + "]");
                     }
 
                     @Override
                     public void onSuccess(Bundle output) {
-                        output.get(null);
-
                         Log.d(TAG_LOGCAT, "initialDraft::onSuccess::output [" + output.toString() + "]");
                     }
                 };
