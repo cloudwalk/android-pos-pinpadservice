@@ -262,7 +262,7 @@ public class ABECS {
         if (sContext != null) {
             queryService(input);
         } else {
-            Log.e(TAG_LOGCAT, "Unable to identify the caller. Call ABECS#init(Context)");
+            Log.e(TAG_LOGCAT, "Unable to identify the caller. Call ABECS#register(Context)");
         }
 
         sSemaphore.release();
@@ -270,7 +270,7 @@ public class ABECS {
         return null;
     }
 
-    public static void init(@NotNull Context context) {
+    public static void register(@NotNull Context context) {
         sSemaphore.acquireUninterruptibly();
 
         sCallback = null;
@@ -280,7 +280,7 @@ public class ABECS {
         sSemaphore.release();
     }
 
-    public static void init(@NotNull Context context, Callback callback) {
+    public static void register(@NotNull Context context, Callback callback) {
         sSemaphore.acquireUninterruptibly();
 
         sCallback = callback;

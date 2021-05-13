@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     private void initialDraft() {
-        ABECS.init(getApplicationContext());
+        ABECS.register(getApplicationContext());
 
         ABECS.Callback.Kernel kernel =
                 new ABECS.Callback.Kernel() {
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* 2021-05-07: TEST 002 (async. call w/ a registered a callback) */
 
-        ABECS.init(getApplicationContext(), new ABECS.Callback(kernel, status));
+        ABECS.register(getApplicationContext(), new ABECS.Callback(kernel, status));
 
         Log.d(TAG_LOGCAT, "initialDraft::TEST 0002");
 
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
                         /* 2021-05-07: TEST 004 (sync. call w/o registering a callback) */
 
-                        ABECS.init(getApplicationContext());
+                        ABECS.register(getApplicationContext());
 
                         Log.d(TAG_LOGCAT, "initialDraft::TEST 0004");
 
