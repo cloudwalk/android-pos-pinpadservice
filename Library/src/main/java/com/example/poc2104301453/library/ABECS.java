@@ -115,8 +115,8 @@ public class ABECS {
         } catch(Exception exception) {
             output = new Bundle();
 
-            output.putInt("status", 40);
-            output.putSerializable("exception", exception);
+            output.putInt(KEY_STATUS, 40);
+            output.putSerializable(KEY_EXCEPTION, exception);
         }
 
         sOperationSemaphoreList[1].release();
@@ -187,7 +187,13 @@ public class ABECS {
         sConnectionSemaphore.release();
     }
 
+    public static final String KEY_EXCEPTION = "exception";
+
     public static final String KEY_REQUEST = "request";
+
+    public static final String KEY_STATUS = "status";
+
+    public static final String KEY_SYNCHRONOUS_OPERATION = "synchronous_operation";
 
     public static final String VALUE_REQUEST_OPN = "OPN";
 
@@ -292,8 +298,9 @@ public class ABECS {
             /**
              * Status callback.<br>
              * As the name states, its called upon a processing failure.<br>
-             * {@code output} will return the "status" key. The "exception" key may also be present,
-             * providing further details on the failure.
+             * {@code output} will return the {@link ABECS#KEY_STATUS} key. The
+             * {@link ABECS#KEY_EXCEPTION} key may also be present, providing further details on
+             * the failure.
              *
              * @param output {@link Bundle}
              */
@@ -303,8 +310,8 @@ public class ABECS {
              * Status callback.<br>
              * As the name states, its called when the processing of a request finishes
              * successfully.<br>
-             * {@code output} will return the "status" key. Other keys may be present, conditionally to
-             * the request that was just processed.<br>
+             * {@code output} will return the {@link ABECS#KEY_STATUS} key. Other keys may be
+             * present, conditionally to the request that was just processed.<br>
              * See the specification v2.12 from ABECS for further details.
              *
              * @param output {@link Bundle}
@@ -338,7 +345,7 @@ public class ABECS {
         Bundle output = null;
 
         if (sContext != null) {
-            if (input.getBoolean("synchronous_operation")) {
+            if (input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
                 output = queryService(input);
             } else {
                 new Thread() {

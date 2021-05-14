@@ -7,13 +7,20 @@ import com.example.poc2104301453.service.utilities.ServiceUtility;
 
 import java.util.concurrent.Semaphore;
 
+import static com.example.poc2104301453.library.ABECS.*;
+
 /**
  *
  */
 public class ABECS extends IABECS.Stub {
     private static final String TAG_LOGCAT = ABECS.class.getSimpleName();
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore[] sOperationSemaphoreList = {
+            new Semaphore(1, true),
+            new Semaphore(1, true)
+    };
+
+    private static String sCaller = null;
 
     private static final ABECS sABECS = new ABECS();
 
@@ -22,6 +29,26 @@ public class ABECS extends IABECS.Stub {
      */
     private ABECS() {
         Log.d(TAG_LOGCAT, "ABECS");
+    }
+
+    private String getCaller() {
+        String currentCaller = null;
+
+        sOperationSemaphoreList[1].acquireUninterruptibly();
+
+        currentCaller = sCaller;
+
+        sOperationSemaphoreList[1].release();
+
+        return currentCaller;
+    }
+
+    private void setCaller(String caller) {
+        sOperationSemaphoreList[1].acquireUninterruptibly();
+
+        sCaller = caller;
+
+        sOperationSemaphoreList[1].release();
     }
 
     /**
@@ -42,11 +69,33 @@ public class ABECS extends IABECS.Stub {
     public Bundle run(String caller, IServiceCallback callback, Bundle input) {
         Log.d(TAG_LOGCAT, "run::caller [" + caller + "]");
 
-        sSemaphore.acquireUninterruptibly();
+        Bundle output = null;
 
-        Bundle output = ServiceUtility.getInstance().run(callback, input);
+        String currentCaller = getCaller();
 
-        sSemaphore.release();
+        if (currentCaller != null) {
+            if (!currentCaller.equals(caller)) {
+                output = new Bundle();
+
+                output.putInt(KEY_STATUS, 40);
+                output.putSerializable(KEY_EXCEPTION, new Exception("Bounded by " + sCaller + " (wait for a " + VALUE_REQUEST_CLO + " request)"));
+
+                return output;
+            } else {
+                /* TODO: <<CAN>> */
+
+                /* 2021-05-17: according to ABECS specification v2.12 - section 2.2.2.3 - a caller's request should
+                 * always start with a <<CAN>> byte */
+            }
+        }
+
+        sOperationSemaphoreList[0].acquireUninterruptibly();
+
+        setCaller(caller);
+
+        output = ServiceUtility.getInstance().run(callback, input);
+
+        sOperationSemaphoreList[0].release();
 
         return output;
     }

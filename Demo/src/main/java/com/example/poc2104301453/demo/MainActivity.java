@@ -21,6 +21,8 @@ import com.example.poc2104301453.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import static com.example.poc2104301453.library.ABECS.*;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG_LOGCAT = MainActivity.class.getSimpleName();
 
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle input = new Bundle();
 
-        input.putString("request", ABECS.VALUE_REQUEST_OPN);
+        input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
 
         Bundle output = ABECS.run(input);
 
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle input = new Bundle();
 
-        input.putString("request", ABECS.VALUE_REQUEST_OPN);
+        input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
 
         Bundle output = ABECS.run(input);
 
@@ -72,9 +74,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Bundle input = new Bundle();
 
-                input.putString("request", ABECS.VALUE_REQUEST_OPN);
+                input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
 
-                input.putBoolean("synchronous_operation", true);
+                input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
 
                 Bundle output = ABECS.run(input);
 
@@ -96,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Bundle input = new Bundle();
 
-                input.putString("request", ABECS.VALUE_REQUEST_OPN);
+                input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
 
-                input.putBoolean("synchronous_operation", true);
+                input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
 
                 Bundle output = ABECS.run(input);
 
