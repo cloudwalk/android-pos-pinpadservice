@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.poc2104301453.library.ABECS.*;
+import static com.example.poc2104301453.library.ABECS.RSP_STAT.*;
 
 /**
  *
@@ -106,7 +107,7 @@ public class ServiceUtility {
 
             throw new Exception("Unknown input: { " + KEY_REQUEST + ": \"" + request + "\" }");
         } catch (Exception exception) {
-            output.putInt(KEY_STATUS, 40);
+            output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
             output.putSerializable(KEY_EXCEPTION, exception);
         } finally {
             if (!input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {

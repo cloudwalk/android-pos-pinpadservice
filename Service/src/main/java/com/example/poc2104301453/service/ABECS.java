@@ -8,6 +8,7 @@ import com.example.poc2104301453.service.utilities.ServiceUtility;
 import java.util.concurrent.Semaphore;
 
 import static com.example.poc2104301453.library.ABECS.*;
+import static com.example.poc2104301453.library.ABECS.RSP_STAT.*;
 
 /**
  *
@@ -77,7 +78,7 @@ public class ABECS extends IABECS.Stub {
             if (!currentCaller.equals(caller)) {
                 output = new Bundle();
 
-                output.putInt(KEY_STATUS, 40);
+                output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
                 output.putSerializable(KEY_EXCEPTION, new Exception("Bounded by " + sCaller + " (wait for a " + VALUE_REQUEST_CLO + " request)"));
 
                 return output;

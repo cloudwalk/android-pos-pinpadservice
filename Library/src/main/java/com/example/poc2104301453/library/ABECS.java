@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.net.UnknownServiceException;
 import java.util.concurrent.Semaphore;
 
+import static com.example.poc2104301453.library.ABECS.RSP_STAT.*;
+
 public class ABECS {
     private static final String TAG_LOGCAT = ABECS.class.getSimpleName();
 
@@ -115,7 +117,7 @@ public class ABECS {
         } catch(Exception exception) {
             output = new Bundle();
 
-            output.putInt(KEY_STATUS, 40);
+            output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
             output.putSerializable(KEY_EXCEPTION, exception);
         }
 
@@ -317,6 +319,41 @@ public class ABECS {
              * @param output {@link Bundle}
              */
             void onSuccess(Bundle output);
+        }
+    }
+
+    public static enum RSP_STAT {
+        ST_OK(0),
+        ST_NOSEC(3),
+        ST_F1(4),
+        ST_F2(5),
+        ST_F3(6),
+        ST_F4(7),
+        /* TODO */
+        ST_INTERR(40)
+        /* TODO */;
+
+        private int mNumericValue;
+
+        /**
+         * Constructor.
+         */
+        RSP_STAT(int numericType) {
+            setNumericValue(numericType);
+        }
+
+        /**
+         * @return {@link int}
+         */
+        public int getNumericValue() {
+            return mNumericValue;
+        }
+
+        /**
+         * @param type {@link int}
+         */
+        public void setNumericValue(int type) {
+            mNumericValue = type;
         }
     }
 
