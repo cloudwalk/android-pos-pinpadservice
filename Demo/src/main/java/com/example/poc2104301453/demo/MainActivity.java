@@ -62,54 +62,86 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 2021-05-07: sync. call w/o registering a callback.
+     * 2021-05-07: overlapped async. calls w/ a registered callback.
+     *
+     * @param callback {@link ABECS.Callback}
      */
-    private void T003() {
-        new Thread() { /* 2021-05-17: {@link Thread} required not to block the UI */
-            @Override
-            public void run() {
-                super.run();
+    private void T003(ABECS.Callback callback) {
+        ABECS.register(getApplicationContext(), callback);
 
-                ABECS.register(getApplicationContext());
+        Bundle input = new Bundle();
 
-                Bundle input = new Bundle();
+        input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
 
-                input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
+        Bundle output;
 
-                input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
+        output = ABECS.run(input);
 
-                Bundle output = ABECS.run(input);
+        Log.d(TAG_LOGCAT, "T003::output [" + ((output != null) ? output.toString() : "null") + "]");
 
-                Log.d(TAG_LOGCAT, "T003::output [" + ((output != null) ? output.toString() : "null") + "]");
-            }
-        }.start();
+        output = ABECS.run(input);
+
+        Log.d(TAG_LOGCAT, "T003::output [" + ((output != null) ? output.toString() : "null") + "]");
     }
 
     /**
      * 2021-05-07: sync. call w/o registering a callback.
      */
-    private void T004(ABECS.Callback callback) {
-        new Thread() { /* 2021-05-17: {@link Thread} required not to block the UI */
-            @Override
-            public void run() {
-                super.run();
+    private void T004() {
+        ABECS.register(getApplicationContext());
 
-                ABECS.register(getApplicationContext(), callback);
+        Bundle input = new Bundle();
 
-                Bundle input = new Bundle();
+        input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
 
-                input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
+        input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
 
-                input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
+        Bundle output = ABECS.run(input);
 
-                Bundle output = ABECS.run(input);
-
-                Log.d(TAG_LOGCAT, "T004::output [" + ((output != null) ? output.toString() : "null") + "]");
-            }
-        }.start();
+        Log.d(TAG_LOGCAT, "T004::output [" + ((output != null) ? output.toString() : "null") + "]");
     }
 
-    private void initialDraft() {
+    /**
+     * 2021-05-07: sync. call w/ a registered callback.
+     */
+    private void T005(ABECS.Callback callback) {
+        ABECS.register(getApplicationContext(), callback);
+
+        Bundle input = new Bundle();
+
+        input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
+
+        input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
+
+        Bundle output = ABECS.run(input);
+
+        Log.d(TAG_LOGCAT, "T005::output [" + ((output != null) ? output.toString() : "null") + "]");
+    }
+
+    /**
+     * 2021-05-07: overlapped sync. calls w/ a registered callback.
+     */
+    private void T006(ABECS.Callback callback) {
+        ABECS.register(getApplicationContext(), callback);
+
+        Bundle input = new Bundle();
+
+        input.putString(KEY_REQUEST, ABECS.VALUE_REQUEST_OPN);
+
+        input.putBoolean(KEY_SYNCHRONOUS_OPERATION, true);
+
+        Bundle output;
+
+        output = ABECS.run(input);
+
+        Log.d(TAG_LOGCAT, "T006::output [" + ((output != null) ? output.toString() : "null") + "]");
+
+        output = ABECS.run(input);
+
+        Log.d(TAG_LOGCAT, "T006::output [" + ((output != null) ? output.toString() : "null") + "]");
+    }
+
+    private void runTests() {
         ABECS.Callback.Kernel kernel =
                 new ABECS.Callback.Kernel() {
                     /* TODO */
@@ -128,15 +160,23 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
 
-        ABECS.Callback callback = new ABECS.Callback(kernel, status);
+        new Thread() { /* 2021-05-14: tests do overlap async. calls. If that happens in the main
+                        * thread (as described in {@link ABECS#run(Bundle)), it may freeze the
+                        * application. */
+            @Override
+            public void run() {
+                super.run();
 
-        T001();
-        T002(callback);
-        T003();
-        T004(callback);
+                ABECS.Callback callback = new ABECS.Callback(kernel, status);
 
-        ABECS.register(null); /* 2021-05-17: it will unbind the service,
-                               * although a request of CLO is preferable */
+                T001();
+                T002(callback);
+                T003(callback);
+                T004();
+                T005(callback);
+                T006(callback);
+            }
+        }.start();
     }
 
     @Override
@@ -160,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        initialDraft();
+        runTests();
     }
 
     @Override

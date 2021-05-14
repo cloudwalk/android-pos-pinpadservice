@@ -36,6 +36,7 @@ public class ABECS {
 
     private static final Semaphore[] sOperationSemaphoreList = {
             new Semaphore(1, true),
+            new Semaphore(1, true),
             new Semaphore(1, true)
     };
 
@@ -96,9 +97,7 @@ public class ABECS {
      * @return
      */
     private static Bundle queryService(Bundle input) {
-        Bundle output = null;
-
-        sOperationSemaphoreList[1].acquireUninterruptibly();
+        Bundle output;
 
         try {
             if (getService() == null) {
@@ -119,6 +118,14 @@ public class ABECS {
 
             output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
             output.putSerializable(KEY_EXCEPTION, exception);
+
+            if (!input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
+                if (sCallback != null) {
+                    if (sCallback.status != null) {
+                        sCallback.status.onFailure(output);
+                    }
+                }
+            }
         }
 
         sOperationSemaphoreList[1].release();
@@ -133,6 +140,10 @@ public class ABECS {
             throws Exception {
         final Semaphore[] sSyncSemaphore = { new Semaphore(0, true) };
 
+        if (!sOperationSemaphoreList[2].tryAcquire()) {
+            return;
+        }
+
         Intent intent = new Intent();
 
         intent.setClassName(PACKAGE_POC_2104301453, CLASS_POC_2104301453_PINPAD_SERVICE);
@@ -140,8 +151,6 @@ public class ABECS {
         sServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d(ABECS.TAG_LOGCAT, "onServiceConnected::name [" + name + "], service [" + service + "]");
-
                 setService(service);
 
                 sSyncSemaphore[0].release();
@@ -155,12 +164,14 @@ public class ABECS {
 
         boolean serviceBind = sContext.bindService(intent, sServiceConnection, Context.BIND_AUTO_CREATE);
 
-        Log.d(TAG_LOGCAT, "onCreate::serviceBind [" + serviceBind + "]");
-
-        if (serviceBind) {
-            sSyncSemaphore[0].acquireUninterruptibly();
-        } else {
-            throw new UnknownServiceException("Unable to bind to " + CLASS_POC_2104301453_PINPAD_SERVICE);
+        try {
+            if (serviceBind) {
+                sSyncSemaphore[0].acquireUninterruptibly();
+            } else {
+                throw new UnknownServiceException("Unable to bind to " + CLASS_POC_2104301453_PINPAD_SERVICE);
+            }
+        } finally {
+            sOperationSemaphoreList[2].release();
         }
     }
 
@@ -366,22 +377,30 @@ public class ABECS {
      * </ul>
      * Optional key(s):<br>
      * <ul>
-     *     <li>{@code synchronous_operation} - NOT ALLOWED IN THE MAIN THREAD</li>
+     *     <li>{@code synchronous_operation}</li>
      * </ul>
      *
      * Other conditional and optional keys: every request may have its own mandatory, conditional
      * and/or optional keys.<br>
      * See the specification v2.12 from ABECS for further details.
      *
+     * Note: be sure not to overlap async. calls in the main thread. Similarly to sync. calls,
+     * overlapping async. calls may freeze the application.
+     *
      * @param input {@link Bundle}
      * @return {@link Bundle}
      */
     public static Bundle run(@NotNull Bundle input) {
+        Log.d(TAG_LOGCAT, "run::input [" + input.toString() + "]");
+
         sOperationSemaphoreList[0].acquireUninterruptibly();
 
         Bundle output = null;
 
         if (sContext != null) {
+            sOperationSemaphoreList[1].tryAcquire(); /* 2021-05-14: not to block this routine, but
+                                                      * all the others using the same semaphore */
+
             if (input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
                 output = queryService(input);
             } else {
@@ -395,7 +414,18 @@ public class ABECS {
                 }.start();
             }
         } else {
-            Log.e(TAG_LOGCAT, "Unable to identify the caller. Call ABECS#register(Context)");
+            output = new Bundle();
+
+            output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
+            output.putSerializable(KEY_EXCEPTION, new Exception("Unable to identify the caller. Call ABECS#register(Context)"));
+
+            if (!input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
+                if (sCallback != null) {
+                    if (sCallback.status != null) {
+                        sCallback.status.onFailure(output);
+                    }
+                }
+            }
         }
 
         sOperationSemaphoreList[0].release();
@@ -404,6 +434,8 @@ public class ABECS {
     }
 
     public static void register(@NotNull Context context) {
+        Log.d(TAG_LOGCAT, "register::context [" + context + "]");
+
         for (Semaphore semaphore : sOperationSemaphoreList) {
             semaphore.acquireUninterruptibly();
         }
@@ -424,6 +456,8 @@ public class ABECS {
     }
 
     public static void register(@NotNull Context context, Callback callback) {
+        Log.d(TAG_LOGCAT, "register::context [" + context + "], callback [" + callback + "]");
+
         for (Semaphore semaphore : sOperationSemaphoreList) {
             semaphore.acquireUninterruptibly();
         }
