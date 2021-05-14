@@ -7,14 +7,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.example.poc2104301453.service.IABECS;
 import com.example.poc2104301453.service.IServiceCallback;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.net.UnknownServiceException;
 import java.util.concurrent.Semaphore;
 
 import static com.example.poc2104301453.library.ABECS.RSP_STAT.*;
@@ -30,37 +28,30 @@ public class ABECS {
 
     private static IBinder sService = null;
 
-    private static ServiceConnection sServiceConnection = null;
-
-    private static final Semaphore sConnectionSemaphore = new Semaphore(1, true);
-
-    private static final Semaphore[] sOperationSemaphoreList = {
-            new Semaphore(1, true),
+    private static final Semaphore[] sSemaphoreList = {
             new Semaphore(1, true),
             new Semaphore(1, true)
     };
 
+    private static ServiceConnection sServiceConnection = null;
+
     @SuppressLint("StaticFieldLeak")
     private static Context sContext = null;
 
-    /**
-     * @return {@link IBinder}
-     */
     private static IBinder getService() {
         IBinder service;
 
-        sConnectionSemaphore.acquireUninterruptibly();
+        sSemaphoreList[1].acquireUninterruptibly();
 
         service = sService;
 
-        sConnectionSemaphore.release();
+        sSemaphoreList[1].release();
 
         return service;
     }
 
     /**
-     * Translates an instance of {@link Callback} to a new instance of
-     * {@link IServiceCallback.Stub}.
+     * Translates an instance of {@link Callback} to an instance of {@link IServiceCallback.Stub}.
      *
      * @param callback {@link Callback}
      * @return {@link IServiceCallback.Stub}
@@ -91,59 +82,7 @@ public class ABECS {
         };
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
-    private static Bundle queryService(Bundle input) {
-        Bundle output;
-
-        try {
-            if (getService() == null) {
-                bindService();
-            }
-
-            output = IABECS.Stub.asInterface(getService()).run(sContext.getPackageName(), getServiceCallback(sCallback), input);
-
-            if (output != null) {
-                output.get(null);
-            }
-
-            if (input.getString(KEY_REQUEST).equals(VALUE_REQUEST_CLO)) {
-                unbindService();
-            }
-        } catch(Exception exception) {
-            output = new Bundle();
-
-            output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
-            output.putSerializable(KEY_EXCEPTION, exception);
-
-            if (!input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
-                if (sCallback != null) {
-                    if (sCallback.status != null) {
-                        sCallback.status.onFailure(output);
-                    }
-                }
-            }
-        }
-
-        sOperationSemaphoreList[1].release();
-
-        return output;
-    }
-
-    /**
-     * @throws Exception self-descriptive
-     */
-    private static void bindService()
-            throws Exception {
-        final Semaphore[] sSyncSemaphore = { new Semaphore(0, true) };
-
-        if (!sOperationSemaphoreList[2].tryAcquire()) {
-            return;
-        }
-
+    private static void bindService() {
         Intent intent = new Intent();
 
         intent.setClassName(PACKAGE_POC_2104301453, CLASS_POC_2104301453_PINPAD_SERVICE);
@@ -152,8 +91,6 @@ public class ABECS {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 setService(service);
-
-                sSyncSemaphore[0].release();
             }
 
             @Override
@@ -164,22 +101,20 @@ public class ABECS {
 
         boolean serviceBind = sContext.bindService(intent, sServiceConnection, Context.BIND_AUTO_CREATE);
 
-        try {
-            if (serviceBind) {
-                sSyncSemaphore[0].acquireUninterruptibly();
-            } else {
-                throw new UnknownServiceException("Unable to bind to " + CLASS_POC_2104301453_PINPAD_SERVICE);
-            }
-        } finally {
-            sOperationSemaphoreList[2].release();
+        if (!serviceBind) {
+            Log.e(TAG_LOGCAT, "Unable to bind " + CLASS_POC_2104301453_PINPAD_SERVICE);
         }
     }
 
-    /**
-     * @throws Exception self-descriptive
-     */
-    private static void unbindService()
-            throws Exception {
+    private static void setService(IBinder service) {
+        sSemaphoreList[1].acquireUninterruptibly();
+
+        sService = service;
+
+        sSemaphoreList[1].release();
+    }
+
+    private static void unbindService() {
         if (sServiceConnection != null) {
             sContext.unbindService(sServiceConnection);
         }
@@ -187,17 +122,6 @@ public class ABECS {
         setService(null);
 
         sServiceConnection = null;
-    }
-
-    /**
-     * @param service {@link IBinder}
-     */
-    private static void setService(IBinder service) {
-        sConnectionSemaphore.acquireUninterruptibly();
-
-        sService = service;
-
-        sConnectionSemaphore.release();
     }
 
     public static final String KEY_EXCEPTION = "exception";
@@ -368,112 +292,113 @@ public class ABECS {
         }
     }
 
-    /**
-     * Parses and processes a {@link Bundle} {@code input}.<br>
-     * <br>
-     * Mandatory key(s):<br>
-     * <ul>
-     *     <li>{@code request}</li>
-     * </ul>
-     * Optional key(s):<br>
-     * <ul>
-     *     <li>{@code synchronous_operation}</li>
-     * </ul>
-     *
-     * Other conditional and optional keys: every request may have its own mandatory, conditional
-     * and/or optional keys.<br>
-     * See the specification v2.12 from ABECS for further details.
-     *
-     * Note: be sure not to overlap async. calls in the main thread. Similarly to sync. calls,
-     * overlapping async. calls may freeze the application.
-     *
-     * @param input {@link Bundle}
-     * @return {@link Bundle}
-     */
-    public static Bundle run(@NotNull Bundle input) {
-        Log.d(TAG_LOGCAT, "run::input [" + input.toString() + "]");
+    public static Bundle run(Bundle input) {
+        final Bundle[] output = { null };
+        final Semaphore[] semaphore = { new Semaphore(0, true) };
+        final boolean[] sync = { false };
 
-        sOperationSemaphoreList[0].acquireUninterruptibly();
+        sync[0] = input.getBoolean(KEY_SYNCHRONOUS_OPERATION);
 
-        Bundle output = null;
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
 
-        if (sContext != null) {
-            sOperationSemaphoreList[1].tryAcquire(); /* 2021-05-14: not to block this routine, but
-                                                      * all the others using the same semaphore */
+                sSemaphoreList[0].acquireUninterruptibly();
 
-            if (input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
-                output = queryService(input);
-            } else {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        super.run();
+                Callback callback = sCallback;
+                IBinder service;
+                long timestamp = SystemClock.elapsedRealtime() + 2000;
 
-                        queryService(input);
+                do {
+                    service = getService();
+
+                    if (SystemClock.elapsedRealtime() > timestamp) {
+                        break;
                     }
-                }.start();
-            }
-        } else {
-            output = new Bundle();
+                } while (service == null);
 
-            output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
-            output.putSerializable(KEY_EXCEPTION, new Exception("Unable to identify the caller. Call ABECS#register(Context)"));
+                String caller = (sContext != null) ? sContext.getPackageName() : null;
 
-            if (!input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
-                if (sCallback != null) {
-                    if (sCallback.status != null) {
-                        sCallback.status.onFailure(output);
+                sSemaphoreList[0].release();
+
+                try {
+                    if (service == null) {
+                        throw new Exception("Unable to get IBinder.");
+                    }
+
+                    if (caller == null) {
+                        throw new Exception("Unable to get caller.");
+                    }
+
+                    output[0] = IABECS.Stub.asInterface(service).run(caller, getServiceCallback(callback), input);
+
+                    if (output[0] != null) {
+                        output[0].get(null);
+                    }
+                } catch (Exception exception) {
+                    output[0] = new Bundle();
+
+                    output[0].putInt(KEY_STATUS, ST_INTERR.getNumericValue());
+
+                    output[0].putSerializable(KEY_EXCEPTION, exception);
+
+                    if (!sync[0]) {
+                        if (callback != null) {
+                            if (callback.status != null) {
+                                callback.status.onFailure(output[0]);
+                            }
+                        }
                     }
                 }
+
+                if (sync[0]) {
+                    semaphore[0].release();
+                }
             }
+        }.start();
+
+        if (sync[0]) {
+            semaphore[0].acquireUninterruptibly();
         }
 
-        sOperationSemaphoreList[0].release();
-
-        return output;
+        return output[0];
     }
 
-    public static void register(@NotNull Context context) {
+    public static void register(Context context) {
         Log.d(TAG_LOGCAT, "register::context [" + context + "]");
 
-        for (Semaphore semaphore : sOperationSemaphoreList) {
-            semaphore.acquireUninterruptibly();
-        }
-
-        sCallback = null;
-
-        try {
-            unbindService();
-        } catch (Exception exception) {
-            Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
-        }
-
-        sContext = context;
-
-        for (Semaphore semaphore : sOperationSemaphoreList) {
-            semaphore.release();
-        }
+        register(context, null);
     }
 
-    public static void register(@NotNull Context context, Callback callback) {
+    public static void register(Context context, Callback callback) {
         Log.d(TAG_LOGCAT, "register::context [" + context + "], callback [" + callback + "]");
 
-        for (Semaphore semaphore : sOperationSemaphoreList) {
-            semaphore.acquireUninterruptibly();
-        }
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
 
-        sCallback = callback;
+                sSemaphoreList[0].acquireUninterruptibly();
 
-        try {
-            unbindService();
-        } catch (Exception exception) {
-            Log.d(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
-        }
+                sCallback = callback;
 
-        sContext = context;
+                unbindService();
 
-        for (Semaphore semaphore : sOperationSemaphoreList) {
-            semaphore.release();
-        }
+                sContext = context;
+
+                if (sContext != null) {
+                    bindService();
+                }
+
+                sSemaphoreList[0].release();
+            }
+        }.start();
+    }
+
+    public static void unregister() {
+        Log.d(TAG_LOGCAT, "unregister");
+
+        register(null);
     }
 }

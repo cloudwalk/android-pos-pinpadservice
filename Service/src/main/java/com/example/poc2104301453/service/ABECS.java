@@ -16,7 +16,7 @@ import static com.example.poc2104301453.library.ABECS.RSP_STAT.*;
 public class ABECS extends IABECS.Stub {
     private static final String TAG_LOGCAT = ABECS.class.getSimpleName();
 
-    private static final Semaphore[] sOperationSemaphoreList = {
+    private static final Semaphore[] sSemaphoreList = {
             new Semaphore(1, true),
             new Semaphore(1, true)
     };
@@ -35,21 +35,21 @@ public class ABECS extends IABECS.Stub {
     private String getCaller() {
         String currentCaller = null;
 
-        sOperationSemaphoreList[1].acquireUninterruptibly();
+        sSemaphoreList[1].acquireUninterruptibly();
 
         currentCaller = sCaller;
 
-        sOperationSemaphoreList[1].release();
+        sSemaphoreList[1].release();
 
         return currentCaller;
     }
 
     private void setCaller(String caller) {
-        sOperationSemaphoreList[1].acquireUninterruptibly();
+        sSemaphoreList[1].acquireUninterruptibly();
 
         sCaller = caller;
 
-        sOperationSemaphoreList[1].release();
+        sSemaphoreList[1].release();
     }
 
     /**
@@ -83,20 +83,18 @@ public class ABECS extends IABECS.Stub {
 
                 return output;
             } else {
-                /* TODO: <<CAN>> */
-
-                /* 2021-05-17: according to ABECS specification v2.12 - section 2.2.2.3 - a caller's request should
-                 * always start with a <<CAN>> byte */
+                /* TODO: according to ABECS specification v2.12 - section 2.2.2.3 - a request
+                 * should always start with a <<CAN>> byte */
             }
         }
 
-        sOperationSemaphoreList[0].acquireUninterruptibly();
+        sSemaphoreList[0].acquireUninterruptibly();
 
         setCaller(caller);
 
         output = ServiceUtility.getInstance().run(callback, input);
 
-        sOperationSemaphoreList[0].release();
+        sSemaphoreList[0].release();
 
         return output;
     }

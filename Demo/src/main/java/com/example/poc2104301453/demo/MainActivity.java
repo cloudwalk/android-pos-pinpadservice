@@ -160,21 +160,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
 
-        new Thread() { /* 2021-05-14: tests do overlap async. calls. If that happens in the main
-                        * thread (as described in {@link ABECS#run(Bundle)), it may freeze the
-                        * application. */
+        ABECS.Callback callback = new ABECS.Callback(kernel, status);
+
+        // T001();
+        // T002(callback);
+        T003(callback);
+
+        new Thread() {
             @Override
             public void run() {
                 super.run();
 
-                ABECS.Callback callback = new ABECS.Callback(kernel, status);
-
-                T001();
-                T002(callback);
-                T003(callback);
-                T004();
-                T005(callback);
-                T006(callback);
+                // T004();
+                // T005(callback);
+                // T006(callback);
             }
         }.start();
     }
