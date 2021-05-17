@@ -162,15 +162,14 @@ public class MainActivity extends AppCompatActivity {
 
         ABECS.Callback callback = new ABECS.Callback(kernel, status);
 
-        // T001();
-        // T002(callback);
-        T003(callback);
-
         new Thread() {
             @Override
             public void run() {
                 super.run();
 
+                // T001();
+                // T002(callback);
+                // T003(callback);
                 // T004();
                 // T005(callback);
                 // T006(callback);

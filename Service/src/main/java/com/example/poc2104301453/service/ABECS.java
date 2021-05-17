@@ -70,8 +70,8 @@ public class ABECS extends IABECS.Stub {
     public Bundle run(String caller, IServiceCallback callback, Bundle input) {
         Log.d(TAG_LOGCAT, "run::caller [" + caller + "]");
 
+        ServiceUtility serviceUtility = ServiceUtility.getInstance();
         Bundle output = null;
-
         String currentCaller = getCaller();
 
         if (currentCaller != null) {
@@ -79,20 +79,19 @@ public class ABECS extends IABECS.Stub {
                 output = new Bundle();
 
                 output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
-                output.putSerializable(KEY_EXCEPTION, new Exception("Bounded by " + sCaller + " (wait for a " + VALUE_REQUEST_CLO + " request)"));
+                output.putSerializable(KEY_EXCEPTION, new Exception("Already bounded by " + sCaller));
 
                 return output;
-            } else {
-                /* TODO: according to ABECS specification v2.12 - section 2.2.2.3 - a request
-                 * should always start with a <<CAN>> byte */
             }
         }
+
+        serviceUtility.abort();
 
         sSemaphoreList[0].acquireUninterruptibly();
 
         setCaller(caller);
 
-        output = ServiceUtility.getInstance().run(callback, input);
+        output = serviceUtility.run(callback, input);
 
         sSemaphoreList[0].release();
 
