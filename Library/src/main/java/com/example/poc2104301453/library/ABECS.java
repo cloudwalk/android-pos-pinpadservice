@@ -38,6 +38,10 @@ public class ABECS {
     @SuppressLint("StaticFieldLeak")
     private static Context sContext = null;
 
+    /**
+     *
+     * @return
+     */
     private static IBinder getService() {
         IBinder service;
 
@@ -82,6 +86,9 @@ public class ABECS {
         };
     }
 
+    /**
+     *
+     */
     private static void bindService() {
         Intent intent = new Intent();
 
@@ -106,6 +113,10 @@ public class ABECS {
         }
     }
 
+    /**
+     *
+     * @param service
+     */
     private static void setService(IBinder service) {
         sSemaphoreList[1].acquireUninterruptibly();
 
@@ -114,6 +125,9 @@ public class ABECS {
         sSemaphoreList[1].release();
     }
 
+    /**
+     *
+     */
     private static void unbindService() {
         if (sServiceConnection != null) {
             sContext.unbindService(sServiceConnection);
@@ -257,41 +271,63 @@ public class ABECS {
         }
     }
 
+    /**
+     *
+     */
     public static enum RSP_STAT {
-        ST_OK(0),
-        ST_NOSEC(3),
-        ST_F1(4),
-        ST_F2(5),
-        ST_F3(6),
-        ST_F4(7),
-        /* TODO */
-        ST_INTERR(40)
-        /* TODO */;
+        ST_OK(0),               ST_NOSEC(3),
+        ST_F1(4),               ST_F2(5),
+        ST_F3(6),               ST_F4(7),
+        ST_BACKSP(8),           ST_ERRPKTSEC(9),
+        ST_INVCALL(10),         ST_INVPARM(11),
+        ST_TIMEOUT(12),         ST_CANCEL(13),
+        ST_MANDAT(19),          ST_TABVERDIF(20),
+        ST_TABERR(21),          ST_INTERR(40),
+        ST_MCDATAERR(41),       ST_ERRKEY(42),
+        ST_NOCARD(43),          ST_PINBUSY(44),
+        ST_RSPOVRFL(45),        ST_ERRCRYPT(46),
+        ST_NOSAM(51),           ST_DUMBCARD(60),
+        ST_ERRCARD(61),         ST_CARDINVALIDAT(67),
+        ST_CARDPROBLEMS(68),    ST_CARDINVDATA(69),
+        ST_CARDAPPNAV(70),      ST_CARDAPPNAUT(71),
+        ST_ERRFALLBACK(76),     ST_INVAMOUNT(77),
+        ST_ERRMAXAID(78),       ST_CARDBLOCKED(79),
+        ST_CTLSMULTIPLE(80),    ST_CTLSCOMMERR(81),
+        ST_CTLSINVALIDAT(82),   ST_CTLSPROBLEMS(83),
+        ST_CTLSAPPNAV(84),      ST_CTLSAPPNAUT(85),
+        ST_CTLSEXTCVM(86),      ST_CTLSIFCHG(87),
+        ST_MFNFOUND(100),       ST_MFERRFMT(101),
+        ST_MFERR(102);
 
-        private int mNumericValue;
+        private int mValue;
 
         /**
          * Constructor.
          */
-        RSP_STAT(int numericType) {
-            setNumericValue(numericType);
+        RSP_STAT(int value) {
+            setValue(value);
         }
 
         /**
          * @return {@link int}
          */
-        public int getNumericValue() {
-            return mNumericValue;
+        public int getValue() {
+            return mValue;
         }
 
         /**
-         * @param type {@link int}
+         * @param value {@link int}
          */
-        public void setNumericValue(int type) {
-            mNumericValue = type;
+        public void setValue(int value) {
+            mValue = value;
         }
     }
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static Bundle run(Bundle input) {
         final Bundle[] output = { null };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -308,12 +344,13 @@ public class ABECS {
 
                 Callback callback = sCallback;
                 IBinder service;
-                long timestamp = SystemClock.elapsedRealtime() + 2000;
+
+                long timestamp = SystemClock.elapsedRealtime();
 
                 do {
                     service = getService();
 
-                    if (SystemClock.elapsedRealtime() > timestamp) {
+                    if (SystemClock.elapsedRealtime() > (timestamp + 2000)) {
                         break;
                     }
                 } while (service == null);
@@ -339,7 +376,7 @@ public class ABECS {
                 } catch (Exception exception) {
                     output[0] = new Bundle();
 
-                    output[0].putInt(KEY_STATUS, ST_INTERR.getNumericValue());
+                    output[0].putInt(KEY_STATUS, ST_INTERR.getValue());
 
                     output[0].putSerializable(KEY_EXCEPTION, exception);
 
@@ -365,12 +402,21 @@ public class ABECS {
         return output[0];
     }
 
+    /**
+     *
+     * @param context
+     */
     public static void register(Context context) {
         Log.d(TAG_LOGCAT, "register::context [" + context + "]");
 
         register(context, null);
     }
 
+    /**
+     *
+     * @param context
+     * @param callback
+     */
     public static void register(Context context, Callback callback) {
         Log.d(TAG_LOGCAT, "register::context [" + context + "], callback [" + callback + "]");
 
@@ -396,6 +442,9 @@ public class ABECS {
         }.start();
     }
 
+    /**
+     *
+     */
     public static void unregister() {
         Log.d(TAG_LOGCAT, "unregister");
 

@@ -189,7 +189,7 @@ public class ServiceUtility {
 
             throw new Exception("Unknown input: { " + KEY_REQUEST + ": \"" + request + "\" }");
         } catch (Exception exception) {
-            output.putInt(KEY_STATUS, ST_INTERR.getNumericValue());
+            output.putInt(KEY_STATUS, ST_INTERR.getValue());
             output.putSerializable(KEY_EXCEPTION, exception);
         } finally {
             if (!input.getBoolean(KEY_SYNCHRONOUS_OPERATION)) {
