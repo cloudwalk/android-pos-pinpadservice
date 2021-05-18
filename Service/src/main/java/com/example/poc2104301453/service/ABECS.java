@@ -79,13 +79,13 @@ public class ABECS extends IABECS.Stub {
                 output = new Bundle();
 
                 output.putInt(KEY_ENUM.STATUS.getValue(), ST_INTERR.getValue());
-                output.putSerializable(KEY_ENUM.EXCEPTION.getValue(), new Exception("Already bounded by " + sCaller));
+                output.putSerializable(KEY_ENUM.EXCEPTION.getValue(), new Exception("Already bounded by " + sCaller + ". Wait for it to unregister."));
 
                 return output;
             }
         }
 
-        serviceUtility.abort();
+        serviceUtility.getPinpad().abort();
 
         sSemaphoreList[0].acquireUninterruptibly();
 

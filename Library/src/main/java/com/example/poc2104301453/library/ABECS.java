@@ -220,6 +220,10 @@ public class ABECS {
      *
      */
     public static enum RSP_STAT {
+        /*
+         * Spec. 2.12
+         */
+
         ST_OK(0),                       ST_NOSEC(3),
         ST_F1(4),                       ST_F2(5),
         ST_F3(6),                       ST_F4(7),
@@ -231,18 +235,35 @@ public class ABECS {
         ST_MCDATAERR(41),               ST_ERRKEY(42),
         ST_NOCARD(43),                  ST_PINBUSY(44),
         ST_RSPOVRFL(45),                ST_ERRCRYPT(46),
-        ST_NOSAM(51),                   ST_DUMBCARD(60),
-        ST_ERRCARD(61),                 ST_CARDINVALIDAT(67),
-        ST_CARDPROBLEMS(68),            ST_CARDINVDATA(69),
-        ST_CARDAPPNAV(70),              ST_CARDAPPNAUT(71),
-        ST_ERRFALLBACK(76),             ST_INVAMOUNT(77),
-        ST_ERRMAXAID(78),               ST_CARDBLOCKED(79),
-        ST_CTLSMULTIPLE(80),            ST_CTLSCOMMERR(81),
-        ST_CTLSINVALIDAT(82),           ST_CTLSPROBLEMS(83),
-        ST_CTLSAPPNAV(84),              ST_CTLSAPPNAUT(85),
-        ST_CTLSEXTCVM(86),              ST_CTLSIFCHG(87),
-        ST_MFNFOUND(100),               ST_MFERRFMT(101),
-        ST_MFERR(102);
+        ST_DUMBCARD(60),                ST_ERRCARD(61),
+        ST_CARDINVALIDAT(67),           ST_CARDPROBLEMS(68),
+        ST_CARDINVDATA(69),             ST_CARDAPPNAV(70),
+        ST_CARDAPPNAUT(71),             ST_ERRFALLBACK(76),
+        ST_INVAMOUNT(77),               ST_ERRMAXAID(78),
+        ST_CARDBLOCKED(79),             ST_CTLSMULTIPLE(80),
+        ST_CTLSCOMMERR(81),             ST_CTLSINVALIDAT(82),
+        ST_CTLSPROBLEMS(83),            ST_CTLSAPPNAV(84),
+        ST_CTLSAPPNAUT(85),             ST_CTLSEXTCVM(86),
+        ST_CTLSIFCHG(87),               ST_MFNFOUND(100),
+        ST_MFERRFMT(101),               ST_MFERR(102),
+
+        /*
+         * Spec. 1.08a
+         */
+
+        PP_PROCESSING(1),               PP_NOTIFY(2),
+        PP_ALREADYOPEN(14),             PP_NOTOPEN(15),
+        PP_EXECERR(16),                 PP_INVMODEL(17),
+        PP_NOFUNC(18),                  PP_NOAPPLIC(22),
+        PP_PORTERR(30),                 PP_COMMERR(31),
+        PP_UNKNOWNSTAT(32),             PP_RSPERR(33),
+        PP_COMMTOUT(34),                PP_SAMERR(50),
+        PP_NOSAM(51),                   PP_SAMINV(52),
+        PP_CARDINV(62),                 PP_CARDBLOCKED(63),
+        PP_CARDNAUTH(64),               PP_CARDEXPIRED(65),
+        PP_CARDERRSTRUCT(66),           PP_NOBALANCE(72),
+        PP_LIMITEXC(73),                PP_CARDNOTEFFECT(74),
+        PP_VCINVCURR(75);
 
         private int mValue;
 

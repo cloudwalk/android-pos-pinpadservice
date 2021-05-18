@@ -7,16 +7,13 @@ import android.util.Pair;
 import com.example.poc2104301453.service.IServiceCallback;
 import com.example.poc2104301453.service.commands.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
-import br.com.verifone.bibliotecapinpad.InterfaceUsuarioPinpad;
-import br.com.verifone.bibliotecapinpad.comum.AcessoDiretoImplementacao;
-import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
-import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
-import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
+import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
+import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
+import br.com.verifone.bibliotecapinpad.RegistroBibliotecaPinpad;
+import br.com.verifone.bibliotecapinpad.comum.AcessoFuncoesImplementacao;
 import br.com.verifone.ppcompX990.PPCompX990;
 
 import static com.example.poc2104301453.library.ABECS.*;
@@ -28,9 +25,7 @@ import static com.example.poc2104301453.library.ABECS.RSP_STAT.*;
 public class ServiceUtility {
     private static final String TAG_LOGCAT = ServiceUtility.class.getSimpleName();
 
-    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
-
-    private static AcessoDiretoPinpad sPinpad = null;
+    private static AcessoFuncoesPinpad sPinpad = null;
 
     private static IServiceCallback sServiceCallback = null;
 
@@ -60,29 +55,9 @@ public class ServiceUtility {
         // sCommandList.add(new Pair<>(VAL_ENUM.FNC.getValue(), FNC::fnc));
 
         try {
-            InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
-                @Override
-                public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
-                    Log.d(TAG_LOGCAT, "mensagemNotificacao::s [" + s + "], tipoNotificacao [" + tipoNotificacao + "]");
-                }
+            RegistroBibliotecaPinpad.informaClassesBiblioteca(PPCompX990.getInstance());
 
-                @Override
-                public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
-                    Log.d(TAG_LOGCAT, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
-                }
-
-                @Override
-                public void menu(br.com.verifone.bibliotecapinpad.definicoes.Menu menu) {
-                    Log.d(TAG_LOGCAT, "menu::menu [" + menu + "]");
-                }
-
-                @Override
-                public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
-                    Log.d(TAG_LOGCAT, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
-                }
-            };
-
-            sPinpad = new AcessoDiretoImplementacao(callback, PPCompX990.getInstance());
+            sPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoFuncoesPinpad();
         } catch (Exception exception) {
             Log.e(TAG_LOGCAT, exception.getMessage() + "\r\n" + Log.getStackTraceString(exception));
         }
@@ -91,7 +66,7 @@ public class ServiceUtility {
     /**
      * Runner interface.
      */
-    public static interface Runner {
+    public interface Runner {
         /**
          * Runs a known command.
          *
@@ -111,48 +86,9 @@ public class ServiceUtility {
         return sServiceUtility;
     }
 
-    /**
-     *
-     */
-    public static void abort() {
-        byte[] CAN = { 0x18 };
-        byte[] EOT = { 0x04 };
-        byte[] RSP = { 0x00 };
+    public AcessoFuncoesPinpad getPinpad() {
+        Log.d(TAG_LOGCAT, "getPinpad");
 
-        sPinpad.enviaComando(CAN, 1);
-
-        StringBuilder msg = new StringBuilder();
-
-        sPinpad.recebeResposta(RSP, 2000);
-
-        msg.append("abort::recebeResposta(RSP, 2000)\r\n\t - RSP [").append(bytesToHex(RSP)).append("]");
-
-        if (RSP[0] != EOT[0]) {
-            Log.e(TAG_LOGCAT, msg.toString());
-        } else {
-            Log.d(TAG_LOGCAT, msg.toString());
-        }
-    }
-
-    /**
-     * See <a href="https://bit.ly/2RWydoS">https://bit.ly/2RWydoS</a>
-     *
-     * @param bytes self-describing
-     * @return {@link String}
-     */
-    public static String bytesToHex(byte[] bytes) {
-        byte[] chars = new byte[bytes.length * 2];
-
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            chars[j * 2] = HEX_ARRAY[v >>> 4];
-            chars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-
-        return new String(chars, StandardCharsets.UTF_8);
-    }
-
-    public static AcessoDiretoPinpad getPinpad() {
         return sPinpad;
     }
 
@@ -161,7 +97,7 @@ public class ServiceUtility {
      * @param input
      * @return
      */
-    public static Bundle run(IServiceCallback callback, Bundle input) {
+    public Bundle run(IServiceCallback callback, Bundle input) {
         Bundle output = new Bundle();
 
         try {

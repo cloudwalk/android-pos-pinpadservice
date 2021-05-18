@@ -4,19 +4,26 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.poc2104301453.library.ABECS;
-import com.example.poc2104301453.library.exceptions.*;
+import com.example.poc2104301453.service.utilities.DataUtility;
 import com.example.poc2104301453.service.utilities.ServiceUtility;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
+import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
+import br.com.verifone.bibliotecapinpad.InterfaceUsuarioPinpad;
+import br.com.verifone.bibliotecapinpad.definicoes.CodigosRetorno;
+import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
+import br.com.verifone.bibliotecapinpad.definicoes.Menu;
+import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
+import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
+import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoOpen;
 
 public class OPN {
     private static final String TAG_LOGCAT = OPN.class.getSimpleName();
 
-    private static AcessoDiretoPinpad sPinpad = ServiceUtility.getPinpad();
+    private static final DataUtility sDataUtility = DataUtility.getInstance();
+
+    private static AcessoFuncoesPinpad sPinpad = ServiceUtility.getInstance().getPinpad();
 
     public static Bundle opn(Bundle input)
             throws Exception {
@@ -28,90 +35,50 @@ public class OPN {
 
         if (OPN_MOD != null || OPN_EXP != null) {
             if (OPN_MOD == null || OPN_EXP == null) {
-                throw new Exception("Mandatory key(s) \"" + "OPN_MOD and/or OPN_EXP" + "\" not found");
+                Log.e(TAG_LOGCAT, "Mandatory key(s) \"" + "OPN_MOD and/or OPN_EXP" + "\" not found");
             } else {
-                throw new PendingDevelopmentException("OPN ABECS pending development");
+                Log.w(TAG_LOGCAT, "ABECS OPN pending development. Using classic OPN instead.");
             }
         }
 
-        byte    PKTSTART = 0x16;
-        byte[]  PKTDATA  = new byte[2048];
-        byte    PKTSTOP  = 0x17;
-        byte[]  PKTCRC   = new byte[1024];
-
-        PKTDATA[0] = 'O';
-        PKTDATA[1] = 'P';
-        PKTDATA[2] = 'N';
-        PKTDATA[3] = 0x00;
-        PKTDATA[4] = 0x00;
-        PKTDATA[5] = 0x00;
-
-        PKTCRC = ServiceUtility.generateCRC(PKTDATA);
-
-        byte[] CMD = new byte[4096];
-
-        int i = 0;
-        int j = 0;
-
-        CMD[i] = PKTSTART;
-
-        for (i = 1, j = 0; j < PKTDATA.length; i++, j++) {
-            if (PKTDATA[j] == 0x13) {
-                CMD[i++] = 0x13; CMD[i] = 0x33;
-                continue;
+        InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
+            @Override
+            public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
+                Log.d(TAG_LOGCAT, "mensagemNotificacao::s [" + s + "], tipoNotificacao [" + tipoNotificacao + "]");
             }
 
-            if (PKTDATA[j] == 0x16) {
-                CMD[i++] = 0x13; CMD[i] = 0x36;
-                continue;
+            @Override
+            public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
+                Log.d(TAG_LOGCAT, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
             }
 
-            if (PKTDATA[j] == 0x17) {
-                CMD[i++] = 0x13; CMD[i] = 0x37;
-                continue;
+            @Override
+            public void menu(br.com.verifone.bibliotecapinpad.definicoes.Menu menu) {
+                Log.d(TAG_LOGCAT, "menu::menu [" + menu + "]");
             }
 
-            CMD[i] = PKTDATA[j];
-        }
-
-        CMD[i] = PKTSTOP;
-
-        for (j = 0; j < PKTCRC.length; j++) {
-            CMD[i++] = PKTCRC[j];
-        }
-
-        byte[] RSP = { 0x00 };
-
-        sPinpad.enviaComando(CMD, CMD.length);
-
-        StringBuilder msg = new StringBuilder();
-
-        sPinpad.recebeResposta(RSP, 2000);
-
-        msg.append("abort::recebeResposta(RSP, 2000)\r\n\t - RSP [").append(ServiceUtility.bytesToHex(RSP)).append("]");
-
-        Log.d(TAG_LOGCAT, msg.toString());
-
-        Exception exception = new Exception("Invalid response: "+ ServiceUtility.bytesToHex(RSP));
-
-        if (RSP.length < 6) {
-            throw exception;
-        }
-
-        for (i = 0; i < 3; i++) {
-            if (RSP[i] != CMD[i]) {
-                throw exception;
+            @Override
+            public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
+                Log.d(TAG_LOGCAT, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
             }
-        }
+        };
 
-        int status = RSP[3] << 16 & 0x00FF0000 |
-                     RSP[4] <<  8 & 0x0000FF00 |
-                     RSP[5] <<  0 & 0x000000FF;
+        EntradaComandoOpen entradaComandoOpen = new EntradaComandoOpen(callback);
 
-        Bundle output = new Bundle();
+        final Bundle output[] = { new Bundle() };
+        final Semaphore[] semaphore = { new Semaphore(0, true) };
 
-        output.putInt(ABECS.KEY_ENUM.STATUS.getValue(), status);
+        sPinpad.open(entradaComandoOpen, new EntradaComandoOpen.OpenCallback() {
+            @Override
+            public void comandoOpenEncerrado(CodigosRetorno codigosRetorno) {
+                output[0].putInt(ABECS.KEY_ENUM.STATUS.getValue(), sDataUtility.toInt(codigosRetorno));
 
-        return output;
+                semaphore[0].release();
+            }
+        });
+
+        semaphore[0].acquireUninterruptibly();
+
+        return output[0];
     }
 }
