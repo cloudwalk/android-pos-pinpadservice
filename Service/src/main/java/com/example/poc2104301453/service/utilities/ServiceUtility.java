@@ -91,7 +91,7 @@ public class ServiceUtility {
     /**
      * Runner interface.
      */
-    public interface Runner {
+    public static interface Runner {
         /**
          * Runs a known command.
          *
@@ -114,7 +114,7 @@ public class ServiceUtility {
     /**
      *
      */
-    public void abort() {
+    public static void abort() {
         byte[] CAN = { 0x18 };
         byte[] EOT = { 0x04 };
         byte[] RSP = { 0x00 };
@@ -152,12 +152,16 @@ public class ServiceUtility {
         return new String(chars, StandardCharsets.UTF_8);
     }
 
+    public static AcessoDiretoPinpad getPinpad() {
+        return sPinpad;
+    }
+
     /**
      *
      * @param input
      * @return
      */
-    public Bundle run(IServiceCallback callback, Bundle input) {
+    public static Bundle run(IServiceCallback callback, Bundle input) {
         Bundle output = new Bundle();
 
         try {

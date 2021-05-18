@@ -139,87 +139,6 @@ public class ABECS {
     /**
      *
      */
-    public static enum KEY_ENUM {
-        EXCEPTION("exception"),         REQUEST("request"),
-        STATUS("status"),               SYNCHRONOUS_OPERATION("synchronous_operation");
-
-        /* TODO: add keys from ABECS spec. v2.12 */
-
-        private String mValue;
-
-        /**
-         * Constructor.
-         */
-        KEY_ENUM(String value) {
-            setValue(value);
-        }
-
-        /**
-         * @return {@link String}
-         */
-        public String getValue() {
-            return mValue;
-        }
-
-        /**
-         * @param value {@link String}
-         */
-        public void setValue(String value) {
-            mValue = value;
-        }
-    }
-
-    /**
-     *
-     */
-    public static enum VAL_ENUM {
-        OPN("OPN"),                     GIN("GIN"),
-        /* GIX("GIX"), */               /* DWK("DWK"), */
-        CLO("CLO"),                     /* CLX("CLX"), */
-        CKE("CKE"),                     /* CHP("CHP"), */
-        /* DEX("DEX"), */               /* DSP("DSP"), */
-        /* EBX("EBX"), */               ENB("ENB"),
-        /* GCD("GCD"), */               GDU("GDU"),
-        /* GKY("GKY"), */               GPN("GPN"),
-        /* GTK("GTK"), */               MNU("MNU"),
-        /* RMC("RMC"), */               /* MLI("MLI"), */
-        /* MLR("MLR"), */               /* MLE("MLE"), */
-        /* LMF("LMF"), */               /* DMF("DMF"), */
-        /* DSI("DSI"), */               GTS("GTS"),
-        TLI("TLI"),                     TLR("TLR"),
-        TLE("TLE"),                     GCR("GCR"),
-        CNG("CNG"),                     GOC("GOC"),
-        FNC("FNC");                     /* GCX("GCX"), */
-        /* GED("GED"), */               /* GOX("GOX"), */
-        /* FCX("FCX"), */               /* GEN("GEN"); */
-
-        private String mValue;
-
-        /**
-         * Constructor.
-         */
-        VAL_ENUM(String value) {
-            setValue(value);
-        }
-
-        /**
-         * @return {@link String}
-         */
-        public String getValue() {
-            return mValue;
-        }
-
-        /**
-         * @param value {@link String}
-         */
-        public void setValue(String value) {
-            mValue = value;
-        }
-    }
-
-    /**
-     *
-     */
     public static class Callback {
         public Kernel kernel;
 
@@ -263,6 +182,37 @@ public class ABECS {
              * @param output {@link Bundle}
              */
             void onSuccess(Bundle output);
+        }
+    }
+
+    /**
+     *
+     */
+    public static enum KEY_ENUM {
+        EXCEPTION("exception"),         REQUEST("request"),
+        STATUS("status"),               SYNCHRONOUS_OPERATION("synchronous_operation");
+
+        private String mValue;
+
+        /**
+         * Constructor.
+         */
+        KEY_ENUM(String value) {
+            setValue(value);
+        }
+
+        /**
+         * @return {@link String}
+         */
+        public String getValue() {
+            return mValue;
+        }
+
+        /**
+         * @param value {@link String}
+         */
+        public void setValue(String value) {
+            mValue = value;
         }
     }
 
@@ -314,6 +264,54 @@ public class ABECS {
          * @param value {@link int}
          */
         public void setValue(int value) {
+            mValue = value;
+        }
+    }
+
+    /**
+     *
+     */
+    public static enum VAL_ENUM {
+        OPN("OPN"),                     GIN("GIN"),
+        /* GIX("GIX"), */               /* DWK("DWK"), */
+        CLO("CLO"),                     /* CLX("CLX"), */
+        CKE("CKE"),                     /* CHP("CHP"), */
+        /* DEX("DEX"), */               /* DSP("DSP"), */
+        /* EBX("EBX"), */               ENB("ENB"),
+        /* GCD("GCD"), */               GDU("GDU"),
+        /* GKY("GKY"), */               GPN("GPN"),
+        /* GTK("GTK"), */               MNU("MNU"),
+        /* RMC("RMC"), */               /* MLI("MLI"), */
+        /* MLR("MLR"), */               /* MLE("MLE"), */
+        /* LMF("LMF"), */               /* DMF("DMF"), */
+        /* DSI("DSI"), */               GTS("GTS"),
+        TLI("TLI"),                     TLR("TLR"),
+        TLE("TLE"),                     GCR("GCR"),
+        CNG("CNG"),                     GOC("GOC"),
+        FNC("FNC");                     /* GCX("GCX"), */
+        /* GED("GED"), */               /* GOX("GOX"), */
+        /* FCX("FCX"), */               /* GEN("GEN"); */
+
+        private String mValue;
+
+        /**
+         * Constructor.
+         */
+        VAL_ENUM(String value) {
+            setValue(value);
+        }
+
+        /**
+         * @return {@link String}
+         */
+        public String getValue() {
+            return mValue;
+        }
+
+        /**
+         * @param value {@link String}
+         */
+        public void setValue(String value) {
             mValue = value;
         }
     }
