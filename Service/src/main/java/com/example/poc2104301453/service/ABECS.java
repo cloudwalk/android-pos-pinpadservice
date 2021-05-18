@@ -78,8 +78,8 @@ public class ABECS extends IABECS.Stub {
             if (!currentCaller.equals(caller)) {
                 output = new Bundle();
 
-                output.putInt(KEY_STATUS, ST_INTERR.getValue());
-                output.putSerializable(KEY_EXCEPTION, new Exception("Already bounded by " + sCaller));
+                output.putInt(KEY_ENUM.STATUS.getValue(), ST_INTERR.getValue());
+                output.putSerializable(KEY_ENUM.EXCEPTION.getValue(), new Exception("Already bounded by " + sCaller));
 
                 return output;
             }

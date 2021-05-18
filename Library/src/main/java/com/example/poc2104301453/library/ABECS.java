@@ -39,8 +39,7 @@ public class ABECS {
     private static Context sContext = null;
 
     /**
-     *
-     * @return
+     * @return {@link IBinder}
      */
     private static IBinder getService() {
         IBinder service;
@@ -87,7 +86,7 @@ public class ABECS {
     }
 
     /**
-     *
+     * Async. binds to the library's correspondent service.
      */
     private static void bindService() {
         Intent intent = new Intent();
@@ -114,8 +113,7 @@ public class ABECS {
     }
 
     /**
-     *
-     * @param service
+     * @param service {@link IBinder}
      */
     private static void setService(IBinder service) {
         sSemaphoreList[1].acquireUninterruptibly();
@@ -126,7 +124,7 @@ public class ABECS {
     }
 
     /**
-     *
+     * Unbinds the library's correspondent service, if previously bounded.
      */
     private static void unbindService() {
         if (sServiceConnection != null) {
@@ -138,89 +136,86 @@ public class ABECS {
         sServiceConnection = null;
     }
 
-    public static final String KEY_EXCEPTION = "exception";
+    /**
+     *
+     */
+    public static enum KEY_ENUM {
+        EXCEPTION("exception"),         REQUEST("request"),
+        STATUS("status"),               SYNCHRONOUS_OPERATION("synchronous_operation");
 
-    public static final String KEY_REQUEST = "request";
+        /* TODO: add keys from ABECS spec. v2.12 */
 
-    public static final String KEY_STATUS = "status";
+        private String mValue;
 
-    public static final String KEY_SYNCHRONOUS_OPERATION = "synchronous_operation";
+        /**
+         * Constructor.
+         */
+        KEY_ENUM(String value) {
+            setValue(value);
+        }
 
-    public static final String VALUE_REQUEST_OPN = "OPN";
+        /**
+         * @return {@link String}
+         */
+        public String getValue() {
+            return mValue;
+        }
 
-    public static final String VALUE_REQUEST_GIN = "GIN";
+        /**
+         * @param value {@link String}
+         */
+        public void setValue(String value) {
+            mValue = value;
+        }
+    }
 
-    // public static final String VALUE_REQUEST_GIX = "GIX";
+    /**
+     *
+     */
+    public static enum VAL_ENUM {
+        OPN("OPN"),                     GIN("GIN"),
+        /* GIX("GIX"), */               /* DWK("DWK"), */
+        CLO("CLO"),                     /* CLX("CLX"), */
+        CKE("CKE"),                     /* CHP("CHP"), */
+        /* DEX("DEX"), */               /* DSP("DSP"), */
+        /* EBX("EBX"), */               ENB("ENB"),
+        /* GCD("GCD"), */               GDU("GDU"),
+        /* GKY("GKY"), */               GPN("GPN"),
+        /* GTK("GTK"), */               MNU("MNU"),
+        /* RMC("RMC"), */               /* MLI("MLI"), */
+        /* MLR("MLR"), */               /* MLE("MLE"), */
+        /* LMF("LMF"), */               /* DMF("DMF"), */
+        /* DSI("DSI"), */               GTS("GTS"),
+        TLI("TLI"),                     TLR("TLR"),
+        TLE("TLE"),                     GCR("GCR"),
+        CNG("CNG"),                     GOC("GOC"),
+        FNC("FNC");                     /* GCX("GCX"), */
+        /* GED("GED"), */               /* GOX("GOX"), */
+        /* FCX("FCX"), */               /* GEN("GEN"); */
 
-    // public static final String VALUE_REQUEST_DWK = "DWK";
+        private String mValue;
 
-    public static final String VALUE_REQUEST_CLO = "CLO";
+        /**
+         * Constructor.
+         */
+        VAL_ENUM(String value) {
+            setValue(value);
+        }
 
-    // public static final String VALUE_REQUEST_CLX = "CLX";
+        /**
+         * @return {@link String}
+         */
+        public String getValue() {
+            return mValue;
+        }
 
-    public static final String VALUE_REQUEST_CKE = "CKE";
-
-    // public static final String VALUE_REQUEST_CHP = "CHP";
-
-    // public static final String VALUE_REQUEST_DEX = "DEX";
-
-    // public static final String VALUE_REQUEST_DSP = "DSP";
-
-    // public static final String VALUE_REQUEST_EBX = "EBX";
-
-    public static final String VALUE_REQUEST_ENB = "ENB";
-
-    // public static final String VALUE_REQUEST_GCD = "GCD";
-
-    public static final String VALUE_REQUEST_GDU = "GDU";
-
-    // public static final String VALUE_REQUEST_GKY = "GKY";
-
-    public static final String VALUE_REQUEST_GPN = "GPN";
-
-    // public static final String VALUE_REQUEST_GTK = "GTK";
-
-    public static final String VALUE_REQUEST_MNU = "MNU";
-
-    // public static final String VALUE_REQUEST_RMC = "RMC";
-
-    // public static final String VALUE_REQUEST_MLI = "MLI";
-
-    // public static final String VALUE_REQUEST_MLR = "MLR";
-
-    // public static final String VALUE_REQUEST_MLE = "MLE";
-
-    // public static final String VALUE_REQUEST_LMF = "LMF";
-
-    // public static final String VALUE_REQUEST_DMF = "DMF";
-
-    // public static final String VALUE_REQUEST_DSI = "DSI";
-
-    public static final String VALUE_REQUEST_GTS = "GTS";
-
-    public static final String VALUE_REQUEST_TLI = "TLI";
-
-    public static final String VALUE_REQUEST_TLR = "TLR";
-
-    public static final String VALUE_REQUEST_TLE = "TLE";
-
-    public static final String VALUE_REQUEST_GCR = "GCR";
-
-    public static final String VALUE_REQUEST_CNG = "CNG";
-
-    public static final String VALUE_REQUEST_GOC = "GOC";
-
-    public static final String VALUE_REQUEST_FNC = "FNC";
-
-    // public static final String VALUE_REQUEST_GCX = "GCX";
-
-    // public static final String VALUE_REQUEST_GED = "GED";
-
-    // public static final String VALUE_REQUEST_GOX = "GOX";
-
-    // public static final String VALUE_REQUEST_FCX = "FCX";
-
-    // public static final String VALUE_REQUEST_GEN = "GEN";
+        /**
+         * @param value {@link String}
+         */
+        public void setValue(String value) {
+            mValue = value;
+        }
+    }
 
     /**
      *
@@ -249,9 +244,9 @@ public class ABECS {
             /**
              * Status callback.<br>
              * As the name states, its called upon a processing failure.<br>
-             * {@code output} will return the {@link ABECS#KEY_STATUS} key. The
-             * {@link ABECS#KEY_EXCEPTION} key may also be present, providing further details on
-             * the failure.
+             * {@code output} will return the {@link ABECS.KEY_ENUM#STATUS} key. The
+             * {@link ABECS.KEY_ENUM#EXCEPTION} key may also be present, providing further details
+             * on the failure.
              *
              * @param output {@link Bundle}
              */
@@ -261,7 +256,7 @@ public class ABECS {
              * Status callback.<br>
              * As the name states, its called when the processing of a request finishes
              * successfully.<br>
-             * {@code output} will return the {@link ABECS#KEY_STATUS} key. Other keys may be
+             * {@code output} will return the {@link ABECS.KEY_ENUM#STATUS} key. Other keys may be
              * present, conditionally to the request that was just processed.<br>
              * See the specification v2.12 from ABECS for further details.
              *
@@ -275,28 +270,28 @@ public class ABECS {
      *
      */
     public static enum RSP_STAT {
-        ST_OK(0),               ST_NOSEC(3),
-        ST_F1(4),               ST_F2(5),
-        ST_F3(6),               ST_F4(7),
-        ST_BACKSP(8),           ST_ERRPKTSEC(9),
-        ST_INVCALL(10),         ST_INVPARM(11),
-        ST_TIMEOUT(12),         ST_CANCEL(13),
-        ST_MANDAT(19),          ST_TABVERDIF(20),
-        ST_TABERR(21),          ST_INTERR(40),
-        ST_MCDATAERR(41),       ST_ERRKEY(42),
-        ST_NOCARD(43),          ST_PINBUSY(44),
-        ST_RSPOVRFL(45),        ST_ERRCRYPT(46),
-        ST_NOSAM(51),           ST_DUMBCARD(60),
-        ST_ERRCARD(61),         ST_CARDINVALIDAT(67),
-        ST_CARDPROBLEMS(68),    ST_CARDINVDATA(69),
-        ST_CARDAPPNAV(70),      ST_CARDAPPNAUT(71),
-        ST_ERRFALLBACK(76),     ST_INVAMOUNT(77),
-        ST_ERRMAXAID(78),       ST_CARDBLOCKED(79),
-        ST_CTLSMULTIPLE(80),    ST_CTLSCOMMERR(81),
-        ST_CTLSINVALIDAT(82),   ST_CTLSPROBLEMS(83),
-        ST_CTLSAPPNAV(84),      ST_CTLSAPPNAUT(85),
-        ST_CTLSEXTCVM(86),      ST_CTLSIFCHG(87),
-        ST_MFNFOUND(100),       ST_MFERRFMT(101),
+        ST_OK(0),                       ST_NOSEC(3),
+        ST_F1(4),                       ST_F2(5),
+        ST_F3(6),                       ST_F4(7),
+        ST_BACKSP(8),                   ST_ERRPKTSEC(9),
+        ST_INVCALL(10),                 ST_INVPARM(11),
+        ST_TIMEOUT(12),                 ST_CANCEL(13),
+        ST_MANDAT(19),                  ST_TABVERDIF(20),
+        ST_TABERR(21),                  ST_INTERR(40),
+        ST_MCDATAERR(41),               ST_ERRKEY(42),
+        ST_NOCARD(43),                  ST_PINBUSY(44),
+        ST_RSPOVRFL(45),                ST_ERRCRYPT(46),
+        ST_NOSAM(51),                   ST_DUMBCARD(60),
+        ST_ERRCARD(61),                 ST_CARDINVALIDAT(67),
+        ST_CARDPROBLEMS(68),            ST_CARDINVDATA(69),
+        ST_CARDAPPNAV(70),              ST_CARDAPPNAUT(71),
+        ST_ERRFALLBACK(76),             ST_INVAMOUNT(77),
+        ST_ERRMAXAID(78),               ST_CARDBLOCKED(79),
+        ST_CTLSMULTIPLE(80),            ST_CTLSCOMMERR(81),
+        ST_CTLSINVALIDAT(82),           ST_CTLSPROBLEMS(83),
+        ST_CTLSAPPNAV(84),              ST_CTLSAPPNAUT(85),
+        ST_CTLSEXTCVM(86),              ST_CTLSIFCHG(87),
+        ST_MFNFOUND(100),               ST_MFERRFMT(101),
         ST_MFERR(102);
 
         private int mValue;
@@ -333,7 +328,7 @@ public class ABECS {
         final Semaphore[] semaphore = { new Semaphore(0, true) };
         final boolean[] sync = { false };
 
-        sync[0] = input.getBoolean(KEY_SYNCHRONOUS_OPERATION);
+        sync[0] = input.getBoolean(KEY_ENUM.SYNCHRONOUS_OPERATION.getValue());
 
         new Thread() {
             @Override
@@ -376,9 +371,9 @@ public class ABECS {
                 } catch (Exception exception) {
                     output[0] = new Bundle();
 
-                    output[0].putInt(KEY_STATUS, ST_INTERR.getValue());
+                    output[0].putInt(KEY_ENUM.STATUS.getValue(), ST_INTERR.getValue());
 
-                    output[0].putSerializable(KEY_EXCEPTION, exception);
+                    output[0].putSerializable(KEY_ENUM.EXCEPTION.getValue(), exception);
 
                     if (!sync[0]) {
                         if (callback != null) {
