@@ -11,7 +11,7 @@ android {
         versionCode 1
         versionName "0.0.1"
 
-        setProperty("archivesBaseName", "com.example.poc2104301453.library-$versionName")
+        setProperty("archivesBaseName", "com.example.poc2104301453.pinpadlibrary-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

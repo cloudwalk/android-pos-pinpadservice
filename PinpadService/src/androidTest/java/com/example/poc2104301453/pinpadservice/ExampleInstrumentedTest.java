@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.poc2104301453.service", appContext.getPackageName());
+        assertEquals("com.example.poc2104301453.pinpadservice", appContext.getPackageName());
     }
 }
