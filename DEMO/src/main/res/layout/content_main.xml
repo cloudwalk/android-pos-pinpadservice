@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        android:overScrollMode="never"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".presentation.MainActivity"
+        tools:showIn="@layout/activity_main">
+    <HorizontalScrollView
+            android:id="@+id/hcv_content_scrolling"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="14dp"
+            android:scrollbars="horizontal"
+            android:overScrollMode="never">
+        <TextView
+                android:id="@+id/tv_content_scrolling"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:overScrollMode="never" />
+    </HorizontalScrollView>
+</androidx.core.widget.NestedScrollView>

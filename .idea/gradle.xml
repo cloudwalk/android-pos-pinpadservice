@@ -11,8 +11,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/Library" />
-            <option value="$PROJECT_DIR$/Service" />
+            <option value="$PROJECT_DIR$/DEMO" />
+            <option value="$PROJECT_DIR$/PinpadLibrary" />
+            <option value="$PROJECT_DIR$/PinpadService" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
