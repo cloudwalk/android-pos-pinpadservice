@@ -12,9 +12,11 @@ import org.jetbrains.annotations.NotNull;
 public class PinpadManager {
     private static final String TAG_LOGCAT = PinpadManager.class.getSimpleName();
 
-    private static final String ACTION_PINPAD_SERVICE = "com.example.poc2104301453.pinpadservice.PinpadService";
+    private static final String ACTION_PINPAD_SERVICE =
+            "com.example.poc2104301453.pinpadservice.PinpadService";
 
-    private static final String PACKAGE_PINPAD_SERVICE = "com.example.poc2104301453.pinpadservice";
+    private static final String PACKAGE_PINPAD_SERVICE =
+            "com.example.poc2104301453.pinpadservice";
 
     /**
      * Constructor.

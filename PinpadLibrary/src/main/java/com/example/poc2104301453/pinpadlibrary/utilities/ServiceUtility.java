@@ -19,9 +19,11 @@ import java.util.concurrent.Semaphore;
 public class ServiceUtility {
     private static final String TAG_LOGCAT = ServiceUtility.class.getSimpleName();
 
-    private static final List<ServiceModel> mServiceList = new ArrayList<>(0);
+    private static final List<ServiceModel> mServiceList =
+            new ArrayList<>(0);
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore sSemaphore =
+            new Semaphore(1, true);
 
     /**
      * Constructor.

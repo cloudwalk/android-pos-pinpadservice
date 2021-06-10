@@ -24,11 +24,16 @@ import br.com.verifone.ppcompX990.PPCompX990;
 public class PinpadAbstractionLayer extends IABECS.Stub {
     private static final String TAG_LOGCAT = PinpadAbstractionLayer.class.getSimpleName();
 
-    private static final List<Pair<String, Runnable>> sCommandList = new ArrayList<>(0);
+    private static final List<Pair<String, Runnable>> sCommandList =
+            new ArrayList<>(0);
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore[] sSemaphore = {
+                new Semaphore(1, true),
+                new Semaphore(1, true)
+            };
 
-    private static final PinpadAbstractionLayer sPinpadAbstractionLayer = new PinpadAbstractionLayer();
+    private static final PinpadAbstractionLayer sPinpadAbstractionLayer =
+            new PinpadAbstractionLayer();
 
     private static AcessoFuncoesPinpad sPinpad = null;
 
@@ -55,23 +60,6 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         sCommandList.add(new Pair<>("OPN", OPN::opn));
         sCommandList.add(new Pair<>("GIN", GIN::gin));
         sCommandList.add(new Pair<>("CLO", CLO::clo));
-
-        sPinpad = getManufacturerPinpadInstance();
-    }
-
-    /**
-     * @return {@link AcessoFuncoesPinpad}
-     */
-    private AcessoFuncoesPinpad getManufacturerPinpadInstance() {
-        try {
-            RegistroBibliotecaPinpad.informaClassesBiblioteca(PPCompX990.getInstance());
-
-            return GestaoBibliotecaPinpad.obtemInstanciaAcessoFuncoesPinpad();
-        } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
-
-            return null;
-        }
     }
 
     /**
@@ -87,6 +75,20 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
      * @return {@link AcessoFuncoesPinpad}
      */
     public AcessoFuncoesPinpad getPinpad() {
+        sSemaphore[1].acquireUninterruptibly();
+
+        if (sPinpad == null) {
+            try {
+                RegistroBibliotecaPinpad.informaClassesBiblioteca(PPCompX990.getInstance());
+
+                sPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoFuncoesPinpad();
+            } catch (Exception exception) {
+                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            }
+        }
+
+        sSemaphore[1].release();
+
         return sPinpad;
     }
 
@@ -100,20 +102,16 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         Log.d(TAG_LOGCAT, "request");
 
         try {
-            if (sPinpad == null) {
-                sPinpad = getManufacturerPinpadInstance();
-            }
-
-            SystemClock.sleep(275);
-
-            sPinpad.abort();
+            getPinpad().abort();
         } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            StringBuilder stack = new StringBuilder(Log.getStackTraceString(exception));
+
+            Log.e(TAG_LOGCAT, (stack.length() != 0) ? stack.toString() : exception.getMessage());
         }
 
         Bundle output = new Bundle();
 
-        sSemaphore.acquireUninterruptibly();
+        sSemaphore[0].acquireUninterruptibly();
 
         try {
             input.get(null);
@@ -145,7 +143,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
             output.putInt("RSP_STAT", 40);
             output.putSerializable("EXCEPTION", exception);
         } finally {
-            sSemaphore.release();
+            sSemaphore[0].release();
         }
 
         return output;

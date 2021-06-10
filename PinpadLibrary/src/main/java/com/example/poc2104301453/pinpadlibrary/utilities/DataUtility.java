@@ -23,7 +23,8 @@ import java.util.List;
 public class DataUtility {
     private static final String TAG_LOGCAT = DataUtility.class.getSimpleName();
 
-    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] HEX_ARRAY =
+            "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
      * @return {@link Context}

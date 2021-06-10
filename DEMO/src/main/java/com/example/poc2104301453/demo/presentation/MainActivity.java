@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String contentScrolling = "Last read at "
+                    String contentScrolling = "Triggered at "
                             + Calendar.getInstance().getTime()
                             + "\r\n\r\n";
 
