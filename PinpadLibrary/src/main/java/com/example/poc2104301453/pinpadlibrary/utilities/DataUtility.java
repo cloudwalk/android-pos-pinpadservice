@@ -1,7 +1,14 @@
 package com.example.poc2104301453.pinpadlibrary.utilities;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+
+import androidx.annotation.DrawableRes;
+import androidx.core.content.res.ResourcesCompat;
+
+import com.example.poc2104301453.pinpadlibrary.PinpadAbstractionLayer;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -17,6 +24,21 @@ public class DataUtility {
     private static final String TAG_LOGCAT = DataUtility.class.getSimpleName();
 
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+
+    /**
+     * @return {@link Context}
+     */
+    public static Context getProcessContext() {
+        return PinpadAbstractionLayer.getContext();
+    }
+
+    /**
+     * @param id {@link DrawableRes} id
+     * @return {@link Drawable}
+     */
+    public static Drawable getDrawableById(@DrawableRes int id) {
+        return ResourcesCompat.getDrawable(getProcessContext().getResources(), id, null);
+    }
 
     /**
      * Converts a given {@link Bundle} to a {@link JSONObject}.<br>

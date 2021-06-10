@@ -3,7 +3,7 @@ package com.example.poc2104301453.demo.presentation;
 import android.os.Bundle;
 
 import com.example.poc2104301453.demo.R;
-import com.example.poc2104301453.pinpadlibrary.ABECS;
+import com.example.poc2104301453.pinpadlibrary.managers.PinpadManager;
 import com.example.poc2104301453.pinpadlibrary.utilities.DataUtility;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,10 +18,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.Semaphore;
-
-import static com.example.poc2104301453.pinpadlibrary.ABECS.KEY_ENUM.*;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG_LOGCAT = MainActivity.class.getSimpleName();
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.fab.setEnabled(false);
 
-        ABECS.register(getApplicationContext());
+        PinpadManager.register();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         finish();
 
-        ABECS.unregister();
+        PinpadManager.unregister();
     }
 
     @Override
@@ -94,14 +94,36 @@ public class MainActivity extends AppCompatActivity {
                             + Calendar.getInstance().getTime()
                             + "\r\n\r\n";
 
-                    Bundle input = new Bundle();
+                    List<Bundle> requestList = new ArrayList<>(0);
 
-                    input.putString("request", "OPN");
-                    input.putBoolean(SYNCHRONOUS_OPERATION.getValue(), true);
+                    Bundle input;
 
-                    contentScrolling += DataUtility.toJSON(ABECS.run(input), true).toString(4);
+                    input = new Bundle();
 
-                    updateContentScrolling(contentScrolling);
+                    input.putString("CMD_ID", "OPN");
+
+                    requestList.add(input);
+
+                    input = new Bundle();
+
+                    input.putString("CMD_ID", "GIN");
+                    input.putInt   ("GIN_ACQIDX", 0);
+
+                    requestList.add(input);
+
+                    input = new Bundle();
+
+                    input.putString("CMD_ID", "CLO");
+
+                    requestList.add(input);
+
+                    for (Bundle request : requestList) {
+                        contentScrolling += "\n";
+
+                        contentScrolling += DataUtility.toJSON(PinpadManager.request(request), true).toString(4);
+
+                        updateContentScrolling(contentScrolling);
+                    }
                 } catch (Exception exception) {
                     StringBuilder stack = new StringBuilder(Log.getStackTraceString(exception));
 

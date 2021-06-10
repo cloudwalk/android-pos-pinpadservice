@@ -15,6 +15,6 @@ public class PinpadService extends Service {
     public IBinder onBind(Intent intent) {
         Log.d(TAG_LOGCAT, "onBind");
 
-        return ABECS.getInstance();
+        return PinpadAbstractionLayer.getInstance();
     }
 }
