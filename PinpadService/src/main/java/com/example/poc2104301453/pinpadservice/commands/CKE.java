@@ -3,6 +3,7 @@ package com.example.poc2104301453.pinpadservice.commands;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.poc2104301453.pinpadlibrary.ABECS;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class CKE {
     public static Bundle cke(Bundle input)
             throws Exception {
         AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID  = input.getString("CMD_ID");
+        String CMD_ID  = input.getString(ABECS.CMD_ID);
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -31,19 +32,19 @@ public class CKE {
         List<EntradaComandoCheckEvent.Eventos> eventList =
                 new ArrayList<>(0);
 
-        if (input.getInt("CKE_KEY") != 0) {
+        if (input.getInt(ABECS.CKE_KEY) != 0) {
             eventList.add(VERIFICA_PRESSIONAMENTO_TECLAS);
         }
 
-        if (input.getInt("CKE_MAG") != 0) {
+        if (input.getInt(ABECS.CKE_MAG) != 0) {
             eventList.add(VERIFICA_PASSAGEM_CARTAO_MAGNETICO);
         }
 
-        if (input.getInt("CKE_ICC") != 0) {
+        if (input.getInt(ABECS.CKE_ICC) != 0) {
             eventList.add(VERIFICA_INSERCAO_ICC);
         }
 
-        if (input.getInt("CKE_CTLS") != 0) {
+        if (input.getInt(ABECS.CKE_CTLS) != 0) {
             eventList.add(VERIFICA_APROXIMACAO_CTLS);
         }
 
@@ -53,22 +54,20 @@ public class CKE {
         entradaComandoCheckEvent.informaTimeout(-1);
 
         pinpad.checkEvent(entradaComandoCheckEvent, saidaComandoCheckEvent -> {
-            Log.d(TAG_LOGCAT, "eventoRecebido");
-
-            output[0].putString("RSP_ID", CMD_ID);
-            output[0].putInt   ("RSP_STAT", saidaComandoCheckEvent.obtemResultadoOperacao().ordinal());
+            output[0].putString(ABECS.RSP_ID, CMD_ID);
+            output[0].putInt   (ABECS.RSP_STAT, saidaComandoCheckEvent.obtemResultadoOperacao().ordinal());
 
             SaidaComandoCheckEvent.EventoOcorrido event =
                     saidaComandoCheckEvent.obtemEventoOcorrido();
 
             try {
-                if (output[0].getInt("RSP_STAT") != 0) {
+                if (output[0].getInt(ABECS.RSP_STAT) != 0) {
                     return;
                 }
 
                 switch (event) {
                     case CARTAO_MAG_LIDO:
-                        output[0].putInt("CKE_EVENT", 1);
+                        output[0].putInt(ABECS.CKE_EVENT, 1);
 
                         SaidaComandoGetCard.DadosCartao card =
                                 saidaComandoCheckEvent.obtemDadosCartao();
@@ -77,55 +76,55 @@ public class CKE {
                             break;
                         }
 
-                        output[0].putString("CKE_TRK1", card.obtemTrilha1()); /* TODO: review formatting */
-                        output[0].putString("CKE_TRK2", card.obtemTrilha2());
-                        output[0].putString("CKE_TRK3", card.obtemTrilha3());
+                        output[0].putString(ABECS.CKE_TRK1, card.obtemTrilha1()); /* TODO: review formatting */
+                        output[0].putString(ABECS.CKE_TRK2, card.obtemTrilha2());
+                        output[0].putString(ABECS.CKE_TRK3, card.obtemTrilha3());
                         break;
 
                     case CARTAO_ICC_REMOVIDO:
                     case CARTAO_ICC_INSERIDO:
-                        output[0].putInt("CKE_EVENT", 2);
-                        output[0].putInt("CKE_ICCSTAT",
+                        output[0].putInt(ABECS.CKE_EVENT, 2);
+                        output[0].putInt(ABECS.CKE_ICCSTAT,
                                 (event != CARTAO_ICC_REMOVIDO) ? 1 : 0);
                         break;
 
                     case CARTAO_CTLS_DETECTADO:
                     case CARTAO_CTLS_NAO_DETECTADO:
-                        output[0].putInt("CKE_EVENT", 3);
-                        output[0].putInt("CKE_CTLSSTAT",
+                        output[0].putInt(ABECS.CKE_EVENT, 3);
+                        output[0].putInt(ABECS.CKE_CTLSSTAT,
                                 (event != CARTAO_CTLS_NAO_DETECTADO) ? 1 : 0);
                         break;
 
                     default:
-                        output[0].putInt("CKE_EVENT", 0);
+                        output[0].putInt(ABECS.CKE_EVENT, 0);
 
                         switch (event) {
                             case TECLA_OK_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 0);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 0);
                                 break;
 
                             case TECLA_F1_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 4);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 4);
                                 break;
 
                             case TECLA_F2_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 5);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 5);
                                 break;
 
                             case TECLA_F3_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 6);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 6);
                                 break;
 
                             case TECLA_F4_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 7);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 7);
                                 break;
 
                             case TECLA_LIMPA_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 8);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 8);
                                 break;
 
                             case TECLA_CANCELA_PRESSIONADA:
-                                output[0].putInt("CKE_KEYCODE", 13);
+                                output[0].putInt(ABECS.CKE_KEYCODE, 13);
                                 break;
 
                             default:

@@ -23,6 +23,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import static com.example.poc2104301453.pinpadlibrary.ABECS.*;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG_LOGCAT = MainActivity.class.getSimpleName();
 
@@ -100,36 +102,36 @@ public class MainActivity extends AppCompatActivity {
 
                     input = new Bundle();
 
-                    input.putString("CMD_ID", "OPN");
+                    input.putString(CMD_ID, OPN);
 
                     requestList.add(input);
 
                     input = new Bundle();
 
-                    input.putString("CMD_ID", "GIN");
-                    input.putInt   ("GIN_ACQIDX", 0);
+                    input.putString(CMD_ID, GIN);
+                    input.putInt   (GIN_ACQIDX, 0);
 
                     requestList.add(input);
 
                     input = new Bundle();
 
-                    input.putString("CMD_ID", "CLO");
+                    input.putString(CMD_ID, CLO);
 
                     requestList.add(input);
 
                     input = new Bundle();
 
-                    input.putString("CMD_ID", "OPN");
+                    input.putString(CMD_ID, OPN);
 
                     requestList.add(input);
 
                     input = new Bundle();
 
-                    input.putString("CMD_ID", "CKE");
-                    input.putInt   ("CKE_KEY", 1);
-                    input.putInt   ("CKE_MAG", 1);
-                    input.putInt   ("CKE_ICC", 1);
-                    input.putInt   ("CKE_CTLS", 1);
+                    input.putString(CMD_ID, CKE);
+                    input.putInt   (CKE_KEY, 1);
+                    input.putInt   (CKE_MAG, 1);
+                    input.putInt   (CKE_ICC, 1);
+                    input.putInt   (CKE_CTLS, 1);
 
                     requestList.add(input);
 
@@ -141,9 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         updateContentScrolling(contentScrolling);
                     }
                 } catch (Exception exception) {
-                    StringBuilder stack = new StringBuilder(Log.getStackTraceString(exception));
-
-                    updateContentScrolling((stack.length() != 0) ? stack.toString() : exception.getMessage());
+                    updateContentScrolling(Log.getStackTraceString(exception));
                 }
             }
         }.start();

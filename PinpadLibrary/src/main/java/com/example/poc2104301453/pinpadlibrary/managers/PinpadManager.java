@@ -10,6 +10,8 @@ import com.example.poc2104301453.pinpadservice.IABECS;
 
 import org.jetbrains.annotations.NotNull;
 
+import static com.example.poc2104301453.pinpadlibrary.ABECS.*;
+
 public class PinpadManager {
     private static final String TAG_LOGCAT = PinpadManager.class.getSimpleName();
 
@@ -59,7 +61,8 @@ public class PinpadManager {
     public static void abort() {
         Bundle input = new Bundle();
 
-        input.putString("CMD_ID", "CLO");
+        input.putString(CMD_ID, CLO); /* TODO: improve */
+                                      /* 2021-06-16: combine OPN and CLO */
 
         try {
             request(input);

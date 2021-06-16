@@ -3,6 +3,7 @@ package com.example.poc2104301453.pinpadservice.commands;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.poc2104301453.pinpadlibrary.ABECS;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
 
 import java.util.concurrent.Semaphore;
@@ -21,7 +22,7 @@ public class OPN {
     public static Bundle opn(Bundle input)
             throws Exception {
         AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID  = input.getString("CMD_ID");
+        String CMD_ID  = input.getString(ABECS.CMD_ID);
 
         InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
             @Override
@@ -51,8 +52,8 @@ public class OPN {
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
         pinpad.open(entradaComandoOpen, codigosRetorno -> {
-            output[0].putString("RSP_ID", CMD_ID);
-            output[0].putInt   ("RSP_STAT", codigosRetorno.ordinal());
+            output[0].putString(ABECS.RSP_ID, CMD_ID);
+            output[0].putInt   (ABECS.RSP_STAT, codigosRetorno.ordinal());
 
             semaphore[0].release();
         });

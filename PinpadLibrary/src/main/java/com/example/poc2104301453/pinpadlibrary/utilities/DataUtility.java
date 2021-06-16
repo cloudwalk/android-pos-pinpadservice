@@ -83,9 +83,7 @@ public class DataUtility {
                     output.put(key, item);
                 }
             } catch (Exception exception) {
-                StringBuilder stack = new StringBuilder(Log.getStackTraceString(exception));
-
-                Log.e(TAG_LOGCAT, (stack.length() != 0) ? stack.toString() : exception.getMessage());
+                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
 
                 output = new JSONObject();
             }
@@ -128,9 +126,7 @@ public class DataUtility {
                 output.append(Integer.toString(( byteDigest[i] & 0xFF ) + 0x100, 16).substring(1));
             }
         } catch (Exception exception) {
-            StringBuilder stack = new StringBuilder(Log.getStackTraceString(exception));
-
-            Log.e(TAG_LOGCAT, (stack.length() != 0) ? stack.toString() : exception.getMessage());
+            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
         }
 
         return output.toString();

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 
+import com.example.poc2104301453.pinpadlibrary.ABECS;
 import com.example.poc2104301453.pinpadservice.commands.CKE;
 import com.example.poc2104301453.pinpadservice.commands.CLO;
 import com.example.poc2104301453.pinpadservice.commands.GIN;
@@ -57,10 +58,11 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
     private PinpadAbstractionLayer() {
         Log.d(TAG_LOGCAT, "PinpadAbstractionLayer");
 
-        sCommandList.add(new Pair<>("OPN", OPN::opn));
-        sCommandList.add(new Pair<>("GIN", GIN::gin));
-        sCommandList.add(new Pair<>("CLO", CLO::clo));
-        sCommandList.add(new Pair<>("CKE", CKE::cke));
+        sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
+        sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
+        sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
+
+        sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
     }
 
     /**
@@ -103,11 +105,13 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         Log.d(TAG_LOGCAT, "request");
 
         try {
-            getPinpad().abort();
+            getPinpad().abort(); /* "É importante que o SPE sempre inicie o
+                                  * fluxo de comunicação com o pinpad enviando
+                                  * um <CAN>, de forma a abortar qualquer
+                                  * comando blocante que eventualmente esteja
+                                  * em processamento." - ABECS v2.12; 2.2.2.3 */
         } catch (Exception exception) {
-            StringBuilder stack = new StringBuilder(Log.getStackTraceString(exception));
-
-            Log.e(TAG_LOGCAT, (stack.length() != 0) ? stack.toString() : exception.getMessage());
+            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
         }
 
         Bundle output = new Bundle();
@@ -119,7 +123,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
 
             Log.d(TAG_LOGCAT, "run::input [" + input.toString() + "]");
 
-            String request = input.getString("CMD_ID");
+            String request = input.getString(ABECS.CMD_ID);
 
             if (request == null) {
                 throw new Exception("Mandatory key \"CMD_ID\" not found");
@@ -141,7 +145,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
 
             throw new Exception("Unknown input: { CMD_ID: \"" + request + "\" }");
         } catch (Exception exception) {
-            output.putInt("RSP_STAT", 40);
+            output.putInt(ABECS.RSP_STAT, 40);
             output.putSerializable("EXCEPTION", exception);
         } finally {
             sSemaphore[0].release();
