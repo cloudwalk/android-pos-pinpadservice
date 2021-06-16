@@ -40,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         ((TextView) findViewById(R.id.tv_content_scrolling)).setText(msg);
+
+                        sSemaphore.release();
                     }
                 });
-
-                sSemaphore.release();
             }
         }.start();
     }
@@ -114,6 +114,22 @@ public class MainActivity extends AppCompatActivity {
                     input = new Bundle();
 
                     input.putString("CMD_ID", "CLO");
+
+                    requestList.add(input);
+
+                    input = new Bundle();
+
+                    input.putString("CMD_ID", "OPN");
+
+                    requestList.add(input);
+
+                    input = new Bundle();
+
+                    input.putString("CMD_ID", "CKE");
+                    input.putInt   ("CKE_KEY", 1);
+                    input.putInt   ("CKE_MAG", 1);
+                    input.putInt   ("CKE_ICC", 1);
+                    input.putInt   ("CKE_CTLS", 1);
 
                     requestList.add(input);
 

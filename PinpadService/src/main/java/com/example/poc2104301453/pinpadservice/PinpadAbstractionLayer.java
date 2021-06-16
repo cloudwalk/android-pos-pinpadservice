@@ -1,10 +1,10 @@
 package com.example.poc2104301453.pinpadservice;
 
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 
+import com.example.poc2104301453.pinpadservice.commands.CKE;
 import com.example.poc2104301453.pinpadservice.commands.CLO;
 import com.example.poc2104301453.pinpadservice.commands.GIN;
 import com.example.poc2104301453.pinpadservice.commands.OPN;
@@ -60,6 +60,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         sCommandList.add(new Pair<>("OPN", OPN::opn));
         sCommandList.add(new Pair<>("GIN", GIN::gin));
         sCommandList.add(new Pair<>("CLO", CLO::clo));
+        sCommandList.add(new Pair<>("CKE", CKE::cke));
     }
 
     /**

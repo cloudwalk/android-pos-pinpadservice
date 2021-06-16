@@ -2,6 +2,7 @@ package com.example.poc2104301453.pinpadlibrary.managers;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.exceptions.ServiceInstanceException;
 import com.example.poc2104301453.pinpadlibrary.utilities.ServiceUtility;
@@ -53,6 +54,18 @@ public class PinpadManager {
      */
     public static IBinder getService() {
         return ServiceUtility.getService(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+    }
+
+    public static void abort() {
+        Bundle input = new Bundle();
+
+        input.putString("CMD_ID", "CLO");
+
+        try {
+            request(input);
+        } catch (Exception exception) {
+            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+        }
     }
 
     /**
