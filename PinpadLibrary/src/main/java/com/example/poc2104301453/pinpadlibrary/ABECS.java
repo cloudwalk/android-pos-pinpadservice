@@ -44,4 +44,52 @@ public class ABECS {
     public static final String OPN_OPMODE       = "OPN_OPMODE";
     public static final String OPN_MOD          = "OPN_MOD";
     public static final String OPN_EXP          = "OPN_EXP";
+
+    public static enum STAT {
+        ST_OK,              PP_PROCESSING,      PP_NOTIFY,
+        ST_NOSEC,           ST_F1,              ST_F2,
+        ST_F3,              ST_F4,              ST_BACKSP,
+        ST_ERRPKTSEC,       ST_INVCALL,         ST_INVPARM,
+        ST_TIMEOUT,         ST_CANCEL,          PP_ALREADYOPEN,
+        PP_NOTOPEN,         PP_EXECERR,         PP_INVMODEL,
+        PP_NOFUNC,          ST_MANDAT,          ST_TABVERDIF,
+        ST_TABERR,          PP_NOAPPLIC,
+
+        RFU_23, RFU_24, RFU_25, RFU_26, RFU_27, RFU_28, RFU_29,
+
+        PP_PORTERR,         PP_COMMERR,         PP_UNKNOWNSTAT,
+        PP_RSPERR,          PP_COMMTOUT,
+
+        RFU_35, RFU_36, RFU_37, RFU_38, RFU_39,
+
+        ST_INTERR,          ST_MCDATAERR,       ST_ERRKEY,
+        ST_NOCARD,          ST_PINBUSY,         ST_RSPOVRFL,
+        ST_ERRCRYPT,
+
+        RFU_47, RFU_48, RFU_49,
+
+        PP_SAMERR,          PP_NOSAM,           PP_SAMINV,
+
+        RFU_53, RFU_54, RFU_55, RFU_56, RFU_57, RFU_58, RFU_59,
+
+        ST_DUMBCARD,        ST_ERRCARD,         PP_CARDINV,
+        PP_CARDBLOCKED,     PP_CARDNAUTH,       PP_CARDEXPIRED,
+        PP_CARDERRSTRUCT,   ST_CARDINVALIDAT,   ST_CARDPROBLEMS,
+        ST_CARDINVDATA,     ST_CARDAPPNAV,      ST_CARDAPPNAUT,
+        PP_NOBALANCE,       PP_LIMITEXC,        PP_CARDNOTEFFECT,
+        PP_VCINVCURR,       ST_ERRFALLBACK,     ST_INVAMOUNT,
+        ST_ERRMAXAID,       ST_CARDBLOCKED,     ST_CTLSMULTIPLE,
+        ST_CTLSCOMMERR,     ST_CTLSINVALIDAT,   ST_CTLSPROBLEMS,
+        ST_CTLSAPPNAV,      ST_CTLSAPPNAUT,     ST_CTLSEXTCVM,
+        ST_CTLSIFCHG,
+
+        RFU_88, RFU_89,
+        RFU_90, RFU_91, RFU_92, RFU_93, RFU_94, RFU_95, RFU_96, RFU_97, RFU_98, RFU_99,
+
+        ST_MFNFOUND,        ST_MFERRFMT,        ST_MFERR;
+
+        private STAT() {
+            /* Nothing to do */
+        }
+    }
 }

@@ -22,7 +22,7 @@ public class CLO {
 
         pinpad.close(() -> {
             output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, 0);
+            output[0].putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
 
             semaphore[0].release();
         });

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
+import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,16 +55,18 @@ public class CKE {
         entradaComandoCheckEvent.informaTimeout(-1);
 
         pinpad.checkEvent(entradaComandoCheckEvent, saidaComandoCheckEvent -> {
-            output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, saidaComandoCheckEvent.obtemResultadoOperacao().ordinal());
+            ABECS.STAT status = ManufacturerUtility.toSTAT(saidaComandoCheckEvent.obtemResultadoOperacao());
 
-            SaidaComandoCheckEvent.EventoOcorrido event =
-                    saidaComandoCheckEvent.obtemEventoOcorrido();
+            output[0].putString(ABECS.RSP_ID, CMD_ID);
+            output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
 
             try {
-                if (output[0].getInt(ABECS.RSP_STAT) != 0) {
+                if (status != ABECS.STAT.ST_OK) {
                     return;
                 }
+
+                SaidaComandoCheckEvent.EventoOcorrido event =
+                        saidaComandoCheckEvent.obtemEventoOcorrido();
 
                 switch (event) {
                     case CARTAO_MAG_LIDO:

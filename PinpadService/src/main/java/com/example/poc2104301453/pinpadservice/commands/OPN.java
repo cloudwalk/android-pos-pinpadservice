@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
+import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
 
 import java.util.concurrent.Semaphore;
 
@@ -53,7 +54,7 @@ public class OPN {
 
         pinpad.open(entradaComandoOpen, codigosRetorno -> {
             output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, codigosRetorno.ordinal());
+            output[0].putInt   (ABECS.RSP_STAT, ManufacturerUtility.toSTAT(codigosRetorno).ordinal());
 
             semaphore[0].release();
         });

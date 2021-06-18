@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
+import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
 
 import java.util.concurrent.Semaphore;
 
@@ -21,76 +22,84 @@ public class GIN {
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
         pinpad.getInfo(saidaComandoGetInfo -> {
-            output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, 0);
-
-            String GIN_MNAME    = saidaComandoGetInfo.obtemFabricantePinpad();
-            String GIN_MODEL    = saidaComandoGetInfo.obtemModeloPinpad();
-            String GIN_CTLSSUP  = (saidaComandoGetInfo.obtemCapacidadesPinpad().suportaContactless()) ? "C" : " ";
-            String GIN_SOVER    = saidaComandoGetInfo.obtemVersaoSistemaOperacionalPinpad();
-            String GIN_SPECVER  = saidaComandoGetInfo.obtemVersaoEspecificacao();
-            String GIN_MANVER   = saidaComandoGetInfo.obtemVersaoAplicacaoGerenciadora();
-            String GIN_SERNUM   = saidaComandoGetInfo.obtemNumeroSeriePinpad();
-
-            String GIN_ACQNAM   = saidaComandoGetInfo.obtemNomeAdquirente();
-                   GIN_ACQNAM   = (GIN_ACQNAM != null) ? GIN_ACQNAM : "ABECS";
-
-            String GIN_KRNLVER  = saidaComandoGetInfo.obtemVersaoKernelEMV();
-            String GIN_APPVERS  = saidaComandoGetInfo.obtemVersaoAplicacaoAbecs();
-            String GIN_CTLSVER  = saidaComandoGetInfo.obtemVersaoKernelCtls();
-
-            String GIN_MCTLSVER = saidaComandoGetInfo.obtemVersaoKernelCtlsMasterPayPass();
-                   GIN_MCTLSVER = (GIN_MCTLSVER != null) ? GIN_MCTLSVER : "   ";
-
-            String GIN_VCTLSVER = saidaComandoGetInfo.obtemVersaoKernelCtlsVisaPayWave();
-                   GIN_VCTLSVER = (GIN_VCTLSVER != null) ? GIN_VCTLSVER : "   ";
+            ABECS.STAT status = ManufacturerUtility.toSTAT(saidaComandoGetInfo.obtemResultadoOperacao());
 
             output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0]   .putInt(ABECS.RSP_STAT, 0);
+            output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
 
-            int GIN_ACQIDX;
+            try {
+                if (status != ABECS.STAT.ST_OK) {
+                    return;
+                }
 
-            GIN_ACQIDX = input.getInt(ABECS.GIN_ACQIDX, -1);
+                String GIN_MNAME = saidaComandoGetInfo.obtemFabricantePinpad();
+                String GIN_MODEL = saidaComandoGetInfo.obtemModeloPinpad();
+                String GIN_CTLSSUP = (saidaComandoGetInfo.obtemCapacidadesPinpad().suportaContactless()) ? "C" : " ";
+                String GIN_SOVER = saidaComandoGetInfo.obtemVersaoSistemaOperacionalPinpad();
+                String GIN_SPECVER = saidaComandoGetInfo.obtemVersaoEspecificacao();
+                String GIN_MANVER = saidaComandoGetInfo.obtemVersaoAplicacaoGerenciadora();
+                String GIN_SERNUM = saidaComandoGetInfo.obtemNumeroSeriePinpad();
 
-            if (GIN_ACQIDX == -1) {
-                GIN_ACQIDX = (int) input.getLong(ABECS.GIN_ACQIDX);
+                String GIN_ACQNAM = saidaComandoGetInfo.obtemNomeAdquirente();
+                GIN_ACQNAM = (GIN_ACQNAM != null) ? GIN_ACQNAM : "ABECS";
+
+                String GIN_KRNLVER = saidaComandoGetInfo.obtemVersaoKernelEMV();
+                String GIN_APPVERS = saidaComandoGetInfo.obtemVersaoAplicacaoAbecs();
+                String GIN_CTLSVER = saidaComandoGetInfo.obtemVersaoKernelCtls();
+
+                String GIN_MCTLSVER = saidaComandoGetInfo.obtemVersaoKernelCtlsMasterPayPass();
+                GIN_MCTLSVER = (GIN_MCTLSVER != null) ? GIN_MCTLSVER : "   ";
+
+                String GIN_VCTLSVER = saidaComandoGetInfo.obtemVersaoKernelCtlsVisaPayWave();
+                GIN_VCTLSVER = (GIN_VCTLSVER != null) ? GIN_VCTLSVER : "   ";
+
+                output[0].putString(ABECS.RSP_ID, CMD_ID);
+                output[0].putInt(ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
+
+                int GIN_ACQIDX;
+
+                GIN_ACQIDX = input.getInt(ABECS.GIN_ACQIDX, -1);
+
+                if (GIN_ACQIDX == -1) {
+                    GIN_ACQIDX = (int) input.getLong(ABECS.GIN_ACQIDX);
+                }
+
+                switch (GIN_ACQIDX) {
+                    case 0:
+                        output[0].putString(ABECS.GIN_MNAME, GIN_MNAME);
+                        output[0].putString(ABECS.GIN_MODEL, GIN_MODEL);
+                        output[0].putString(ABECS.GIN_CTLSSUP, GIN_CTLSSUP);
+                        output[0].putString(ABECS.GIN_SOVER, GIN_SOVER);
+                        output[0].putString(ABECS.GIN_MANVER, GIN_MANVER);
+                        output[0].putString(ABECS.GIN_SERNUM, GIN_SERNUM);
+                        break;
+
+                    case 2:
+                        output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
+                        output[0].putString(ABECS.GIN_KRNLVER, GIN_KRNLVER);
+                        output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
+                        break;
+
+                    case 3:
+                        output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
+                        output[0].putString(ABECS.GIN_KRNLVER, GIN_KRNLVER);
+                        output[0].putString(ABECS.GIN_CTLSVER, GIN_CTLSVER);
+                        output[0].putString(ABECS.GIN_MCTLSVER, GIN_MCTLSVER);
+                        output[0].putString(ABECS.GIN_VCTLSVER, GIN_VCTLSVER);
+                        output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
+                        output[0].putString(ABECS.GIN_DUKPT, " ");
+                        break;
+
+                    default:
+                        output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
+                        output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
+                        break;
+                }
+
+                output[0].putString(ABECS.GIN_SPECVER, GIN_SPECVER);
+            } finally {
+                semaphore[0].release();
             }
-
-            switch (GIN_ACQIDX) {
-                case 0:
-                    output[0].putString(ABECS.GIN_MNAME, GIN_MNAME);
-                    output[0].putString(ABECS.GIN_MODEL, GIN_MODEL);
-                    output[0].putString(ABECS.GIN_CTLSSUP, GIN_CTLSSUP);
-                    output[0].putString(ABECS.GIN_SOVER, GIN_SOVER);
-                    output[0].putString(ABECS.GIN_MANVER, GIN_MANVER);
-                    output[0].putString(ABECS.GIN_SERNUM, GIN_SERNUM);
-                    break;
-
-                case 2:
-                    output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
-                    output[0].putString(ABECS.GIN_KRNLVER, GIN_KRNLVER);
-                    output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
-                    break;
-
-                case 3:
-                    output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
-                    output[0].putString(ABECS.GIN_KRNLVER, GIN_KRNLVER);
-                    output[0].putString(ABECS.GIN_CTLSVER, GIN_CTLSVER);
-                    output[0].putString(ABECS.GIN_MCTLSVER, GIN_MCTLSVER);
-                    output[0].putString(ABECS.GIN_VCTLSVER, GIN_VCTLSVER);
-                    output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
-                    output[0].putString(ABECS.GIN_DUKPT, " ");
-                    break;
-
-                default:
-                    output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
-                    output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
-                    break;
-            }
-
-            output[0].putString(ABECS.GIN_SPECVER, GIN_SPECVER);
-
-            semaphore[0].release();
         });
 
         semaphore[0].acquireUninterruptibly();

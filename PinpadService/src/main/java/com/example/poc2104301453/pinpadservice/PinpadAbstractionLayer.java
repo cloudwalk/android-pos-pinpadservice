@@ -145,7 +145,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
 
             throw new Exception("Unknown input: { CMD_ID: \"" + request + "\" }");
         } catch (Exception exception) {
-            output.putInt(ABECS.RSP_STAT, 40);
+            output.putInt(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR.ordinal());
             output.putSerializable("EXCEPTION", exception);
         } finally {
             sSemaphore[0].release();
