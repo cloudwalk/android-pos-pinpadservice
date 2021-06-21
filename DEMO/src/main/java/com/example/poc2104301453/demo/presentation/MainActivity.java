@@ -18,9 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Semaphore;
 
 import static com.example.poc2104301453.pinpadlibrary.ABECS.*;
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     input = new Bundle();
 
                     input.putString(CMD_ID, GIN);
+
                     input.putInt   (GIN_ACQIDX, 0);
 
                     requestList.add(input);
@@ -128,10 +132,28 @@ public class MainActivity extends AppCompatActivity {
                     input = new Bundle();
 
                     input.putString(CMD_ID, CKE);
-                    input.putInt   (CKE_KEY, 1);
-                    input.putInt   (CKE_MAG, 1);
-                    input.putInt   (CKE_ICC, 1);
+
+                    input.putInt   (CKE_KEY,  1);
+                    input.putInt   (CKE_MAG,  1);
+                    input.putInt   (CKE_ICC,  1);
                     input.putInt   (CKE_CTLS, 1);
+
+                    requestList.add(input);
+
+                    input = new Bundle();
+
+                    input.putString(CMD_ID, GCR);
+
+                    String date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
+                            .format(new Date());
+
+                    input.putInt   (GCR_ACQIDXREQ, 0);
+                    input.putInt   (GCR_APPTYPREQ, 99);
+                    input.putLong  (GCR_AMOUNT, 0);
+                    input.putString(GCR_DATE, date.substring(0, 6));
+                    input.putString(GCR_TIME, date.substring(6));
+                    input.putString(GCR_TABVER, "2106202112");
+                    input.putInt   (GCR_QTDAPP, 0);
 
                     requestList.add(input);
 

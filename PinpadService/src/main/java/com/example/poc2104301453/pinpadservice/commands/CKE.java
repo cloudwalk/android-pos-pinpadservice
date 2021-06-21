@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
+import com.example.poc2104301453.pinpadlibrary.exceptions.MissingArgumentException;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
 import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
 
@@ -25,7 +26,7 @@ public class CKE {
     public static Bundle cke(Bundle input)
             throws Exception {
         AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID  = input.getString(ABECS.CMD_ID);
+        String CMD_ID = input.getString(ABECS.CMD_ID);
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -47,6 +48,10 @@ public class CKE {
 
         if (input.getInt(ABECS.CKE_CTLS) != 0) {
             eventList.add(VERIFICA_APROXIMACAO_CTLS);
+        }
+
+        if (eventList.isEmpty()) {
+            throw new MissingArgumentException();
         }
 
         EntradaComandoCheckEvent entradaComandoCheckEvent =
@@ -87,15 +92,13 @@ public class CKE {
                     case CARTAO_ICC_REMOVIDO:
                     case CARTAO_ICC_INSERIDO:
                         output[0].putInt(ABECS.CKE_EVENT, 2);
-                        output[0].putInt(ABECS.CKE_ICCSTAT,
-                                (event != CARTAO_ICC_REMOVIDO) ? 1 : 0);
+                        output[0].putInt(ABECS.CKE_ICCSTAT,  (event != CARTAO_ICC_REMOVIDO) ? 1 : 0);
                         break;
 
                     case CARTAO_CTLS_DETECTADO:
                     case CARTAO_CTLS_NAO_DETECTADO:
                         output[0].putInt(ABECS.CKE_EVENT, 3);
-                        output[0].putInt(ABECS.CKE_CTLSSTAT,
-                                (event != CARTAO_CTLS_NAO_DETECTADO) ? 1 : 0);
+                        output[0].putInt(ABECS.CKE_CTLSSTAT, (event != CARTAO_CTLS_NAO_DETECTADO) ? 1 : 0);
                         break;
 
                     default:

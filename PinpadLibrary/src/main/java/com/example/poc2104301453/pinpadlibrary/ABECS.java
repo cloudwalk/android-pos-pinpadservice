@@ -8,20 +8,10 @@ public class ABECS {
     public static final String RSP_ID           = "RSP_ID";
     public static final String RSP_STAT         = "RSP_STAT";
 
-    public static final String CKE              = "CKE";
-    public static final String CKE_KEY          = "CKE_KEY";
-    public static final String CKE_MAG          = "CKE_MAG";
-    public static final String CKE_ICC          = "CKE_ICC";
-    public static final String CKE_CTLS         = "CKE_CTLS";
-    public static final String CKE_EVENT        = "CKE_EVENT";
-    public static final String CKE_KEYCODE      = "CKE_KEYCODE";
-    public static final String CKE_TRK1         = "CKE_TRK1";
-    public static final String CKE_TRK2         = "CKE_TRK2";
-    public static final String CKE_TRK3         = "CKE_TRK3";
-    public static final String CKE_ICCSTAT      = "CKE_ICCSTAT";
-    public static final String CKE_CTLSSTAT     = "CKE_CTLSSTAT";
-
-    public static final String CLO              = "CLO";
+    public static final String OPN              = "OPN";
+    public static final String OPN_OPMODE       = "OPN_OPMODE";
+    public static final String OPN_MOD          = "OPN_MOD";
+    public static final String OPN_EXP          = "OPN_EXP";
 
     public static final String GIN              = "GIN";
     public static final String GIN_ACQIDX       = "GIN_ACQIDX";
@@ -40,10 +30,47 @@ public class ABECS {
     public static final String GIN_VCTLSVER     = "GIN_VCTLSVER";
     public static final String GIN_DUKPT        = "GIN_DUKPT";
 
-    public static final String OPN              = "OPN";
-    public static final String OPN_OPMODE       = "OPN_OPMODE";
-    public static final String OPN_MOD          = "OPN_MOD";
-    public static final String OPN_EXP          = "OPN_EXP";
+    public static final String CLO              = "CLO";
+
+    public static final String CKE              = "CKE";
+    public static final String CKE_KEY          = "CKE_KEY";
+    public static final String CKE_MAG          = "CKE_MAG";
+    public static final String CKE_ICC          = "CKE_ICC";
+    public static final String CKE_CTLS         = "CKE_CTLS";
+    public static final String CKE_EVENT        = "CKE_EVENT";
+    public static final String CKE_KEYCODE      = "CKE_KEYCODE";
+    public static final String CKE_TRK1         = "CKE_TRK1";
+    public static final String CKE_TRK2         = "CKE_TRK2";
+    public static final String CKE_TRK3         = "CKE_TRK3";
+    public static final String CKE_ICCSTAT      = "CKE_ICCSTAT";
+    public static final String CKE_CTLSSTAT     = "CKE_CTLSSTAT";
+
+    public static final String GCR              = "GCR";
+    public static final String GCR_ACQIDXREQ    = "GCR_ACQIDXREQ";
+    public static final String GCR_APPTYPREQ    = "GCR_APPTYPREQ";
+    public static final String GCR_AMOUNT       = "GCR_AMOUNT";
+    public static final String GCR_DATE         = "GCR_DATE";
+    public static final String GCR_TIME         = "GCR_TIME";
+    public static final String GCR_TABVER       = "GCR_TABVER";
+    public static final String GCR_QTDAPP       = "GCR_QTDAPP";
+    public static final String GCR_IDAPPn       = "GCR_IDAPPn";
+    public static final String GCR_CTLSON       = "GCR_CTLSON";
+    public static final String GCR_CARDTYPE     = "GCR_CARDTYPE";
+    public static final String GCR_STATCHIP     = "GCR_STATCHIP";
+    public static final String GCR_APPTYPE      = "GCR_APPTYPE";
+    public static final String GCR_ACQIDX       = "GCR_ACQIDX";
+    public static final String GCR_RECIDX       = "GCR_RECIDX";
+    public static final String GCR_TRK1         = "GCR_TRK1";
+    public static final String GCR_TRK2         = "GCR_TRK2";
+    public static final String GCR_TRK3         = "GCR_TRK3";
+    public static final String GCR_PAN          = "GCR_PAN";
+    public static final String GCR_PANSEQNO     = "GCR_PANSEQNO";
+    public static final String GCR_APPLABEL     = "GCR_APPLABEL";
+    public static final String GCR_SRVCODE      = "GCR_SRVCODE";
+    public static final String GCR_CHNAME       = "GCR_CHNAME";
+    public static final String GCR_CARDEXP      = "GCR_CARDEXP";
+    public static final String GCR_ISSCNTRY     = "GCR_ISSCNTRY";
+    public static final String GCR_ACQRD        = "GCR_ACQRD";
 
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,

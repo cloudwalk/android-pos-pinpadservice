@@ -1,7 +1,6 @@
 package com.example.poc2104301453.pinpadlibrary.exceptions;
 
 public class PendingDevelopmentException extends Exception {
-
     /**
      * Constructor.
      */
