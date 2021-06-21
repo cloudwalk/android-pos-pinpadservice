@@ -10,6 +10,7 @@ import com.example.poc2104301453.pinpadservice.commands.CLO;
 import com.example.poc2104301453.pinpadservice.commands.GCR;
 import com.example.poc2104301453.pinpadservice.commands.GIN;
 import com.example.poc2104301453.pinpadservice.commands.OPN;
+import com.example.poc2104301453.pinpadservice.commands.TLR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,8 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
 
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
+
+        sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));
 
         sCommandList.add(new Pair<>(ABECS.GCR, GCR::gcr));
     }

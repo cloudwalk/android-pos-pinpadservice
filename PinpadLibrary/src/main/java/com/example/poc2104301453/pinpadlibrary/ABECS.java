@@ -45,6 +45,20 @@ public class ABECS {
     public static final String CKE_ICCSTAT      = "CKE_ICCSTAT";
     public static final String CKE_CTLSSTAT     = "CKE_CTLSSTAT";
 
+    /* 2021-006-21: TLI, TLR and TLE were grouped into a single command to
+     * match the manufacturer's abstraction.
+     * TODO: review ABECS spec. and make them individual requests? */
+
+    public static final String TLI              = "TLI";
+    public static final String TLI_ACQIDX       = "TLI_ACQIDX";
+    public static final String TLI_TABVER       = "TLI_TABVER";
+
+    public static final String TLR              = "TLR";
+    public static final String TLR_NREC         = "TLR_NREC";
+    public static final String TLR_DATA         = "TLR_DATA";
+
+    public static final String TLE              = "TLE";
+
     public static final String GCR              = "GCR";
     public static final String GCR_ACQIDXREQ    = "GCR_ACQIDXREQ";
     public static final String GCR_APPTYPREQ    = "GCR_APPTYPREQ";
