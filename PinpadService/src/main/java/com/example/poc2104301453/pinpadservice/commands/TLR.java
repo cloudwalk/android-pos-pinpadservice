@@ -159,10 +159,10 @@ public class TLR {
 
         Log.d(TAG_LOGCAT, "T1_CTLSCVMLIM [" + (new String(T1_CTLSCVMLIM, UTF_8)) + "]");
 
-        String  T1_CTLSAPPVER   = TAB_DATA.substring(0, 4);
+        byte[]  T1_CTLSAPPVER   = DataUtility.toByteArray(TAB_DATA.substring(0, 4));
                 TAB_DATA        = TAB_DATA.substring(4 + 1); /* + T1_RUF1 */
 
-        Log.d(TAG_LOGCAT, "T1_CTLSAPPVER [" + T1_CTLSAPPVER + "]");
+        Log.d(TAG_LOGCAT, "T1_CTLSAPPVER [" + (new String(T1_CTLSAPPVER, UTF_8)) + "]");
 
         byte[]  T1_TDOLDEF      = DataUtility.toByteArray(TAB_DATA.substring(0, 40));
                 TAB_DATA        = TAB_DATA.substring(40);
@@ -272,13 +272,13 @@ public class TLR {
         builder.informaContactlessTransactionLimit                      (T1_CTLSTRNLIM);
         builder.informaContactlessFloorLimit                            (T1_CTLSFLRLIM);
         builder.informaContactlessCvmRequiredLimit                      (T1_CTLSCVMLIM);
-                                                                     /* (T1_CTLSAPPVER); */
+        builder.informaMagStripeApplicationVersionNumber                (T1_CTLSAPPVER);
         builder.informaDefaultTransactionCertificateDataObjectList      (T1_TDOLDEF);
         builder.informaDefaultDynamicDataAuthenticationDataObjectList   (T1_DDOLDEF);
                                                                      /* (T1_ARCOFFLN); */
         builder.informaTerminalDefaultActionCodeContactless             (T1_CTLSTACDEF);
-        builder.informaTerminalDenialActionCodeContactless              (T1_CTLSTACDEF);
-        builder.informaTerminalOnlineActionCodeContactless              (T1_CTLSTACDEF);
+        builder.informaTerminalDenialActionCodeContactless              (T1_CTLSTACDEN);
+        builder.informaTerminalOnlineActionCodeContactless              (T1_CTLSTACONL);
 
         if (T1_CTLSTRMCP.length != 0) {
             builder.informaTerminalCapababilitiesContactless            (T1_CTLSTRMCP);
