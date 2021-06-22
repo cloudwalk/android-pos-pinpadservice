@@ -14,11 +14,15 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DataUtility {
     private static final String TAG_LOGCAT = DataUtility.class.getSimpleName();
@@ -39,6 +43,14 @@ public class DataUtility {
      */
     public static Drawable getDrawableById(@DrawableRes int id) {
         return ResourcesCompat.getDrawable(getProcessContext().getResources(), id, null);
+    }
+
+    public static byte[] toByteArray(Charset charset, String input) {
+        return input.getBytes(charset);
+    }
+
+    public static byte[] toByteArray(String input) {
+        return input.getBytes(UTF_8);
     }
 
     /**
@@ -116,7 +128,7 @@ public class DataUtility {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
 
-            byte[] byteInput = input.getBytes(StandardCharsets.UTF_8);
+            byte[] byteInput = input.getBytes(UTF_8);
 
             messageDigest.update(byteInput, 0, byteInput.length);
 
@@ -147,7 +159,7 @@ public class DataUtility {
             output[j * 2 + 1] = HEX_ARRAY[value & 0x0F];
         }
 
-        return new String(output, StandardCharsets.UTF_8);
+        return new String(output, UTF_8);
     }
 
     /**

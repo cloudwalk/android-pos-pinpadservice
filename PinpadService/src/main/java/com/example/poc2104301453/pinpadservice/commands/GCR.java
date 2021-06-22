@@ -38,10 +38,8 @@ public class GCR {
         int     GCR_QTDAPP      = input.getInt   (ABECS.GCR_QTDAPP, -1);
         boolean GCR_CTLSON      = input.getInt   (ABECS.GCR_CTLSON, 1) != 0;
 
-        boolean missing =
-                (GCR_ACQIDXREQ == -1) || (GCR_APPTYPREQ == -1) || (GCR_TABVER == null) || (GCR_QTDAPP == -1);
-
-        if (missing) {
+        if ((GCR_ACQIDXREQ == -1) || (GCR_APPTYPREQ == -1) || (GCR_TABVER == null)
+                || (GCR_QTDAPP == -1)) {
             throw new MissingArgumentException();
         }
 
@@ -74,15 +72,19 @@ public class GCR {
 
         EntradaComandoGetCard.Builder builder = new EntradaComandoGetCard.Builder(date);
 
-        builder.informaIndiceAdquirente(GCR_ACQIDXREQ);
-
         List<Integer> typeList = new ArrayList<>(1);
 
         typeList.add(GCR_APPTYPREQ);
 
-        builder.informaTipoAplicacao(typeList); builder.informaValorTotal(GCR_AMOUNT);
+        builder.informaIndiceAdquirente         (GCR_ACQIDXREQ);
 
-        builder.informaTimestamp(GCR_TABVER);
+        if (GCR_APPTYPREQ != 99) { /* 2021-06-22: workaround for a manufacturer's bug. */
+            builder.informaTipoAplicacao        (typeList);
+        }
+
+        builder.informaValorTotal               (GCR_AMOUNT);
+        builder.informaTimestamp                (GCR_TABVER);
+        builder.informaPermiteCtls              (GCR_CTLSON);
 
         if (!list.isEmpty()) {
             EntradaComandoGetCard.ListaRegistrosAID candidateList =
@@ -92,10 +94,8 @@ public class GCR {
                 candidateList.adicionaEntrada(Integer.parseInt(item.substring(0, 2)), Integer.parseInt(item.substring(2)));
             }
 
-            builder.informaListaRegistrosAID(candidateList);
+            builder.informaListaRegistrosAID    (candidateList);
         }
-
-        builder.informaPermiteCtls(GCR_CTLSON);
 
         pinpad.getCard(builder.build(), saidaComandoGetCard -> {
             ABECS.STAT status = ManufacturerUtility.toSTAT(saidaComandoGetCard.obtemResultadoOperacao());
