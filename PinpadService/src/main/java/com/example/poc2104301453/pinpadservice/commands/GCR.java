@@ -17,6 +17,7 @@ import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetCard;
+import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
 
 public class GCR {
     private static final String TAG_LOGCAT = GCR.class.getSimpleName();
@@ -108,7 +109,97 @@ public class GCR {
                     return;
                 }
 
-                /* TODO: code */
+                switch (saidaComandoGetCard.obtemTipoCartaoLido()) {
+                    case MAGNETICO:
+                        output[0].putInt(ABECS.GCR_CARDTYPE, 0);
+
+                        switch (saidaComandoGetCard.obtemStatusUltimaLeituraChip()) {
+                            case BEM_SUCEDIDA:
+                                output[0].putInt(ABECS.GCR_STATCHIP, 0);
+                                break;
+
+                            case ERRO_PASSIVEL_FALLBACK:
+                                output[0].putInt(ABECS.GCR_STATCHIP, 1);
+                                break;
+
+                            case APLICACAO_NAO_SUPORTADA:
+                                output[0].putInt(ABECS.GCR_STATCHIP, 2);
+                                break;
+
+                            default:
+                                /* Nothing to do */
+                                break;
+                        }
+                        break;
+
+                    case EMV_COM_CONTATO:
+                        output[0].putInt(ABECS.GCR_CARDTYPE, 3);
+                        break;
+
+                    case TARJA_SEM_CONTATO:
+                        output[0].putInt(ABECS.GCR_CARDTYPE, 5);
+                        break;
+
+                    case EMV_SEM_CONTATO:
+                        output[0].putInt(ABECS.GCR_CARDTYPE, 6);
+                        break;
+
+                    default:
+                        /* Nothing to do */
+                        break;
+                }
+
+                List<SaidaComandoGetCard.InformacaoTabelaAID> appl =
+                        saidaComandoGetCard.obtemInformacaoTabelaAIDs();
+
+                if (output[0].getInt   (ABECS.GCR_CARDTYPE) != 0) {
+                    output[0].putInt   (ABECS.GCR_ACQIDX,   appl.get(0).obtemListaRegistrosAID().getListaIndiceAdquirente().get(0));
+                    output[0].putString(ABECS.GCR_RECIDX,   appl.get(0).obtemListaRegistrosAID().getListaIndiceRegistro().get(0) + "");
+                    output[0].putInt   (ABECS.GCR_APPTYPE,  appl.get(0).obtemTipoAplicacao());
+                }
+
+                SaidaComandoGetCard.DadosCartao card = saidaComandoGetCard.obtemDadosCartao();
+
+                if (card.obtemTrilha1() != null) {
+                    output[0].putString(ABECS.GCR_TRK1,     card.obtemTrilha1());
+                }
+
+                if (card.obtemTrilha2() != null) {
+                    output[0].putString(ABECS.GCR_TRK2,     card.obtemTrilha2());
+                }
+
+                if (card.obtemTrilha3() != null) {
+                    output[0].putString(ABECS.GCR_TRK3,     card.obtemTrilha3());
+                }
+
+                switch (output[0].getInt(ABECS.GCR_CARDTYPE)) {
+                    case 3:
+                    case 6:
+                        break;
+
+                    default:
+                        return;
+                }
+
+                output[0].putString(ABECS.GCR_PAN,          card.obtemPan());
+                output[0].putInt   (ABECS.GCR_PANSEQNO,     card.obtemPanSequenceNumber());
+                output[0].putString(ABECS.GCR_APPLABEL,     card.obtemNomeAplicacao());
+
+                if (card.obtemNomePortador() != null) {
+                    output[0].putString (ABECS.GCR_CHNAME,  card.obtemNomePortador());
+                }
+
+                int GCR_CARDEXP = -1;
+
+                if (card.obtemDataVencimento() != null) {
+                    GCR_CARDEXP = Integer.parseInt(((new SimpleDateFormat("yyMMdd", Locale.getDefault())).format(card.obtemDataVencimento())));
+                }
+
+                if (GCR_CARDEXP != -1) {
+                    output[0].putInt    (ABECS.GCR_CARDEXP, GCR_CARDEXP);
+                }
+
+                output[0].putInt(ABECS.GCR_ISSCNTRY,        card.obtemIssuerCountryCode());
             } catch (Exception exception) {
                 Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
             } finally {
