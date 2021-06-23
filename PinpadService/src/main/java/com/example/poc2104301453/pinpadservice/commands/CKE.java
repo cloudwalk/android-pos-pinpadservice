@@ -4,149 +4,135 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
-import com.example.poc2104301453.pinpadlibrary.exceptions.MissingArgumentException;
-import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
-import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Semaphore;
-
-import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
-import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent;
-import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoCheckEvent;
-import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
-
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.*;
-import static br.com.verifone.bibliotecapinpad.saidas.SaidaComandoCheckEvent.EventoOcorrido.*;
 
 public class CKE {
     private static final String TAG_LOGCAT = CKE.class.getSimpleName();
 
     public static Bundle cke(Bundle input)
             throws Exception {
-        AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID = input.getString(ABECS.CMD_ID);
+        Bundle request = new Bundle();
 
-        final Bundle[] output = { new Bundle() };
-        final Semaphore[] semaphore = { new Semaphore(0, true) };
+        request.putString(ABECS.CMD_ID, ABECS.CEX);
 
-        List<EntradaComandoCheckEvent.Eventos> eventList =
-                new ArrayList<>(0);
+        String SPE_CEXOPT = "";
 
-        if (input.getInt(ABECS.CKE_KEY) != 0) {
-            eventList.add(VERIFICA_PRESSIONAMENTO_TECLAS);
+        SPE_CEXOPT += (input.getInt(ABECS.CKE_KEY ) != 0) ? "1" : "0";
+        SPE_CEXOPT += (input.getInt(ABECS.CKE_MAG ) != 0) ? "1" : "0";
+        SPE_CEXOPT += (input.getInt(ABECS.CKE_ICC ) != 0) ? "1" : "0";
+        SPE_CEXOPT += (input.getInt(ABECS.CKE_CTLS) != 0) ? "1" : "0";
+
+        SPE_CEXOPT += "00";
+
+        request.putString (ABECS.SPE_CEXOPT, SPE_CEXOPT);
+
+        Bundle response = CEX.cex(request);
+
+        response.putString(ABECS.RSP_ID, ABECS.CKE);
+
+        Bundle output = new Bundle();
+
+        output.putString  (ABECS.RSP_ID,   response.getString(ABECS.RSP_ID));
+        output.putInt     (ABECS.RSP_STAT, response.getInt   (ABECS.RSP_STAT, ABECS.STAT.ST_INTERR.ordinal()));
+
+        if (output.getInt(ABECS.RSP_STAT) != ABECS.STAT.ST_OK.ordinal()) {
+            return response;
         }
 
-        if (input.getInt(ABECS.CKE_MAG) != 0) {
-            eventList.add(VERIFICA_PASSAGEM_CARTAO_MAGNETICO);
-        }
+        switch (response.getString(ABECS.PP_EVENT)) {
+            case "00":
+                output.putInt(ABECS.CKE_KEYCODE,  0);
+                break;
 
-        if (input.getInt(ABECS.CKE_ICC) != 0) {
-            eventList.add(VERIFICA_INSERCAO_ICC);
-        }
+            case "02":
+            case "03":
+                output.putInt(ABECS.CKE_KEYCODE, -2);
+                break;
 
-        if (input.getInt(ABECS.CKE_CTLS) != 0) {
-            eventList.add(VERIFICA_APROXIMACAO_CTLS);
-        }
+            case "04":
+                output.putInt(ABECS.CKE_KEYCODE,  4);
+                break;
 
-        if (eventList.isEmpty()) {
-            throw new MissingArgumentException();
-        }
+            case "05":
+                output.putInt(ABECS.CKE_KEYCODE,  5);
+                break;
 
-        EntradaComandoCheckEvent entradaComandoCheckEvent =
-                new EntradaComandoCheckEvent(eventList);
+            case "06":
+                output.putInt(ABECS.CKE_KEYCODE,  6);
+                break;
 
-        entradaComandoCheckEvent.informaTimeout(-1);
+            case "07":
+                output.putInt(ABECS.CKE_KEYCODE,  7);
+                break;
 
-        pinpad.checkEvent(entradaComandoCheckEvent, saidaComandoCheckEvent -> {
-            ABECS.STAT status = ManufacturerUtility.toSTAT(saidaComandoCheckEvent.obtemResultadoOperacao());
+            case "08":
+                output.putInt(ABECS.CKE_KEYCODE,  8);
+                break;
 
-            output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
+            case "13":
+                output.putInt(ABECS.CKE_KEYCODE, 13);
+                break;
 
-            try {
-                if (status != ABECS.STAT.ST_OK) {
-                    return;
+            case "90":
+                String CKE_TRK1 = response.getString(ABECS.PP_TRK1INC);
+                String CKE_TRK2 = response.getString(ABECS.PP_TRK2INC);
+                String CKE_TRK3 = response.getString(ABECS.PP_TRK3INC);
+
+                CKE_TRK1 = (CKE_TRK1 != null) ? CKE_TRK1 : "";
+                CKE_TRK2 = (CKE_TRK2 != null) ? CKE_TRK2 : "";
+                CKE_TRK3 = (CKE_TRK3 != null) ? CKE_TRK3 : "";
+
+                if (CKE_TRK1.isEmpty() && CKE_TRK2.isEmpty() && CKE_TRK3.isEmpty()) {
+                    output.putInt(ABECS.RSP_STAT, ABECS.STAT.ST_MCDATAERR.ordinal());
+
+                    return output;
                 }
 
-                SaidaComandoCheckEvent.EventoOcorrido event =
-                        saidaComandoCheckEvent.obtemEventoOcorrido();
+                output.putInt   (ABECS.CKE_EVENT, 1);
+                output.putString(ABECS.CKE_TRK1,  CKE_TRK1);
+                output.putString(ABECS.CKE_TRK2,  CKE_TRK2);
+                output.putString(ABECS.CKE_TRK3,  CKE_TRK3);
+                break;
 
-                switch (event) {
-                    case CARTAO_MAG_LIDO:
-                        output[0].putInt(ABECS.CKE_EVENT, 1);
+            case "91":
+                output.putInt(ABECS.CKE_EVENT,    2);
+                output.putInt(ABECS.CKE_ICCSTAT,  0);
+                break;
 
-                        SaidaComandoGetCard.DadosCartao card =
-                                saidaComandoCheckEvent.obtemDadosCartao();
+            case "92":
+                output.putInt(ABECS.CKE_EVENT,    2);
+                output.putInt(ABECS.CKE_ICCSTAT,  1);
+                break;
 
-                        if (card == null) {
-                            break;
-                        }
+            case "93":
+                output.putInt(ABECS.CKE_EVENT,    3);
+                output.putInt(ABECS.CKE_CTLSSTAT, 0);
+                break;
 
-                        output[0].putString(ABECS.CKE_TRK1, card.obtemTrilha1()); /* TODO: review formatting */
-                        output[0].putString(ABECS.CKE_TRK2, card.obtemTrilha2());
-                        output[0].putString(ABECS.CKE_TRK3, card.obtemTrilha3());
-                        break;
+            case "94":
+                output.putInt(ABECS.CKE_EVENT,    3);
+                output.putInt(ABECS.CKE_CTLSSTAT, 1);
+                break;
 
-                    case CARTAO_ICC_REMOVIDO:
-                    case CARTAO_ICC_INSERIDO:
-                        output[0].putInt(ABECS.CKE_EVENT, 2);
-                        output[0].putInt(ABECS.CKE_ICCSTAT,  (event != CARTAO_ICC_REMOVIDO) ? 1 : 0);
-                        break;
+            default:
+                Log.e(TAG_LOGCAT, ABECS.PP_EVENT + " [" + response.getString(ABECS.PP_EVENT) + "]");
 
-                    case CARTAO_CTLS_DETECTADO:
-                    case CARTAO_CTLS_NAO_DETECTADO:
-                        output[0].putInt(ABECS.CKE_EVENT, 3);
-                        output[0].putInt(ABECS.CKE_CTLSSTAT, (event != CARTAO_CTLS_NAO_DETECTADO) ? 1 : 0);
-                        break;
+                /* Nothing to do */
+                break;
+        }
 
-                    default:
-                        output[0].putInt(ABECS.CKE_EVENT, 0);
+        switch (output.getInt(ABECS.CKE_KEYCODE, -1)) {
+            case -1:
+                break;
 
-                        switch (event) {
-                            case TECLA_OK_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 0);
-                                break;
+            case -2:
+                output.remove(ABECS.CKE_KEYCODE);
+                /* no break */
 
-                            case TECLA_F1_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 4);
-                                break;
+            default:
+                output.putInt(ABECS.CKE_EVENT,    0);
+                break;
+        }
 
-                            case TECLA_F2_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 5);
-                                break;
-
-                            case TECLA_F3_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 6);
-                                break;
-
-                            case TECLA_F4_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 7);
-                                break;
-
-                            case TECLA_LIMPA_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 8);
-                                break;
-
-                            case TECLA_CANCELA_PRESSIONADA:
-                                output[0].putInt(ABECS.CKE_KEYCODE, 13);
-                                break;
-
-                            default:
-                                /* Nothing to do */
-                                break;
-                        }
-                }
-            } catch (Exception exception) {
-                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
-            } finally {
-                semaphore[0].release();
-            }
-        });
-
-        semaphore[0].acquireUninterruptibly();
-
-        return output[0];
+        return output;
     }
 }

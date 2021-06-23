@@ -20,11 +20,12 @@ import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoOpen;
 public class OPN {
     private static final String TAG_LOGCAT = OPN.class.getSimpleName();
 
+    private static AcessoFuncoesPinpad getPinpad() {
+        return PinpadAbstractionLayer.getInstance().getPinpad();
+    }
+
     public static Bundle opn(Bundle input)
             throws Exception {
-        AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID  = input.getString(ABECS.CMD_ID);
-
         InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
             @Override
             public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
@@ -52,9 +53,11 @@ public class OPN {
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
-        pinpad.open(entradaComandoOpen, codigosRetorno -> {
-            output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, ManufacturerUtility.toSTAT(codigosRetorno).ordinal());
+        getPinpad().open(entradaComandoOpen, response -> {
+            ABECS.STAT status = ManufacturerUtility.toSTAT(response);
+
+            output[0].putString(ABECS.RSP_ID,   ABECS.OPN);
+            output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
 
             semaphore[0].release();
         });

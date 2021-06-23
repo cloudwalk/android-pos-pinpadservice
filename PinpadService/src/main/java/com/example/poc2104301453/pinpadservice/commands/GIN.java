@@ -7,16 +7,16 @@ import com.example.poc2104301453.pinpadlibrary.ABECS;
 public class GIN {
     private static final String TAG_LOGCAT = GIN.class.getSimpleName();
 
-    public static Bundle
-            gin(Bundle input) throws Exception {
+    public static Bundle gin(Bundle input)
+            throws Exception {
         Bundle response = GIX.gix(input);
 
         response.putString(ABECS.RSP_ID, ABECS.GIN);
 
         Bundle output = new Bundle();
 
-        output.putString(ABECS.RSP_ID,   response.getString(ABECS.RSP_ID));
-        output.putInt   (ABECS.RSP_STAT, response.getInt   (ABECS.RSP_STAT, ABECS.STAT.ST_INTERR.ordinal()));
+        output.putString  (ABECS.RSP_ID,   response.getString(ABECS.RSP_ID));
+        output.putInt     (ABECS.RSP_STAT, response.getInt   (ABECS.RSP_STAT, ABECS.STAT.ST_INTERR.ordinal()));
 
         if (output.getInt(ABECS.RSP_STAT) != ABECS.STAT.ST_OK.ordinal()) {
             return response;
@@ -67,7 +67,7 @@ public class GIN {
                 output.putString(ABECS.GIN_APPVERS,     GIN_APPVERS);
                 output.putString(ABECS.GIN_SPECVER,     GIN_SPECVER);
 
-                String GIN_DUKPT = response.getString(ABECS.PP_DKPTTDESP).charAt(1) != '1' ? " " : "T";
+                String GIN_DUKPT = response.getString(ABECS.PP_DKPTTDESP, "00...").charAt(1) != '1' ? " " : "T";
 
                 output.putString(ABECS.GIN_DUKPT,       GIN_DUKPT);
                 break;

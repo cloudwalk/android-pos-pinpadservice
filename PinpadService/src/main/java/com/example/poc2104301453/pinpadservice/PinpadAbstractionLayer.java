@@ -5,6 +5,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
+import com.example.poc2104301453.pinpadservice.commands.CEX;
 import com.example.poc2104301453.pinpadservice.commands.CKE;
 import com.example.poc2104301453.pinpadservice.commands.CLO;
 import com.example.poc2104301453.pinpadservice.commands.GCR;
@@ -66,6 +67,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
 
+        sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
 
         sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));

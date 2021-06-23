@@ -22,13 +22,11 @@ import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.
 public class GIX {
     private static final String TAG_LOGCAT = GIX.class.getSimpleName();
 
-    private static AcessoFuncoesPinpad
-            getPinpad() {
+    private static AcessoFuncoesPinpad getPinpad() {
         return PinpadAbstractionLayer.getInstance().getPinpad();
     }
 
-    private static Bundle
-            parseRSP(SaidaComandoGetInfoEx response) {
+    private static Bundle parseRSP(SaidaComandoGetInfoEx response) {
         Bundle output = new Bundle();
 
         switch (response.obtemTipoInformacao()) {
@@ -138,6 +136,8 @@ public class GIX {
         output.putString(ABECS.PP_DPCTLSVER,    data.obtemVersaoKernelCtlsDiscover());
         output.putString(ABECS.PP_PUREVER,      data.obtemVersaoKernelCtlsPure());
 
+        /* TODO: PP_TLRMEM */
+
         /*
          * "N/A" property list:
          *
@@ -155,10 +155,10 @@ public class GIX {
         return output;
     }
 
-    public static Bundle
-            gix(Bundle input) throws Exception {
+    public static Bundle gix(Bundle input)
+            throws Exception {
         final Bundle[] output = { new Bundle() };
-        final Semaphore[] semaphore = { new Semaphore(-5, true) };
+        final Semaphore[] semaphore = { null };
 
         List<EntradaComandoGetInfoEx.TipoInfo> typeList =
                 new ArrayList<>(6);
@@ -171,6 +171,8 @@ public class GIX {
 
         typeList.add(INFO_KEYMAP_DUKPT3DES_DATA);
         typeList.add(INFO_KEYMAP_DUKPT3DES_PIN);
+
+        semaphore[0] = new Semaphore((typeList.size() - 1) * -1, true);
 
         for (EntradaComandoGetInfoEx.TipoInfo type : typeList) {
             getPinpad().getInfoEx(new EntradaComandoGetInfoEx(type, -1), response -> {

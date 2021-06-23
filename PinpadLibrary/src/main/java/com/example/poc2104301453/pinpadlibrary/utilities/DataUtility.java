@@ -15,7 +15,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -142,6 +141,35 @@ public class DataUtility {
         }
 
         return output.toString();
+    }
+
+    /**
+     * Masks all data from given {@code input} between indexes {@code ll} and {@code rr}.<br>
+     * In the event of an error, the {@code input} will be returned <i>as is</i>.
+     *
+     * @param input {@link String}
+     * @param rr {@code int}
+     * @param ll {@code int}
+     * @return {@link String}
+     */
+    public static String mask(@NotNull String input, int ll, int rr) {
+        String output = new String(input);
+
+        try {
+            StringBuilder mask = new StringBuilder();
+
+            for (int i = 0; i < (input.length() - rr - ll); i++) {
+                mask.append("*");
+            }
+
+            output = output.substring(0, ll)
+                   + mask
+                   + output.substring(output.length() - rr);
+        } catch (Exception exception) {
+            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+        }
+
+        return output;
     }
 
     /**
