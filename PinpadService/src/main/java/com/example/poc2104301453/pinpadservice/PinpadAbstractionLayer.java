@@ -9,6 +9,7 @@ import com.example.poc2104301453.pinpadservice.commands.CKE;
 import com.example.poc2104301453.pinpadservice.commands.CLO;
 import com.example.poc2104301453.pinpadservice.commands.GCR;
 import com.example.poc2104301453.pinpadservice.commands.GIN;
+import com.example.poc2104301453.pinpadservice.commands.GIX;
 import com.example.poc2104301453.pinpadservice.commands.OPN;
 import com.example.poc2104301453.pinpadservice.commands.TLR;
 
@@ -62,6 +63,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
 
         sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
         sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
+        sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
 
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));

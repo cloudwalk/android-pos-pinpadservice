@@ -30,7 +30,49 @@ public class ABECS {
     public static final String GIN_VCTLSVER     = "GIN_VCTLSVER";
     public static final String GIN_DUKPT        = "GIN_DUKPT";
 
+    public static final String GIX              = "GIX";
+    public static final String PP_SERNUM        = "PP_SERNUM";
+    public static final String PP_PARTNBR       = "PP_PARTNBR";
+    public static final String PP_MODEL         = "PP_MODEL";
+    public static final String PP_MNNAME        = "PP_MNNAME";
+    public static final String PP_CAPAB         = "PP_CAPAB";
+    public static final String PP_SOVER         = "PP_SOVER";
+    public static final String PP_SPECVER       = "PP_SPECVER";
+    public static final String PP_MANVERS       = "PP_MANVERS";
+    public static final String PP_APPVERS       = "PP_APPVERS";
+    public static final String PP_GENVERS       = "PP_GENVERS";
+    public static final String PP_KRNLVER       = "PP_KRNLVER";
+    public static final String PP_CTLSVER       = "PP_CTLSVER";
+    public static final String PP_MCTLSVER      = "PP_MCTLSVER";
+    public static final String PP_VCTLSVER      = "PP_VCTLSVER";
+    public static final String PP_AECTLSVER     = "PP_AECTLSVER";
+    public static final String PP_DPCTLSVER     = "PP_DPCTLSVER";
+    public static final String PP_PUREVER       = "PP_PUREVER";
+    public static final String PP_DSPTXTSZ      = "PP_DSPTXTSZ";
+    public static final String PP_DSPGRSZ       = "PP_DSPGRSZ";
+    public static final String PP_MFSUP         = "PP_MFSUP";
+    public static final String PP_MKTDESP       = "PP_MKTDESP";
+    public static final String PP_MKTDESD       = "PP_MKTDESD";
+    public static final String PP_DKPTTDESP     = "PP_DKPTTDESP";
+    public static final String PP_DKPTTDESD     = "PP_DKPTTDESD";
+    public static final String PP_TLRMEM        = "PP_TLRMEM";
+    public static final String PP_KSNTDESPnn    = "PP_KSNTDESPnn";
+    public static final String PP_KSNTDESDnn    = "PP_KSNTDESDnn";
+    public static final String PP_TABVERnn      = "PP_TABVERnn";
+    public static final String PP_BIGRAND       = "PP_BIGRAND";
+
     public static final String CLO              = "CLO";
+
+    public static final String CLX              = "CLX";
+
+    public static final String CEX              = "CEX";
+    public static final String SPE_CEXOPT       = "SPE_CEXOPT";
+    public static final String SPE_TIMEOUT      = "SPE_TIMEOUT";
+    public static final String SPE_PANMASK      = "SPE_PANMASK";
+    public static final String PP_EVENT         = "PP_EVENT";
+    public static final String PP_TRK1INC       = "PP_TRK1INC";
+    public static final String PP_TRK2INC       = "PP_TRK2INC";
+    public static final String PP_TRK3INC       = "PP_TRK3INC";
 
     public static final String CKE              = "CKE";
     public static final String CKE_KEY          = "CKE_KEY";

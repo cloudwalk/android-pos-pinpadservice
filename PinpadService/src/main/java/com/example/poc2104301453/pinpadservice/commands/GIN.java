@@ -3,74 +3,81 @@ package com.example.poc2104301453.pinpadservice.commands;
 import android.os.Bundle;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
-import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
-import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
-
-import java.util.concurrent.Semaphore;
-
-import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 
 public class GIN {
     private static final String TAG_LOGCAT = GIN.class.getSimpleName();
 
-    public static Bundle gin(Bundle input)
-            throws Exception {
-        AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID = input.getString(ABECS.CMD_ID);
+    public static Bundle
+            gin(Bundle input) throws Exception {
+        Bundle response = GIX.gix(input);
 
-        final Bundle[] output = { new Bundle() };
-        final Semaphore[] semaphore = { new Semaphore(0, true) };
+        response.putString(ABECS.RSP_ID, ABECS.GIN);
 
-        pinpad.getInfo(saidaComandoGetInfo -> {
-            ABECS.STAT status = ManufacturerUtility.toSTAT(saidaComandoGetInfo.obtemResultadoOperacao());
+        Bundle output = new Bundle();
 
-            output[0].putString(ABECS.RSP_ID, CMD_ID);
-            output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
+        output.putString(ABECS.RSP_ID,   response.getString(ABECS.RSP_ID));
+        output.putInt   (ABECS.RSP_STAT, response.getInt   (ABECS.RSP_STAT, ABECS.STAT.ST_INTERR.ordinal()));
 
-            try {
-                if (status != ABECS.STAT.ST_OK) {
-                    return;
-                }
+        if (output.getInt(ABECS.RSP_STAT) != ABECS.STAT.ST_OK.ordinal()) {
+            return response;
+        }
 
-                String GIN_MNAME    = saidaComandoGetInfo.obtemFabricantePinpad();
-                String GIN_MODEL    = saidaComandoGetInfo.obtemModeloPinpad();
-                String GIN_CTLSSUP  = (saidaComandoGetInfo.obtemCapacidadesPinpad().suportaContactless()) ? "C" : " ";
-                String GIN_SOVER    = saidaComandoGetInfo.obtemVersaoSistemaOperacionalPinpad();
-                String GIN_SPECVER  = saidaComandoGetInfo.obtemVersaoEspecificacao();
-                String GIN_MANVER   = saidaComandoGetInfo.obtemVersaoAplicacaoGerenciadora();
-                String GIN_SERNUM   = saidaComandoGetInfo.obtemNumeroSeriePinpad();
+        String GIN_MNAME    = response.getString(ABECS.PP_MNNAME);
+        String GIN_MODEL    = response.getString(ABECS.PP_MODEL);
+        String GIN_CTLSSUP  = response.getString(ABECS.PP_CAPAB).charAt(0) != '1' ? " " : "C";
+        String GIN_SOVER    = response.getString(ABECS.PP_SOVER);
+        String GIN_SPECVER  = response.getString(ABECS.PP_SPECVER);
+        String GIN_MANVER   = response.getString(ABECS.PP_MANVERS);
+        String GIN_SERNUM   = response.getString(ABECS.PP_SERNUM);
 
-                String GIN_ACQNAM   = saidaComandoGetInfo.obtemNomeAdquirente();
-                       GIN_ACQNAM   = (GIN_ACQNAM != null) ? GIN_ACQNAM : "ABECS";
+        String GIN_ACQNAM   = "ABECS";
 
-                String GIN_APPVERS  = saidaComandoGetInfo.obtemVersaoAplicacaoAbecs();
+        String GIN_KRNLVER  = response.getString(ABECS.PP_KRNLVER);
+        String GIN_APPVERS  = response.getString(ABECS.PP_APPVERS);
+        String GIN_CTLSVER  = response.getString(ABECS.PP_CTLSVER);
+        String GIN_MCTLSVER = response.getString(ABECS.PP_MCTLSVER);
+        String GIN_VCTLSVER = response.getString(ABECS.PP_VCTLSVER);
 
-                int    GIN_ACQIDX   = input.getInt(ABECS.GIN_ACQIDX);
+        int    GIN_ACQIDX   = input.getInt(ABECS.GIN_ACQIDX);
 
-                switch (GIN_ACQIDX) {
-                    case 0:
-                        output[0].putString(ABECS.GIN_MNAME, GIN_MNAME);
-                        output[0].putString(ABECS.GIN_MODEL, GIN_MODEL);
-                        output[0].putString(ABECS.GIN_CTLSSUP, GIN_CTLSSUP);
-                        output[0].putString(ABECS.GIN_SOVER, GIN_SOVER);
-                        output[0].putString(ABECS.GIN_MANVER, GIN_MANVER);
-                        output[0].putString(ABECS.GIN_SERNUM, GIN_SERNUM);
-                        break;
+        switch (GIN_ACQIDX) {
+            case 0:
+                output.putString(ABECS.GIN_MNAME,       GIN_MNAME);
+                output.putString(ABECS.GIN_MODEL,       GIN_MODEL);
+                output.putString(ABECS.GIN_CTLSSUP,     GIN_CTLSSUP);
+                output.putString(ABECS.GIN_SOVER,       GIN_SOVER);
+                output.putString(ABECS.GIN_SPECVER,     GIN_SPECVER);
+                output.putString(ABECS.GIN_MANVER,      GIN_MANVER);
+                output.putString(ABECS.GIN_SERNUM,      GIN_SERNUM);
+                break;
 
-                    default:
-                        output[0].putString(ABECS.GIN_ACQNAM, GIN_ACQNAM);
-                        output[0].putString(ABECS.GIN_APPVERS, GIN_APPVERS);
-                        break;
-                }
+            case 2:
+                output.putString(ABECS.GIN_ACQNAM,      GIN_ACQNAM);
+                output.putString(ABECS.GIN_KRNLVER,     GIN_KRNLVER);
+                output.putString(ABECS.GIN_APPVERS,     GIN_APPVERS);
+                output.putString(ABECS.GIN_SPECVER,     GIN_SPECVER);
+                break;
 
-                output[0].putString(ABECS.GIN_SPECVER, GIN_SPECVER);
-            } finally {
-                semaphore[0].release();
-            }
-        });
+            case 3:
+                output.putString(ABECS.GIN_ACQNAM,      GIN_ACQNAM);
+                output.putString(ABECS.GIN_KRNLVER,     GIN_KRNLVER);
+                output.putString(ABECS.GIN_CTLSVER,     GIN_CTLSVER);
+                output.putString(ABECS.GIN_MCTLSVER,    GIN_MCTLSVER);
+                output.putString(ABECS.GIN_VCTLSVER,    GIN_VCTLSVER);
+                output.putString(ABECS.GIN_APPVERS,     GIN_APPVERS);
+                output.putString(ABECS.GIN_SPECVER,     GIN_SPECVER);
 
-        semaphore[0].acquireUninterruptibly();
+                String GIN_DUKPT = response.getString(ABECS.PP_DKPTTDESP).charAt(1) != '1' ? " " : "T";
 
-        return output[0];
+                output.putString(ABECS.GIN_DUKPT,       GIN_DUKPT);
+                break;
+
+            default:
+                output.putString(ABECS.GIN_ACQNAM,      GIN_ACQNAM);
+                output.putString(ABECS.GIN_APPVERS,     GIN_APPVERS);
+                break;
+        }
+
+        return output;
     }
 }
