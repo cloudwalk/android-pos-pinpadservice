@@ -1,4 +1,5 @@
-include ':PinpadService'
 rootProject.name = "POC 2104301453"
 include ':PinpadLibrary'
 include ':DEMO'
+include ':VerifoneService'
+include ':SunmiService'
