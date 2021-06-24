@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                         data.append(item);
                     }
                     input.putString(TLR_DATA, data.toString());
-                    requestList.add(input);
+                    // requestList.add(input);
 
                     input = new Bundle();
                     input.putString(CMD_ID, GCR);
@@ -197,6 +197,10 @@ public class MainActivity extends AppCompatActivity {
                     input.putString(GCR_TIME,       date.substring(6));
                     input.putString(GCR_TABVER,     "0123456789");
                     input.putInt   (GCR_QTDAPP,     0);
+                    // requestList.add(input);
+
+                    input = new Bundle();
+                    input.putString(CMD_ID, CLO);
                     requestList.add(input);
 
                     for (Bundle request : requestList) {
