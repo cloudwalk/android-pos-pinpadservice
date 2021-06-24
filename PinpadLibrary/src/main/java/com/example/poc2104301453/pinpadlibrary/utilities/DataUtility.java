@@ -32,7 +32,7 @@ public class DataUtility {
     /**
      * @return {@link Context}
      */
-    public static Context getProcessContext() {
+    public static Context getApplicationContext() {
         return PinpadAbstractionLayer.getContext();
     }
 
@@ -41,7 +41,7 @@ public class DataUtility {
      * @return {@link Drawable}
      */
     public static Drawable getDrawableById(@DrawableRes int id) {
-        return ResourcesCompat.getDrawable(getProcessContext().getResources(), id, null);
+        return ResourcesCompat.getDrawable(getApplicationContext().getResources(), id, null);
     }
 
     public static byte[] toByteArray(Charset charset, String input) {
@@ -144,8 +144,8 @@ public class DataUtility {
     }
 
     /**
-     * Masks all data from given {@code input} between indexes {@code ll} and {@code rr}.<br>
-     * In the event of an error, the {@code input} will be returned <i>as is</i>.
+     * Masks data from given {@code input} between indexes {@code ll} and {@code rr}.<br>
+     * Ignores whitespaces.
      *
      * @param input {@link String}
      * @param rr {@code int}
@@ -155,18 +155,20 @@ public class DataUtility {
     public static String mask(@NotNull String input, int ll, int rr) {
         String output = new String(input);
 
-        try {
-            StringBuilder mask = new StringBuilder();
+        if (ll < 0 || rr < 0) {
+            return output;
+        }
 
-            for (int i = 0; i < (input.length() - rr - ll); i++) {
-                mask.append("*");
+        if ((output.length() - ll - rr) <= 0) {
+            return output;
+        }
+
+        for (int i = ll; i < output.length() - rr; i++) {
+            char candidate = output.charAt(i);
+
+            if (candidate != ' ') {
+                output = output.substring(0, i) + '*' + output.substring(i + 1);
             }
-
-            output = output.substring(0, ll)
-                   + mask
-                   + output.substring(output.length() - rr);
-        } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
         }
 
         return output;

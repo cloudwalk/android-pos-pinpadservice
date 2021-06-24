@@ -108,22 +108,22 @@ public class MainActivity extends AppCompatActivity {
                     requestList.add(input);
 
                     input = new Bundle();
-                    input.putString(CMD_ID,     GIN);
+                    input.putString(CMD_ID, GIN);
                     input.putInt   (GIN_ACQIDX, 0);
                     requestList.add(input);
 
                     input = new Bundle();
-                    input.putString(CMD_ID,     GIN);
+                    input.putString(CMD_ID, GIN);
                     input.putInt   (GIN_ACQIDX, 1);
                     requestList.add(input);
 
                     input = new Bundle();
-                    input.putString(CMD_ID,     GIN);
+                    input.putString(CMD_ID, GIN);
                     input.putInt   (GIN_ACQIDX, 2);
                     requestList.add(input);
 
                     input = new Bundle();
-                    input.putString(CMD_ID,     GIN);
+                    input.putString(CMD_ID, GIN);
                     input.putInt   (GIN_ACQIDX, 3);
                     requestList.add(input);
 
@@ -145,6 +145,13 @@ public class MainActivity extends AppCompatActivity {
                     input.putInt   (CKE_MAG,  1);
                     input.putInt   (CKE_ICC,  1);
                     input.putInt   (CKE_CTLS, 1);
+                    requestList.add(input);
+
+                    input = new Bundle();
+                    input.putString(CMD_ID, CEX);
+                    input.putString(SPE_CEXOPT,  "111100");
+                    input.putInt   (SPE_TIMEOUT, 10);
+                    input.putString(SPE_PANMASK, "0404");
                     requestList.add(input);
 
                     input = new Bundle();

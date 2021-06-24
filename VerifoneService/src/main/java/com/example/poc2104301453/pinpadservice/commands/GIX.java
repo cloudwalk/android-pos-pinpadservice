@@ -170,7 +170,7 @@ public class GIX {
 
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
 
-        Context context = DataUtility.getProcessContext();
+        Context context = DataUtility.getApplicationContext();
 
         ((ActivityManager) context
                 .getSystemService(ACTIVITY_SERVICE))

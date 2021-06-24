@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
-import com.example.poc2104301453.pinpadlibrary.utilities.DataUtility;
 import com.example.poc2104301453.pinpadservice.PinpadAbstractionLayer;
 import com.example.poc2104301453.pinpadservice.utilities.ManufacturerUtility;
 
@@ -17,10 +16,7 @@ import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoCheckEvent;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
 
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_APROXIMACAO_CTLS;
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_INSERCAO_ICC;
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PASSAGEM_CARTAO_MAGNETICO;
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PRESSIONAMENTO_TECLAS;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.*;
 
 public class CEX {
     private static final String TAG_LOGCAT = CEX.class.getSimpleName();
@@ -32,9 +28,11 @@ public class CEX {
     private static Bundle parseRSP(Bundle input, SaidaComandoCheckEvent response) {
         Bundle output = new Bundle();
 
-        String PP_TRK1INC = null;
-        String PP_TRK2INC = null;
-        String PP_TRK3INC = null;
+        String PP_TRK1INC  = null;
+        String PP_TRK2INC  = null;
+        String PP_TRK3INC  = null;
+
+        String SPE_PANMASK = input.getString(ABECS.SPE_PANMASK);
 
         switch (response.obtemEventoOcorrido()) {
             case TECLA_OK_PRESSIONADA:
@@ -79,9 +77,11 @@ public class CEX {
                 SaidaComandoGetCard.DadosCartao card = response.obtemDadosCartao();
 
                 if (card != null) {
-                    PP_TRK1INC = card.obtemTrilha1(); /* TODO: review formatting */
-                    PP_TRK2INC = card.obtemTrilha2();
-                    PP_TRK3INC = card.obtemTrilha3();
+                    String pattern = (SPE_PANMASK != null) ? SPE_PANMASK : "9999";
+
+                    PP_TRK1INC = ManufacturerUtility.getPP_TRKxINC(pattern, card, 1);
+                    PP_TRK2INC = ManufacturerUtility.getPP_TRKxINC(pattern, card, 2);
+                    PP_TRK3INC = ManufacturerUtility.getPP_TRKxINC(pattern, card, 3);
                 }
                 break;
 
@@ -107,30 +107,16 @@ public class CEX {
                 return output;
         }
 
-        String SPE_PANMASK = input.getString(ABECS.SPE_PANMASK);
-
-        int ll = -1;
-        int rr = -1;
-
-        if (SPE_PANMASK != null && SPE_PANMASK.length() >= 4) {
-            try {
-                ll = Integer.parseInt(SPE_PANMASK.substring(0, 2));
-                rr = Integer.parseInt(SPE_PANMASK.substring(2, 4));
-            } catch (Exception exception) {
-                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
-            }
-        }
-
         if (PP_TRK1INC != null) {
-            output.putString(ABECS.PP_TRK1INC, DataUtility.mask(PP_TRK1INC, ll, rr));
+            output.putString(ABECS.PP_TRK1INC, PP_TRK1INC);
         }
 
         if (PP_TRK2INC != null) {
-            output.putString(ABECS.PP_TRK2INC, DataUtility.mask(PP_TRK2INC, ll, rr));
+            output.putString(ABECS.PP_TRK2INC, PP_TRK2INC);
         }
 
         if (PP_TRK3INC != null) {
-            output.putString(ABECS.PP_TRK2INC, DataUtility.mask(PP_TRK3INC, ll, rr));
+            output.putString(ABECS.PP_TRK2INC, PP_TRK3INC);
         }
 
         return output;

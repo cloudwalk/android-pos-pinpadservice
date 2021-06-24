@@ -165,7 +165,7 @@ public class ServiceUtility {
                         return;
                     }
 
-                    Context context = DataUtility.getProcessContext();
+                    Context context = DataUtility.getApplicationContext();
 
                     ServiceConnection serviceConnection = new ServiceConnection() {
                         @Override
@@ -239,7 +239,7 @@ public class ServiceUtility {
     public static void unregister(@NotNull String pkg, @NotNull String cls) {
         sSemaphore.acquireUninterruptibly();
 
-        Context context = DataUtility.getProcessContext();
+        Context context = DataUtility.getApplicationContext();
 
         int index = search(cls);
 

@@ -1,8 +1,16 @@
 package com.example.poc2104301453.pinpadservice.utilities;
 
+import android.util.Log;
+
 import com.example.poc2104301453.pinpadlibrary.ABECS;
+import com.example.poc2104301453.pinpadlibrary.utilities.DataUtility;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.CodigosRetorno;
+import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGetCard;
 
 public class ManufacturerUtility {
     private static final String TAG_LOGCAT = ManufacturerUtility.class.getSimpleName();
@@ -11,7 +19,7 @@ public class ManufacturerUtility {
         /* Nothing to do */
     }
 
-    public static ABECS.STAT toSTAT(CodigosRetorno input) {
+    public static ABECS.STAT toSTAT(@NotNull CodigosRetorno input) {
         switch (input) {
             case OK:
                 return ABECS.STAT.ST_OK;
@@ -92,5 +100,69 @@ public class ManufacturerUtility {
             default:
                 return ABECS.STAT.ST_INTERR;
         }
+    }
+
+    public static String getPP_TRKxINC(@NotNull String SPE_PANMASK,
+                                       @NotNull SaidaComandoGetCard.DadosCartao data,
+                                       int track) {
+        String PP_TRK;
+
+        switch (track) {
+            case 1:
+                PP_TRK = data.obtemTrilha1();
+                break;
+
+            case 2:
+                PP_TRK = data.obtemTrilha2();
+                break;
+
+            case 3:
+                PP_TRK = data.obtemTrilha3();
+                break;
+
+            default:
+                return null;
+        }
+
+        if (PP_TRK != null) {
+            switch (track) {
+                case 1:
+                case 2:
+                    char separator = (track != 1) ? '=' : '^';
+
+                    if (PP_TRK.contains("" + separator)) {
+                        PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.lastIndexOf(separator) + 7, PP_TRK.length()));
+                    } else {
+                        PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.length(), 19));
+                    }
+
+                    try {
+                        int ll = Integer.parseInt(SPE_PANMASK.substring(0, 2));
+                        int rr = Integer.parseInt(SPE_PANMASK.substring(2, 4));
+
+                        String PP_PAN = data.obtemPan();
+
+                        assert PP_PAN != null;
+                        int index = PP_TRK.indexOf(PP_PAN);
+
+                        PP_PAN = DataUtility.mask(PP_PAN, ll, rr);
+
+                        if (index != 0) {
+                            PP_TRK = PP_TRK.substring(0, index) + PP_PAN + PP_TRK.substring(PP_PAN.length() + 1);
+                        } else {
+                            PP_TRK = PP_PAN + PP_TRK.substring(PP_PAN.length());
+                        }
+                    } catch (Exception exception) {
+                        Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                    }
+                    break;
+
+                default:
+                    PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.length(), 19));
+                    break;
+            }
+        }
+
+        return PP_TRK;
     }
 }
