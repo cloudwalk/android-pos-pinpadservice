@@ -224,6 +224,10 @@ public class GIX {
                     output[0].putInt    (ABECS.RSP_STAT, status.ordinal());
 
                     try {
+                        if (status != ABECS.STAT.ST_OK) {
+                            return;
+                        }
+
                         output[0].putAll(parseRSP(response));
                     } finally {
                         semaphore[0].release();

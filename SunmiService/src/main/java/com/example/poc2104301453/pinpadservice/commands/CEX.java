@@ -149,7 +149,9 @@ public class CEX {
 
         EntradaComandoCheckEvent request = new EntradaComandoCheckEvent(eventList);
 
-        request.informaTimeout(input.getInt(ABECS.SPE_TIMEOUT, -1));
+        int timeout = input.getInt(ABECS.SPE_TIMEOUT, -1);
+
+        request.informaTimeout((timeout > 255) ? -1 : timeout);
 
         getPinpad().checkEvent(request, response -> {
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
@@ -158,6 +160,10 @@ public class CEX {
             output[0].putInt    (ABECS.RSP_STAT, status.ordinal());
 
             try {
+                if (status != ABECS.STAT.ST_OK) {
+                    return;
+                }
+
                 output[0].putAll(parseRSP(input, response));
             } finally {
                 semaphore[0].release();
