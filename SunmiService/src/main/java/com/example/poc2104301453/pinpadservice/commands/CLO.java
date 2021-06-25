@@ -18,18 +18,11 @@ public class CLO {
 
     public static Bundle clo(Bundle input)
             throws Exception {
-        final Bundle[] output = { new Bundle() };
-        final Semaphore[] semaphore = { new Semaphore(0, true) };
+        final Bundle output = new Bundle();
 
-        getPinpad().close(() -> {
-            output[0].putString(ABECS.RSP_ID,   ABECS.CLO);
-            output[0].putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
+        output.putString(ABECS.RSP_ID,   ABECS.CLO);
+        output.putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
 
-            semaphore[0].release();
-        });
-
-        semaphore[0].acquireUninterruptibly();
-
-        return output[0];
+        return output;
     }
 }
