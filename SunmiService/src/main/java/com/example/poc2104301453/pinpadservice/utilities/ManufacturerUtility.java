@@ -142,8 +142,7 @@ public class ManufacturerUtility {
 
                         String PP_PAN = data.obtemPan();
 
-                        assert PP_PAN != null;
-                        int index = PP_TRK.indexOf(PP_PAN);
+                        int index = (PP_PAN != null) ? PP_TRK.indexOf(PP_PAN) : -1;
 
                         PP_PAN = DataUtility.mask(PP_PAN, ll, rr);
 

@@ -107,16 +107,16 @@ public class CEX {
                 return output;
         }
 
-        if (PP_TRK1INC != null) {
+        if (PP_TRK1INC != null && !PP_TRK1INC.isEmpty()) {
             output.putString(ABECS.PP_TRK1INC, PP_TRK1INC);
         }
 
-        if (PP_TRK2INC != null) {
+        if (PP_TRK2INC != null && !PP_TRK2INC.isEmpty()) {
             output.putString(ABECS.PP_TRK2INC, PP_TRK2INC);
         }
 
-        if (PP_TRK3INC != null) {
-            output.putString(ABECS.PP_TRK2INC, PP_TRK3INC);
+        if (PP_TRK3INC != null && !PP_TRK3INC.isEmpty()) {
+            output.putString(ABECS.PP_TRK3INC, PP_TRK3INC);
         }
 
         return output;

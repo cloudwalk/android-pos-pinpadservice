@@ -18,8 +18,6 @@ import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
-import br.com.verifone.bibliotecapinpad.RegistroBibliotecaPinpad;
-import br.com.verifone.ppcompX990.PPCompX990;
 
 /**
  *
@@ -27,16 +25,18 @@ import br.com.verifone.ppcompX990.PPCompX990;
 public class PinpadAbstractionLayer extends IABECS.Stub {
     private static final String TAG_LOGCAT = PinpadAbstractionLayer.class.getSimpleName();
 
-    private static final List<Pair<String, Runnable>> sCommandList =
-            new ArrayList<>(0);
+    private static final List<Pair<String, Runnable>>
+            sCommandList = new ArrayList<>(0);
 
-    private static final Semaphore[] sSemaphore = {
+    private static final Semaphore[]
+            sSemaphore = {
+                new Semaphore(1, true),
                 new Semaphore(1, true),
                 new Semaphore(1, true)
             };
 
-    private static final PinpadAbstractionLayer sPinpadAbstractionLayer =
-            new PinpadAbstractionLayer();
+    private static final PinpadAbstractionLayer
+            sPinpadAbstractionLayer = new PinpadAbstractionLayer();
 
     private static AcessoFuncoesPinpad sPinpad = null;
 
@@ -135,6 +135,10 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
                 if (request.equals(command.first)) {
                     return command.second.run(input);
                 }
+            }
+
+            if (request.equals("CAN")) {
+                throw new Exception("Interruption requested: { CMD_ID: \"" + request + "\" }");
             }
 
             StringBuilder log = new StringBuilder("Be sure to run one of the known commands:\r\n");

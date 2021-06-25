@@ -59,12 +59,11 @@ public class PinpadManager {
     }
 
     public static void abort() {
-        Bundle input = new Bundle();
-
-        input.putString(CMD_ID, CLO); /* TODO: improve */
-                                      /* 2021-06-16: combine OPN and CLO */
-
         try {
+            Bundle input = new Bundle();
+
+            input.putString(CMD_ID, "CAN");
+
             request(input);
         } catch (Exception exception) {
             Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));

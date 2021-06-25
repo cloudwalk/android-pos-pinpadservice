@@ -67,7 +67,7 @@ public class GIN {
                 output.putString(ABECS.GIN_APPVERS,     GIN_APPVERS);
                 output.putString(ABECS.GIN_SPECVER,     GIN_SPECVER);
 
-                String GIN_DUKPT = response.getString(ABECS.PP_DKPTTDESP, "00...").charAt(1) != '1' ? " " : "T";
+                String GIN_DUKPT = response.getString(ABECS.PP_DKPTTDESP, "00000...").charAt(1) != '1' ? " " : "T";
 
                 output.putString(ABECS.GIN_DUKPT,       GIN_DUKPT);
                 break;

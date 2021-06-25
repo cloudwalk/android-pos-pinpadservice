@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.example.poc2104301453.pinpadlibrary.ABECS;
@@ -68,14 +69,26 @@ public class GIX {
 
                     StringBuilder map = new StringBuilder();
 
-                    for (SaidaComandoGetInfoEx.InformacaoChave item : list) {
-                        switch (item.obtemStatusChave()) {
+                    for (int i = 0; i < list.size(); i++) {
+                        switch (list.get(i).obtemStatusChave()) {
                             case CHAVE_AUSENTE:
                                 map.append('0');
                                 break;
 
                             case CHAVE_PRESENTE:
                                 map.append('1');
+
+                                String key;
+
+                                if (response.obtemTipoInformacao() != INFO_KEYMAP_DUKPT3DES_DATA) {
+                                    key = ABECS.PP_KSNTDESPnn;
+                                } else {
+                                    key = ABECS.PP_KSNTDESDnn;
+                                }
+
+                                key = key.replace("nn", String.format(Locale.getDefault(), "%02d", i));
+
+                                output.putString(key, DataUtility.toHex(list.get(i).obtemKSN()));
                                 break;
 
                             default:
@@ -193,26 +206,33 @@ public class GIX {
 
     public static Bundle gix(Bundle input)
             throws Exception {
+        final long timestamp = SystemClock.elapsedRealtime();
+
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { null };
 
-        List<EntradaComandoGetInfoEx.TipoInfo> typeList =
-                new ArrayList<>(6);
+        List<EntradaComandoGetInfoEx.TipoInfo> typeList = new ArrayList<>(6);
 
-        typeList.add(INFO_GERAL);
-        typeList.add(INFO_VERSAO_TABELAS_EMV);
+        switch (input.getString(ABECS.CMD_ID)) {
+            case ABECS.GIN:
+                typeList.add(INFO_GERAL);
+                break;
 
-        /* 2021-06-24: reading security keys on a Verifone device takes a substantial amount of
-         * time (an alternative would be to sniff the DUKLINK file an read only the types of key
-         * found in it). */
+            case "GTS":
+                typeList.add(INFO_VERSAO_TABELAS_EMV);
+                break;
 
-        /* TODO: bypass BCPP to get security keys data? */
+            default:
+                typeList.add(INFO_GERAL);
+                typeList.add(INFO_VERSAO_TABELAS_EMV);
 
-        typeList.add(INFO_KEYMAP_MK3DES_DATA);
-        typeList.add(INFO_KEYMAP_MK3DES_PIN);
+                typeList.add(INFO_KEYMAP_MK3DES_DATA);
+                typeList.add(INFO_KEYMAP_MK3DES_PIN);
 
-        typeList.add(INFO_KEYMAP_DUKPT3DES_DATA);
-        typeList.add(INFO_KEYMAP_DUKPT3DES_PIN);
+                typeList.add(INFO_KEYMAP_DUKPT3DES_DATA);
+                typeList.add(INFO_KEYMAP_DUKPT3DES_PIN);
+                break;
+        }
 
         semaphore[0] = new Semaphore((typeList.size() - 1) * -1, true);
 
@@ -236,6 +256,8 @@ public class GIX {
         }
 
         semaphore[0].acquireUninterruptibly();
+
+        Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output[0];
     }

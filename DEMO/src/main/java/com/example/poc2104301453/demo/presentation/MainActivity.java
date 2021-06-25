@@ -31,7 +31,33 @@ import static com.example.poc2104301453.pinpadlibrary.ABECS.*;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG_LOGCAT = MainActivity.class.getSimpleName();
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore[]
+            sSemaphore = {
+                new Semaphore(1, true),
+                new Semaphore(1, true)
+            };
+
+    private static boolean sStatus = false;
+
+    private boolean getRunningStatus() {
+        boolean status;
+
+        sSemaphore[1].acquireUninterruptibly();
+
+        status = sStatus;
+
+        sSemaphore[1].release();
+
+        return status;
+    }
+
+    private void setRunningStatus(boolean status) {
+        sSemaphore[1].acquireUninterruptibly();
+
+        sStatus = status;
+
+        sSemaphore[1].release();
+    }
 
     private void updateContentScrolling(String msg) {
         new Thread() {
@@ -39,14 +65,14 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                sSemaphore.acquireUninterruptibly();
+                sSemaphore[0].acquireUninterruptibly();
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         ((TextView) findViewById(R.id.tv_content_scrolling)).setText(msg);
 
-                        sSemaphore.release();
+                        sSemaphore[0].release();
                     }
                 });
             }
@@ -81,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG_LOGCAT, "onPause");
 
         finish();
+
+        setRunningStatus(false);
 
         PinpadManager.unregister();
     }
@@ -149,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
                     input = new Bundle();
                     input.putString(CMD_ID, CEX);
-                    input.putString(SPE_CEXOPT,  "111100");
+                    input.putString(SPE_CEXOPT,  "111000");
                     input.putInt   (SPE_TIMEOUT, 10);
                     input.putString(SPE_PANMASK, "0404");
                     requestList.add(input);
@@ -210,12 +238,18 @@ public class MainActivity extends AppCompatActivity {
                     input.putString(CMD_ID, CLO);
                     requestList.add(input);
 
+                    setRunningStatus(true);
+
                     for (Bundle request : requestList) {
                         contentScrolling += "\n";
 
                         contentScrolling += DataUtility.toJSON(PinpadManager.request(request), true).toString(4);
 
                         updateContentScrolling(contentScrolling);
+
+                        if (!getRunningStatus()) {
+                            break;
+                        }
                     }
                 } catch (Exception exception) {
                     updateContentScrolling(Log.getStackTraceString(exception));
