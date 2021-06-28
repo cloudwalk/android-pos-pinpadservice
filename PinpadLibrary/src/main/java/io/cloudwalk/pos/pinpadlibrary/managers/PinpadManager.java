@@ -36,7 +36,7 @@ public class PinpadManager {
             register();
 
             try {
-                service = IABECS.Stub.asInterface(getService());
+                service = IABECS.Stub.asInterface(retrieve());
             } catch (Exception exception) {
                 throw new ServiceInstanceException();
             }
@@ -54,8 +54,8 @@ public class PinpadManager {
      *
      * @return {@link IBinder}
      */
-    public static IBinder getService() {
-        return ServiceUtility.getService(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+    public static IBinder retrieve() {
+        return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
     }
 
     public static void abort() {

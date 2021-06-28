@@ -33,6 +33,36 @@ public class ServiceUtility {
     }
 
     /**
+     * See {@link ServiceUtility#retrieve(String, String)} notes.
+     */
+    private static IBinder getService(@NotNull String pkg, @NotNull String cls) {
+        IBinder service = null;
+
+        long timeout = 2750;
+        long timestamp = SystemClock.elapsedRealtime();
+
+        do {
+            sSemaphore.acquireUninterruptibly();
+
+            int index = search(cls);
+
+            if (index >= 0) {
+                service = mServiceList.get(index).getService();
+            }
+
+            sSemaphore.release();
+
+            if (service != null) {
+                break;
+            } else {
+                SystemClock.sleep(timeout / 10);
+            }
+        } while ((timestamp + timeout) >= SystemClock.elapsedRealtime());
+
+        return service;
+    }
+
+    /**
      * Searches for a previously bounded service.
      *
      * @param cls service full class name
@@ -54,11 +84,7 @@ public class ServiceUtility {
     private static void setService(ComponentName name, IBinder service, ServiceConnection serviceConnection) {
         sSemaphore.acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, "name.getClassName() [" + name.getClassName() +"]");
-
         int index = search(name.getClassName());
-
-        Log.d(TAG_LOGCAT, "index [" + index +"]");
 
         if (index >= 0) {
             mServiceList.get(index).setComponentName(name);
@@ -73,44 +99,14 @@ public class ServiceUtility {
 
     /**
      * It can intentionally take up to 2750 milliseconds of processing time waiting for a valid
-     * instance of {@link IBinder}, when a binding process to a service was already initiated. Half
-     * of that time when the process was not yet initiated.
+     * instance of {@link IBinder}.
      *
      * @param pkg service package name
      * @param cls service class name
      * @return {@link IBinder}
      */
-    public static IBinder getService(@NotNull String pkg, @NotNull String cls) {
-        IBinder service = null;
-
-        long timeout = 2750;
-        long timestamp = SystemClock.elapsedRealtime();
-
-        do {
-            sSemaphore.acquireUninterruptibly();
-
-            int index = search(cls);
-
-            if (index >= 0) {
-                service = mServiceList.get(index).getService();
-            } else {
-                if ((timestamp + (timeout / 5)) <= SystemClock.elapsedRealtime()) {
-                    sSemaphore.release();
-
-                    return null;
-                }
-            }
-
-            sSemaphore.release();
-
-            if (service != null) {
-                break;
-            } else {
-                SystemClock.sleep(timeout / 10);
-            }
-        } while ((timestamp + timeout) >= SystemClock.elapsedRealtime());
-
-        return service;
+    public static IBinder retrieve(@NotNull String pkg, @NotNull String cls) {
+        return getService(pkg, cls);
     }
 
     /**
@@ -118,7 +114,7 @@ public class ServiceUtility {
      * Intended as a helper for UI thread calls.<br>
      * <code>
      *     <pre>
-     * ServiceManager.execute(new Runnable() {
+     * ServiceUtility.execute(new Runnable() {
      *    {@literal @}Override
      *     public void execute() {
      *         // code you shouldn't run on the main thread goes here
@@ -156,35 +152,35 @@ public class ServiceUtility {
 
                 sSemaphore.acquireUninterruptibly();
 
-                Log.d(TAG_LOGCAT, "cls [" + cls + "]");
-                Log.d(TAG_LOGCAT, "pkg [" + pkg + "]");
-
                 try {
                     if (search(cls) >= 0) {
-                        Log.d(TAG_LOGCAT, cls + "already bound or binding");
+                        // Log.d(TAG_LOGCAT, cls + " already bound or binding");
                         return;
                     }
+
+                    Log.d(TAG_LOGCAT, "cls [" + cls + "]");
+                    Log.d(TAG_LOGCAT, "pkg [" + pkg + "]");
 
                     Context context = DataUtility.getApplicationContext();
 
                     ServiceConnection serviceConnection = new ServiceConnection() {
                         @Override
                         public void onServiceConnected(ComponentName name, IBinder service) {
-                            Log.d(TAG_LOGCAT, "onServiceConnected");
+                            Log.d(TAG_LOGCAT, "onServiceConnected::name [" + name.getClassName() + "]");
 
                             setService(name, service, this);
                         }
 
                         @Override
                         public void onServiceDisconnected(ComponentName name) {
-                            Log.e(TAG_LOGCAT, "onServiceDisconnected");
+                            Log.e(TAG_LOGCAT, "onServiceDisconnected::name [" + name.getClassName() + "]");
 
                             unregister(pkg, cls);
                         }
 
                         @Override
                         public void onBindingDied(ComponentName name) {
-                            Log.e(TAG_LOGCAT, "onBindingDied");
+                            Log.e(TAG_LOGCAT, "onBindingDied::name [" + name.getClassName() + "]");
 
                             unregister(pkg, cls);
                         }
@@ -196,8 +192,6 @@ public class ServiceUtility {
 
                     do {
                         Intent intent = new Intent();
-
-                        Log.d(TAG_LOGCAT, "count [" + count + "]");
 
                         if (count == 0) {
                             intent.setClassName(pkg, cls);
