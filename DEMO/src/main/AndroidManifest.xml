@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.example.poc2104301453.demo">
+        package="io.cloudwalk.pos.demo">
 
     <application
             android:allowBackup="true"
@@ -10,7 +10,7 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.POC2104301453">
         <activity
-                android:name="com.example.poc2104301453.demo.presentation.MainActivity"
+                android:name="io.cloudwalk.pos.demo.presentation.MainActivity"
                 android:label="@string/app_name"
                 android:theme="@style/Theme.POC2104301453.NoActionBar">
             <intent-filter>

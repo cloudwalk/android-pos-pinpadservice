@@ -6,7 +6,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "com.example.poc2104301453.demo"
+        applicationId "io.cloudwalk.pos.demo"
         minSdkVersion 22
         targetSdkVersion 30
         versionCode 1

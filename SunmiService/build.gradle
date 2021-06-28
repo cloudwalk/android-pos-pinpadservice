@@ -6,13 +6,13 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "com.example.poc2104301453.pinpadservice"
+        applicationId "io.cloudwalk.pos.pinpadservice"
         minSdkVersion 25
         targetSdkVersion 30
         versionCode 1
         versionName "0.0.1"
 
-        setProperty("archivesBaseName", "sunmi-com.example.poc2104301453.pinpadservice-$versionName")
+        setProperty("archivesBaseName", "sunmi-io.cloudwalk.pos.pinpadservice-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

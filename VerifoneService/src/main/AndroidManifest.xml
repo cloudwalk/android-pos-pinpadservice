@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        package="com.example.poc2104301453.pinpadservice">
+        package="io.cloudwalk.pos.pinpadservice">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -13,7 +13,7 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.POC2104301453">
         <receiver
-                android:name="com.example.poc2104301453.pinpadservice.BroadcastReceiver"
+                android:name="io.cloudwalk.pos.pinpadservice.BroadcastReceiver"
                 android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter android:priority="100">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -25,7 +25,7 @@
                 android:enabled="true"
                 android:exported="true"
                 android:isolatedProcess="false"
-                android:name="com.example.poc2104301453.pinpadservice.PinpadService"
+                android:name="io.cloudwalk.pos.pinpadservice.PinpadService"
                 tools:targetApi="n" />
     </application>
 
