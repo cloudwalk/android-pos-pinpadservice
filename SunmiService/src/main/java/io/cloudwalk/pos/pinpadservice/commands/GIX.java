@@ -76,19 +76,37 @@ public class GIX {
                                 break;
 
                             case CHAVE_PRESENTE:
-                                map.append('1');
+                                String key = null;
 
-                                String key;
+                                switch (response.obtemTipoInformacao()) {
+                                    case INFO_KEYMAP_DUKPT3DES_DATA:
+                                        if (key == null) {
+                                            key = ABECS.PP_KSNTDESDnn;
+                                        }
+                                        /* no break */
 
-                                if (response.obtemTipoInformacao() != INFO_KEYMAP_DUKPT3DES_DATA) {
-                                    key = ABECS.PP_KSNTDESPnn;
-                                } else {
-                                    key = ABECS.PP_KSNTDESDnn;
+                                    case INFO_KEYMAP_DUKPT3DES_PIN:
+                                        if (key == null) {
+                                            key = ABECS.PP_KSNTDESPnn;
+                                        }
+
+                                        key = key.replace("nn", String.format(Locale.getDefault(), "%02d", i));
+
+                                        byte[] PP_KSNTDESxnn = list.get(i).obtemKSN();
+
+                                        if (PP_KSNTDESxnn != null) {
+                                            map.append('1');
+
+                                            output.putString(key, DataUtility.toHex(PP_KSNTDESxnn));
+                                        } else {
+                                            map.append('0');
+                                        }
+                                        break;
+
+                                    default:
+                                        map.append('1');
+                                        break;
                                 }
-
-                                key = key.replace("nn", String.format(Locale.getDefault(), "%02d", i));
-
-                                output.putString(key, DataUtility.toHex(list.get(i).obtemKSN()));
                                 break;
 
                             default:
