@@ -1,28 +1,31 @@
 package io.cloudwalk.pos.pinpadservice.commands;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
-
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.exceptions.MissingArgumentException;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
-import br.com.verifone.bibliotecapinpad.definicoes.TabelaAID;
-import br.com.verifone.bibliotecapinpad.definicoes.TabelaCAPK;
-import br.com.verifone.bibliotecapinpad.definicoes.TabelaCertificadosRevogados;
-import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoTableLoad;
+import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
+import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaAID;
+import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaCAPK;
+import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaCertificadosRevogados;
+import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoTableLoad;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class TLR {
-    private static final String TAG_LOGCAT = TLR.class.getSimpleName();
+public class TLE {
+    private static final String TAG_LOGCAT = TLE.class.getSimpleName();
+
+    private static AcessoFuncoesPinpad getPinpad() {
+        return PinpadAbstractionLayer.getInstance().getPinpad();
+    }
 
     private static TabelaAID parseAPPL(int TAB_LEN, int TAB_ID, int TAB_ACQ,
                                        String TAB_DATA)
@@ -360,8 +363,8 @@ public class TLR {
         return builder.build();
     }
 
-    private static TabelaCertificadosRevogados
-            parseCERT(int TAB_LEN, int TAB_ID, int TAB_ACQ, String TAB_DATA)
+    private static
+    TabelaCertificadosRevogados parseCERT(int TAB_LEN, int TAB_ID, int TAB_ACQ, String TAB_DATA)
             throws Exception {
         TabelaCertificadosRevogados.Builder builder = new TabelaCertificadosRevogados.Builder();
 
@@ -394,22 +397,26 @@ public class TLR {
         return builder.build();
     }
 
-    public static Bundle tlr(Bundle input)
+    public static Bundle tle(Bundle input)
             throws Exception {
-        AcessoFuncoesPinpad pinpad = PinpadAbstractionLayer.getInstance().getPinpad();
-        String CMD_ID = input.getString(ABECS.CMD_ID);
+        final long timestamp = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
-        int     TLI_ACQIDX      = input.getInt   (ABECS.TLI_ACQIDX, -1);
-        String  TLI_TABVER      = input.getString(ABECS.TLI_TABVER);
-        int     TLR_NREC        = input.getInt   (ABECS.TLR_NREC, -1);
-        String  TLR_DATA        = input.getString(ABECS.TLR_DATA);
+        int     TLI_ACQIDX      = TLI.getTLI_ACQIDX();
+        String  TLI_TABVER      = TLI.getTLI_TABVER();
+        int     TLR_NREC        = TLR.getTLR_NREC();
+        String  TLR_DATA        = TLR.getTLR_DATA().toString();
 
-        if ((TLI_ACQIDX == -1) || (TLI_TABVER == null) || (TLR_NREC == -1)
-                || (TLR_DATA == null)) {
-            throw new MissingArgumentException();
+        TLR.setTLR_DATA(new StringBuilder());
+        TLR.setTLR_NREC(0);
+
+        if (TLI_TABVER.equals("0000000000") || TLR_NREC <= 0) {
+            output[0].putString(ABECS.RSP_ID,   ABECS.TLE);
+            output[0].putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_INVCALL.ordinal());
+
+            return output[0];
         }
 
         List<TabelaAID>  appl = new ArrayList<>(0);
@@ -449,16 +456,18 @@ public class TLR {
         EntradaComandoTableLoad entradaComandoTableLoad =
                 new EntradaComandoTableLoad(TLI_ACQIDX, TLI_TABVER, appl, capk, cert);
 
-        pinpad.tableLoad(entradaComandoTableLoad, codigosRetorno -> {
-            ABECS.STAT status = ManufacturerUtility.toSTAT(codigosRetorno);
+        getPinpad().tableLoad(entradaComandoTableLoad, response -> {
+            ABECS.STAT status = ManufacturerUtility.toSTAT(response);
 
-            output[0].putString(ABECS.RSP_ID, CMD_ID);
+            output[0].putString(ABECS.RSP_ID,   ABECS.TLE);
             output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
 
             semaphore[0].release();
         });
 
         semaphore[0].acquireUninterruptibly();
+
+        Log.d(TAG_LOGCAT, ABECS.TLE + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output[0];
     }

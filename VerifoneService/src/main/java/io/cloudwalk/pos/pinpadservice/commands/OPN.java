@@ -1,6 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.commands;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
@@ -26,6 +27,8 @@ public class OPN {
 
     public static Bundle opn(Bundle input)
             throws Exception {
+        final long timestamp = SystemClock.elapsedRealtime();
+
         InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
             @Override
             public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
@@ -63,6 +66,8 @@ public class OPN {
         });
 
         semaphore[0].acquireUninterruptibly();
+
+        Log.d(TAG_LOGCAT, ABECS.OPN + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output[0];
     }

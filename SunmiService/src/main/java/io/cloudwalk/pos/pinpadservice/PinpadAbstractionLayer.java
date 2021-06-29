@@ -11,6 +11,9 @@ import io.cloudwalk.pos.pinpadservice.commands.CLO;
 import io.cloudwalk.pos.pinpadservice.commands.GIN;
 import io.cloudwalk.pos.pinpadservice.commands.GIX;
 import io.cloudwalk.pos.pinpadservice.commands.OPN;
+import io.cloudwalk.pos.pinpadservice.commands.TLE;
+import io.cloudwalk.pos.pinpadservice.commands.TLI;
+import io.cloudwalk.pos.pinpadservice.commands.TLR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +33,10 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
 
     private static final Semaphore[]
             sSemaphore = {
-                new Semaphore(1, true),
-                new Semaphore(1, true)
-            };
+            new Semaphore(1, true),
+            new Semaphore(1, true),
+            new Semaphore(1, true)
+    };
 
     private static final PinpadAbstractionLayer
             sPinpadAbstractionLayer = new PinpadAbstractionLayer();
@@ -62,10 +66,21 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
         sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
         sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
+        /* sCommandList.add(new Pair<>(ABECS.DWK, DWK::dwk)); */
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
+        /* sCommandList.add(new Pair<>(ABECS.CLX, CLX::clx)); */
 
         sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
+        /* sCommandList.add(new Pair<>(ABECS.CHP, CHP::chp)); */
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
+        /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
+
+        /* sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts)); */
+        sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
+        sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));
+        sCommandList.add(new Pair<>(ABECS.TLE, TLE::tle));
+
+        /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
     }
 
     /**
@@ -107,10 +122,10 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
 
         try {
             getPinpad().abort(); /* "É importante que o SPE sempre inicie o
-                                  * fluxo de comunicação com o pinpad enviando
-                                  * um <CAN>, de forma a abortar qualquer
-                                  * comando blocante que eventualmente esteja
-                                  * em processamento." - ABECS v2.12; 2.2.2.3 */
+             * fluxo de comunicação com o pinpad enviando
+             * um <<CAN>>, de forma a abortar qualquer
+             * comando blocante que eventualmente esteja
+             * em processamento." - ABECS v2.12; 2.2.2.3 */
         } catch (Exception exception) {
             Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
         }

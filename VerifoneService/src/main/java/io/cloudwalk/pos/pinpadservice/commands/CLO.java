@@ -1,6 +1,8 @@
 package io.cloudwalk.pos.pinpadservice.commands;
 
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.util.Log;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
@@ -18,6 +20,8 @@ public class CLO {
 
     public static Bundle clo(Bundle input)
             throws Exception {
+        final long timestamp = SystemClock.elapsedRealtime();
+
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
@@ -29,6 +33,8 @@ public class CLO {
         });
 
         semaphore[0].acquireUninterruptibly();
+
+        Log.d(TAG_LOGCAT, ABECS.CLO + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output[0];
     }

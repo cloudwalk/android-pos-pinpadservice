@@ -1,6 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.commands;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
@@ -124,6 +125,8 @@ public class CEX {
 
     public static Bundle cex(Bundle input)
             throws Exception {
+        final long timestamp = SystemClock.elapsedRealtime();
+
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
@@ -171,6 +174,8 @@ public class CEX {
         });
 
         semaphore[0].acquireUninterruptibly();
+
+        Log.d(TAG_LOGCAT, ABECS.CEX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output[0];
     }
