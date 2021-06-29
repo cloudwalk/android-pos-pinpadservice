@@ -10,6 +10,7 @@ import io.cloudwalk.pos.pinpadservice.commands.CKE;
 import io.cloudwalk.pos.pinpadservice.commands.CLO;
 import io.cloudwalk.pos.pinpadservice.commands.GIN;
 import io.cloudwalk.pos.pinpadservice.commands.GIX;
+import io.cloudwalk.pos.pinpadservice.commands.GTS;
 import io.cloudwalk.pos.pinpadservice.commands.OPN;
 import io.cloudwalk.pos.pinpadservice.commands.TLE;
 import io.cloudwalk.pos.pinpadservice.commands.TLI;
@@ -75,7 +76,7 @@ public class PinpadAbstractionLayer extends IABECS.Stub {
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
         /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
 
-        /* sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts)); */
+        sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts));
         sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
         sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));
         sCommandList.add(new Pair<>(ABECS.TLE, TLE::tle));

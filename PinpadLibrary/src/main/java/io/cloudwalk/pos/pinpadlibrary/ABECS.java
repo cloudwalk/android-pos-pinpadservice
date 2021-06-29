@@ -87,9 +87,9 @@ public class ABECS {
     public static final String CKE_ICCSTAT      = "CKE_ICCSTAT";
     public static final String CKE_CTLSSTAT     = "CKE_CTLSSTAT";
 
-    /* 2021-006-21: TLI, TLR and TLE were grouped into a single command to
-     * match the manufacturer's abstraction.
-     * TODO: review ABECS spec. and make them individual requests? */
+    public static final String GTS              = "GTS";
+    public static final String GTS_ACQIDX       = "GTS_ACQIDX";
+    public static final String GTS_TABVER       = "GTS_TABVER";
 
     public static final String TLI              = "TLI";
     public static final String TLI_ACQIDX       = "TLI_ACQIDX";

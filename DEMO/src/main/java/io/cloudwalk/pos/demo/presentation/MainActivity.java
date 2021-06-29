@@ -237,6 +237,11 @@ public class MainActivity extends AppCompatActivity {
                     requestList.add(input);
 
                     input = new Bundle();
+                    input.putString(ABECS.CMD_ID, ABECS.GTS);
+                    input.putInt   (ABECS.GTS_ACQIDX, 0);
+                    requestList.add(input);
+
+                    input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.GCR);
                     String date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
                             .format(new Date());
