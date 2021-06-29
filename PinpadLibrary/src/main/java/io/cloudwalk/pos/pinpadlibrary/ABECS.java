@@ -128,6 +128,32 @@ public class ABECS {
     public static final String GCR_ISSCNTRY     = "GCR_ISSCNTRY";
     public static final String GCR_ACQRD        = "GCR_ACQRD";
 
+    public static final String GCX              = "GCX";
+    public static final String SPE_TRNTYPE      = "SPE_TRNTYPE";
+    public static final String SPE_ACQREF       = "SPE_ACQREF";
+    public static final String SPE_APPTYPE      = "SPE_APPTYPE";
+    public static final String SPE_AIDLIST      = "SPE_AIDLIST";
+    public static final String SPE_AMOUNT       = "SPE_AMOUNT";
+    public static final String SPE_CASHBACK     = "SPE_CASHBACK";
+    public static final String SPE_TRNCURR      = "SPE_TRNCURR";
+    public static final String SPE_TRNDATE      = "SPE_TRNDATE";
+    public static final String SPE_TRNTIME      = "SPE_TRNTIME";
+    public static final String SPE_GCXOPT       = "SPE_GCXOPT";
+    public static final String SPE_EMVDATA      = "SPE_EMVDATA";
+    public static final String SPE_TAGLIST      = "SPE_TAGLIST";
+    public static final String SPE_DSPMSG       = "SPE_DSPMSG";
+    public static final String PP_CARDTYPE      = "PP_CARDTYPE";
+    public static final String PP_ICCSTAT       = "PP_ICCSTAT";
+    public static final String PP_AIDTABINFO    = "PP_AIDTABINFO";
+    public static final String PP_PAN           = "PP_PAN";
+    public static final String PP_PANSEQNO      = "PP_PANSEQNO";
+    public static final String PP_CHNAME        = "PP_CHNAME";
+    public static final String PP_LABEL         = "PP_LABEL";
+    public static final String PP_ISSCNTRY      = "PP_ISSCNTRY";
+    public static final String PP_CARDEXP       = "PP_CARDEXP";
+    public static final String PP_EMVDATA       = "PP_EMVDATA";
+    public static final String PP_DEVTYPE       = "PP_DEVTYPE";
+
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,
         ST_NOSEC,           ST_F1,              ST_F2,

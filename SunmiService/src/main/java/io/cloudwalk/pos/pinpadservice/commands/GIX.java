@@ -236,7 +236,7 @@ public class GIX {
                 typeList.add(INFO_GERAL);
                 break;
 
-            case "GTS":
+            case ABECS.GTS:
                 typeList.add(INFO_VERSAO_TABELAS_EMV);
                 break;
 
