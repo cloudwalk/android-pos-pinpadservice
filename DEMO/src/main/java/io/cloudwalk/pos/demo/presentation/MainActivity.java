@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
                     input.putString(ABECS.GCR_TIME,       date.substring(6));
                     input.putString(ABECS.GCR_TABVER,     "0123456789");
                     input.putInt   (ABECS.GCR_QTDAPP,     0);
-                    // requestList.add(input);
+                    requestList.add(input);
 
                     input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.CLO);

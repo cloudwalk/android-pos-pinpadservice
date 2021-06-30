@@ -9,6 +9,7 @@ import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -37,9 +38,8 @@ public class GCX {
                 SaidaComandoGetCard.StatusUltimaLeituraChip
                         status = response.obtemStatusUltimaLeituraChip();
 
-                switch (status) { /* 2021-06-29: it's mandatory, in these conditions ('null' will
-                                   * trigger and exception, to be caught and saved by the request
-                                   * handler) */
+                switch (status) { /* 2021-06-29: mandatory - 'null' should trigger an exception, to
+                                   * be caught and saved by the request handler */
                     case BEM_SUCEDIDA:
                         output.putInt(ABECS.PP_ICCSTAT, 0);
                         break;
@@ -68,6 +68,40 @@ public class GCX {
 
             case EMV_SEM_CONTATO:
                 output.putInt(ABECS.PP_CARDTYPE, 6);
+
+                switch (response.obtemTipoDispositivoCtls()) {
+                    case TABLET:
+                        output.putString(ABECS.PP_DEVTYPE, "10");
+                        break;
+
+                    case RELOGIO:
+                        output.putString(ABECS.PP_DEVTYPE, "03");
+                        break;
+
+                    case CHAVEIRO:
+                        output.putString(ABECS.PP_DEVTYPE, "02");
+                        break;
+
+                    case PULSEIRA:
+                        output.putString(ABECS.PP_DEVTYPE, "05");
+                        break;
+
+                    case CAPA_TELEFONE:
+                        output.putString(ABECS.PP_DEVTYPE, "06");
+                        break;
+
+                    case ETIQUETA_MOVEL:
+                        output.putString(ABECS.PP_DEVTYPE, "04");
+                        break;
+
+                    case TELEFONE_MOVEL:
+                        output.putString(ABECS.PP_DEVTYPE, "01");
+                        break;
+
+                    default:
+                        output.putString(ABECS.PP_DEVTYPE, "00");
+                        break;
+                }
                 break;
 
             default:
@@ -93,7 +127,7 @@ public class GCX {
         if (output.getInt   (ABECS.PP_CARDTYPE) == 3 ||
             output.getInt   (ABECS.PP_CARDTYPE) == 6) {
 
-            output.putString(ABECS.PP_PAN,      card.obtemPan());
+            output.putString(ABECS.PP_PAN,      card.obtemPan()); /* TODO: SPE_PANMASK */
             output.putInt   (ABECS.PP_PANSEQNO, card.obtemPanSequenceNumber());
             output.getString(ABECS.PP_CHNAME,   card.obtemNomePortador());
             output.putInt   (ABECS.PP_ISSCNTRY, card.obtemIssuerCountryCode());
@@ -110,29 +144,28 @@ public class GCX {
         }
 
         if (card.obtemTrilha1() != null) {
-            String PP_TRK1INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 1);
+            String PP_TRK1INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 1); /* TODO: INC as argument */
 
             output.putString(ABECS.PP_TRK1INC, PP_TRK1INC);
         }
 
         if (card.obtemTrilha2() != null) {
-            String PP_TRK2INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 1);
+            String PP_TRK2INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 2);
 
             output.putString(ABECS.PP_TRK2INC, PP_TRK2INC);
         }
 
         if (card.obtemTrilha3() != null) {
-            String PP_TRK3INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 1);
+            String PP_TRK3INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 3);
 
             output.putString(ABECS.PP_TRK3INC, PP_TRK3INC);
         }
 
-        if (output.getInt   (ABECS.PP_CARDTYPE) != 0) {
+        if (output.getInt(ABECS.PP_CARDTYPE) != 0) {
             output.putString(ABECS.PP_LABEL, card.obtemNomeAplicacao());
         }
 
         // TODO: PP_EMVDATA
-        // TODO: PP_DEVTYPE
 
         return output;
     }
@@ -158,7 +191,7 @@ public class GCX {
         String  SPE_TRNTIME     = input.getString(ABECS.SPE_TRNTIME);
 
         String  SPE_GCXOPT      = input.getString(ABECS.SPE_GCXOPT);
-                SPE_GCXOPT      = (SPE_GCXOPT != null) ? SPE_GCXOPT : "00000";
+                SPE_GCXOPT      = (SPE_GCXOPT != null) ? SPE_GCXOPT   : "00000";
 
                 SPE_PANMASK     = input.getString(ABECS.SPE_PANMASK);
                 SPE_PANMASK     = (SPE_PANMASK != null) ? SPE_PANMASK : "9999";
@@ -167,10 +200,6 @@ public class GCX {
         String  SPE_TAGLIST     = input.getString(ABECS.SPE_TAGLIST);
         int     SPE_TIMEOUT     = input.getInt   (ABECS.SPE_TIMEOUT, -1);
         String  SPE_DSPMSG      = input.getString(ABECS.SPE_DSPMSG);
-
-        if (SPE_AIDLIST != null) {
-            // TODO: SPE_AIDLIST
-        }
 
         Date date;
 
@@ -186,28 +215,79 @@ public class GCX {
 
         builder.informaTipoTransacao            ((byte) SPE_TRNTYPE);
         builder.informaIndiceAdquirente         (SPE_ACQREF);
-        // TODO: builder.informaTipoAplicacao(typeList);
-        // TODO: builder.informaListaRegistrosAID(registerList);
         builder.informaValorTotal               (SPE_AMOUNT);
+        builder.informaPermiteCtls              (!(SPE_GCXOPT.charAt(0) != '1'));
+        builder.informaTimeoutOperacao          (SPE_TIMEOUT);
+
+        if (!SPE_APPTYPE.equals("99")) {
+            List<Integer> typeList = new ArrayList<>(SPE_APPTYPE.length() / 2);
+
+            while (SPE_APPTYPE.length() > 1) {
+                typeList.add(Integer.parseInt(SPE_APPTYPE.substring(0, 2)));
+
+                SPE_APPTYPE = SPE_APPTYPE.substring(2);
+            }
+
+            builder.informaTipoAplicacao(typeList);
+        }
+
+        if (SPE_AIDLIST != null) {
+            EntradaComandoGetCard.ListaRegistrosAID registerList = new EntradaComandoGetCard.ListaRegistrosAID();
+
+            while (SPE_AIDLIST.length() > 3) {
+                int AA = Integer.parseInt(SPE_AIDLIST.substring(0, 2));
+                int RR = Integer.parseInt(SPE_AIDLIST.substring(2, 4));
+
+                registerList.adicionaEntrada(AA, RR);
+
+                SPE_AIDLIST = SPE_AIDLIST.substring(4);
+            }
+
+            builder.informaListaRegistrosAID(registerList);
+        }
 
         if (SPE_CASHBACK != -1) {
-            builder.informaValorSaque           (SPE_CASHBACK);
+            builder.informaValorSaque(SPE_CASHBACK);
         }
 
         if (SPE_TRNCURR != -1) {
-            builder.informaCodigoMoeda          (SPE_TRNCURR);
+            builder.informaCodigoMoeda(SPE_TRNCURR);
         }
 
-        builder.informaPermiteCtls              (!(SPE_GCXOPT.charAt(0) != '1'));
-        // TODO: builder.informaDadosEMV(SPE_EMVDATA)
-        // TODO: builder.informaListaTagsEMV(SPE_TAGLIST)
-        builder.informaTimeoutOperacao          (SPE_TIMEOUT);
-        builder.informaMensagemCapturaCartao    (SPE_DSPMSG);
+        if (SPE_EMVDATA != null) {
+            byte[] data = new byte[SPE_EMVDATA.length() / 2];
+            int    i    = 0;
+
+            while (SPE_EMVDATA.length() > 1) {
+                data[i++] = Long.getLong(SPE_EMVDATA.substring(0, 2)).byteValue();
+
+                SPE_EMVDATA = SPE_EMVDATA.substring(2);
+            }
+
+            builder.informaDadosEMV(data);
+        }
+
+        if (SPE_TAGLIST != null) {
+            byte[] data = new byte[SPE_TAGLIST.length() / 2];
+            int    i    = 0;
+
+            while (SPE_TAGLIST.length() > 1) {
+                data[i++] = Long.getLong(SPE_TAGLIST.substring(0, 2)).byteValue();
+
+                SPE_TAGLIST = SPE_TAGLIST.substring(2);
+            }
+
+            builder.informaListaTagsEMV(data);
+        }
+
+        if (SPE_DSPMSG != null) {
+            builder.informaMensagemCapturaCartao(SPE_DSPMSG);
+        }
 
         getPinpad().getCard(builder.build(), response -> {
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
-            output[0].putString(ABECS.RSP_ID,   ABECS.GIX);
+            output[0].putString(ABECS.RSP_ID,   ABECS.GCX);
             output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
 
             try {
@@ -222,6 +302,8 @@ public class GCX {
         });
 
         semaphore[0].acquireUninterruptibly();
+
+        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output[0];
     }
