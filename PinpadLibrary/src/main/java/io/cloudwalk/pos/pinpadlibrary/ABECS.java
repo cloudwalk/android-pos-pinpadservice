@@ -200,7 +200,7 @@ public class ABECS {
     /** ({@code int}) */
     public static final String GCR_QTDAPP       = "GCR_QTDAPP";
 
-    public static final String GCR_IDAPPn       = "GCR_IDAPPn";
+    public static final String GCR_IDAPPnn      = "GCR_IDAPPnn";
     public static final String GCR_CTLSON       = "GCR_CTLSON";
     public static final String GCR_CARDTYPE     = "GCR_CARDTYPE";
     public static final String GCR_STATCHIP     = "GCR_STATCHIP";

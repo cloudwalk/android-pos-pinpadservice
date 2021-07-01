@@ -38,23 +38,26 @@ public class GCX {
                 SaidaComandoGetCard.StatusUltimaLeituraChip
                         status = response.obtemStatusUltimaLeituraChip();
 
-                switch (status) { /* 2021-06-29: mandatory - 'null' should trigger an exception, to
-                                   * be caught and saved by the request handler */
-                    case BEM_SUCEDIDA:
-                        output.putInt(ABECS.PP_ICCSTAT, 0);
-                        break;
+                try {
+                    switch (status) {
+                        case BEM_SUCEDIDA:
+                            output.putInt(ABECS.PP_ICCSTAT, 0);
+                            break;
 
-                    case ERRO_PASSIVEL_FALLBACK:
-                        output.putInt(ABECS.PP_ICCSTAT, 1);
-                        break;
+                        case ERRO_PASSIVEL_FALLBACK:
+                            output.putInt(ABECS.PP_ICCSTAT, 1);
+                            break;
 
-                    case APLICACAO_NAO_SUPORTADA:
-                        output.putInt(ABECS.PP_ICCSTAT, 2);
-                        break;
+                        case APLICACAO_NAO_SUPORTADA:
+                            output.putInt(ABECS.PP_ICCSTAT, 2);
+                            break;
 
-                    default:
-                        /* Nothing to do */
-                        break;
+                        default:
+                            /* Nothing to do */
+                            break;
+                    }
+                } catch (Exception exception) {
+                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
                 }
                 break;
 
@@ -69,38 +72,46 @@ public class GCX {
             case EMV_SEM_CONTATO:
                 output.putInt(ABECS.PP_CARDTYPE, 6);
 
-                switch (response.obtemTipoDispositivoCtls()) {
-                    case TABLET:
-                        output.putString(ABECS.PP_DEVTYPE, "10");
-                        break;
+                SaidaComandoGetCard.TipoDispositivoCtls type = response.obtemTipoDispositivoCtls();
 
-                    case RELOGIO:
-                        output.putString(ABECS.PP_DEVTYPE, "03");
-                        break;
+                output.putString(ABECS.PP_DEVTYPE, "00");
 
-                    case CHAVEIRO:
-                        output.putString(ABECS.PP_DEVTYPE, "02");
-                        break;
+                try {
+                    switch (type) {
+                        case TABLET:
+                            output.putString(ABECS.PP_DEVTYPE, "10");
+                            break;
 
-                    case PULSEIRA:
-                        output.putString(ABECS.PP_DEVTYPE, "05");
-                        break;
+                        case RELOGIO:
+                            output.putString(ABECS.PP_DEVTYPE, "03");
+                            break;
 
-                    case CAPA_TELEFONE:
-                        output.putString(ABECS.PP_DEVTYPE, "06");
-                        break;
+                        case CHAVEIRO:
+                            output.putString(ABECS.PP_DEVTYPE, "02");
+                            break;
 
-                    case ETIQUETA_MOVEL:
-                        output.putString(ABECS.PP_DEVTYPE, "04");
-                        break;
+                        case PULSEIRA:
+                            output.putString(ABECS.PP_DEVTYPE, "05");
+                            break;
 
-                    case TELEFONE_MOVEL:
-                        output.putString(ABECS.PP_DEVTYPE, "01");
-                        break;
+                        case CAPA_TELEFONE:
+                            output.putString(ABECS.PP_DEVTYPE, "06");
+                            break;
 
-                    default:
-                        output.putString(ABECS.PP_DEVTYPE, "00");
-                        break;
+                        case ETIQUETA_MOVEL:
+                            output.putString(ABECS.PP_DEVTYPE, "04");
+                            break;
+
+                        case TELEFONE_MOVEL:
+                            output.putString(ABECS.PP_DEVTYPE, "01");
+                            break;
+
+                        default:
+                            /* Nothing to do */
+                            break;
+                    }
+                } catch (Exception exception) {
+                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
                 }
                 break;
 

@@ -255,6 +255,49 @@ public class MainActivity extends AppCompatActivity {
                     requestList.add(input);
 
                     input = new Bundle();
+                    input.putString(ABECS.CMD_ID, ABECS.GCR);
+                    date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
+                            .format(new Date());
+                    input.putInt   (ABECS.GCR_ACQIDXREQ,  0);
+                    input.putInt   (ABECS.GCR_APPTYPREQ,  2);
+                    input.putLong  (ABECS.GCR_AMOUNT,     0);
+                    input.putString(ABECS.GCR_DATE,       date.substring(0, 6));
+                    input.putString(ABECS.GCR_TIME,       date.substring(6));
+                    input.putString(ABECS.GCR_TABVER,     "0123456789");
+                    input.putInt   (ABECS.GCR_QTDAPP,     0);
+                    requestList.add(input);
+
+                    input = new Bundle();
+                    input.putString(ABECS.CMD_ID, ABECS.GCR);
+                    date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
+                            .format(new Date());
+                    input.putInt   (ABECS.GCR_ACQIDXREQ,  0);
+                    input.putInt   (ABECS.GCR_APPTYPREQ,  99);
+                    input.putLong  (ABECS.GCR_AMOUNT,     0);
+                    input.putString(ABECS.GCR_DATE,       date.substring(0, 6));
+                    input.putString(ABECS.GCR_TIME,       date.substring(6));
+                    input.putString(ABECS.GCR_TABVER,     "0123456789");
+                    input.putInt   (ABECS.GCR_QTDAPP,     0);
+                    // requestList.add(input);
+
+                    input = new Bundle();
+                    input.putString(ABECS.CMD_ID, ABECS.GCR);
+                    date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
+                            .format(new Date());
+                    input.putInt   (ABECS.GCR_ACQIDXREQ,  0);
+                    input.putInt   (ABECS.GCR_APPTYPREQ,  4);
+                    input.putLong  (ABECS.GCR_AMOUNT,     0);
+                    input.putString(ABECS.GCR_DATE,       date.substring(0, 6));
+                    input.putString(ABECS.GCR_TIME,       date.substring(6));
+                    input.putString(ABECS.GCR_TABVER,     "0123456789");
+                    input.putInt   (ABECS.GCR_QTDAPP,     2);
+                    input.putString("GCR_IDAPP1",         "0402");
+                    input.putString("GCR_IDAPP2",         "0403");
+                    input.putString("GCR_IDAPP2",         "0404");
+                    input.putString("GCR_IDAPP2",         "0405");
+                    requestList.add(input);
+
+                    input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.CLO);
                     requestList.add(input);
 

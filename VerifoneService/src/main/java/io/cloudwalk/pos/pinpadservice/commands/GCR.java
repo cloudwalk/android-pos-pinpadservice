@@ -25,8 +25,19 @@ public class GCR {
         request.putString(ABECS.SPE_TRNTIME, input.getString(ABECS.GCR_TIME));
         request.putString(ABECS.GCR_TABVER,  input.getString(ABECS.GCR_TABVER));
 
-        if (request.getInt(ABECS.GCR_QTDAPP, 0) > 0) {
-            /* TODO: GCR_QTDAPP */
+        StringBuilder SPE_AIDLIST = new StringBuilder();
+        int           GCR_QTDAPP  = input.getInt(ABECS.GCR_QTDAPP, 0);
+
+        int i = 0;
+
+        while (i < GCR_QTDAPP) {
+            String GCR_IDAPPnn = ABECS.GCR_IDAPPnn.replace("nn", "" + ++i);
+
+            SPE_AIDLIST.append(input.getString(GCR_IDAPPnn, ""));
+        }
+
+        if (SPE_AIDLIST.length() > 0) {
+            request.putString(ABECS.SPE_AIDLIST, SPE_AIDLIST.toString());
         }
 
         String SPE_GCXOPT = (request.getInt(ABECS.GCR_CTLSON, 1) != 0) ? "10000" : "00000";
