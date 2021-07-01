@@ -17,7 +17,8 @@ public class GCR {
 
         Bundle request = new Bundle();
 
-        request.putString(ABECS.CMD_ID,      ABECS.GCX);
+        request.putString(ABECS.CMD_ID,      ABECS.GCR);
+
         request.putInt   (ABECS.SPE_ACQREF,  input.getInt   (ABECS.GCR_ACQIDXREQ));
         request.putString(ABECS.SPE_APPTYPE, String.format(Locale.getDefault(), "%02d", input.getInt(ABECS.GCR_APPTYPREQ, 99)));
         request.putLong  (ABECS.SPE_AMOUNT,  input.getLong  (ABECS.GCR_AMOUNT));
@@ -46,7 +47,7 @@ public class GCR {
 
         Bundle response = GCX.gcx(request);
 
-        response.putString(ABECS.RSP_ID, ABECS.GCX);
+        response.putString(ABECS.RSP_ID, ABECS.GCR);
 
         Bundle output = new Bundle();
 

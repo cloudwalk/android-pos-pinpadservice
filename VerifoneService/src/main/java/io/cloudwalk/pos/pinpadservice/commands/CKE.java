@@ -15,7 +15,7 @@ public class CKE {
 
         Bundle request = new Bundle();
 
-        request.putString(ABECS.CMD_ID, ABECS.CEX);
+        request.putString(ABECS.CMD_ID, ABECS.CKE);
 
         String SPE_CEXOPT = "";
 

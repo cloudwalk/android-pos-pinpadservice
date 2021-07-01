@@ -5,6 +5,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
@@ -23,6 +24,8 @@ public class GCX {
     private static final String TAG_LOGCAT = GCX.class.getSimpleName();
 
     private static String SPE_PANMASK = "9999";
+
+    private static String CMD_ID = ABECS.GCX;
 
     private static AcessoFuncoesPinpad getPinpad() {
         return PinpadAbstractionLayer.getInstance().getPinpad();
@@ -120,17 +123,21 @@ public class GCX {
                 break;
         }
 
-        List<SaidaComandoGetCard.InformacaoTabelaAID> appl =
-                response.obtemInformacaoTabelaAIDs();
+        List<SaidaComandoGetCard.InformacaoTabelaAID> list = response.obtemInformacaoTabelaAIDs();
+
+        StringBuilder PP_AIDTABINFO = new StringBuilder();
 
         if (output.getInt(ABECS.PP_CARDTYPE) != 0) {
-            // TODO: PP_AIDTABINFO
+            for (SaidaComandoGetCard.InformacaoTabelaAID item : list) {
+                List<Integer> AA = item.obtemListaRegistrosAID().getListaIndiceAdquirente();
+                List<Integer> RR = item.obtemListaRegistrosAID().getListaIndiceRegistro();
 
-            /*
-            output.putInt   (ABECS.GCR_ACQIDX,   appl.get(0).obtemListaRegistrosAID().getListaIndiceAdquirente().get(0));
-            output.putString(ABECS.GCR_RECIDX,   appl.get(0).obtemListaRegistrosAID().getListaIndiceRegistro().get(0) + "");
-            output.putInt   (ABECS.GCR_APPTYPE,  appl.get(0).obtemTipoAplicacao());
-             */
+                for (int i = 0; i < AA.size(); i++) {
+                    PP_AIDTABINFO.append(String.format(Locale.getDefault(), "%02d%02d%02d", AA.get(i), RR.get(i), item.obtemTipoAplicacao()));
+                }
+            }
+
+            output.putString(ABECS.PP_AIDTABINFO, PP_AIDTABINFO.toString());
         }
 
         SaidaComandoGetCard.DadosCartao card = response.obtemDadosCartao();
@@ -138,7 +145,7 @@ public class GCX {
         if (output.getInt   (ABECS.PP_CARDTYPE) == 3 ||
             output.getInt   (ABECS.PP_CARDTYPE) == 6) {
 
-            output.putString(ABECS.PP_PAN,      card.obtemPan()); /* TODO: SPE_PANMASK */
+            output.putString(ABECS.PP_PAN,      ManufacturerUtility.getPP_PAN(SPE_PANMASK, card));
             output.putInt   (ABECS.PP_PANSEQNO, card.obtemPanSequenceNumber());
             output.getString(ABECS.PP_CHNAME,   card.obtemNomePortador());
             output.putInt   (ABECS.PP_ISSCNTRY, card.obtemIssuerCountryCode());
@@ -154,20 +161,22 @@ public class GCX {
             }
         }
 
+        boolean truncate = CMD_ID.equals(ABECS.GCX);
+
         if (card.obtemTrilha1() != null) {
-            String PP_TRK1INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 1); /* TODO: INC as argument */
+            String PP_TRK1INC = ManufacturerUtility.getPP_TRKx(SPE_PANMASK, card, truncate, 1);
 
             output.putString(ABECS.PP_TRK1INC, PP_TRK1INC);
         }
 
         if (card.obtemTrilha2() != null) {
-            String PP_TRK2INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 2);
+            String PP_TRK2INC = ManufacturerUtility.getPP_TRKx(SPE_PANMASK, card, truncate, 2);
 
             output.putString(ABECS.PP_TRK2INC, PP_TRK2INC);
         }
 
         if (card.obtemTrilha3() != null) {
-            String PP_TRK3INC = ManufacturerUtility.getPP_TRKxINC(SPE_PANMASK, card, 3);
+            String PP_TRK3INC = ManufacturerUtility.getPP_TRKx(SPE_PANMASK, card, truncate, 3);
 
             output.putString(ABECS.PP_TRK3INC, PP_TRK3INC);
         }
@@ -176,7 +185,11 @@ public class GCX {
             output.putString(ABECS.PP_LABEL, card.obtemNomeAplicacao());
         }
 
-        // TODO: PP_EMVDATA
+        byte[] PP_EMVDATA = response.obtemDadosEMV();
+
+        if (PP_EMVDATA != null) {
+            output.putString(ABECS.PP_EMVDATA, DataUtility.toHex(PP_EMVDATA));
+        }
 
         return output;
     }
@@ -187,6 +200,8 @@ public class GCX {
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        CMD_ID = input.getString(ABECS.CMD_ID, ABECS.GCX);
 
         long    SPE_CASHBACK    = input.getLong  (ABECS.SPE_CASHBACK, -1);
         int     SPE_TRNTYPE     = input.getInt   (ABECS.SPE_TRNTYPE, (SPE_CASHBACK != -1) ? ((int) 0x09) : ((int) 0x00));

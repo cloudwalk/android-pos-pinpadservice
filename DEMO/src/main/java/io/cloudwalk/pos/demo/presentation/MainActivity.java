@@ -173,14 +173,14 @@ public class MainActivity extends AppCompatActivity {
                     input.putInt   (ABECS.CKE_MAG,  1);
                     input.putInt   (ABECS.CKE_ICC,  1);
                     input.putInt   (ABECS.CKE_CTLS, 1);
-                    // requestList.add(input);
+                    requestList.add(input);
 
                     input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.CEX);
                     input.putString(ABECS.SPE_CEXOPT,  "111000");
                     input.putInt   (ABECS.SPE_TIMEOUT, 10);
                     input.putString(ABECS.SPE_PANMASK, "0404");
-                    // requestList.add(input);
+                    requestList.add(input);
 
                     input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.TLI);

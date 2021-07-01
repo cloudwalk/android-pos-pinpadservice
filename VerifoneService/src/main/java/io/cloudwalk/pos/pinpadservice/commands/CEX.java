@@ -22,6 +22,8 @@ import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent
 public class CEX {
     private static final String TAG_LOGCAT = CEX.class.getSimpleName();
 
+    private static String CMD_ID = ABECS.GCX;
+
     private static AcessoFuncoesPinpad getPinpad() {
         return PinpadAbstractionLayer.getInstance().getPinpad();
     }
@@ -80,9 +82,11 @@ public class CEX {
                 if (card != null) {
                     String pattern = (SPE_PANMASK != null) ? SPE_PANMASK : "9999";
 
-                    PP_TRK1INC = ManufacturerUtility.getPP_TRKxINC(pattern, card, 1);
-                    PP_TRK2INC = ManufacturerUtility.getPP_TRKxINC(pattern, card, 2);
-                    PP_TRK3INC = ManufacturerUtility.getPP_TRKxINC(pattern, card, 3);
+                    boolean truncate = CMD_ID.equals(ABECS.CEX);
+
+                    PP_TRK1INC = ManufacturerUtility.getPP_TRKx(pattern, card, truncate, 1);
+                    PP_TRK2INC = ManufacturerUtility.getPP_TRKx(pattern, card, truncate, 2);
+                    PP_TRK3INC = ManufacturerUtility.getPP_TRKx(pattern, card, truncate, 3);
                 }
                 break;
 
@@ -129,6 +133,8 @@ public class CEX {
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        CMD_ID = input.getString(ABECS.CMD_ID, ABECS.CEX);
 
         List<EntradaComandoCheckEvent.Eventos> eventList = new ArrayList<>(0);
 
