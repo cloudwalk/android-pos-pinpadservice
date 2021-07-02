@@ -7,6 +7,8 @@ import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.CodigosRetorno;
 import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGetCard;
 
@@ -100,14 +102,70 @@ public class ManufacturerUtility {
         }
     }
 
-    public static String getPP_TRKxINC(@NotNull String SPE_PANMASK,
-                                       @NotNull SaidaComandoGetCard.DadosCartao data,
-                                       int track) {
+    public static String getPP_PAN(@NotNull String SPE_PANMASK,
+                                   @NotNull SaidaComandoGetCard.DadosCartao data) {
+        try {
+            int LL = Integer.parseInt(SPE_PANMASK.substring(0, 2));
+            int RR = Integer.parseInt(SPE_PANMASK.substring(2, 4));
+
+            String PP_PAN  = data.obtemPan();
+            int    track   = 1;
+
+            String PP_TRK;
+
+            if (PP_PAN == null) {
+                PP_TRK = data.obtemTrilha1();
+
+                if (PP_TRK == null) {
+                    PP_TRK = data.obtemTrilha2();
+                    track++;
+                }
+
+                if (PP_TRK != null) {
+                    char separator = (track != 1) ? '=' : '^';
+
+                    if (PP_TRK.contains("" + separator) && PP_TRK.length() > 1) {
+                        PP_PAN = PP_TRK.substring((track != 1) ? 0 : 1, PP_TRK.indexOf(separator));
+                    }
+                }
+            }
+
+            if (PP_PAN != null) {
+                return DataUtility.mask(PP_PAN, LL, RR);
+            }
+        } catch (Exception exception) {
+            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+        }
+
+        return null;
+    }
+
+    public static String getPP_TRKx(@NotNull String SPE_PANMASK,
+                                    @NotNull SaidaComandoGetCard.DadosCartao data,
+                                    boolean truncate, int track) {
         String PP_TRK;
+        String PP_TRKINC;
 
         switch (track) {
             case 1:
                 PP_TRK = data.obtemTrilha1();
+
+                if (PP_TRK != null) {
+                    if (PP_TRK.length() <= 79) {
+                        break;
+                    }
+
+                    StringBuilder TRK = new StringBuilder();
+
+                    for (int i = 0, j = 2; i < PP_TRK.length(); i += 2) {
+                        TRK.append(
+                                String.format(
+                                        Locale.getDefault(), "%c",
+                                        Integer.parseInt(PP_TRK.substring(i, i + j), 16)));
+                    }
+
+                    PP_TRK = TRK.toString();
+                }
                 break;
 
             case 2:
@@ -123,40 +181,36 @@ public class ManufacturerUtility {
         }
 
         if (PP_TRK != null) {
+            PP_TRKINC = PP_TRK.substring(0, Math.min(PP_TRK.length(), 19));
+
             switch (track) {
                 case 1:
                 case 2:
                     char separator = (track != 1) ? '=' : '^';
 
-                    if (PP_TRK.contains("" + separator)) {
-                        PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.lastIndexOf(separator) + 7, PP_TRK.length()));
-                    } else {
-                        PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.length(), 19));
+                    if (truncate) {
+                        if (PP_TRK.contains("" + separator)) {
+                            PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.lastIndexOf(separator) + 7, PP_TRK.length()));
+                        } else {
+                            PP_TRK = PP_TRKINC;
+                        }
                     }
 
-                    try {
-                        int ll = Integer.parseInt(SPE_PANMASK.substring(0, 2));
-                        int rr = Integer.parseInt(SPE_PANMASK.substring(2, 4));
+                    String PP_PAN = getPP_PAN("9999", data);
 
-                        String PP_PAN = data.obtemPan();
+                    if (PP_PAN != null) {
+                        int index = PP_TRK.indexOf(PP_PAN);
 
-                        int index = (PP_PAN != null) ? PP_TRK.indexOf(PP_PAN) : -1;
+                        if (index >= 0) {
+                            PP_PAN = getPP_PAN(SPE_PANMASK, data);
 
-                        PP_PAN = DataUtility.mask(PP_PAN, ll, rr);
-
-                        if (index != 0) {
                             PP_TRK = PP_TRK.substring(0, index) + PP_PAN + PP_TRK.substring(PP_PAN.length() + 1);
-                        } else {
-                            PP_TRK = PP_PAN + PP_TRK.substring(PP_PAN.length());
                         }
-                    } catch (Exception exception) {
-                        Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
                     }
                     break;
 
                 default:
-                    PP_TRK = PP_TRK.substring(0, Math.min(PP_TRK.length(), 19));
-                    break;
+                    return (truncate) ? PP_TRKINC : PP_TRK;
             }
         }
 

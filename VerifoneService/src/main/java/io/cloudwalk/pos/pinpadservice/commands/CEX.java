@@ -165,7 +165,7 @@ public class CEX {
         getPinpad().checkEvent(request, response -> {
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
-            output[0].putString (ABECS.RSP_ID,   ABECS.GIX);
+            output[0].putString (ABECS.RSP_ID,   ABECS.CEX);
             output[0].putInt    (ABECS.RSP_STAT, status.ordinal());
 
             try {

@@ -259,19 +259,6 @@ public class MainActivity extends AppCompatActivity {
                     date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
                             .format(new Date());
                     input.putInt   (ABECS.GCR_ACQIDXREQ,  0);
-                    input.putInt   (ABECS.GCR_APPTYPREQ,  2);
-                    input.putLong  (ABECS.GCR_AMOUNT,     0);
-                    input.putString(ABECS.GCR_DATE,       date.substring(0, 6));
-                    input.putString(ABECS.GCR_TIME,       date.substring(6));
-                    input.putString(ABECS.GCR_TABVER,     "0123456789");
-                    input.putInt   (ABECS.GCR_QTDAPP,     0);
-                    requestList.add(input);
-
-                    input = new Bundle();
-                    input.putString(ABECS.CMD_ID, ABECS.GCR);
-                    date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
-                            .format(new Date());
-                    input.putInt   (ABECS.GCR_ACQIDXREQ,  0);
                     input.putInt   (ABECS.GCR_APPTYPREQ,  99);
                     input.putLong  (ABECS.GCR_AMOUNT,     0);
                     input.putString(ABECS.GCR_DATE,       date.substring(0, 6));
@@ -291,10 +278,32 @@ public class MainActivity extends AppCompatActivity {
                     input.putString(ABECS.GCR_TIME,       date.substring(6));
                     input.putString(ABECS.GCR_TABVER,     "0123456789");
                     input.putInt   (ABECS.GCR_QTDAPP,     2);
+                    input.putInt   (ABECS.GCR_CTLSON,     0);
                     input.putString("GCR_IDAPP1",         "0402");
                     input.putString("GCR_IDAPP2",         "0403");
                     input.putString("GCR_IDAPP2",         "0404");
                     input.putString("GCR_IDAPP2",         "0405");
+                    requestList.add(input);
+
+                    input = new Bundle();
+                    input.putString(ABECS.CMD_ID, ABECS.GCX);
+                    date = (new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()))
+                            .format(new Date());
+                    // ABECS.SPE_TRNTYPE; (optional)
+                    // ABECS.SPE_ACQREF; (optional)
+                    input.putString(ABECS.SPE_APPTYPE,  "02");
+                    // ABECS.SPE_AIDLIST; (conditional)
+                    input.putLong  (ABECS.SPE_AMOUNT,    0);
+                    // ABECS.SPE_CASHBACK; (conditional)
+                    // ABECS.SPE_TRNCURR; (optional)
+                    input.putString(ABECS.SPE_TRNDATE,   date.substring(0, 6));
+                    input.putString(ABECS.SPE_TRNTIME,   date.substring(6));
+                    input.putString(ABECS.SPE_GCXOPT,    "01000");
+                    input.putString(ABECS.SPE_PANMASK,   "0404");
+                    // ABECS.SPE_EMVDATA; (optional)
+                    input.putString(ABECS.SPE_TAGLIST,   "4F505F24");
+                    input.putInt   (ABECS.SPE_TIMEOUT,   15);
+                    input.putString(ABECS.SPE_DSPMSG,    "HAVE FAITH!");
                     requestList.add(input);
 
                     input = new Bundle();
@@ -335,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        // noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }

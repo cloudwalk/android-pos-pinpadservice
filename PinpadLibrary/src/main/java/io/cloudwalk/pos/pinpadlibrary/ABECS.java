@@ -199,24 +199,41 @@ public class ABECS {
     public static final String GCR_TABVER       = "GCR_TABVER";
     /** ({@code int}) */
     public static final String GCR_QTDAPP       = "GCR_QTDAPP";
-
+    /** ({@link String}) */
     public static final String GCR_IDAPPnn      = "GCR_IDAPPnn";
+    /** ({@code int}) */
     public static final String GCR_CTLSON       = "GCR_CTLSON";
+    /** ({@code int}) */
     public static final String GCR_CARDTYPE     = "GCR_CARDTYPE";
+    /** ({@code int}) */
     public static final String GCR_STATCHIP     = "GCR_STATCHIP";
+    /** ({@link String}) */
     public static final String GCR_APPTYPE      = "GCR_APPTYPE";
+    /** ({@link String}) */
     public static final String GCR_ACQIDX       = "GCR_ACQIDX";
+    /** ({@link String}) */
     public static final String GCR_RECIDX       = "GCR_RECIDX";
+    /** ({@link String}) */
     public static final String GCR_TRK1         = "GCR_TRK1";
+    /** ({@link String}) */
     public static final String GCR_TRK2         = "GCR_TRK2";
+    /** ({@link String}) */
     public static final String GCR_TRK3         = "GCR_TRK3";
+    /** ({@link String}) */
     public static final String GCR_PAN          = "GCR_PAN";
+    /** ({@code int}) */
     public static final String GCR_PANSEQNO     = "GCR_PANSEQNO";
+    /** ({@link String}) */
     public static final String GCR_APPLABEL     = "GCR_APPLABEL";
+    /** ({@link String}) */
     public static final String GCR_SRVCODE      = "GCR_SRVCODE";
+    /** ({@link String}) */
     public static final String GCR_CHNAME       = "GCR_CHNAME";
+    /** ({@code int}) */
     public static final String GCR_CARDEXP      = "GCR_CARDEXP";
+    /** ({@code int}) */
     public static final String GCR_ISSCNTRY     = "GCR_ISSCNTRY";
+    /** ({@link String}) */
     public static final String GCR_ACQRD        = "GCR_ACQRD";
 
     public static final String GCX              = "GCX";

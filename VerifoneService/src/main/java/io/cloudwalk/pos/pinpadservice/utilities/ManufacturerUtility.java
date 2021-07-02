@@ -151,6 +151,10 @@ public class ManufacturerUtility {
                 PP_TRK = data.obtemTrilha1();
 
                 if (PP_TRK != null) {
+                    if (PP_TRK.length() <= 79) {
+                        break;
+                    }
+
                     StringBuilder TRK = new StringBuilder();
 
                     for (int i = 0, j = 2; i < PP_TRK.length(); i += 2) {

@@ -4,6 +4,11 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -13,10 +18,6 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaAID;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaCAPK;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaCertificadosRevogados;
 import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoTableLoad;
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -404,10 +405,10 @@ public class TLE {
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
 
-        int     TLI_ACQIDX      = TLI.getTLI_ACQIDX();
-        String  TLI_TABVER      = TLI.getTLI_TABVER();
-        int     TLR_NREC        = TLR.getTLR_NREC();
-        String  TLR_DATA        = TLR.getTLR_DATA().toString();
+        int     TLI_ACQIDX    = TLI.getTLI_ACQIDX();
+        String  TLI_TABVER    = TLI.getTLI_TABVER();
+        int     TLR_NREC      = TLR.getTLR_NREC();
+        String  TLR_DATA      = TLR.getTLR_DATA().toString();
 
         TLR.setTLR_DATA(new StringBuilder());
         TLR.setTLR_NREC(0);
@@ -426,11 +427,11 @@ public class TLE {
         int i = 0;
 
         while (i++ < TLR_NREC) {
-            int     TAB_LEN     = Integer.parseInt(TLR_DATA.substring(0, 3));
-            int     TAB_ID      = Integer.parseInt(TLR_DATA.substring(3, 4));
-            int     TAB_ACQ     = Integer.parseInt(TLR_DATA.substring(4, 6));
+            int     TAB_LEN   = Integer.parseInt(TLR_DATA.substring(0, 3));
+            int     TAB_ID    = Integer.parseInt(TLR_DATA.substring(3, 4));
+            int     TAB_ACQ   = Integer.parseInt(TLR_DATA.substring(4, 6));
 
-            String  TAB_DATA    = TLR_DATA.substring(6, TAB_LEN);
+            String  TAB_DATA  = TLR_DATA.substring(6, TAB_LEN);
 
             switch (TAB_ID) {
                 case 1:

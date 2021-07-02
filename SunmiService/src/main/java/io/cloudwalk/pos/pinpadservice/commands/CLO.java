@@ -7,8 +7,6 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
 
-import java.util.concurrent.Semaphore;
-
 import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
 
 public class CLO {
@@ -22,10 +20,24 @@ public class CLO {
             throws Exception {
         final long timestamp = SystemClock.elapsedRealtime();
 
-        final Bundle output = new Bundle();
-
         /* 2021-06-29: BCPP 1.20 from Sunmi is crashing due to a faulty address when CLO is
-         * triggered */
+         * triggered: S/N PB0419AL60448 */
+
+        // final Bundle[] output = { new Bundle() };
+        // final Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        // getPinpad().close(() -> {
+        //     output[0].putString(ABECS.RSP_ID,   ABECS.CLO);
+        //     output[0].putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
+
+        //     semaphore[0].release();
+        // });
+
+        // semaphore[0].acquireUninterruptibly();
+
+        // return output[0];
+
+        final Bundle output = new Bundle();
 
         output.putString(ABECS.RSP_ID,   ABECS.CLO);
         output.putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
