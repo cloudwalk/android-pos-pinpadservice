@@ -283,6 +283,8 @@ public class GIX {
 
         timestamp = SystemClock.elapsedRealtime() - timestamp;
 
+        PinpadManager.getInstance().setCallbackStatus(false);
+
         Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + timestamp + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp) + "ms]");
 
         return output[0];

@@ -461,6 +461,8 @@ public class TLE {
         getPinpad().tableLoad(entradaComandoTableLoad, response -> {
             timestamp[0] = SystemClock.elapsedRealtime() - timestamp[0];
 
+            PinpadManager.getInstance().setCallbackStatus(false);
+
             ABECS.STAT status = ManufacturerUtility.toSTAT(response);
 
             output[0].putString(ABECS.RSP_ID,   ABECS.TLE);

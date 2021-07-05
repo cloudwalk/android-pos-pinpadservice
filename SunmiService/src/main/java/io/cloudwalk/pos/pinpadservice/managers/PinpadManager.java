@@ -39,15 +39,19 @@ public class PinpadManager extends IPinpadManager.Stub {
                 throws RemoteException {
             Log.d(TAG_LOGCAT, "onSelectionRequired");
 
+            if (!getInstance().getCallbackStatus()) {
+                return 0;
+            }
+
+            IServiceCallback callback;
+
             sSemaphore[2].acquireUninterruptibly();
 
-            if (sExternalCallback != null) {
-                sExternalCallback.onSelectionRequired(output);
-            }
+            callback = sExternalCallback;
 
             sSemaphore[2].release();
 
-            return 0;
+            return (callback != null) ? callback.onSelectionRequired(output) : 0;
         }
 
         @Override
@@ -55,13 +59,21 @@ public class PinpadManager extends IPinpadManager.Stub {
                 throws RemoteException {
             Log.d(TAG_LOGCAT, "onNotificationThrow");
 
-            sSemaphore[2].acquireUninterruptibly();
-
-            if (sExternalCallback != null) {
-                sExternalCallback.onNotificationThrow(output, type);
+            if (!getInstance().getCallbackStatus()) {
+                return;
             }
 
+            IServiceCallback callback;
+
+            sSemaphore[2].acquireUninterruptibly();
+
+            callback = sExternalCallback;
+
             sSemaphore[2].release();
+
+            if (callback != null){
+                callback.onNotificationThrow(output, type);
+            }
         }
     };
 
@@ -75,20 +87,20 @@ public class PinpadManager extends IPinpadManager.Stub {
             Semaphore[] sSemaphore = {
                     new Semaphore(1, true), /* Public (external) */
                     new Semaphore(1, true), /* Public (internal) */
-                    new Semaphore(1, true)  /* Private */
+                    new Semaphore(1, true)  /* Public (internal) */
             };
 
     private static AcessoFuncoesPinpad sAcessoFuncoesPinpad = null;
 
     private static IServiceCallback sExternalCallback = null;
 
+    private static boolean sCallbackStatus = false;
+
     /**
      * Runnable interface.
      */
     public static interface Runnable {
         /**
-         * Processes a request from a known command.
-         *
          * @return {@link Bundle}
          * @throws Exception self-describing
          */
@@ -122,10 +134,6 @@ public class PinpadManager extends IPinpadManager.Stub {
      /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
     }
 
-    /**
-     *
-     * @param callback
-     */
     private void setCallback(@NotNull IServiceCallback callback) {
         Log.d(TAG_LOGCAT, "setCallback");
 
@@ -142,9 +150,6 @@ public class PinpadManager extends IPinpadManager.Stub {
         return sPinpadManager;
     }
 
-    /**
-     * @return {@link AcessoFuncoesPinpad}
-     */
     public AcessoFuncoesPinpad getPinpad() {
         Log.d(TAG_LOGCAT, "getPinpad");
 
@@ -163,21 +168,12 @@ public class PinpadManager extends IPinpadManager.Stub {
         return sAcessoFuncoesPinpad;
     }
 
-    /**
-     *
-     * @return
-     */
     public IServiceCallback getCallback() {
         Log.d(TAG_LOGCAT, "getCallback");
 
         return sLocalCallback;
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
     @Override
     public Bundle request(Bundle input) {
         Log.d(TAG_LOGCAT, "request");
@@ -207,6 +203,8 @@ public class PinpadManager extends IPinpadManager.Stub {
 
             for (Pair<String, Runnable> command : sCommandList) {
                 if (request.equals(command.first)) {
+                    PinpadManager.getInstance().setCallbackStatus(true);
+
                     return command.second.run(input);
                 }
             }
@@ -234,6 +232,20 @@ public class PinpadManager extends IPinpadManager.Stub {
         return output;
     }
 
+    public boolean getCallbackStatus() {
+        Log.d(TAG_LOGCAT, "getCallbackStatus");
+
+        boolean enabled = false;
+
+        sSemaphore[2].acquireUninterruptibly();
+
+        enabled = sCallbackStatus;
+
+        sSemaphore[2].release();
+
+        return enabled;
+    }
+
     @Override
     public void registerCallback(IServiceCallback input) {
         Log.d(TAG_LOGCAT, "registerCallback");
@@ -243,5 +255,15 @@ public class PinpadManager extends IPinpadManager.Stub {
         setCallback(input);
 
         sSemaphore[0].release();
+    }
+
+    public void setCallbackStatus(boolean enabled) {
+        Log.d(TAG_LOGCAT, "setCallbackStatus");
+
+        sSemaphore[2].acquireUninterruptibly();
+
+        sCallbackStatus = enabled;
+
+        sSemaphore[2].release();
     }
 }

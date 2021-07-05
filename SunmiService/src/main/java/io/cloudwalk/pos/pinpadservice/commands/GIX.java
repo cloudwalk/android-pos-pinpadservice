@@ -262,26 +262,28 @@ public class GIX {
 
         for (EntradaComandoGetInfoEx.TipoInfo type : typeList) {
             getPinpad().getInfoEx(new EntradaComandoGetInfoEx(type, -1), response -> {
-                ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
+                    ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
-                output[0].putString (ABECS.RSP_ID,   ABECS.GIX);
-                output[0].putInt    (ABECS.RSP_STAT, status.ordinal());
+                    output[0].putString (ABECS.RSP_ID,   ABECS.GIX);
+                    output[0].putInt    (ABECS.RSP_STAT, status.ordinal());
 
-                try {
-                    if (status != ABECS.STAT.ST_OK) {
-                        return;
+                    try {
+                        if (status != ABECS.STAT.ST_OK) {
+                            return;
+                        }
+
+                        output[0].putAll(parseRSP(response));
+                    } finally {
+                        semaphore[0].release();
                     }
-
-                    output[0].putAll(parseRSP(response));
-                } finally {
-                    semaphore[0].release();
-                }
-            });
+                });
         }
 
         semaphore[0].acquireUninterruptibly();
 
         timestamp = SystemClock.elapsedRealtime() - timestamp;
+
+        PinpadManager.getInstance().setCallbackStatus(false);
 
         Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + timestamp + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp) + "ms]");
 

@@ -29,6 +29,8 @@ public class CLO {
         getPinpad().close(() -> {
             timestamp[0] = SystemClock.elapsedRealtime() - timestamp[0];
 
+            PinpadManager.getInstance().setCallbackStatus(false);
+
             output[0].putString(ABECS.RSP_ID,   ABECS.CLO);
             output[0].putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
 
