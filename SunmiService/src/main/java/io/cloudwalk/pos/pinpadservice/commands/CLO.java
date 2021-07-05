@@ -5,16 +5,9 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-
-import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
 
 public class CLO {
     private static final String TAG_LOGCAT = CLO.class.getSimpleName();
-
-    private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
-    }
 
     public static Bundle clo(Bundle input)
             throws Exception {
@@ -26,7 +19,7 @@ public class CLO {
         // final Bundle[] output = { new Bundle() };
         // final Semaphore[] semaphore = { new Semaphore(0, true) };
 
-        // getPinpad().close(() -> {
+        // PinpadManager.getInstance().getPinpad().close(() -> {
         //     output[0].putString(ABECS.RSP_ID,   ABECS.CLO);
         //     output[0].putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
 

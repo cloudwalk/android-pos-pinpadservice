@@ -8,11 +8,6 @@ import android.os.StatFs;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,15 +17,24 @@ import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx;
 import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGetInfo;
 import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGetInfoEx;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static android.content.Context.ACTIVITY_SERVICE;
-import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.*;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_GERAL;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_DUKPT3DES_DATA;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_DUKPT3DES_PIN;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_MK3DES_DATA;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_MK3DES_PIN;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_VERSAO_TABELAS_EMV;
 
 public class GIX {
     private static final String TAG_LOGCAT = GIX.class.getSimpleName();
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static Bundle parseRSP(SaidaComandoGetInfoEx response) {
@@ -224,7 +228,7 @@ public class GIX {
 
     public static Bundle gix(Bundle input)
             throws Exception {
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long overhead = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { null };
@@ -254,6 +258,8 @@ public class GIX {
 
         semaphore[0] = new Semaphore((typeList.size() - 1) * -1, true);
 
+        long timestamp = SystemClock.elapsedRealtime();
+
         for (EntradaComandoGetInfoEx.TipoInfo type : typeList) {
             getPinpad().getInfoEx(new EntradaComandoGetInfoEx(type, -1), response -> {
                 ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
@@ -275,7 +281,9 @@ public class GIX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        timestamp = SystemClock.elapsedRealtime() - timestamp;
+
+        Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + timestamp + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp) + "ms]");
 
         return output[0];
     }

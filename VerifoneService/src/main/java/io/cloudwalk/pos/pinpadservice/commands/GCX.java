@@ -4,12 +4,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +14,10 @@ import java.util.concurrent.Semaphore;
 import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetCard;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class GCX {
     private static final String TAG_LOGCAT = GCX.class.getSimpleName();

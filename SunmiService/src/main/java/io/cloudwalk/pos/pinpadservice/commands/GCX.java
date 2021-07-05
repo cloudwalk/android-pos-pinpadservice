@@ -16,7 +16,7 @@ import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGetCard;
 import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGetCard;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class GCX {
@@ -27,7 +27,7 @@ public class GCX {
     private static String CMD_ID = ABECS.GCX;
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static Bundle parseRSP(SaidaComandoGetCard response) {
@@ -333,7 +333,7 @@ public class GCX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms], overhead [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

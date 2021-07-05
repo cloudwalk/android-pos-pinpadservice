@@ -8,12 +8,6 @@ import android.os.StatFs;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -23,9 +17,18 @@ import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetInfo;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetInfoEx;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static android.content.Context.ACTIVITY_SERVICE;
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.*;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_GERAL;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_DUKPT3DES_DATA;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_DUKPT3DES_PIN;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_MK3DES_DATA;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_KEYMAP_MK3DES_PIN;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_VERSAO_TABELAS_EMV;
 
 public class GIX {
     private static final String TAG_LOGCAT = GIX.class.getSimpleName();

@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
-import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
+import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
+import br.com.setis.sunmi.bibliotecapinpad.GestaoBibliotecaPinpad;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;

@@ -2,15 +2,14 @@ package io.cloudwalk.pos.pinpadservice.utilities;
 
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
 import br.com.verifone.bibliotecapinpad.definicoes.CodigosRetorno;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 
 public class ManufacturerUtility {
     private static final String TAG_LOGCAT = ManufacturerUtility.class.getSimpleName();

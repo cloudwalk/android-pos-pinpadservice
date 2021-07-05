@@ -4,10 +4,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -16,8 +12,14 @@ import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoCheckEvent;
 import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoCheckEvent;
 import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGetCard;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
-import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.*;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_APROXIMACAO_CTLS;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_INSERCAO_ICC;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PASSAGEM_CARTAO_MAGNETICO;
+import static br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PRESSIONAMENTO_TECLAS;
 
 public class CEX {
     private static final String TAG_LOGCAT = CEX.class.getSimpleName();
@@ -25,7 +27,7 @@ public class CEX {
     private static String CMD_ID = ABECS.GCX;
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static Bundle parseRSP(Bundle input, SaidaComandoCheckEvent response) {
@@ -129,7 +131,7 @@ public class CEX {
 
     public static Bundle cex(Bundle input)
             throws Exception {
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long overhead = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -162,7 +164,11 @@ public class CEX {
 
         request.informaTimeout((timeout > 255) ? -1 : timeout);
 
+        long[] timestamp = { SystemClock.elapsedRealtime() };
+
         getPinpad().checkEvent(request, response -> {
+            timestamp[0] = SystemClock.elapsedRealtime() - timestamp[0];
+
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
             output[0].putString (ABECS.RSP_ID,   ABECS.CEX);
@@ -181,7 +187,7 @@ public class CEX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.CEX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        Log.d(TAG_LOGCAT, ABECS.CEX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

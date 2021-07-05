@@ -4,10 +4,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -16,8 +12,14 @@ import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoCheckEvent;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
-import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.*;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_APROXIMACAO_CTLS;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_INSERCAO_ICC;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PASSAGEM_CARTAO_MAGNETICO;
+import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PRESSIONAMENTO_TECLAS;
 
 public class CEX {
     private static final String TAG_LOGCAT = CEX.class.getSimpleName();

@@ -4,12 +4,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -19,6 +13,10 @@ import br.com.verifone.bibliotecapinpad.definicoes.TabelaAID;
 import br.com.verifone.bibliotecapinpad.definicoes.TabelaCAPK;
 import br.com.verifone.bibliotecapinpad.definicoes.TabelaCertificadosRevogados;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoTableLoad;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

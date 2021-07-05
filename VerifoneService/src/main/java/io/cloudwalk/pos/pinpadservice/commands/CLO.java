@@ -4,12 +4,10 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-
 import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 
 public class CLO {

@@ -5,21 +5,18 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.InterfaceUsuarioPinpad;
 import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
 import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoOpen;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class OPN {
     private static final String TAG_LOGCAT = OPN.class.getSimpleName();
@@ -52,7 +49,7 @@ public class OPN {
                     Bundle input = new Bundle();
 
                     input.putString("message", notificacaoCapturaPin.obtemMensagemCapturaPin());
-                    input.putInt   ("dgt_count", notificacaoCapturaPin.obtemQuantidadeDigitosPin());
+                    input.putInt   ("digit_count", notificacaoCapturaPin.obtemQuantidadeDigitosPin());
 
                     PinpadManager.getInstance().getCallback().onNotificationThrow(input, 100);
                 } catch (RemoteException exception) {

@@ -4,11 +4,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
-import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -18,6 +13,10 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaAID;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaCAPK;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TabelaCertificadosRevogados;
 import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoTableLoad;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -25,7 +24,7 @@ public class TLE {
     private static final String TAG_LOGCAT = TLE.class.getSimpleName();
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static TabelaAID parseAPPL(int TAB_LEN, int TAB_ID, int TAB_ACQ,
@@ -400,7 +399,7 @@ public class TLE {
 
     public static Bundle tle(Bundle input)
             throws Exception {
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long overhead = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -457,7 +456,11 @@ public class TLE {
         EntradaComandoTableLoad entradaComandoTableLoad =
                 new EntradaComandoTableLoad(TLI_ACQIDX, TLI_TABVER, appl, capk, cert);
 
+        long[] timestamp = { SystemClock.elapsedRealtime() };
+
         getPinpad().tableLoad(entradaComandoTableLoad, response -> {
+            timestamp[0] = SystemClock.elapsedRealtime() - timestamp[0];
+
             ABECS.STAT status = ManufacturerUtility.toSTAT(response);
 
             output[0].putString(ABECS.RSP_ID,   ABECS.TLE);
@@ -468,7 +471,7 @@ public class TLE {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.TLE + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        Log.d(TAG_LOGCAT, ABECS.TLE + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }
