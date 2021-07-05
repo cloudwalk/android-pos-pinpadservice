@@ -4,22 +4,31 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
+import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.exceptions.ServiceInstanceException;
 import io.cloudwalk.pos.pinpadlibrary.utilities.ServiceUtility;
-import io.cloudwalk.pos.pinpadservice.IABECS;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class PinpadManager {
     private static final String TAG_LOGCAT = PinpadManager.class.getSimpleName();
 
-    private static final String ACTION_PINPAD_SERVICE =
-            "io.cloudwalk.pos.pinpadservice.PinpadService";
+    private static final
+            String ACTION_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice.PinpadService";
 
-    private static final String PACKAGE_PINPAD_SERVICE =
-            "io.cloudwalk.pos.pinpadservice";
+    private static final
+            String PACKAGE_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice";
+
+    private static final
+            Semaphore sSemaphore = new Semaphore(1, true);
+
+    private static
+            IServiceCallback sCallback = null;
 
     /**
      * Constructor.
@@ -30,19 +39,43 @@ public class PinpadManager {
 
     public static Bundle request(@NotNull Bundle bundle)
             throws Exception {
-        IABECS service = null;
+        IPinpadService service = null;
 
         try {
             register();
 
-            try {
-                service = IABECS.Stub.asInterface(retrieve());
-            } catch (Exception exception) {
-                throw new ServiceInstanceException();
-            }
+            service = IPinpadService.Stub.asInterface(retrieve());
 
-            return service.request(bundle);
-        } catch (NullPointerException exception) {
+            sSemaphore.acquireUninterruptibly();
+
+            IServiceCallback callback = (sCallback != null) ? sCallback : new IServiceCallback.Stub() {
+                @Override
+                public int onSelectionRequired(Bundle output) {
+                    Log.d(TAG_LOGCAT, "onSelectionRequired");
+
+                    output.get(null);
+
+                    Log.d(TAG_LOGCAT, "onSelectionRequired::output [" + output.toString() + "]");
+
+                    return 0;
+                }
+
+                @Override
+                public void onNotificationThrow(Bundle output, int type) {
+                    Log.d(TAG_LOGCAT, "onNotificationThrow");
+
+                    output.get(null);
+
+                    Log.d(TAG_LOGCAT, "onNotificationThrow::output [" + output.toString() + "] [" + type + "]");
+                }
+            };
+
+            sSemaphore.release();
+
+            service.getPinpadManager().registerCallback(callback);
+
+            return service.getPinpadManager().request(bundle);
+        } catch (Exception exception) {
             throw new ServiceInstanceException();
         }
     }
@@ -58,6 +91,9 @@ public class PinpadManager {
         return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
     }
 
+    /**
+     * Requests the interruption of the current request.
+     */
     public static void abort() {
         try {
             Bundle input = new Bundle();
@@ -75,7 +111,7 @@ public class PinpadManager {
      * Intended as a helper for UI thread calls.<br>
      * <code>
      *     <pre>
-     * SystemManager.execute(new Runnable() {
+     * PinpadManager.execute(new Runnable() {
      *    {@literal @}Override
      *     public void execute() {
      *         // code you shouldn't run on the main thread goes here
@@ -96,6 +132,21 @@ public class PinpadManager {
      */
     public static void register() {
         ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+    }
+
+    /**
+     * See {@link PinpadManager#register()}.
+     *
+     * @param callback {@link IServiceCallback}
+     */
+    public static void register(IServiceCallback callback) {
+        register();
+
+        sSemaphore.acquireUninterruptibly();
+
+        sCallback = callback;
+
+        sSemaphore.release();
     }
 
     /**

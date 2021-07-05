@@ -11,6 +11,7 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class GIX {
     private static final String TAG_LOGCAT = GIX.class.getSimpleName();
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static Bundle parseRSP(SaidaComandoGetInfoEx response) {
@@ -224,7 +225,7 @@ public class GIX {
 
     public static Bundle gix(Bundle input)
             throws Exception {
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long overhead = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { null };
@@ -254,6 +255,8 @@ public class GIX {
 
         semaphore[0] = new Semaphore((typeList.size() - 1) * -1, true);
 
+        long timestamp = SystemClock.elapsedRealtime();
+
         for (EntradaComandoGetInfoEx.TipoInfo type : typeList) {
             getPinpad().getInfoEx(new EntradaComandoGetInfoEx(type, -1), response -> {
                     ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
@@ -275,7 +278,9 @@ public class GIX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        timestamp = SystemClock.elapsedRealtime() - timestamp;
+
+        Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + timestamp + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp) + "ms]");
 
         return output[0];
     }

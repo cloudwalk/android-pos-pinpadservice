@@ -20,6 +20,8 @@ public class ManufacturerUtility {
     }
 
     public static ABECS.STAT toSTAT(@NotNull CodigosRetorno input) {
+        Log.d(TAG_LOGCAT, "toSTAT");
+
         switch (input) {
             case OK:
                 return ABECS.STAT.ST_OK;
@@ -104,6 +106,8 @@ public class ManufacturerUtility {
 
     public static String getPP_PAN(@NotNull String SPE_PANMASK,
                                    @NotNull SaidaComandoGetCard.DadosCartao data) {
+        Log.d(TAG_LOGCAT, "getPP_PAN");
+
         try {
             int LL = Integer.parseInt(SPE_PANMASK.substring(0, 2));
             int RR = Integer.parseInt(SPE_PANMASK.substring(2, 4));
@@ -143,6 +147,8 @@ public class ManufacturerUtility {
     public static String getPP_TRKx(@NotNull String SPE_PANMASK,
                                     @NotNull SaidaComandoGetCard.DadosCartao data,
                                     boolean truncate, int track) {
+        Log.d(TAG_LOGCAT, "getPP_TRKx");
+
         String PP_TRK;
         String PP_TRKINC;
 

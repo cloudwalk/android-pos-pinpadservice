@@ -5,7 +5,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class CEX {
     private static String CMD_ID = ABECS.GCX;
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static Bundle parseRSP(Bundle input, SaidaComandoCheckEvent response) {
@@ -129,7 +129,7 @@ public class CEX {
 
     public static Bundle cex(Bundle input)
             throws Exception {
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long overhead = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -162,7 +162,11 @@ public class CEX {
 
         request.informaTimeout((timeout > 255) ? -1 : timeout);
 
+        long[] timestamp = { SystemClock.elapsedRealtime() };
+
         getPinpad().checkEvent(request, response -> {
+            timestamp[0] = SystemClock.elapsedRealtime() - timestamp[0];
+
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
             output[0].putString (ABECS.RSP_ID,   ABECS.CEX);
@@ -181,7 +185,7 @@ public class CEX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.CEX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        Log.d(TAG_LOGCAT, ABECS.CEX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

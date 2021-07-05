@@ -1,0 +1,248 @@
+package io.cloudwalk.pos.pinpadservice.managers;
+
+import android.os.Bundle;
+import android.os.RemoteException;
+import android.util.Log;
+import android.util.Pair;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+
+import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
+import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
+import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadservice.PinpadService;
+import io.cloudwalk.pos.pinpadservice.commands.CEX;
+import io.cloudwalk.pos.pinpadservice.commands.CKE;
+import io.cloudwalk.pos.pinpadservice.commands.CLO;
+import io.cloudwalk.pos.pinpadservice.commands.GCR;
+import io.cloudwalk.pos.pinpadservice.commands.GCX;
+import io.cloudwalk.pos.pinpadservice.commands.GIN;
+import io.cloudwalk.pos.pinpadservice.commands.GIX;
+import io.cloudwalk.pos.pinpadservice.commands.GTS;
+import io.cloudwalk.pos.pinpadservice.commands.OPN;
+import io.cloudwalk.pos.pinpadservice.commands.TLE;
+import io.cloudwalk.pos.pinpadservice.commands.TLI;
+import io.cloudwalk.pos.pinpadservice.commands.TLR;
+
+public class PinpadManager extends IPinpadManager.Stub {
+    private static final String TAG_LOGCAT = PinpadManager.class.getSimpleName();
+
+    private static final
+            IServiceCallback sLocalCallback = new IServiceCallback.Stub() {
+        @Override
+        public int onSelectionRequired(Bundle output)
+                throws RemoteException {
+            Log.d(TAG_LOGCAT, "onSelectionRequired");
+
+            sSemaphore[2].acquireUninterruptibly();
+
+            if (sExternalCallback != null) {
+                sExternalCallback.onSelectionRequired(output);
+            }
+
+            sSemaphore[2].release();
+
+            return 0;
+        }
+
+        @Override
+        public void onNotificationThrow(Bundle output, int type)
+                throws RemoteException {
+            Log.d(TAG_LOGCAT, "onNotificationThrow");
+
+            sSemaphore[2].acquireUninterruptibly();
+
+            if (sExternalCallback != null) {
+                sExternalCallback.onNotificationThrow(output, type);
+            }
+
+            sSemaphore[2].release();
+        }
+    };
+
+    private static final
+            List<Pair<String, Runnable>> sCommandList = new ArrayList<>(0);
+
+    private static final
+            PinpadManager sPinpadManager = new PinpadManager();
+
+    private static final
+            Semaphore[] sSemaphore = {
+                    new Semaphore(1, true), /* Public (external) */
+                    new Semaphore(1, true), /* Public (internal) */
+                    new Semaphore(1, true)  /* Private */
+            };
+
+    private static AcessoFuncoesPinpad sAcessoFuncoesPinpad = null;
+
+    private static IServiceCallback sExternalCallback = null;
+
+    /**
+     * Runnable interface.
+     */
+    public static interface Runnable {
+        /**
+         * Processes a request from a known command.
+         *
+         * @return {@link Bundle}
+         * @throws Exception self-describing
+         */
+        Bundle run(Bundle input)
+                throws Exception;
+    }
+
+    private PinpadManager() {
+        Log.d(TAG_LOGCAT, "PinpadManager");
+
+        sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
+        sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
+        sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
+     /* sCommandList.add(new Pair<>(ABECS.DWK, DWK::dwk)); */
+        sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
+     /* sCommandList.add(new Pair<>(ABECS.CLX, CLX::clx)); */
+
+        sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
+     /* sCommandList.add(new Pair<>(ABECS.CHP, CHP::chp)); */
+        sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
+     /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
+
+        sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts));
+        sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
+        sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));
+        sCommandList.add(new Pair<>(ABECS.TLE, TLE::tle));
+
+        sCommandList.add(new Pair<>(ABECS.GCR, GCR::gcr));
+        sCommandList.add(new Pair<>(ABECS.GCX, GCX::gcx));
+
+     /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
+    }
+
+    /**
+     *
+     * @param callback
+     */
+    private void setCallback(@NotNull IServiceCallback callback) {
+        Log.d(TAG_LOGCAT, "setCallback");
+
+        sSemaphore[2].acquireUninterruptibly();
+
+        sExternalCallback = callback;
+
+        sSemaphore[2].release();
+    }
+
+    public static PinpadManager getInstance() {
+        Log.d(TAG_LOGCAT, "getInstance");
+
+        return sPinpadManager;
+    }
+
+    /**
+     * @return {@link AcessoFuncoesPinpad}
+     */
+    public AcessoFuncoesPinpad getPinpad() {
+        Log.d(TAG_LOGCAT, "getPinpad");
+
+        sSemaphore[1].acquireUninterruptibly();
+
+        if (sAcessoFuncoesPinpad == null) {
+            try {
+                sAcessoFuncoesPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoFuncoesPinpad();
+            } catch (Exception exception) {
+                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            }
+        }
+
+        sSemaphore[1].release();
+
+        return sAcessoFuncoesPinpad;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public IServiceCallback getCallback() {
+        Log.d(TAG_LOGCAT, "getCallback");
+
+        return sLocalCallback;
+    }
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    @Override
+    public Bundle request(Bundle input) {
+        Log.d(TAG_LOGCAT, "request");
+
+        try {
+            getPinpad().abort(); /* "É importante que o SPE sempre inicie o fluxo de comunicação
+                                  * com o pinpad enviando um <<CAN>>, de forma a abortar qualquer
+                                  * comando [...] em processamento."- ABECS v2.12; 2.2.2.3 */
+        } catch (Exception exception) {
+            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+        }
+
+        Bundle output = new Bundle();
+
+        sSemaphore[0].acquireUninterruptibly();
+
+        try {
+            input.get(null);
+
+            Log.d(TAG_LOGCAT, "run::input [" + input.toString() + "]");
+
+            String request = input.getString(ABECS.CMD_ID);
+
+            if (request == null) {
+                throw new Exception("Mandatory key \"CMD_ID\" not found");
+            }
+
+            for (Pair<String, Runnable> command : sCommandList) {
+                if (request.equals(command.first)) {
+                    return command.second.run(input);
+                }
+            }
+
+            if (request.equals("CAN")) {
+                throw new Exception("Interruption requested: { CMD_ID: \"" + request + "\" }");
+            }
+
+            StringBuilder log = new StringBuilder("Be sure to run one of the known commands:\r\n");
+
+            for (Pair<String, Runnable> cmd : sCommandList) {
+                log.append("\t ").append(cmd.first).append(";\r\n");
+            }
+
+            Log.e(TAG_LOGCAT, log.toString());
+
+            throw new Exception("Unknown input: { CMD_ID: \"" + request + "\" }");
+        } catch (Exception exception) {
+            output.putInt(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR.ordinal());
+            output.putSerializable("EXCEPTION", exception);
+        } finally {
+            sSemaphore[0].release();
+        }
+
+        return output;
+    }
+
+    @Override
+    public void registerCallback(IServiceCallback input) {
+        Log.d(TAG_LOGCAT, "registerCallback");
+
+        sSemaphore[0].acquireUninterruptibly();
+
+        setCallback(input);
+
+        sSemaphore[0].release();
+    }
+}

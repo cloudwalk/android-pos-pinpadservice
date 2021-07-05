@@ -7,6 +7,7 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.PinpadAbstractionLayer;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +29,7 @@ public class GCX {
     private static String CMD_ID = ABECS.GCX;
 
     private static AcessoFuncoesPinpad getPinpad() {
-        return PinpadAbstractionLayer.getInstance().getPinpad();
+        return PinpadManager.getInstance().getPinpad();
     }
 
     private static Bundle parseRSP(SaidaComandoGetCard response) {
@@ -197,7 +198,7 @@ public class GCX {
 
     public static Bundle gcx(Bundle input)
             throws Exception {
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long overhead = SystemClock.elapsedRealtime();
 
         final Bundle[] output = { new Bundle() };
         final Semaphore[] semaphore = { new Semaphore(0, true) };
@@ -311,7 +312,11 @@ public class GCX {
             builder.informaMensagemCapturaCartao(SPE_DSPMSG);
         }
 
+        long[] timestamp = { SystemClock.elapsedRealtime() };
+
         getPinpad().getCard(builder.build(), response -> {
+            timestamp[0] = SystemClock.elapsedRealtime() - timestamp[0];
+
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
             output[0].putString(ABECS.RSP_ID,   ABECS.GCX);
@@ -330,7 +335,7 @@ public class GCX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }
