@@ -27,6 +27,8 @@
                 android:isolatedProcess="false"
                 android:name="io.cloudwalk.pos.pinpadservice.PinpadService"
                 tools:targetApi="n" />
+
+        <activity android:name=".presentation.MainActivity" />
     </application>
 
 </manifest>

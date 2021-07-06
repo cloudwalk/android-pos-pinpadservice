@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private static boolean sStatus = false;
 
     private boolean getRunningStatus() {
+        Log.d(TAG_LOGCAT, "getRunningStatus");
+
         boolean status;
 
         sSemaphore[1].acquireUninterruptibly();
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setRunningStatus(boolean status) {
+        Log.d(TAG_LOGCAT, "setRunningStatus");
+
         sSemaphore[1].acquireUninterruptibly();
 
         sStatus = status;
@@ -60,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateContentScrolling(String msg) {
+        Log.d(TAG_LOGCAT, "updateContentScrolling");
+
         new Thread() {
             @Override
             public void run() {
@@ -81,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG_LOGCAT, "onCreate");
+
         super.onCreate(savedInstanceState);
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -98,24 +106,6 @@ public class MainActivity extends AppCompatActivity {
         binding.fab.setEnabled(false);
 
         PinpadManager.register();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        Log.d(TAG_LOGCAT, "onPause");
-
-        finish();
-
-        setRunningStatus(false);
-
-        PinpadManager.unregister();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         updateContentScrolling(getString(R.string.warning_reading));
 
@@ -252,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     input.putString(ABECS.GCR_TIME,       date.substring(6));
                     input.putString(ABECS.GCR_TABVER,     "0123456789");
                     input.putInt   (ABECS.GCR_QTDAPP,     0);
-                    requestList.add(input);
+                    // requestList.add(input);
 
                     input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.GCR);
@@ -283,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                     input.putString("GCR_IDAPP2",         "0403");
                     input.putString("GCR_IDAPP2",         "0404");
                     input.putString("GCR_IDAPP2",         "0405");
-                    requestList.add(input);
+                    // requestList.add(input);
 
                     input = new Bundle();
                     input.putString(ABECS.CMD_ID, ABECS.GCX);
@@ -293,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
                     // ABECS.SPE_ACQREF; (optional)
                     input.putString(ABECS.SPE_APPTYPE,  "02");
                     // ABECS.SPE_AIDLIST; (conditional)
-                    input.putLong  (ABECS.SPE_AMOUNT,    0);
+                    input.putLong  (ABECS.SPE_AMOUNT,    99);
                     // ABECS.SPE_CASHBACK; (conditional)
                     // ABECS.SPE_TRNCURR; (optional)
                     input.putString(ABECS.SPE_TRNDATE,   date.substring(0, 6));
@@ -304,6 +294,24 @@ public class MainActivity extends AppCompatActivity {
                     input.putString(ABECS.SPE_TAGLIST,   "4F505F24");
                     input.putInt   (ABECS.SPE_TIMEOUT,   15);
                     input.putString(ABECS.SPE_DSPMSG,    "HAVE FAITH!");
+                    requestList.add(input);
+
+                    input = new Bundle();
+                    input.putString(ABECS.CMD_ID, ABECS.GOX);
+                    input.putInt   (ABECS.SPE_ACQREF,     4);
+                    // ABECS.SPE_TRNTYPE; (optional)
+                    input.putLong  (ABECS.SPE_AMOUNT,    99);
+                    // ABECS.SPE_CASHBACK; (conditional)
+                    // ABECS.SPE_TRNCURR; (optional)
+                    input.putString(ABECS.SPE_GOXOPT,    "00000");
+                    // ABECS.SPE_MTHDPIN...
+                    input.putInt   (ABECS.SPE_KEYIDX,    10);
+                    // ABECS.SPE_WKENC...
+                    input.putString(ABECS.SPE_DSPMSG,    "HAVE FAITH!");
+                    // ABECS.SPE_TRMPAR...
+                    // ABECS.SPE_EMVDATA; (optional)
+                    input.putString(ABECS.SPE_TAGLIST,   "4F505F24");
+                    input.putInt   (ABECS.SPE_TIMEOUT,   15);
                     requestList.add(input);
 
                     input = new Bundle();
@@ -331,7 +339,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        Log.d(TAG_LOGCAT, "onPause");
+
+        super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG_LOGCAT, "onBackPressed");
+
+        super.onBackPressed();
+
+        finish();
+
+        setRunningStatus(false);
+
+        PinpadManager.unregister();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG_LOGCAT, "onResume");
+
+        super.onResume();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG_LOGCAT, "onCreateOptionsMenu");
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -339,6 +376,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG_LOGCAT, "onOptionsItemSelected");
+
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.

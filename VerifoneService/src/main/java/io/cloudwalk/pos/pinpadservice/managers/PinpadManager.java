@@ -23,6 +23,7 @@ import io.cloudwalk.pos.pinpadservice.commands.GCR;
 import io.cloudwalk.pos.pinpadservice.commands.GCX;
 import io.cloudwalk.pos.pinpadservice.commands.GIN;
 import io.cloudwalk.pos.pinpadservice.commands.GIX;
+import io.cloudwalk.pos.pinpadservice.commands.GOX;
 import io.cloudwalk.pos.pinpadservice.commands.GTS;
 import io.cloudwalk.pos.pinpadservice.commands.OPN;
 import io.cloudwalk.pos.pinpadservice.commands.TLE;
@@ -114,14 +115,10 @@ public class PinpadManager extends IPinpadManager.Stub {
         sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
         sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
         sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
-     /* sCommandList.add(new Pair<>(ABECS.DWK, DWK::dwk)); */
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
-     /* sCommandList.add(new Pair<>(ABECS.CLX, CLX::clx)); */
 
         sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
-     /* sCommandList.add(new Pair<>(ABECS.CHP, CHP::chp)); */
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
-     /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
 
         sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts));
         sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
@@ -130,8 +127,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sCommandList.add(new Pair<>(ABECS.GCR, GCR::gcr));
         sCommandList.add(new Pair<>(ABECS.GCX, GCX::gcx));
-
-     /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
+        sCommandList.add(new Pair<>(ABECS.GOX, GOX::gox));
     }
 
     private void setCallback(@NotNull IServiceCallback callback) {
@@ -179,9 +175,16 @@ public class PinpadManager extends IPinpadManager.Stub {
         Log.d(TAG_LOGCAT, "request");
 
         try {
-            getPinpad().abort(); /* "É importante que o SPE sempre inicie o fluxo de comunicação
-                                  * com o pinpad enviando um <<CAN>>, de forma a abortar qualquer
-                                  * comando [...] em processamento."- ABECS v2.12; 2.2.2.3 */
+            switch (input.getString(ABECS.CMD_ID)) {
+                // case ABECS.GOC:
+                case ABECS.GOX:
+                // case ABECS.FNC:
+                // case ABECS.FNX:
+                    break;
+
+                default:
+                    getPinpad().abort(); /* ABECS v2.12; 2.2.2.3 */
+            }
         } catch (Exception exception) {
             Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
         }
@@ -235,7 +238,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     public boolean getCallbackStatus() {
         Log.d(TAG_LOGCAT, "getCallbackStatus");
 
-        boolean enabled = false;
+        boolean enabled;
 
         sSemaphore[2].acquireUninterruptibly();
 

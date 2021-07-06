@@ -114,14 +114,10 @@ public class PinpadManager extends IPinpadManager.Stub {
         sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
         sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
         sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
-     /* sCommandList.add(new Pair<>(ABECS.DWK, DWK::dwk)); */
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
-     /* sCommandList.add(new Pair<>(ABECS.CLX, CLX::clx)); */
 
         sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
-     /* sCommandList.add(new Pair<>(ABECS.CHP, CHP::chp)); */
         sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
-     /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
 
         sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts));
         sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
@@ -130,8 +126,6 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sCommandList.add(new Pair<>(ABECS.GCR, GCR::gcr));
         sCommandList.add(new Pair<>(ABECS.GCX, GCX::gcx));
-
-     /* sCommandList.add(new Pair<>(ABECS...., ...::...)); */
     }
 
     private void setCallback(@NotNull IServiceCallback callback) {

@@ -287,6 +287,13 @@ public class ABECS {
     /** ({@code int}) */
     public static final String PP_DEVTYPE       = "PP_DEVTYPE";
 
+    public static final String GOX              = "GOX";
+
+    /** ({@link String}) */
+    public static final String SPE_GOXOPT       = "SPE_GOXOPT";
+    /** ({@code int}) */
+    public static final String SPE_KEYIDX       = "SPE_KEYIDX";
+
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,
         ST_NOSEC,           ST_F1,              ST_F2,
