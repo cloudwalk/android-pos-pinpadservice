@@ -139,6 +139,8 @@ public class GOX {
                 break;
         }
 
+        // TODO: remove transition effects and make it fully transparent till password is required
+
         DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         PinActivity.acquireUninterruptibly();
