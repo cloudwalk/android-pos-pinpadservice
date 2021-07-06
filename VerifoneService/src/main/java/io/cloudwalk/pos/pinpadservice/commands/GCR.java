@@ -86,7 +86,7 @@ public class GCR {
             output.putInt   (ABECS.GCR_CARDEXP,  response.getInt(ABECS.PP_CARDEXP));
             output.putInt   (ABECS.GCR_ISSCNTRY, response.getInt(ABECS.PP_ISSCNTRY));
 
-            /* TODO: ABECS.GCR_SRVCODE and ABECS.GCR_ACQRD */
+            // TODO: ABECS.GCR_SRVCODE and ABECS.GCR_ACQRD
         } finally {
             Log.d(TAG_LOGCAT, ABECS.GCR + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
         }

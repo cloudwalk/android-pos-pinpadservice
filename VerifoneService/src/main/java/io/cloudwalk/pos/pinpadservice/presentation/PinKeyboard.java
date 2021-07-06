@@ -33,7 +33,7 @@ public class PinKeyboard extends LinearLayout implements View.OnClickListener {
     public PinKeyboard(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
-        LayoutInflater.from(context).inflate(R.layout.keyboard_pin, this, true);
+        LayoutInflater.from(context).inflate(R.layout.default_keyboard_pin, this, true);
     }
 
     /**

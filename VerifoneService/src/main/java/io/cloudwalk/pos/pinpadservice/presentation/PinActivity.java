@@ -35,7 +35,7 @@ public class PinActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pin);
+        setContentView(R.layout.default_activity_pin);
 
         PinKeyboard pinKeyboard = findViewById(R.id.keyboard_pin);
 

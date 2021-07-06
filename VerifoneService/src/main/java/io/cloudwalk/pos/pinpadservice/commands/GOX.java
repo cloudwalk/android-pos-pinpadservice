@@ -127,7 +127,19 @@ public class GOX {
             builder.informaListaTagsEMV(data);
         }
 
-        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), PinActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        Class<?> cls = null;
+
+        switch (input.getString("SPE_PKGID", "io.cloudwalk.pos.pinpadservice")) {
+            case "io.cloudwalk.appclientcw":
+                // TODO: InfinitePay customization
+                break;
+
+            default:
+                cls = PinActivity.class;
+                break;
+        }
+
+        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         PinActivity.acquireUninterruptibly();
 
