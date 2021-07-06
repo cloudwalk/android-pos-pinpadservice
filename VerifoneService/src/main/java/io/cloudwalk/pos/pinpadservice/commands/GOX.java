@@ -14,7 +14,7 @@ import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGoOnChip;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
-import io.cloudwalk.pos.pinpadservice.presentation.MainActivity;
+import io.cloudwalk.pos.pinpadservice.presentation.PinActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class GOX {
@@ -127,9 +127,9 @@ public class GOX {
             builder.informaListaTagsEMV(data);
         }
 
-        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), PinActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
-        MainActivity.acquireUninterruptibly();
+        PinActivity.acquireUninterruptibly();
 
         long[] timestamp = { SystemClock.elapsedRealtime() };
 
@@ -152,7 +152,7 @@ public class GOX {
             } finally {
                 semaphore[0].release();
 
-                MainActivity.release();
+                PinActivity.release();
             }
         });
 
