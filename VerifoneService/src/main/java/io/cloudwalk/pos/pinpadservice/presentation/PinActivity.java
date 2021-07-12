@@ -1,6 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -32,26 +33,50 @@ public class PinActivity extends AppCompatActivity {
 
     private static int      sDigits;
 
+    private static long     sTimestamp = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.default_activity_pin);
 
-        PinKeyboard pinKeyboard = findViewById(R.id.default_keyboard_pin);
-
-        TecladoPINVirtual tecladoPINVirtual = new TecladoPINVirtual(pinKeyboard, PinKeyboard.getPINViewMap()) {
+        new Thread() {
             @Override
-            public View ObtemView() {
-                return pinKeyboard;
-            }
+            public void run() {
+                super.run();
 
-            @Override
-            public Map<IdentificacaoTeclaPIN, Integer> ObtemIdentificacaoTeclasPorId() {
-                return pinKeyboard.getPINViewMap();
-            }
-        };
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        PinKeyboard pinKeyboard = findViewById(R.id.cl_default_keyboard_pin);
 
-        PinpadManager.getInstance().getPinpad().InformaTecladoPINVirtual(tecladoPINVirtual);
+                        TecladoPINVirtual tecladoPINVirtual = new TecladoPINVirtual(pinKeyboard, PinKeyboard.getPINViewMap()) {
+                            @Override
+                            public View ObtemView() {
+                                return pinKeyboard;
+                            }
+
+                            @Override
+                            public Map<IdentificacaoTeclaPIN, Integer> ObtemIdentificacaoTeclasPorId() {
+                                return pinKeyboard.getPINViewMap();
+                            }
+                        };
+
+                        PinpadManager.getInstance().getPinpad().InformaTecladoPINVirtual(tecladoPINVirtual);
+
+                        sSemaphore[3].acquireUninterruptibly();
+
+                        sTimestamp = SystemClock.elapsedRealtime();
+
+                        Log.d(TAG_LOGCAT, "onCreate::sTimestamp [" + sTimestamp + "]");
+
+                        sSemaphore[3].release();
+
+                        sSemaphore[0].release();
+                    }
+                });
+            }
+        }.start();
 
         sRunning = true;
 
@@ -91,6 +116,10 @@ public class PinActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.tv_default_activity_pin_progress).setVisibility(View.INVISIBLE);
+
+                            findViewById(R.id.cl_default_keyboard_pin).setVisibility(View.VISIBLE);
+
                             ((TextView) findViewById(R.id.tv_default_activity_pin_main)).setText(message);
                         }
                     });
@@ -112,8 +141,6 @@ public class PinActivity extends AppCompatActivity {
                 finish();
             }
         }.start();
-
-        sSemaphore[0].release();
     }
 
     @Override
@@ -130,6 +157,18 @@ public class PinActivity extends AppCompatActivity {
 
     public static void release() {
         Log.d(TAG_LOGCAT, "release");
+
+        sSemaphore[3].acquireUninterruptibly();
+
+        long timestamp = SystemClock.elapsedRealtime() - sTimestamp;
+
+        Log.d(TAG_LOGCAT, "release::timestamp [" + timestamp + "]");
+
+        sSemaphore[3].release();
+
+        if (timestamp < 1000) {
+            SystemClock.sleep(1000 - timestamp);
+        }
 
         sSemaphore[1].release();
     }

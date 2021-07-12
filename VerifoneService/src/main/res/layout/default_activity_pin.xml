@@ -6,24 +6,31 @@
         android:layout_height="match_parent"
         tools:context=".presentation.PinActivity">
 
-    <RelativeLayout
-            android:id="@+id/rl_default_activity_pin"
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+        <!--
+             Two main views are expected to be defined in here:
+                 - 1) The progress view, required specifically for when there is a failure in the
+                 processing which may happen before the PIN is required.
+                 - 2) The PIN capture view, which is self-describing.
+        -->
+
         <TextView
                 android:fontFamily="monospace"
-                android:id="@+id/tv_default_activity_pin_main"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="@android:dimen/app_icon_size"
-                android:gravity="center|top" />
-        <io.cloudwalk.pos.pinpadservice.presentation.PinKeyboard
-                android:id="@+id/default_keyboard_pin"
-                android:layout_width="wrap_content"
+                android:gravity="center|top"
+                android:id="@+id/tv_default_activity_pin_progress"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentBottom="true"
-                android:visibility="visible" />
-    </RelativeLayout>
+                android:layout_margin="@android:dimen/app_icon_size"
+                android:layout_width="match_parent"
+                android:text="@string/warning_processing" />
+
+        <io.cloudwalk.pos.pinpadservice.presentation.PinKeyboard
+                android:id="@+id/cl_default_keyboard_pin"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:visibility="invisible" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

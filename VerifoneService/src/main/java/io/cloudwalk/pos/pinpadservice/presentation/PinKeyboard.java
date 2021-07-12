@@ -5,9 +5,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Map;
 import br.com.verifone.bibliotecapinpad.definicoes.IdentificacaoTeclaPIN;
 import io.cloudwalk.pos.pinpadservice.R;
 
-public class PinKeyboard extends RelativeLayout implements View.OnClickListener {
+public class PinKeyboard extends ConstraintLayout implements View.OnClickListener {
     private static final String TAG_LOGCAT = PinKeyboard.class.getSimpleName();
 
     public PinKeyboard(Context context) {
@@ -35,7 +35,7 @@ public class PinKeyboard extends RelativeLayout implements View.OnClickListener 
 
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        layoutInflater.inflate(R.layout.default_keyboard_pin, this, true);
+        layoutInflater.inflate(R.layout.cl_default_keyboard_pin, this, true);
     }
 
     /**

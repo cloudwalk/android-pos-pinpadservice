@@ -1,7 +1,9 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,10 +29,34 @@ public class PinActivity extends AppCompatActivity {
 
     private static int      sDigits;
 
+    private static long     sTimestamp = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.default_activity_pin);
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        sSemaphore[3].acquireUninterruptibly();
+
+                        sTimestamp = SystemClock.elapsedRealtime();
+
+                        Log.d(TAG_LOGCAT, "onCreate::sTimestamp [" + sTimestamp + "]");
+
+                        sSemaphore[3].release();
+
+                        sSemaphore[0].release();
+                    }
+                });
+            }
+        }.start();
 
         sRunning = true;
 
@@ -52,8 +78,19 @@ public class PinActivity extends AppCompatActivity {
                     int digits = sDigits;
 
                     message.append("\r\n");
-                    message.append(sMessage);
-                    message.append("\r\n");
+
+                    for (int i = 0; i < sMessage.length(); i += 16) {
+                        if ((i + 16) < sMessage.length()) {
+                            message.append(sMessage.substring(i, i + 16));
+                        } else {
+                            message.append(sMessage.substring(i));
+
+                            for (int j = sMessage.length(); j <= (i + 16); j++) {
+                                message.append(" ");
+                            }
+                        }
+                        message.append("\r\n");
+                    }
 
                     sSemaphore[3].release();
 
@@ -70,7 +107,7 @@ public class PinActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ((TextView) findViewById(R.id.tv_default_activity_pin_main)).setText(message);
+                            ((TextView) findViewById(R.id.tv_default_activity_pin_progress)).setText(message);
                         }
                     });
                 }
@@ -91,8 +128,6 @@ public class PinActivity extends AppCompatActivity {
                 finish();
             }
         }.start();
-
-        sSemaphore[0].release();
     }
 
     @Override
@@ -109,6 +144,18 @@ public class PinActivity extends AppCompatActivity {
 
     public static void release() {
         Log.d(TAG_LOGCAT, "release");
+
+        sSemaphore[3].acquireUninterruptibly();
+
+        long timestamp = SystemClock.elapsedRealtime() - sTimestamp;
+
+        Log.d(TAG_LOGCAT, "release::timestamp [" + timestamp + "]");
+
+        sSemaphore[3].release();
+
+        if (timestamp < 1000) {
+            SystemClock.sleep(1000 - timestamp);
+        }
 
         sSemaphore[1].release();
     }

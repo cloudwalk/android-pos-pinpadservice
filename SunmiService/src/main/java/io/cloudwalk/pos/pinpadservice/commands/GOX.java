@@ -141,7 +141,7 @@ public class GOX {
 
         // TODO: remove transition effects and make it fully transparent till password is required
 
-        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
 
         PinActivity.acquireUninterruptibly();
 
@@ -154,7 +154,7 @@ public class GOX {
 
             ABECS.STAT status = ManufacturerUtility.toSTAT(response.obtemResultadoOperacao());
 
-            output[0].putString(ABECS.RSP_ID,   ABECS.GCX);
+            output[0].putString(ABECS.RSP_ID,   ABECS.GOX);
             output[0].putInt   (ABECS.RSP_STAT, status.ordinal());
 
             try {

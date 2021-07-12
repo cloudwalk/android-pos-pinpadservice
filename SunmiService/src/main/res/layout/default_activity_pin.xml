@@ -6,189 +6,31 @@
         android:layout_height="match_parent"
         tools:context=".presentation.PinActivity">
 
-    <RelativeLayout
-            android:id="@+id/rl_default_activity_pin"
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+        <!--
+             Two main views are expected to be defined in here:
+                 - 1) The progress view, required specifically for when there is a failure in the
+                 processing which may happen before the PIN is required.
+                 - 2) The PIN capture view, which is self-describing.
+        -->
+
+
+        <!-- Progress view -->
+
         <TextView
                 android:fontFamily="monospace"
-                android:id="@+id/tv_default_activity_pin_main"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="@android:dimen/app_icon_size"
-                android:gravity="center|top" />
-        <LinearLayout
-                android:id="@+id/default_keyboard_pin"
-                android:layout_width="match_parent"
+                android:gravity="center|top"
+                android:id="@+id/tv_default_activity_pin_progress"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentBottom="true"
-                android:visibility="visible">
+                android:layout_margin="@android:dimen/app_icon_size"
+                android:layout_width="match_parent"
+                android:text="@string/warning_processing" />
 
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="1"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="4dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="2"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn3"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="3"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn4"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="4"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn5"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="4dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="5"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn6"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="6"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn7"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="7"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn8"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="8"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn9"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="9"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btn0"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="4dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="0"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                <Button
-                        android:id="@+id/keyboard_custom_btnD"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="Delete"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btnC"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="Cancel"/>
-
-                <Button
-                        android:id="@+id/keyboard_custom_btnE"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="4dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="Enter"/>
-
-            </LinearLayout>
-        </LinearLayout>
-    </RelativeLayout>
+        <!-- PIN capture view -->
+        <!-- 2021-07-12: currently unsupported -->
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
