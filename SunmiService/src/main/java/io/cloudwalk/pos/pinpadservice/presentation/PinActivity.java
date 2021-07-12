@@ -2,18 +2,13 @@ package io.cloudwalk.pos.pinpadservice.presentation;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.TecladoPINVirtual;
-import br.com.verifone.bibliotecapinpad.definicoes.IdentificacaoTeclaPIN;
 import io.cloudwalk.pos.pinpadservice.R;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 
 public class PinActivity extends AppCompatActivity {
     private static final String TAG_LOGCAT = PinActivity.class.getSimpleName();
@@ -36,22 +31,6 @@ public class PinActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.default_activity_pin);
-
-        PinKeyboard pinKeyboard = findViewById(R.id.default_keyboard_pin);
-
-        TecladoPINVirtual tecladoPINVirtual = new TecladoPINVirtual(pinKeyboard, PinKeyboard.getPINViewMap()) {
-            @Override
-            public View ObtemView() {
-                return pinKeyboard;
-            }
-
-            @Override
-            public Map<IdentificacaoTeclaPIN, Integer> ObtemIdentificacaoTeclasPorId() {
-                return pinKeyboard.getPINViewMap();
-            }
-        };
-
-        PinpadManager.getInstance().getPinpad().InformaTecladoPINVirtual(tecladoPINVirtual);
 
         sRunning = true;
 

@@ -7,10 +7,10 @@ import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
-import br.com.verifone.bibliotecapinpad.definicoes.ModoCriptografia;
-import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGoOnChip;
-import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGoOnChip;
+import br.com.setis.sunmi.bibliotecapinpad.AcessoFuncoesPinpad;
+import br.com.setis.sunmi.bibliotecapinpad.definicoes.ModoCriptografia;
+import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoGoOnChip;
+import br.com.setis.sunmi.bibliotecapinpad.saidas.SaidaComandoGoOnChip;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;

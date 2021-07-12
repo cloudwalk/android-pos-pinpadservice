@@ -16,6 +16,7 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
 import br.com.setis.sunmi.bibliotecapinpad.entradas.EntradaComandoOpen;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadservice.presentation.PinActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class OPN {
@@ -30,14 +31,24 @@ public class OPN {
             public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
                 Log.d(TAG_LOGCAT, "mensagemNotificacao::s [" + s + "], tipoNotificacao [" + tipoNotificacao + "]");
 
-                try {
-                    Bundle input = new Bundle();
+                switch (tipoNotificacao) {
+                    case DSP_SENHA_BLOQUEADA:
+                    case DSP_SENHA_INVALIDA:
+                    case DSP_SENHA_ULTIMA_TENTATIVA:
+                    case DSP_SENHA_VERIFICADA:
+                        PinActivity.update(s, tipoNotificacao.ordinal() * -1);
+                        break;
 
-                    input.putString("message", s);
+                    default:
+                        try {
+                            Bundle input = new Bundle();
 
-                    PinpadManager.getInstance().getCallback().onNotificationThrow(input, tipoNotificacao.ordinal());
-                } catch (RemoteException exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                            input.putString("message", s);
+
+                            PinpadManager.getInstance().getCallback().onNotificationThrow(input, tipoNotificacao.ordinal());
+                        } catch (RemoteException exception) {
+                            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                        }
                 }
             }
 
@@ -45,16 +56,7 @@ public class OPN {
             public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
                 Log.d(TAG_LOGCAT, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
-                try {
-                    Bundle input = new Bundle();
-
-                    input.putString("message", notificacaoCapturaPin.obtemMensagemCapturaPin());
-                    input.putInt   ("digit_count", notificacaoCapturaPin.obtemQuantidadeDigitosPin());
-
-                    PinpadManager.getInstance().getCallback().onNotificationThrow(input, 100);
-                } catch (RemoteException exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
-                }
+                PinActivity.update(notificacaoCapturaPin.obtemMensagemCapturaPin(), notificacaoCapturaPin.obtemQuantidadeDigitosPin());
             }
 
             @Override

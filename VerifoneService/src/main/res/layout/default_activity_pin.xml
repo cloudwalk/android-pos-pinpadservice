@@ -7,17 +7,18 @@
         tools:context=".presentation.PinActivity">
 
     <RelativeLayout
+            android:id="@+id/rl_default_activity_pin"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
         <TextView
                 android:fontFamily="monospace"
-                android:id="@+id/tv_main"
+                android:id="@+id/tv_default_activity_pin_main"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="@android:dimen/app_icon_size"
                 android:gravity="center|top" />
         <io.cloudwalk.pos.pinpadservice.presentation.PinKeyboard
-                android:id="@+id/keyboard_pin"
+                android:id="@+id/default_keyboard_pin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

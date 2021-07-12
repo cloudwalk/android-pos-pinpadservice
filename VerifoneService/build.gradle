@@ -36,6 +36,7 @@ dependencies {
     implementation project(path: ':PinpadLibrary')
     implementation files('libs/PPCompX990-v001.19.aar')
     implementation 'org.jetbrains:annotations:15.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

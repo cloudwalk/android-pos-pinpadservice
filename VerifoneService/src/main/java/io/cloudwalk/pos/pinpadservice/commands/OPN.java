@@ -49,6 +49,7 @@ public class OPN {
                         } catch (RemoteException exception) {
                             Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
                         }
+                        break;
                 }
             }
 

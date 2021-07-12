@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 import br.com.verifone.bibliotecapinpad.definicoes.IdentificacaoTeclaPIN;
 import io.cloudwalk.pos.pinpadservice.R;
 
-public class PinKeyboard extends LinearLayout implements View.OnClickListener {
+public class PinKeyboard extends RelativeLayout implements View.OnClickListener {
     private static final String TAG_LOGCAT = PinKeyboard.class.getSimpleName();
 
     public PinKeyboard(Context context) {
@@ -33,14 +33,16 @@ public class PinKeyboard extends LinearLayout implements View.OnClickListener {
     public PinKeyboard(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
-        LayoutInflater.from(context).inflate(R.layout.default_keyboard_pin, this, true);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        layoutInflater.inflate(R.layout.default_keyboard_pin, this, true);
     }
 
     /**
      *
      * @return
      */
-    public Map<IdentificacaoTeclaPIN, Integer> getPINViewMap() {
+    public static Map<IdentificacaoTeclaPIN, Integer> getPINViewMap() {
         Map<IdentificacaoTeclaPIN, Integer> map = new HashMap<>();
 
         map.put(IdentificacaoTeclaPIN.TECLA_0,          R.id.keyboard_custom_btn0);

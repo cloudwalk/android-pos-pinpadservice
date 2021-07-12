@@ -21,6 +21,8 @@ public class ManufacturerUtility {
     public static ABECS.STAT toSTAT(@NotNull CodigosRetorno input) {
         Log.d(TAG_LOGCAT, "toSTAT");
 
+        Log.d(TAG_LOGCAT, "toSTAT::input [" + input + "]");
+
         switch (input) {
             case OK:
                 return ABECS.STAT.ST_OK;

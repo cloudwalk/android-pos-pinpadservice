@@ -12,8 +12,10 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.POC2104301453">
+        <activity android:name=".presentation.PinActivity" />
+
         <receiver
-                android:name="io.cloudwalk.pos.pinpadservice.BroadcastReceiver"
+                android:name=".BroadcastReceiver"
                 android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter android:priority="100">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -25,7 +27,7 @@
                 android:enabled="true"
                 android:exported="true"
                 android:isolatedProcess="false"
-                android:name="io.cloudwalk.pos.pinpadservice.PinpadService"
+                android:name=".PinpadService"
                 tools:targetApi="n" />
     </application>
 
