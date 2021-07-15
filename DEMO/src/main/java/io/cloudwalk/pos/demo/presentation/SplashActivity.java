@@ -60,7 +60,7 @@ public class SplashActivity extends AppCompatActivity {
             return;
         }
 
-        /* Effectively start the application (all dependencies should be ready to use) */
+        /* Effectively start the application */
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
 
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -106,7 +106,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        /* 'onCreate' can't be blocked by long routines, hence the anonymous thread */
+        /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {
             @Override
             public void run() {
