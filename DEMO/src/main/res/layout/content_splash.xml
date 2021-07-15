@@ -8,20 +8,21 @@
         android:scrollbars="vertical"
         android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="io.cloudwalk.pos.demo.presentation.MainActivity"
-        tools:showIn="@layout/activity_main">
+        tools:context="io.cloudwalk.pos.demo.presentation.SplashActivity"
+        tools:showIn="@layout/activity_splash">
     <HorizontalScrollView
-            android:id="@+id/hsv_main_content_scrolling"
+            android:id="@+id/hsv_splash_content_scrolling"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="14dp"
             android:scrollbars="horizontal"
             android:overScrollMode="never">
         <TextView
-                android:id="@+id/tv_main_content_scrolling"
+                android:id="@+id/tv_splash_content_scrolling"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fillViewport="true"
-                android:overScrollMode="never" />
+                android:overScrollMode="never"
+                android:text="@string/warning_starting" />
     </HorizontalScrollView>
 </androidx.core.widget.NestedScrollView>
