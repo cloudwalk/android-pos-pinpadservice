@@ -7,7 +7,7 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class CKE {
-    private static final String TAG_LOGCAT = CKE.class.getSimpleName();
+    private static final String TAG = CKE.class.getSimpleName();
 
     public static Bundle cke(Bundle input)
             throws Exception {
@@ -118,7 +118,7 @@ public class CKE {
                     break;
 
                 default:
-                    Log.e(TAG_LOGCAT, ABECS.PP_EVENT + " [" + response.getString(ABECS.PP_EVENT) + "]");
+                    Log.e(TAG, ABECS.PP_EVENT + " [" + response.getString(ABECS.PP_EVENT) + "]");
 
                     /* Nothing to do */
                     break;
@@ -137,7 +137,7 @@ public class CKE {
                     break;
             }
         } finally {
-            Log.d(TAG_LOGCAT, ABECS.CKE + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+            Log.d(TAG, ABECS.CKE + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
         }
 
         return output;

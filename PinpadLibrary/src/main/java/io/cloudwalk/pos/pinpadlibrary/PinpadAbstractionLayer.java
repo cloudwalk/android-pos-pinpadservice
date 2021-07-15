@@ -5,7 +5,7 @@ import android.app.Application;
 import android.content.Context;
 
 public class PinpadAbstractionLayer extends Application {
-    private static final String TAG_LOGCAT = PinpadAbstractionLayer.class.getSimpleName();
+    private static final String TAG = PinpadAbstractionLayer.class.getSimpleName();
 
     @SuppressLint("StaticFieldLeak")
     private static Context sContext = null;

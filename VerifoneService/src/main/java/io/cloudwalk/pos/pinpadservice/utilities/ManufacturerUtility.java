@@ -9,17 +9,17 @@ import java.util.Locale;
 import br.com.verifone.bibliotecapinpad.definicoes.CodigosRetorno;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class ManufacturerUtility {
-    private static final String TAG_LOGCAT = ManufacturerUtility.class.getSimpleName();
+    private static final String TAG = ManufacturerUtility.class.getSimpleName();
 
     private ManufacturerUtility() {
         /* Nothing to do */
     }
 
     public static ABECS.STAT toSTAT(@NotNull CodigosRetorno input) {
-        Log.d(TAG_LOGCAT, "toSTAT");
+        Log.d(TAG, "toSTAT");
 
         switch (input) {
             case OK:
@@ -105,7 +105,7 @@ public class ManufacturerUtility {
 
     public static String getPP_PAN(@NotNull String SPE_PANMASK,
                                    @NotNull SaidaComandoGetCard.DadosCartao data) {
-        Log.d(TAG_LOGCAT, "getPP_PAN");
+        Log.d(TAG, "getPP_PAN");
 
         try {
             int LL = Integer.parseInt(SPE_PANMASK.substring(0, 2));
@@ -137,7 +137,7 @@ public class ManufacturerUtility {
                 return DataUtility.mask(PP_PAN, LL, RR);
             }
         } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
 
         return null;
@@ -146,7 +146,7 @@ public class ManufacturerUtility {
     public static String getPP_TRKx(@NotNull String SPE_PANMASK,
                                     @NotNull SaidaComandoGetCard.DadosCartao data,
                                     boolean truncate, int track) {
-        Log.d(TAG_LOGCAT, "getPP_TRKx");
+        Log.d(TAG, "getPP_TRKx");
 
         String PP_TRK;
         String PP_TRKINC;

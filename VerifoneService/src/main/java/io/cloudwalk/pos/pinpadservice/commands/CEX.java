@@ -22,7 +22,7 @@ import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent
 import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoCheckEvent.Eventos.VERIFICA_PRESSIONAMENTO_TECLAS;
 
 public class CEX {
-    private static final String TAG_LOGCAT = CEX.class.getSimpleName();
+    private static final String TAG = CEX.class.getSimpleName();
 
     private static String CMD_ID = ABECS.GCX;
 
@@ -109,7 +109,7 @@ public class CEX {
                 break;
 
             default:
-                Log.e(TAG_LOGCAT, "response.obtemEventoOcorrido() [" + response.obtemEventoOcorrido() + "]");
+                Log.e(TAG, "response.obtemEventoOcorrido() [" + response.obtemEventoOcorrido() + "]");
 
                 return output;
         }
@@ -189,7 +189,7 @@ public class CEX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.CEX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG, ABECS.CEX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

@@ -7,7 +7,7 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class TLI {
-    private static final String TAG_LOGCAT = TLI.class.getSimpleName();
+    private static final String TAG = TLI.class.getSimpleName();
 
     private static String TLI_TABVER = "0000000000";
 
@@ -33,7 +33,7 @@ public class TLI {
         output.putString(ABECS.RSP_ID,   ABECS.TLI);
         output.putInt   (ABECS.RSP_STAT, ABECS.STAT.ST_OK.ordinal());
 
-        Log.d(TAG_LOGCAT, ABECS.TLI + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        Log.d(TAG, ABECS.TLI + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output;
     }

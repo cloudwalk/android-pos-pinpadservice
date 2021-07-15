@@ -15,12 +15,12 @@ import br.com.verifone.bibliotecapinpad.AcessoFuncoesPinpad;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetCard;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetCard;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class GCX {
-    private static final String TAG_LOGCAT = GCX.class.getSimpleName();
+    private static final String TAG = GCX.class.getSimpleName();
 
     private static String SPE_PANMASK = "9999";
 
@@ -59,7 +59,7 @@ public class GCX {
                             break;
                     }
                 } catch (Exception exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
                 break;
 
@@ -113,7 +113,7 @@ public class GCX {
                             break;
                     }
                 } catch (Exception exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
                 break;
 
@@ -233,7 +233,7 @@ public class GCX {
             date = new SimpleDateFormat("yyMMddHHmmss", Locale.getDefault())
                     .parse(SPE_TRNDATE + SPE_TRNTIME);
         } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            Log.e(TAG, Log.getStackTraceString(exception));
             date = new Date();
         }
 
@@ -335,7 +335,7 @@ public class GCX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

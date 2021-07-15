@@ -1,4 +1,4 @@
-package io.cloudwalk.pos.pinpadlibrary.models;
+package io.cloudwalk.pos.utilitieslibrary.models;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;

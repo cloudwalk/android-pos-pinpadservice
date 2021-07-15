@@ -12,13 +12,13 @@ import br.com.verifone.bibliotecapinpad.definicoes.ModoCriptografia;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGoOnChip;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGoOnChip;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.presentation.PinActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class GOX {
-    private static final String TAG_LOGCAT = GOX.class.getSimpleName();
+    private static final String TAG = GOX.class.getSimpleName();
 
     private static String CMD_ID = ABECS.GOX;
 
@@ -141,7 +141,7 @@ public class GOX {
 
         // TODO: remove transition effects and make it fully transparent till password is required
 
-        DataUtility.getApplicationContext().startActivity(new Intent(DataUtility.getApplicationContext(), cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
+        DataUtility.getPackageContext().startActivity(new Intent(DataUtility.getPackageContext(), cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
 
         PinActivity.acquireUninterruptibly();
 
@@ -172,7 +172,7 @@ public class GOX {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG, ABECS.GCX + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

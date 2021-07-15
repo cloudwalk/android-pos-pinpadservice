@@ -18,7 +18,7 @@ import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetInfo;
 import br.com.verifone.bibliotecapinpad.saidas.SaidaComandoGetInfoEx;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
@@ -31,7 +31,7 @@ import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.
 import static br.com.verifone.bibliotecapinpad.entradas.EntradaComandoGetInfoEx.TipoInfo.INFO_VERSAO_TABELAS_EMV;
 
 public class GIX {
-    private static final String TAG_LOGCAT = GIX.class.getSimpleName();
+    private static final String TAG = GIX.class.getSimpleName();
 
     private static AcessoFuncoesPinpad getPinpad() {
         return PinpadManager.getInstance().getPinpad();
@@ -57,7 +57,7 @@ public class GIX {
                         output.putString(key, list.get(i));
                     }
                 } catch (Exception exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
 
                 return output;
@@ -141,13 +141,13 @@ public class GIX {
                             break;
                     }
                 } catch (Exception exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
 
                 return output;
 
             default:
-                Log.e(TAG_LOGCAT, "response.obtemTipoInformacao() [" + response.obtemTipoInformacao() + "]");
+                Log.e(TAG, "response.obtemTipoInformacao() [" + response.obtemTipoInformacao() + "]");
 
                 return output;
         }
@@ -205,7 +205,7 @@ public class GIX {
 
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
 
-        Context context = DataUtility.getApplicationContext();
+        Context context = DataUtility.getPackageContext();
 
         ((ActivityManager) context
                 .getSystemService(ACTIVITY_SERVICE))
@@ -285,7 +285,7 @@ public class GIX {
 
         PinpadManager.getInstance().setCallbackStatus(false);
 
-        Log.d(TAG_LOGCAT, ABECS.GIX + "::timestamp [" + timestamp + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp) + "ms]");
+        Log.d(TAG, ABECS.GIX + "::timestamp [" + timestamp + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp) + "ms]");
 
         return output[0];
     }

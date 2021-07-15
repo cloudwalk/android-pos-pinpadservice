@@ -8,12 +8,12 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 public class PinpadService extends Service {
-    private static final String TAG_LOGCAT = PinpadService.class.getSimpleName();
+    private static final String TAG = PinpadService.class.getSimpleName();
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG_LOGCAT, "onBind");
+        Log.d(TAG, "onBind");
 
         return PinpadAbstractionLayer.getInstance();
     }

@@ -20,7 +20,7 @@ import io.cloudwalk.pos.pinpadservice.presentation.PinActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 public class OPN {
-    private static final String TAG_LOGCAT = OPN.class.getSimpleName();
+    private static final String TAG = OPN.class.getSimpleName();
 
     public static Bundle opn(Bundle input)
             throws Exception {
@@ -29,7 +29,7 @@ public class OPN {
         InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
             @Override
             public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
-                Log.d(TAG_LOGCAT, "mensagemNotificacao::s [" + s + "], tipoNotificacao [" + tipoNotificacao + "]");
+                Log.d(TAG, "mensagemNotificacao::s [" + s + "], tipoNotificacao [" + tipoNotificacao + "]");
 
                 switch (tipoNotificacao) {
                     case DSP_SENHA_BLOQUEADA:
@@ -47,7 +47,7 @@ public class OPN {
 
                             PinpadManager.getInstance().getCallback().onNotificationThrow(input, tipoNotificacao.ordinal());
                         } catch (RemoteException exception) {
-                            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                            Log.e(TAG, Log.getStackTraceString(exception));
                         }
                         break;
                 }
@@ -55,14 +55,14 @@ public class OPN {
 
             @Override
             public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
-                Log.d(TAG_LOGCAT, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
+                Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
                 PinActivity.update(notificacaoCapturaPin.obtemMensagemCapturaPin(), notificacaoCapturaPin.obtemQuantidadeDigitosPin());
             }
 
             @Override
             public void menu(Menu menu) {
-                Log.d(TAG_LOGCAT, "menu::menu [" + menu + "]");
+                Log.d(TAG, "menu::menu [" + menu + "]");
 
                 try {
                     Bundle input = new Bundle();
@@ -75,13 +75,13 @@ public class OPN {
 
                     PinpadManager.getInstance().getCallback().onSelectionRequired(input);
                 } catch (RemoteException exception) {
-                    Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
             }
 
             @Override
             public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
-                Log.d(TAG_LOGCAT, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
+                Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
             }
         };
 
@@ -107,7 +107,7 @@ public class OPN {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.OPN + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG, ABECS.OPN + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

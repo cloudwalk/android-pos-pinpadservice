@@ -16,7 +16,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.IdentificacaoTeclaPIN;
 import io.cloudwalk.pos.pinpadservice.R;
 
 public class PinKeyboard extends ConstraintLayout implements View.OnClickListener {
-    private static final String TAG_LOGCAT = PinKeyboard.class.getSimpleName();
+    private static final String TAG = PinKeyboard.class.getSimpleName();
 
     public PinKeyboard(Context context) {
         this(context, null, 0, 0);
@@ -64,6 +64,6 @@ public class PinKeyboard extends ConstraintLayout implements View.OnClickListene
 
     @Override
     public void onClick(View view) {
-        Log.d(TAG_LOGCAT, "onClick::view.getId() [" + view.getId() + "]");
+        Log.d(TAG, "onClick::view.getId() [" + view.getId() + "]");
     }
 }

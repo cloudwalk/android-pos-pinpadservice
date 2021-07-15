@@ -7,7 +7,7 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class GIN {
-    private static final String TAG_LOGCAT = GIN.class.getSimpleName();
+    private static final String TAG = GIN.class.getSimpleName();
 
     public static Bundle gin(Bundle input)
             throws Exception {
@@ -83,7 +83,7 @@ public class GIN {
                     break;
             }
         } finally {
-            Log.d(TAG_LOGCAT, ABECS.GIN + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+            Log.d(TAG, ABECS.GIN + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
         }
 
         return output;

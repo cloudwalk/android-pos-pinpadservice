@@ -1,4 +1,4 @@
-package io.cloudwalk.pos.pinpadlibrary.utilities;
+package io.cloudwalk.pos.utilitieslibrary.utilities;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -8,7 +8,7 @@ import android.util.Log;
 import androidx.annotation.DrawableRes;
 import androidx.core.content.res.ResourcesCompat;
 
-import io.cloudwalk.pos.pinpadlibrary.PinpadAbstractionLayer;
+import io.cloudwalk.pos.utilitieslibrary.Application;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -24,16 +24,15 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DataUtility {
-    private static final String TAG_LOGCAT = DataUtility.class.getSimpleName();
+    private static final String TAG = DataUtility.class.getSimpleName();
 
-    private static final byte[] HEX_ARRAY =
-            "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
      * @return {@link Context}
      */
-    public static Context getApplicationContext() {
-        return PinpadAbstractionLayer.getContext();
+    public static Context getPackageContext() {
+        return Application.getPackageContext();
     }
 
     /**
@@ -41,15 +40,29 @@ public class DataUtility {
      * @return {@link Drawable}
      */
     public static Drawable getDrawableById(@DrawableRes int id) {
-        return ResourcesCompat.getDrawable(getApplicationContext().getResources(), id, null);
+        return ResourcesCompat.getDrawable(getPackageContext().getResources(), id, null);
     }
 
-    public static byte[] toByteArray(Charset charset, String input) {
-        return input.getBytes(charset);
-    }
+    /**
+     * Converts a given {@link List} to a {@link JSONArray}.<br>
+     *
+     * @param list {@link List}
+     * @return {@link JSONArray}
+     */
+    private static JSONArray toJSONArray(List list) {
+        JSONArray jsonArray = new JSONArray();
 
-    public static byte[] toByteArray(String input) {
-        return input.getBytes(UTF_8);
+        for (Object object : list) {
+            if (object instanceof List) {
+                jsonArray.put(toJSONArray((List) object));
+            } else if (object instanceof Bundle) {
+                jsonArray.put(toJSON((Bundle) object));
+            } else {
+                jsonArray.put(object);
+            }
+        }
+
+        return jsonArray;
     }
 
     /**
@@ -78,23 +91,12 @@ public class DataUtility {
                 if (item instanceof Bundle) {
                     output.put(key, toJSON((Bundle) item, sort));
                 } else if (item instanceof List) {
-                    JSONArray jsonArray = new JSONArray();
-
-                    for (Object object : (List) item) {
-                        if (object instanceof Bundle) {
-                            jsonArray.put(toJSON((Bundle) object));
-                        } else { /* 2021-06-04: may be lacking a recursion of type
-                                  * 'toJSONArray(List)' for inner lists */
-                            jsonArray.put(object);
-                        }
-                    }
-
-                    output.put(key, jsonArray);
+                    output.put(key, toJSONArray((List) item));
                 } else {
                     output.put(key, item);
                 }
             } catch (Exception exception) {
-                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                Log.e(TAG, Log.getStackTraceString(exception));
 
                 output = new JSONObject();
             }
@@ -137,7 +139,7 @@ public class DataUtility {
                 output.append(Integer.toString(( byteDigest[i] & 0xFF ) + 0x100, 16).substring(1));
             }
         } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
 
         return output.toString();
@@ -190,6 +192,14 @@ public class DataUtility {
         }
 
         return new String(output, UTF_8);
+    }
+
+    public static byte[] toByteArray(Charset charset, String input) {
+        return input.getBytes(charset);
+    }
+
+    public static byte[] toByteArray(String input) {
+        return input.getBytes(UTF_8);
     }
 
     /**

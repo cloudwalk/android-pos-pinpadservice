@@ -7,7 +7,7 @@ import android.util.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class TLR {
-    private static final String TAG_LOGCAT = TLE.class.getSimpleName();
+    private static final String TAG = TLE.class.getSimpleName();
 
     private static StringBuilder TLR_DATA = new StringBuilder();
 
@@ -42,7 +42,7 @@ public class TLR {
         output.putString(ABECS.RSP_ID,   ABECS.TLR);
         output.putInt   (ABECS.RSP_STAT, status.ordinal());
 
-        Log.d(TAG_LOGCAT, ABECS.TLR + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+        Log.d(TAG, ABECS.TLR + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
 
         return output;
     }

@@ -17,7 +17,7 @@ import io.cloudwalk.pos.pinpadservice.R;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 
 public class PinActivity extends AppCompatActivity {
-    private static final String TAG_LOGCAT = PinActivity.class.getSimpleName();
+    private static final String TAG = PinActivity.class.getSimpleName();
 
     private static final
             Semaphore[] sSemaphore = {
@@ -68,7 +68,7 @@ public class PinActivity extends AppCompatActivity {
 
                         sTimestamp = SystemClock.elapsedRealtime();
 
-                        Log.d(TAG_LOGCAT, "onCreate::sTimestamp [" + sTimestamp + "]");
+                        Log.d(TAG, "onCreate::sTimestamp [" + sTimestamp + "]");
 
                         sSemaphore[3].release();
 
@@ -150,19 +150,19 @@ public class PinActivity extends AppCompatActivity {
     }
 
     public static void acquireUninterruptibly() {
-        Log.d(TAG_LOGCAT, "acquireUninterruptibly");
+        Log.d(TAG, "acquireUninterruptibly");
 
         sSemaphore[0].acquireUninterruptibly();
     }
 
     public static void release() {
-        Log.d(TAG_LOGCAT, "release");
+        Log.d(TAG, "release");
 
         sSemaphore[3].acquireUninterruptibly();
 
         long timestamp = SystemClock.elapsedRealtime() - sTimestamp;
 
-        Log.d(TAG_LOGCAT, "release::timestamp [" + timestamp + "]");
+        Log.d(TAG, "release::timestamp [" + timestamp + "]");
 
         sSemaphore[3].release();
 

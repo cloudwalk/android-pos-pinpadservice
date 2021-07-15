@@ -31,14 +31,13 @@ import io.cloudwalk.pos.pinpadservice.commands.TLI;
 import io.cloudwalk.pos.pinpadservice.commands.TLR;
 
 public class PinpadManager extends IPinpadManager.Stub {
-    private static final String TAG_LOGCAT = PinpadManager.class.getSimpleName();
+    private static final String TAG = PinpadManager.class.getSimpleName();
 
-    private static final
-            IServiceCallback sLocalCallback = new IServiceCallback.Stub() {
+    private static final IServiceCallback sLocalCallback = new IServiceCallback.Stub() {
         @Override
         public int onSelectionRequired(Bundle output)
                 throws RemoteException {
-            Log.d(TAG_LOGCAT, "onSelectionRequired");
+            Log.d(TAG, "onSelectionRequired");
 
             if (!getInstance().getCallbackStatus()) {
                 return 0;
@@ -58,7 +57,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         @Override
         public void onNotificationThrow(Bundle output, int type)
                 throws RemoteException {
-            Log.d(TAG_LOGCAT, "onNotificationThrow");
+            Log.d(TAG, "onNotificationThrow");
 
             if (!getInstance().getCallbackStatus()) {
                 return;
@@ -78,18 +77,15 @@ public class PinpadManager extends IPinpadManager.Stub {
         }
     };
 
-    private static final
-            List<Pair<String, Runnable>> sCommandList = new ArrayList<>(0);
+    private static final List<Pair<String, Runnable>> sCommandList = new ArrayList<>(0);
 
-    private static final
-            PinpadManager sPinpadManager = new PinpadManager();
+    private static final PinpadManager sPinpadManager = new PinpadManager();
 
-    private static final
-            Semaphore[] sSemaphore = {
-                    new Semaphore(1, true), /* Public (external) */
-                    new Semaphore(1, true), /* Public (internal) */
-                    new Semaphore(1, true)  /* Public (internal) */
-            };
+    private static final Semaphore[] sSemaphore = {
+            new Semaphore(1, true),
+            new Semaphore(1, true),
+            new Semaphore(1, true)
+    };
 
     private static AcessoFuncoesPinpad sAcessoFuncoesPinpad = null;
 
@@ -110,28 +106,28 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private PinpadManager() {
-        Log.d(TAG_LOGCAT, "PinpadManager");
+        Log.d(TAG, "PinpadManager");
 
         sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
         sCommandList.add(new Pair<>(ABECS.GIN, GIN::gin));
-        sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
+        // sCommandList.add(new Pair<>(ABECS.GIX, GIX::gix));
         sCommandList.add(new Pair<>(ABECS.CLO, CLO::clo));
 
-        sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
-        sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
+        // sCommandList.add(new Pair<>(ABECS.CEX, CEX::cex));
+        // sCommandList.add(new Pair<>(ABECS.CKE, CKE::cke));
 
-        sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts));
-        sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
-        sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));
-        sCommandList.add(new Pair<>(ABECS.TLE, TLE::tle));
+        // sCommandList.add(new Pair<>(ABECS.GTS, GTS::gts));
+        // sCommandList.add(new Pair<>(ABECS.TLI, TLI::tli));
+        // sCommandList.add(new Pair<>(ABECS.TLR, TLR::tlr));
+        // sCommandList.add(new Pair<>(ABECS.TLE, TLE::tle));
 
-        sCommandList.add(new Pair<>(ABECS.GCR, GCR::gcr));
-        sCommandList.add(new Pair<>(ABECS.GCX, GCX::gcx));
-        sCommandList.add(new Pair<>(ABECS.GOX, GOX::gox));
+        // sCommandList.add(new Pair<>(ABECS.GCR, GCR::gcr));
+        // sCommandList.add(new Pair<>(ABECS.GCX, GCX::gcx));
+        // sCommandList.add(new Pair<>(ABECS.GOX, GOX::gox));
     }
 
     private void setCallback(@NotNull IServiceCallback callback) {
-        Log.d(TAG_LOGCAT, "setCallback");
+        Log.d(TAG, "setCallback");
 
         sSemaphore[2].acquireUninterruptibly();
 
@@ -141,13 +137,13 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     public static PinpadManager getInstance() {
-        Log.d(TAG_LOGCAT, "getInstance");
+        Log.d(TAG, "getInstance");
 
         return sPinpadManager;
     }
 
     public AcessoFuncoesPinpad getPinpad() {
-        Log.d(TAG_LOGCAT, "getPinpad");
+        Log.d(TAG, "getPinpad");
 
         sSemaphore[1].acquireUninterruptibly();
 
@@ -155,7 +151,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             try {
                 sAcessoFuncoesPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoFuncoesPinpad();
             } catch (Exception exception) {
-                Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+                Log.e(TAG, Log.getStackTraceString(exception));
             }
         }
 
@@ -165,14 +161,14 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     public IServiceCallback getCallback() {
-        Log.d(TAG_LOGCAT, "getCallback");
+        Log.d(TAG, "getCallback");
 
         return sLocalCallback;
     }
 
     @Override
     public Bundle request(Bundle input) {
-        Log.d(TAG_LOGCAT, "request");
+        Log.d(TAG, "request");
 
         try {
             switch (input.getString(ABECS.CMD_ID)) {
@@ -186,7 +182,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     getPinpad().abort(); /* ABECS v2.12; 2.2.2.3 */
             }
         } catch (Exception exception) {
-            Log.e(TAG_LOGCAT, Log.getStackTraceString(exception));
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
 
         Bundle output = new Bundle();
@@ -196,7 +192,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         try {
             input.get(null);
 
-            Log.d(TAG_LOGCAT, "run::input [" + input.toString() + "]");
+            Log.d(TAG, "run::input [" + input.toString() + "]");
 
             String request = input.getString(ABECS.CMD_ID);
 
@@ -222,7 +218,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 log.append("\t ").append(cmd.first).append(";\r\n");
             }
 
-            Log.e(TAG_LOGCAT, log.toString());
+            Log.e(TAG, log.toString());
 
             throw new Exception("Unknown input: { CMD_ID: \"" + request + "\" }");
         } catch (Exception exception) {
@@ -236,7 +232,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     public boolean getCallbackStatus() {
-        Log.d(TAG_LOGCAT, "getCallbackStatus");
+        Log.d(TAG, "getCallbackStatus");
 
         boolean enabled;
 
@@ -251,7 +247,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     @Override
     public void registerCallback(IServiceCallback input) {
-        Log.d(TAG_LOGCAT, "registerCallback");
+        Log.d(TAG, "registerCallback");
 
         sSemaphore[0].acquireUninterruptibly();
 
@@ -261,7 +257,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     public void setCallbackStatus(boolean enabled) {
-        Log.d(TAG_LOGCAT, "setCallbackStatus");
+        Log.d(TAG, "setCallbackStatus");
 
         sSemaphore[2].acquireUninterruptibly();
 

@@ -11,7 +11,7 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 
 public class CLO {
-    private static final String TAG_LOGCAT = CLO.class.getSimpleName();
+    private static final String TAG = CLO.class.getSimpleName();
 
     private static AcessoFuncoesPinpad getPinpad() {
         return PinpadManager.getInstance().getPinpad();
@@ -39,7 +39,7 @@ public class CLO {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.CLO + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG, ABECS.CLO + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

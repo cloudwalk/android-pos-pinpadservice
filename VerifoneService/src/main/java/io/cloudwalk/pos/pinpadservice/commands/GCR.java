@@ -9,7 +9,7 @@ import java.util.Locale;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class GCR {
-    private static final String TAG_LOGCAT = GCR.class.getSimpleName();
+    private static final String TAG = GCR.class.getSimpleName();
 
     public static Bundle gcr(Bundle input)
             throws Exception {
@@ -88,7 +88,7 @@ public class GCR {
 
             // TODO: ABECS.GCR_SRVCODE and ABECS.GCR_ACQRD
         } finally {
-            Log.d(TAG_LOGCAT, ABECS.GCR + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+            Log.d(TAG, ABECS.GCR + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
         }
 
         return output;

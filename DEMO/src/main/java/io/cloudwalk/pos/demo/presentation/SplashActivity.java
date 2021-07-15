@@ -12,6 +12,8 @@ import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
+import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
+import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = SplashActivity.class.getSimpleName();
@@ -49,7 +51,7 @@ public class SplashActivity extends AppCompatActivity {
 
         /* The 'acquire' call serves the purpose of blocking the application till all required
          * dependencies are ready. For that, the semaphore instantiation must take into account the
-         * right amount of permits: (number of dependencies * -1) - 1
+         * right amount of permits: (number of dependencies * -1)
          * See SplashActivity#startDependencies() for further insight on the number of permits */
         sStartSemaphore.acquireUninterruptibly();
 
@@ -71,14 +73,24 @@ public class SplashActivity extends AppCompatActivity {
 
         long timestamp = SystemClock.elapsedRealtime();
 
-        // TODO: connect to services (review semaphore instantiation for every service)
+        PinpadManager.register(new ServiceUtility.Callback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "onSuccess");
 
-        sStartSemaphore.release();
+                sStartSemaphore.release();
+            }
+
+            @Override
+            public void onFailure() {
+                Log.d(TAG, "onFailure");
+            }
+        });
 
         timestamp = SystemClock.elapsedRealtime() - timestamp;
 
+        /* Ensures the SplashActivity will be shown for a minimum amount of time */
         if (timestamp < 1500) {
-            /* Ensures the SplashActivity will be shown for a minimum amount of time */
             SystemClock.sleep(1500 - timestamp);
         }
 

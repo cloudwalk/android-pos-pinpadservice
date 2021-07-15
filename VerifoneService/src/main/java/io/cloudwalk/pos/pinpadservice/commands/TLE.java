@@ -14,14 +14,14 @@ import br.com.verifone.bibliotecapinpad.definicoes.TabelaCAPK;
 import br.com.verifone.bibliotecapinpad.definicoes.TabelaCertificadosRevogados;
 import br.com.verifone.bibliotecapinpad.entradas.EntradaComandoTableLoad;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.DataUtility;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.utilities.ManufacturerUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TLE {
-    private static final String TAG_LOGCAT = TLE.class.getSimpleName();
+    private static final String TAG = TLE.class.getSimpleName();
 
     private static AcessoFuncoesPinpad getPinpad() {
         return PinpadManager.getInstance().getPinpad();
@@ -35,32 +35,32 @@ public class TLE {
         int     TAB_RECIDX      = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "TAB_RECIDX [" + TAB_RECIDX + "]");
+        Log.d(TAG, "TAB_RECIDX [" + TAB_RECIDX + "]");
 
         int     T1_AIDLEN       = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "T1_AIDLEN [" + T1_AIDLEN + "]");
+        Log.d(TAG, "T1_AIDLEN [" + T1_AIDLEN + "]");
 
         byte[]  T1_AID          = DataUtility.toByteArray(TAB_DATA.substring(0, T1_AIDLEN * 2));
                 TAB_DATA        = TAB_DATA.substring(32);
 
-        Log.d(TAG_LOGCAT, "T1_AID [" + (new String(T1_AID, UTF_8)) + "]");
+        Log.d(TAG, "T1_AID [" + (new String(T1_AID, UTF_8)) + "]");
 
         int     T1_APPTYPE      = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "T1_APPTYPE [" + T1_APPTYPE + "]");
+        Log.d(TAG, "T1_APPTYPE [" + T1_APPTYPE + "]");
 
         String  T1_DEFLABEL     = TAB_DATA.substring(0, 16);
                 TAB_DATA        = TAB_DATA.substring(16);
 
-        Log.d(TAG_LOGCAT, "T1_DEFLABEL [" + T1_DEFLABEL + "]");
+        Log.d(TAG, "T1_DEFLABEL [" + T1_DEFLABEL + "]");
 
         int     T1_ICCSTD       = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "T1_ICCSTD [" + T1_ICCSTD + "]");
+        Log.d(TAG, "T1_ICCSTD [" + T1_ICCSTD + "]");
 
         byte[]  T1_APPVER1      = DataUtility.toByteArray(TAB_DATA.substring(0,  4));
         byte[]  T1_APPVER2      = DataUtility.toByteArray(TAB_DATA.substring(4,  8));
@@ -68,74 +68,74 @@ public class TLE {
 
                 TAB_DATA        = TAB_DATA.substring(12);
 
-        Log.d(TAG_LOGCAT, "T1_APPVER1 [" + (new String(T1_APPVER1, UTF_8)) + "]");
-        Log.d(TAG_LOGCAT, "T1_APPVER2 [" + (new String(T1_APPVER2, UTF_8)) + "]");
-        Log.d(TAG_LOGCAT, "T1_APPVER3 [" + (new String(T1_APPVER3, UTF_8)) + "]");
+        Log.d(TAG, "T1_APPVER1 [" + (new String(T1_APPVER1, UTF_8)) + "]");
+        Log.d(TAG, "T1_APPVER2 [" + (new String(T1_APPVER2, UTF_8)) + "]");
+        Log.d(TAG, "T1_APPVER3 [" + (new String(T1_APPVER3, UTF_8)) + "]");
 
         int     T1_TRMCNTRY     = Integer.parseInt(TAB_DATA.substring(0, 3));
                 TAB_DATA        = TAB_DATA.substring(3);
 
-        Log.d(TAG_LOGCAT, "T1_TRMCNTRY [" + T1_TRMCNTRY + "]");
+        Log.d(TAG, "T1_TRMCNTRY [" + T1_TRMCNTRY + "]");
 
         int     T1_TRNCURR      = Integer.parseInt(TAB_DATA.substring(0, 3));
                 TAB_DATA        = TAB_DATA.substring(3);
 
-        Log.d(TAG_LOGCAT, "T1_TRNCURR [" + T1_TRNCURR + "]");
+        Log.d(TAG, "T1_TRNCURR [" + T1_TRNCURR + "]");
 
         int     T1_TRNCRREXP    = Integer.parseInt(TAB_DATA.substring(0, 1));
                 TAB_DATA        = TAB_DATA.substring(1);
 
-        Log.d(TAG_LOGCAT, "T1_TRNCRREXP [" + T1_TRNCRREXP + "]");
+        Log.d(TAG, "T1_TRNCRREXP [" + T1_TRNCRREXP + "]");
 
         String  T1_MERCHID      = TAB_DATA.substring(0, 15);
                 TAB_DATA        = TAB_DATA.substring(15);
 
-        Log.d(TAG_LOGCAT, "T1_MERCHID [" + T1_MERCHID + "]");
+        Log.d(TAG, "T1_MERCHID [" + T1_MERCHID + "]");
 
         int     T1_MCC          = Integer.parseInt(TAB_DATA.substring(0, 4));
                 TAB_DATA        = TAB_DATA.substring(4);
 
-        Log.d(TAG_LOGCAT, "T1_MCC [" + T1_MCC + "]");
+        Log.d(TAG, "T1_MCC [" + T1_MCC + "]");
 
         String  T1_TRMID        = TAB_DATA.substring(0, 8);
                 TAB_DATA        = TAB_DATA.substring(8);
 
-        Log.d(TAG_LOGCAT, "T1_TRMID [" + T1_TRMID + "]");
+        Log.d(TAG, "T1_TRMID [" + T1_TRMID + "]");
 
         byte[]  T1_TRMCAPAB     = DataUtility.toByteArray(TAB_DATA.substring(0, 6));
                 TAB_DATA        = TAB_DATA.substring(6);
 
-        Log.d(TAG_LOGCAT, "T1_TRMCAPAB [" + (new String(T1_TRMCAPAB, UTF_8)) + "]");
+        Log.d(TAG, "T1_TRMCAPAB [" + (new String(T1_TRMCAPAB, UTF_8)) + "]");
 
         byte[]  T1_ADDTRMCP     = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
                 TAB_DATA        = TAB_DATA.substring(10);
 
-        Log.d(TAG_LOGCAT, "T1_ADDTRMCP [" + (new String(T1_ADDTRMCP, UTF_8)) + "]");
+        Log.d(TAG, "T1_ADDTRMCP [" + (new String(T1_ADDTRMCP, UTF_8)) + "]");
 
         int     T1_TRMTYP       = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "T1_TRMTYP [" + T1_TRMTYP + "]");
+        Log.d(TAG, "T1_TRMTYP [" + T1_TRMTYP + "]");
 
         byte[]  T1_TACDEF       = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
                 TAB_DATA        = TAB_DATA.substring(10);
 
-        Log.d(TAG_LOGCAT, "T1_TACDEF [" + (new String(T1_TACDEF, UTF_8)) + "]");
+        Log.d(TAG, "T1_TACDEF [" + (new String(T1_TACDEF, UTF_8)) + "]");
 
         byte[]  T1_TACDEN       = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
                 TAB_DATA        = TAB_DATA.substring(10);
 
-        Log.d(TAG_LOGCAT, "T1_TACDEN [" + (new String(T1_TACDEN, UTF_8)) + "]");
+        Log.d(TAG, "T1_TACDEN [" + (new String(T1_TACDEN, UTF_8)) + "]");
 
         byte[]  T1_TACONL       = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
                 TAB_DATA        = TAB_DATA.substring(10);
 
-        Log.d(TAG_LOGCAT, "T1_TACONL [" + (new String(T1_TACONL, UTF_8)) + "]");
+        Log.d(TAG, "T1_TACONL [" + (new String(T1_TACONL, UTF_8)) + "]");
 
         byte[]  T1_FLRLIMIT     = DataUtility.toByteArray(TAB_DATA.substring(0, 8));
                 TAB_DATA        = TAB_DATA.substring(8);
 
-        Log.d(TAG_LOGCAT, "T1_FLRLIMIT [" + (new String(T1_FLRLIMIT, UTF_8)) + "]");
+        Log.d(TAG, "T1_FLRLIMIT [" + (new String(T1_FLRLIMIT, UTF_8)) + "]");
 
         char    T1_TCC          = TAB_DATA.charAt(0);
         char    T1_CTLSZEROAM   = TAB_DATA.charAt(1);
@@ -143,44 +143,44 @@ public class TLE {
 
                 TAB_DATA        = TAB_DATA.substring(3);
 
-        Log.d(TAG_LOGCAT, "T1_TCC [" + T1_TCC + "]");
-        Log.d(TAG_LOGCAT, "T1_CTLSZEROAM [" + T1_CTLSZEROAM + "]");
-        Log.d(TAG_LOGCAT, "T1_CTLSMODE [" + T1_CTLSMODE + "]");
+        Log.d(TAG, "T1_TCC [" + T1_TCC + "]");
+        Log.d(TAG, "T1_CTLSZEROAM [" + T1_CTLSZEROAM + "]");
+        Log.d(TAG, "T1_CTLSMODE [" + T1_CTLSMODE + "]");
 
         byte[]  T1_CTLSTRNLIM   = DataUtility.toByteArray(TAB_DATA.substring(0, 8));
                 TAB_DATA        = TAB_DATA.substring(8);
 
-        Log.d(TAG_LOGCAT, "T1_CTLSTRNLIM [" + (new String(T1_CTLSTRNLIM, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSTRNLIM [" + (new String(T1_CTLSTRNLIM, UTF_8)) + "]");
 
         byte[]  T1_CTLSFLRLIM   = DataUtility.toByteArray(TAB_DATA.substring(0, 8));
                 TAB_DATA        = TAB_DATA.substring(8);
 
-        Log.d(TAG_LOGCAT, "T1_CTLSFLRLIM [" + (new String(T1_CTLSFLRLIM, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSFLRLIM [" + (new String(T1_CTLSFLRLIM, UTF_8)) + "]");
 
         byte[]  T1_CTLSCVMLIM   = DataUtility.toByteArray(TAB_DATA.substring(0, 8));
                 TAB_DATA        = TAB_DATA.substring(8);
 
-        Log.d(TAG_LOGCAT, "T1_CTLSCVMLIM [" + (new String(T1_CTLSCVMLIM, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSCVMLIM [" + (new String(T1_CTLSCVMLIM, UTF_8)) + "]");
 
         byte[]  T1_CTLSAPPVER   = DataUtility.toByteArray(TAB_DATA.substring(0, 4));
                 TAB_DATA        = TAB_DATA.substring(4 + 1); /* + T1_RUF1 */
 
-        Log.d(TAG_LOGCAT, "T1_CTLSAPPVER [" + (new String(T1_CTLSAPPVER, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSAPPVER [" + (new String(T1_CTLSAPPVER, UTF_8)) + "]");
 
         byte[]  T1_TDOLDEF      = DataUtility.toByteArray(TAB_DATA.substring(0, 40));
                 TAB_DATA        = TAB_DATA.substring(40);
 
-        Log.d(TAG_LOGCAT, "T1_TDOLDEF [" + (new String(T1_TDOLDEF, UTF_8)) + "]");
+        Log.d(TAG, "T1_TDOLDEF [" + (new String(T1_TDOLDEF, UTF_8)) + "]");
 
         byte[]  T1_DDOLDEF      = DataUtility.toByteArray(TAB_DATA.substring(0, 40));
                 TAB_DATA        = TAB_DATA.substring(40);
 
-        Log.d(TAG_LOGCAT, "T1_DDOLDEF [" + (new String(T1_DDOLDEF, UTF_8)) + "]");
+        Log.d(TAG, "T1_DDOLDEF [" + (new String(T1_DDOLDEF, UTF_8)) + "]");
 
         String  T1_ARCOFFLN     = TAB_DATA.substring(0, 8);
                 TAB_DATA        = TAB_DATA.substring(8);
 
-        Log.d(TAG_LOGCAT, "T1_ARCOFFLN [" + T1_ARCOFFLN + "]");
+        Log.d(TAG, "T1_ARCOFFLN [" + T1_ARCOFFLN + "]");
 
         byte[]  T1_CTLSTACDEF   = T1_TACDEF;
         byte[]  T1_CTLSTACDEN   = T1_TACDEN;
@@ -196,56 +196,56 @@ public class TLE {
             TAB_DATA            = TAB_DATA.substring(10);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSTACDEF [" + (new String(T1_CTLSTACDEF, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSTACDEF [" + (new String(T1_CTLSTACDEF, UTF_8)) + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_CTLSTACDEN       = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
             TAB_DATA            = TAB_DATA.substring(10);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSTACDEN [" + (new String(T1_CTLSTACDEN, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSTACDEN [" + (new String(T1_CTLSTACDEN, UTF_8)) + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_CTLSTACONL       = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
             TAB_DATA            = TAB_DATA.substring(10);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSTACONL [" + (new String(T1_CTLSTACONL, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSTACONL [" + (new String(T1_CTLSTACONL, UTF_8)) + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_CTLSTRMCP        = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
             TAB_DATA            = TAB_DATA.substring(10);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSTRMCP [" + (new String(T1_CTLSTRMCP, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSTRMCP [" + (new String(T1_CTLSTRMCP, UTF_8)) + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_MOBCVM           = TAB_DATA.charAt(0);
             TAB_DATA            = TAB_DATA.substring(1);
         }
 
-        Log.d(TAG_LOGCAT, "T1_MOBCVM [" + T1_MOBCVM + "]");
+        Log.d(TAG, "T1_MOBCVM [" + T1_MOBCVM + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_CTLSADDTC        = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
             TAB_DATA            = TAB_DATA.substring(10);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSADDTC [" + (new String(T1_CTLSADDTC, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSADDTC [" + (new String(T1_CTLSADDTC, UTF_8)) + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_CTLSMBTLIM       = DataUtility.toByteArray(TAB_DATA.substring(0, 8));
             TAB_DATA            = TAB_DATA.substring(8);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSMBTLIM [" + (new String(T1_CTLSMBTLIM, UTF_8)) + "]");
+        Log.d(TAG, "T1_CTLSMBTLIM [" + (new String(T1_CTLSMBTLIM, UTF_8)) + "]");
 
         if (!TAB_DATA.isEmpty()) {
             T1_CTLSISSSCR       = TAB_DATA.charAt(0);
             TAB_DATA            = TAB_DATA.substring(1);
         }
 
-        Log.d(TAG_LOGCAT, "T1_CTLSISSSCR [" + T1_CTLSISSSCR + "]");
+        Log.d(TAG, "T1_CTLSISSSCR [" + T1_CTLSISSSCR + "]");
 
         builder.informaIdentificadorRedeCredenciadora                   (TAB_ACQ);
         builder.informaIndiceRegistroTabela                             (TAB_RECIDX);
@@ -307,47 +307,47 @@ public class TLE {
         int     TAB_RECIDX      = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "TAB_RECIDX [" + TAB_RECIDX + "]");
+        Log.d(TAG, "TAB_RECIDX [" + TAB_RECIDX + "]");
 
         byte[]  T2_RID          = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
                 TAB_DATA        = TAB_DATA.substring(10);
 
-        Log.d(TAG_LOGCAT, "T2_RID [" + (new String(T2_RID, UTF_8)) + "]");
+        Log.d(TAG, "T2_RID [" + (new String(T2_RID, UTF_8)) + "]");
 
         byte[]  T2_CAPKIDX      = DataUtility.toByteArray(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2 + 2); /* + T2_RUF1 */
 
-        Log.d(TAG_LOGCAT, "T2_CAPKIDX [" + (new String(T2_CAPKIDX, UTF_8)) + "]");
+        Log.d(TAG, "T2_CAPKIDX [" + (new String(T2_CAPKIDX, UTF_8)) + "]");
 
         int     T2_EXPLEN       = Integer.parseInt(TAB_DATA.substring(0, 1));
                 TAB_DATA        = TAB_DATA.substring(1);
 
-        Log.d(TAG_LOGCAT, "T2_EXPLEN [" + T2_EXPLEN + "]");
+        Log.d(TAG, "T2_EXPLEN [" + T2_EXPLEN + "]");
 
         byte[]  T2_EXP          = DataUtility.toByteArray(TAB_DATA.substring(0, 6));
                 TAB_DATA        = TAB_DATA.substring(6);
 
-        Log.d(TAG_LOGCAT, "T2_EXP [" + (new String(T2_EXP, UTF_8)) + "]");
+        Log.d(TAG, "T2_EXP [" + (new String(T2_EXP, UTF_8)) + "]");
 
         int     T2_MODLEN       = Integer.parseInt(TAB_DATA.substring(0, 3));
                 TAB_DATA        = TAB_DATA.substring(3);
 
-        Log.d(TAG_LOGCAT, "T2_MODLEN [" + T2_MODLEN + "]");
+        Log.d(TAG, "T2_MODLEN [" + T2_MODLEN + "]");
 
         byte[]  T2_MOD          = DataUtility.toByteArray(TAB_DATA.substring(0, 496));
                 TAB_DATA        = TAB_DATA.substring(496);
 
-        Log.d(TAG_LOGCAT, "T2_MOD [" + (new String(T2_MOD, UTF_8)) + "]");
+        Log.d(TAG, "T2_MOD [" + (new String(T2_MOD, UTF_8)) + "]");
 
         int     T2_CHKSTAT      = Integer.parseInt(TAB_DATA.substring(0, 1));
                 TAB_DATA        = TAB_DATA.substring(1);
 
-        Log.d(TAG_LOGCAT, "T2_CHKSTAT [" + T2_CHKSTAT + "]");
+        Log.d(TAG, "T2_CHKSTAT [" + T2_CHKSTAT + "]");
 
         byte[]  T2_CHECKSUM     = DataUtility.toByteArray(TAB_DATA.substring(0, 40));
                 TAB_DATA        = TAB_DATA.substring(40);
 
-        Log.d(TAG_LOGCAT, "T2_CHECKSUM [" + (new String(T2_CHECKSUM, UTF_8)) + "]");
+        Log.d(TAG, "T2_CHECKSUM [" + (new String(T2_CHECKSUM, UTF_8)) + "]");
 
         builder.informaIdentificadorRedeCredenciadora                   (TAB_ACQ);
         builder.informaIndiceRegistroTabela                             (TAB_RECIDX);
@@ -371,22 +371,22 @@ public class TLE {
         int     TAB_RECIDX      = Integer.parseInt(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2);
 
-        Log.d(TAG_LOGCAT, "TAB_RECIDX [" + TAB_RECIDX + "]");
+        Log.d(TAG, "TAB_RECIDX [" + TAB_RECIDX + "]");
 
         byte[]  T3_RID          = DataUtility.toByteArray(TAB_DATA.substring(0, 10));
                 TAB_DATA        = TAB_DATA.substring(10);
 
-        Log.d(TAG_LOGCAT, "T3_RID [" + (new String(T3_RID, UTF_8)) + "]");
+        Log.d(TAG, "T3_RID [" + (new String(T3_RID, UTF_8)) + "]");
 
         byte[]  T3_CAPKIDX      = DataUtility.toByteArray(TAB_DATA.substring(0, 2));
                 TAB_DATA        = TAB_DATA.substring(2 + 2); /* + T2_RUF1 */
 
-        Log.d(TAG_LOGCAT, "T3_CAPKIDX [" + (new String(T3_CAPKIDX, UTF_8)) + "]");
+        Log.d(TAG, "T3_CAPKIDX [" + (new String(T3_CAPKIDX, UTF_8)) + "]");
 
         byte[]  T3_CERTSN       = DataUtility.toByteArray(TAB_DATA.substring(0, 6));
                 TAB_DATA        = TAB_DATA.substring(6);
 
-        Log.d(TAG_LOGCAT, "T3_CERTSN [" + (new String(T3_CERTSN, UTF_8)) + "]");
+        Log.d(TAG, "T3_CERTSN [" + (new String(T3_CERTSN, UTF_8)) + "]");
 
         builder.informaIdentificadorRedeCredenciadora                   (TAB_ACQ);
         builder.informaIndiceRegistroTabela                             (TAB_RECIDX);
@@ -473,7 +473,7 @@ public class TLE {
 
         semaphore[0].acquireUninterruptibly();
 
-        Log.d(TAG_LOGCAT, ABECS.TLE + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
+        Log.d(TAG, ABECS.TLE + "::timestamp [" + timestamp[0] + "ms] [" + ((SystemClock.elapsedRealtime() - overhead) - timestamp[0]) + "ms]");
 
         return output[0];
     }

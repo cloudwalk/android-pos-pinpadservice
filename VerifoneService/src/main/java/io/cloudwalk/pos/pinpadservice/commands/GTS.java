@@ -9,7 +9,7 @@ import java.util.Locale;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class GTS {
-    private static final String TAG_LOGCAT = GTS.class.getSimpleName();
+    private static final String TAG = GTS.class.getSimpleName();
 
     public static Bundle gts(Bundle input)
             throws Exception {
@@ -40,7 +40,7 @@ public class GTS {
 
             output.putString(ABECS.GTS_TABVER, response.getString(key));
         } finally {
-            Log.d(TAG_LOGCAT, ABECS.GTS + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
+            Log.d(TAG, ABECS.GTS + "::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "ms]");
         }
 
         return output;

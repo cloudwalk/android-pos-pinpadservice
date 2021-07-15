@@ -1,7 +1,7 @@
 package io.cloudwalk.pos.pinpadlibrary;
 
 public class ABECS {
-    public static final String TAG_LOGCAT = ABECS.class.getSimpleName();
+    public static final String TAG = ABECS.class.getSimpleName();
 
     /** ({@link String}) */
     public static final String CMD_ID           = "CMD_ID";
