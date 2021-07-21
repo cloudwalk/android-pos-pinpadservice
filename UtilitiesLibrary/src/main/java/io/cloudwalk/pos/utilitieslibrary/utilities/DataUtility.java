@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class DataUtility {
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
-     * Converts a given {@link List} to a {@link JSONArray}.<br>
+     * Converts given {@link List} to {@link JSONArray}.<br>
      *
      * @param list {@link List}
      * @return {@link JSONArray}
@@ -44,16 +45,13 @@ public class DataUtility {
     }
 
     /**
-     * Converts a given {@link Bundle} to a {@link JSONObject}.<br>
-     * If the conversion fails by any reason, the return will be an empty {@link JSONObject}.
+     * Converts given {@link Bundle} to {@link JSONObject}.
      *
      * @param input {@link Bundle}
      * @param sort indicates whether the collection of keys must be sorted lexicographically
      * @return {@link JSONObject}
      */
     public static JSONObject bundleToJSON(@NotNull Bundle input, boolean sort) {
-        JSONObject output = new JSONObject();
-
         List<String> keySet = new ArrayList<>(0);
 
         if (sort) {
@@ -61,6 +59,8 @@ public class DataUtility {
 
             Collections.sort(keySet);
         }
+
+        JSONObject output = new JSONObject();
 
         for (String key : (sort) ? keySet : input.keySet()) {
             try {
@@ -76,7 +76,7 @@ public class DataUtility {
             } catch (Exception exception) {
                 Log.e(TAG, Log.getStackTraceString(exception));
 
-                output = new JSONObject();
+                output = null;
             }
         }
 
@@ -172,12 +172,90 @@ public class DataUtility {
         return new String(output, UTF_8);
     }
 
+    /**
+     * Converts given hexadecimal {@link String} to {@code byte} array.
+     * See <a href="https://bit.ly/3Bvd7jU">https://bit.ly/3Bvd7jU</a> for details.
+     *
+     * @param input {@link String}
+     * @return {@code byte}
+     */
+    public static byte[] hexStringToByteArray(String input) {
+        int len = input.length();
+
+        byte[] data = new byte[len / 2];
+
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(input.charAt(i), 16) << 4) + Character.digit(input.charAt(i+1), 16));
+        }
+
+        return data;
+    }
+
+    /**
+     * See {@link String#getBytes(Charset)}.
+     *
+     * @param charset {@link StandardCharsets}
+     * @param input {@link String}
+     * @return {@code byte[]}
+     */
     public static byte[] stringToByteArray(Charset charset, String input) {
         return input.getBytes(charset);
     }
 
+    /**
+     * See {@link String#getBytes(Charset)}, taking into consideration
+     * {@link StandardCharsets#UTF_8}.
+     *
+     * @param input {@link String}
+     * @return {@code byte[]}
+     */
     public static byte[] stringToByteArray(String input) {
         return input.getBytes(UTF_8);
+    }
+
+    /**
+     * See <a href="https://bit.ly/3rs0Bgj">https://bit.ly/3rs0Bgj</a> for details.
+     *
+     * @param input {@code byte[]}
+     * @return {@code byte[]}
+     */
+    public static byte[] trimByteArray(byte[] input) {
+        int i = input.length - 1;
+
+        while (i >= 0 && input[i] == 0) {
+            --i;
+        }
+
+        return Arrays.copyOf(input, i + 1);
+    }
+
+    /**
+     * See <a href="https://bit.ly/3xY5mAv">https://bit.ly/3xY5mAv</a> for details.
+     *
+     * @param input {@code byte[]}
+     * @return {@code byte[]}
+     */
+    public static byte[] CRC16_XMODEM(byte[] input) {
+        int wCRCin = 0x0000;
+        int wCPoly = 0x1021;
+
+        for (byte b : input) {
+            for (int i = 0; i < 8; i++) {
+                boolean bit = ((b >> (7 - i) & 1) == 1);
+                boolean c15 = ((wCRCin >> 15 & 1) == 1);
+
+                wCRCin <<= 1;
+
+                if (c15 ^ bit) {
+                    wCRCin ^= wCPoly;
+                }
+            }
+        }
+
+        wCRCin &= 0xffff;
+        wCRCin ^= 0x0000;
+
+        return hexStringToByteArray(Integer.toHexString(wCRCin));
     }
 
     /**

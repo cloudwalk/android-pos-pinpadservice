@@ -1,10 +1,10 @@
 package io.cloudwalk.pos.pinpadlibrary.managers;
 
-import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
@@ -32,37 +32,33 @@ public class PinpadManager {
      * @return {@link IBinder}
      */
     public static IBinder retrieve() {
+        Log.d(TAG, "retrieve");
+
         return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
     }
 
-    public static Bundle request(@NotNull Bundle bundle) {
-        IPinpadService service = null;
+    public static byte[] request(@NotNull byte[] input) {
+        Log.d(TAG, "request");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        byte[] output = new byte[0];
+
+        IPinpadManager pinpad = null;
 
         try {
-            try {
-                service = IPinpadService.Stub.asInterface(retrieve());
-            } catch (Exception exception) {
-                Log.e(TAG, Log.getStackTraceString(exception));
-            }
+            pinpad = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager();
 
-            // TODO: return parse(service.request(build(bundle)));
-
-            throw new NoSuchMethodException();
+            output = pinpad.request(input);
         } catch (Exception exception) {
-            Bundle output = new Bundle();
+            Log.e(TAG, Log.getStackTraceString(exception));
 
-            String CMD_ID = bundle.getString(ABECS.CMD_ID);
-
-            if (CMD_ID != null) {
-                output.putString(ABECS.RSP_ID, CMD_ID);
-            }
-
-            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
-
-            output.putSerializable("exception", exception);
-
-            return output;
+            output = new byte[] { 0x15 }; /* NAK */
+        } finally {
+            Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
+
+        return output;
     }
 
     /**
@@ -82,6 +78,8 @@ public class PinpadManager {
      * @param runnable {@link Runnable}
      */
     public static void execute(@NotNull Runnable runnable) {
+        Log.d(TAG, "execute");
+
         ServiceUtility.execute(runnable);
     }
 
@@ -90,6 +88,8 @@ public class PinpadManager {
      * Ensures the binding will be undone in the event of a service disconnection.
      */
     public static void register(@NotNull ServiceUtility.Callback callback) {
+        Log.d(TAG, "register");
+
         ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE, callback);
     }
 
@@ -97,6 +97,8 @@ public class PinpadManager {
      * Unbinds the Pinpad Service.
      */
     public static void unregister() {
+        Log.d(TAG, "unregister");
+
         ServiceUtility.unregister(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
     }
 }

@@ -7,6 +7,7 @@ import android.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
 
 import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
 import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
@@ -18,6 +19,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadservice.commands.OPN;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String TAG = PinpadManager.class.getSimpleName();
@@ -26,7 +28,13 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     private static final PinpadManager sPinpadManager = new PinpadManager();
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore sRecvSemaphore = new Semaphore(1, true);
+
+    private static final Semaphore sSendSemaphore = new Semaphore(1, true);
+
+    private static final byte ACK = 0x06;
+
+    private static final byte NAK = 0x15;
 
     private static AcessoDiretoPinpad sAcessoDiretoPinpad = null;
 
@@ -48,16 +56,8 @@ public class PinpadManager extends IPinpadManager.Stub {
         sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
     }
 
-    public static PinpadManager getInstance() {
-        Log.d(TAG, "getInstance");
-
-        return sPinpadManager;
-    }
-
-    public AcessoDiretoPinpad getPinpad() {
+    private AcessoDiretoPinpad getPinpad() {
         Log.d(TAG, "getPinpad");
-
-        sSemaphore.acquireUninterruptibly();
 
         if (sAcessoDiretoPinpad == null) {
             InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
@@ -89,8 +89,73 @@ public class PinpadManager extends IPinpadManager.Stub {
             }
         }
 
-        sSemaphore.release();
-
         return sAcessoDiretoPinpad;
+    }
+
+    public static PinpadManager getInstance() {
+        Log.d(TAG, "getInstance");
+
+        return sPinpadManager;
+    }
+
+    @Override
+    public byte[] request(byte[] input) {
+        Log.d(TAG, "request");
+
+        sSendSemaphore.acquireUninterruptibly();
+
+        int status = 0;
+
+        try {
+            status = getPinpad().enviaComando(input, input.length);
+
+            Log.d(TAG, "request::enviaComando(byte[], int) [" + status + "]");
+
+            if (status < 0) {
+                throw new RuntimeException();
+            }
+        } catch (Exception exception) {
+            /* 2021-07-21: unexpected */
+
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            return new byte[] { NAK };
+        } finally {
+            sSendSemaphore.release();
+        }
+
+        sRecvSemaphore.acquireUninterruptibly();
+
+        byte[] output = new byte[2048 + 4];
+
+        try {
+            int i = 0;
+
+            do {
+                output[0] = NAK;
+
+                status = getPinpad().recebeResposta(output, (i != 0) ? 10000 : 2000);
+
+                Log.d(TAG, "request::recebeResposta(byte[], long) [" + status + "]");
+
+                if (status < 0) {
+                    throw new RuntimeException();
+                }
+
+                if (status == 0) {
+                    throw new TimeoutException();
+                }
+            } while (output[0] != NAK && ++i < 2);
+        } catch (Exception exception) {
+            /* 2021-07-21: unexpected */
+
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            output = new byte[] { NAK };
+        } finally {
+            sRecvSemaphore.release();
+        }
+
+        return DataUtility.trimByteArray(output);
     }
 }
