@@ -12,6 +12,7 @@ android {
         versionCode 1
         versionName "0.0.1"
 
+        buildConfigField 'String', 'PACKAGE_ID', "\"io.cloudwalk.pos.utilitieslibrary\""
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"
         buildConfigField 'String', 'VERSION_NAME', "\"${versionName}\""
 
