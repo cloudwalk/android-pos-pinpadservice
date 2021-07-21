@@ -1,14 +1,7 @@
 package io.cloudwalk.pos.utilitieslibrary.utilities;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-
-import androidx.annotation.DrawableRes;
-import androidx.core.content.res.ResourcesCompat;
-
-import io.cloudwalk.pos.utilitieslibrary.Application;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -29,34 +22,19 @@ public class DataUtility {
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
-     * @return {@link Context}
-     */
-    public static Context getPackageContext() {
-        return Application.getPackageContext();
-    }
-
-    /**
-     * @param id {@link DrawableRes} id
-     * @return {@link Drawable}
-     */
-    public static Drawable getDrawableById(@DrawableRes int id) {
-        return ResourcesCompat.getDrawable(getPackageContext().getResources(), id, null);
-    }
-
-    /**
      * Converts a given {@link List} to a {@link JSONArray}.<br>
      *
      * @param list {@link List}
      * @return {@link JSONArray}
      */
-    private static JSONArray toJSONArray(List list) {
+    private static JSONArray listToJSONArray(List list) {
         JSONArray jsonArray = new JSONArray();
 
         for (Object object : list) {
             if (object instanceof List) {
-                jsonArray.put(toJSONArray((List) object));
+                jsonArray.put(listToJSONArray((List) object));
             } else if (object instanceof Bundle) {
-                jsonArray.put(toJSON((Bundle) object));
+                jsonArray.put(bundleToJSON((Bundle) object));
             } else {
                 jsonArray.put(object);
             }
@@ -73,7 +51,7 @@ public class DataUtility {
      * @param sort indicates whether the collection of keys must be sorted lexicographically
      * @return {@link JSONObject}
      */
-    public static JSONObject toJSON(@NotNull Bundle input, boolean sort) {
+    public static JSONObject bundleToJSON(@NotNull Bundle input, boolean sort) {
         JSONObject output = new JSONObject();
 
         List<String> keySet = new ArrayList<>(0);
@@ -89,9 +67,9 @@ public class DataUtility {
                 Object item = input.get(key);
 
                 if (item instanceof Bundle) {
-                    output.put(key, toJSON((Bundle) item, sort));
+                    output.put(key, bundleToJSON((Bundle) item, sort));
                 } else if (item instanceof List) {
-                    output.put(key, toJSONArray((List) item));
+                    output.put(key, listToJSONArray((List) item));
                 } else {
                     output.put(key, item);
                 }
@@ -106,13 +84,13 @@ public class DataUtility {
     }
 
     /**
-     * See {@link DataUtility#toJSON(Bundle, boolean)}.
+     * See {@link DataUtility#bundleToJSON(Bundle, boolean)}.
      *
      * @param input {@link Bundle}
      * @return {@link JSONObject}
      */
-    public static JSONObject toJSON(@NotNull Bundle input) {
-        return toJSON(input, false);
+    public static JSONObject bundleToJSON(@NotNull Bundle input) {
+        return bundleToJSON(input, false);
     }
 
     /**
@@ -182,7 +160,7 @@ public class DataUtility {
      * @param input {@code byte} array
      * @return {@link String}
      */
-    public static String toHex(@NotNull byte[] input) {
+    public static String byteToHexString(@NotNull byte[] input) {
         byte[] output = new byte[input.length * 2];
 
         for (int j = 0; j < input.length; j++) {
@@ -194,11 +172,11 @@ public class DataUtility {
         return new String(output, UTF_8);
     }
 
-    public static byte[] toByteArray(Charset charset, String input) {
+    public static byte[] stringToByteArray(Charset charset, String input) {
         return input.getBytes(charset);
     }
 
-    public static byte[] toByteArray(String input) {
+    public static byte[] stringToByteArray(String input) {
         return input.getBytes(UTF_8);
     }
 
@@ -210,7 +188,7 @@ public class DataUtility {
      * @param needle self-describing
      * @return either the position of {@code needle} on the {@code haystack} or -1
      */
-    public static int binarySearch(@NotNull String[] haystack, @NotNull String needle) {
+    public static int stringBinarySearch(@NotNull String[] haystack, @NotNull String needle) {
         int left = 0, right = haystack.length - 1;
 
         while (left <= right) {

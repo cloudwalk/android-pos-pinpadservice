@@ -12,6 +12,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -33,6 +35,20 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                Bundle input = new Bundle();
+
+                ABECS.STAT RSP_STAT = (ABECS.STAT) PinpadManager.request(input).getSerializable(ABECS.RSP_STAT);
+
+                Log.d(TAG, "RSP_STAT.ordinal() [" + RSP_STAT.ordinal() + "]");
+            }
+        }.start();
     }
 
     @Override
@@ -54,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         Log.d(TAG, "onResume");
+
+        overridePendingTransition(0, 0);
 
         super.onResume();
     }

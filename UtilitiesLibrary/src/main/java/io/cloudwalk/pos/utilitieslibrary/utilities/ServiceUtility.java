@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 
+import io.cloudwalk.pos.utilitieslibrary.Application;
 import io.cloudwalk.pos.utilitieslibrary.models.ServiceModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +51,7 @@ public class ServiceUtility {
     }
 
     /**
-     * See {@link ServiceUtility#retrieve(String, String)} notes.
+     * See {@link ServiceUtility#retrieve(String, String)}.
      */
     private static IBinder getService(@NotNull String pkg, @NotNull String cls) {
         Log.d(TAG, "getService");
@@ -121,8 +122,7 @@ public class ServiceUtility {
     }
 
     /**
-     * Retrieves a valid instance of {@link IBinder} according to given {@code pkg} and
-     * {@code cls}.
+     * Retrieves an instance of {@link IBinder} according to given {@code pkg} and {@code cls}.
      *
      * @param pkg service package name
      * @param cls service class name
@@ -178,17 +178,19 @@ public class ServiceUtility {
             public void run() {
                 super.run();
 
+                int index = -1;
+
                 sSemaphore.acquireUninterruptibly();
 
                 try {
-                    if (search(cls) >= 0) {
+                    if ((index = search(cls)) >= 0) {
                         return;
                     }
 
                     Log.d(TAG, "cls [" + cls + "]");
                     Log.d(TAG, "pkg [" + pkg + "]");
 
-                    Context context = DataUtility.getPackageContext();
+                    Context context = Application.getPackageContext();
 
                     ServiceConnection serviceConnection = new ServiceConnection() {
                         @Override
@@ -254,6 +256,14 @@ public class ServiceUtility {
                     } while (true);
                 } finally {
                     sSemaphore.release();
+
+                    if (index >= 0) {
+                        if (retrieve(pkg, cls) != null) {
+                            callback.onSuccess();
+                        } else {
+                            callback.onFailure();
+                        }
+                    }
                 }
             }
         }.start();
@@ -270,7 +280,7 @@ public class ServiceUtility {
 
         sSemaphore.acquireUninterruptibly();
 
-        Context context = DataUtility.getPackageContext();
+        Context context = Application.getPackageContext();
 
         int index = search(cls);
 

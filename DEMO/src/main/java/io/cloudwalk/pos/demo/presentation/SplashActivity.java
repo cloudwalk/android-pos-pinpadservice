@@ -1,16 +1,16 @@
 package io.cloudwalk.pos.demo.presentation;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityOptionsCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
 
-import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
+import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
@@ -20,9 +20,9 @@ public class SplashActivity extends AppCompatActivity {
 
     private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
 
-    private static final Semaphore sStartSemaphore = new Semaphore(-1, true);
+    private Semaphore sStartSemaphore = new Semaphore(-1, true);
 
-    private static boolean sOnBackPressed = false;
+    private boolean sOnBackPressed = false;
 
     private boolean getOnBackPressed() {
         boolean onBackPressed;
@@ -44,15 +44,15 @@ public class SplashActivity extends AppCompatActivity {
         sOnBackPressedSemaphore.release();
     }
 
-    private void startApplication() {
-        Log.d(TAG, "startApplication");
+    private void loadApplication() {
+        Log.d(TAG, "loadApplication");
 
-        startDependencies();
+        loadDependencies();
 
         /* The 'acquire' call serves the purpose of blocking the application till all required
          * dependencies are ready. For that, the semaphore instantiation must take into account the
          * right amount of permits: (number of dependencies * -1)
-         * See SplashActivity#startDependencies() for further insight on the number of permits */
+         * See SplashActivity#loadDependencies() for further insight on the number of permits */
         sStartSemaphore.acquireUninterruptibly();
 
         if (getOnBackPressed()) {
@@ -60,16 +60,15 @@ public class SplashActivity extends AppCompatActivity {
             return;
         }
 
-        /* Effectively start the application */
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
 
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        overridePendingTransition(0, 0);
 
         finish();
     }
 
-    private void startDependencies() {
-        Log.d(TAG, "startDependencies");
+    private void loadDependencies() {
+        Log.d(TAG, "loadDependencies");
 
         long timestamp = SystemClock.elapsedRealtime();
 
@@ -84,6 +83,16 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onFailure() {
                 Log.d(TAG, "onFailure");
+
+                /* A reconnection strategy is recommended in here. */
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView) findViewById(R.id.tv_splash_content_scrolling))
+                                .setText("PinpadService was either disconnected, not found or its bind failed due to missing permissions");
+                    }
+                });
             }
         });
 
@@ -112,7 +121,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                startApplication();
+                loadApplication();
             }
         }.start();
     }

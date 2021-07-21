@@ -1,8 +1,11 @@
 package io.cloudwalk.pos.pinpadlibrary.managers;
 
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +33,36 @@ public class PinpadManager {
      */
     public static IBinder retrieve() {
         return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+    }
+
+    public static Bundle request(@NotNull Bundle bundle) {
+        IPinpadService service = null;
+
+        try {
+            try {
+                service = IPinpadService.Stub.asInterface(retrieve());
+            } catch (Exception exception) {
+                Log.e(TAG, Log.getStackTraceString(exception));
+            }
+
+            // TODO: return parse(service.request(build(bundle)));
+
+            throw new NoSuchMethodException();
+        } catch (Exception exception) {
+            Bundle output = new Bundle();
+
+            String CMD_ID = bundle.getString(ABECS.CMD_ID);
+
+            if (CMD_ID != null) {
+                output.putString(ABECS.RSP_ID, CMD_ID);
+            }
+
+            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
+
+            output.putSerializable("exception", exception);
+
+            return output;
+        }
     }
 
     /**

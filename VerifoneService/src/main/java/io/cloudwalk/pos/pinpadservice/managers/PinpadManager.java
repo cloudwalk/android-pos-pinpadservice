@@ -26,11 +26,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     private static final PinpadManager sPinpadManager = new PinpadManager();
 
-    private static final Semaphore[] sSemaphore = {
-            new Semaphore(1, true),
-            new Semaphore(1, true),
-            new Semaphore(1, true)
-    };
+    private static final Semaphore sSemaphore = new Semaphore(1, true);
 
     private static AcessoDiretoPinpad sAcessoDiretoPinpad = null;
 
@@ -61,7 +57,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     public AcessoDiretoPinpad getPinpad() {
         Log.d(TAG, "getPinpad");
 
-        sSemaphore[1].acquireUninterruptibly();
+        sSemaphore.acquireUninterruptibly();
 
         if (sAcessoDiretoPinpad == null) {
             InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
@@ -93,7 +89,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             }
         }
 
-        sSemaphore[1].release();
+        sSemaphore.release();
 
         return sAcessoDiretoPinpad;
     }

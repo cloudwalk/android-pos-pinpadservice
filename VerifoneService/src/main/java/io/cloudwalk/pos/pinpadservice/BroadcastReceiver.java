@@ -16,8 +16,7 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
         Log.d(TAG, "onReceive::intent.getAction() [" + intent.getAction() + "]");
 
         if (intent.getAction().equals(ACTION_BOOT_COMPLETED)) {
-            /* 2021-07-15: starting the service at the device boot does not bring any true
-             * advantages at this point in time */
+            /* 2021-07-15: deprecated (not required) */
 
             // Intent service = new Intent();
             // service.setClassName(context.getPackageName(), context.getPackageName() + ".PinpadService");
