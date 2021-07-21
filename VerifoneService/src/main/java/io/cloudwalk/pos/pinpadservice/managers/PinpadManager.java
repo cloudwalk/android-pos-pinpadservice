@@ -2,10 +2,7 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
@@ -15,14 +12,10 @@ import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
 import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
-import io.cloudwalk.pos.pinpadservice.commands.OPN;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String TAG = PinpadManager.class.getSimpleName();
-
-    private static final List<Pair<String, Runnable>> sCommandList = new ArrayList<>(0);
 
     private static final PinpadManager sPinpadManager = new PinpadManager();
 
@@ -46,8 +39,6 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
-
-        sCommandList.add(new Pair<>(ABECS.OPN, OPN::opn));
     }
 
     private AcessoDiretoPinpad getPinpad() {
