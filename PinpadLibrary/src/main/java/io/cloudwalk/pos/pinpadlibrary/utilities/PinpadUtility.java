@@ -3,6 +3,10 @@ package io.cloudwalk.pos.pinpadlibrary.utilities;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
@@ -17,21 +21,24 @@ public class PinpadUtility {
         /* Nothing to do */
     }
 
-    public static byte[] build(Bundle input) {
-        Log.d(TAG, "build");
-
-        byte[] cmd = "OPN".getBytes(UTF_8);
+    /**
+     *
+     * @param input
+     * @return
+     */
+    private static byte[] wrap(byte[] input) {
+        Log.d(TAG, "wrap");
 
         byte[] pkt = new byte[2044 + 4];
 
         pkt[0] = 0x16; /* PKTSTART */
 
-        int length = Math.min(cmd.length, 2044 + 4);
+        int length = Math.min(input.length, 2044 + 4);
 
         int j = 1;
 
         for (int i = 0; i < length; i++) {
-            switch (cmd[i]) {
+            switch (input[i]) {
                 case 0x13: /* DC3 */
                     pkt[j++] = 0x13;
                     pkt[j++] = 0x33;
@@ -48,25 +55,48 @@ public class PinpadUtility {
                     break;
 
                 default:
-                    pkt[j++] = cmd[i];
+                    pkt[j++] = input[i];
                     break;
             }
         }
 
         pkt[j] = 0x17; /* PKTSTOP */
 
-        byte[] crc = new byte[cmd.length + 1];
+        byte[] crc = new byte[input.length + 1];
 
-        System.arraycopy(cmd, 0, crc, 0, cmd.length);
+        System.arraycopy(input, 0, crc, 0, input.length);
 
-        crc[cmd.length] = pkt[j];
+        crc[input.length] = pkt[j];
 
         crc = DataUtility.CRC16_XMODEM(crc);
 
         System.arraycopy(crc, 0, pkt, j + 1, crc.length);
 
-        pkt = DataUtility.trimByteArray(pkt);
+        pkt = Arrays.copyOf(pkt, j + 1 + crc.length);
 
         return pkt;
+    }
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public static byte[] build(@NotNull Bundle input) {
+        Log.d(TAG, "build");
+
+        // TODO: build(Bundle); // enforcing <<CAN>>
+
+        byte[] cmd = "OPN".getBytes(UTF_8);
+
+        return wrap(cmd);
+    }
+
+    public static Bundle parse(byte[] input) {
+        Log.d(TAG, "parse");
+
+        // TODO: parse(byte[])
+
+        return new Bundle();
     }
 }

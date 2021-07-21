@@ -88,7 +88,7 @@ public class PinpadManager {
                 }
             } while (response[0] != NAK && ++i < 2);
 
-            //TODO: output = PinpadUtility.parse(response);
+            output = PinpadUtility.parse(response);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
