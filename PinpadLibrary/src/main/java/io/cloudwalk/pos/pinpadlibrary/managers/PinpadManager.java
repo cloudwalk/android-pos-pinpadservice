@@ -69,6 +69,8 @@ public class PinpadManager {
             int status = 0;
 
             do {
+                PinpadUtility.trace(request, request.length);
+
                 status = pinpad.send(request, request.length);
 
                 Log.d(TAG, "request::pinpad.send(byte[]) [" + status + "]");
@@ -97,6 +99,10 @@ public class PinpadManager {
 
                 if (status < 0) {
                     throw new RuntimeException();
+                }
+
+                if (status > 0) {
+                    PinpadUtility.trace(response, status);
                 }
             } while (status <= 0);
 
