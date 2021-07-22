@@ -46,6 +46,11 @@ public class PinpadManager {
         return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
     }
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static Bundle request(@NotNull Bundle input) {
         Log.d(TAG, "request");
 
@@ -54,28 +59,25 @@ public class PinpadManager {
         Bundle output = null;
 
         try {
+            byte[] request  = PinpadUtility.build(input);
+
             IPinpadManager pinpad = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager();
-
-            byte[] request = PinpadUtility.build(input);
-
-            int status = 0;
-
-            status = pinpad.send(request, request.length);
-
-            Log.d(TAG, "request::pinpad.send(byte[]) [" + status + "]");
-
-            if (status < 0) {
-                throw new RuntimeException();
-            }
 
             byte[] response = new byte[2048 + 4];
 
-            int i = 0;
+            int retry  = 3;
+            int status = 0;
 
             do {
-                response[0] = NAK;
+                status = pinpad.send(request, request.length);
 
-                status = pinpad.recv(response, (i != 0) ? 10000 : 2000);
+                Log.d(TAG, "request::pinpad.send(byte[]) [" + status + "]");
+
+                if (status < 0) {
+                    throw new RuntimeException();
+                }
+
+                status = pinpad.recv(response, 2000);
 
                 Log.d(TAG, "request::pinpad.recv(byte[], long) [" + status + "]");
 
@@ -83,10 +85,20 @@ public class PinpadManager {
                     throw new RuntimeException();
                 }
 
-                if (status == 0) {
+                if (--retry <= 0 && status == 0) {
                     throw new TimeoutException();
                 }
-            } while (response[0] != NAK && ++i < 2);
+            } while (status <= 0);
+
+            do {
+                status = pinpad.recv(response, 10000);
+
+                Log.d(TAG, "request::pinpad.recv(byte[], long) [" + status + "]");
+
+                if (status < 0) {
+                    throw new RuntimeException();
+                }
+            } while (status <= 0);
 
             output = PinpadUtility.parse(response);
         } catch (Exception exception) {
