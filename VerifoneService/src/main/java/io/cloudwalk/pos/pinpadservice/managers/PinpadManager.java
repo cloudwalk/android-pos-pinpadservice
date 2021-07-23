@@ -103,10 +103,12 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     @Override
-    public int send(byte[] input, int length) {
+    public int send(String application, byte[] input, int length) {
         Log.d(TAG, "send");
 
         sRecvSemaphore.acquireUninterruptibly();
+
+        Log.d(TAG, "send::application [" + application + "]");
 
         int result = -1;
 

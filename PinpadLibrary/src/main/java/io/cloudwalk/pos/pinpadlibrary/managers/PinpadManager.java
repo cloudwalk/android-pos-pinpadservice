@@ -9,6 +9,7 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
+import io.cloudwalk.pos.utilitieslibrary.Application;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +72,9 @@ public class PinpadManager {
             do {
                 PinpadUtility.trace(request, request.length);
 
-                status = pinpad.send(request, request.length);
+                String application = Application.getPackageContext().getPackageName();
+
+                status = pinpad.send(application, request, request.length);
 
                 Log.d(TAG, "request::pinpad.send(byte[]) [" + status + "]");
 
@@ -89,6 +92,10 @@ public class PinpadManager {
 
                 if (--retry <= 0 && status == 0) {
                     throw new TimeoutException();
+                }
+
+                if (status > 0) {
+                    PinpadUtility.trace(response, status);
                 }
             } while (status <= 0);
 
