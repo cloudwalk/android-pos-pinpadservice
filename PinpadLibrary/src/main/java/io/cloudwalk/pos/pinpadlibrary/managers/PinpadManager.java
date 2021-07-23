@@ -3,8 +3,8 @@ package io.cloudwalk.pos.pinpadlibrary.managers;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.util.Log;
 
+import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
@@ -70,7 +70,7 @@ public class PinpadManager {
             int status = 0;
 
             do {
-                PinpadUtility.trace(request, request.length);
+                Log.h(TAG, request, request.length);
 
                 String application = Application.getPackageContext().getPackageName();
 
@@ -95,7 +95,7 @@ public class PinpadManager {
                 }
 
                 if (status > 0) {
-                    PinpadUtility.trace(response, status);
+                    Log.h(TAG, response, status);
                 }
             } while (status <= 0);
 
@@ -109,7 +109,7 @@ public class PinpadManager {
                 }
 
                 if (status > 0) {
-                    PinpadUtility.trace(response, status);
+                    Log.h(TAG, response, status);
                 }
             } while (status <= 0);
 

@@ -1,12 +1,12 @@
 package io.cloudwalk.pos.pinpadlibrary.utilities;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
+import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -102,48 +102,5 @@ public class PinpadUtility {
         // TODO: parse(byte[])
 
         return new Bundle();
-    }
-
-    /**
-     *
-     * @param input
-     * @param length
-     */
-    public static void trace(byte[] input, int length) {
-        StringBuilder[] msg = { new StringBuilder(), new StringBuilder() };
-
-        for (int i = 0; i < length; i++) {
-            byte b = input[i];
-
-            msg[0].append(String.format("%02X ", b));
-
-            msg[1].append((b > 0x20 && b < 0x7F) ? (char) b : '.');
-
-            if ((msg[1].length() % 16) != 0 && (i + 1) >= length) {
-                int ceil;
-
-                ceil = 48 - (msg[0].length() % 48);
-
-                for (int j = 0; j < ceil; j += 3) {
-                    msg[0].append(".. ");
-                }
-
-                ceil = 16 - (msg[1].length() % 16);
-
-                for (int j = 0; j < ceil; j++) {
-                    msg[1].append(".");
-                }
-            }
-
-            if ((i > 0 && msg[1].length() % 16 == 0) || (i + 1) >= length) {
-                msg[0].append(msg[1]);
-
-                Log.d(TAG, "\r\n" + msg[0].toString());
-
-                msg[0].delete(0, msg[0].length());
-
-                msg[1].delete(0, msg[1].length());
-            }
-        }
     }
 }

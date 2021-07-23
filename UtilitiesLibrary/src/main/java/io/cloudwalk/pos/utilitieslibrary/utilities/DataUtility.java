@@ -1,7 +1,6 @@
 package io.cloudwalk.pos.utilitieslibrary.utilities;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import io.cloudwalk.pos.loglibrary.Log;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

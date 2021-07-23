@@ -1,7 +1,6 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 
@@ -12,6 +11,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
 import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
+import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 
 public class PinpadManager extends IPinpadManager.Stub {

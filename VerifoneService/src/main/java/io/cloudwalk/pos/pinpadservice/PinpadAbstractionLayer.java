@@ -1,7 +1,6 @@
 package io.cloudwalk.pos.pinpadservice;
 
-import android.util.Log;
-
+import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;

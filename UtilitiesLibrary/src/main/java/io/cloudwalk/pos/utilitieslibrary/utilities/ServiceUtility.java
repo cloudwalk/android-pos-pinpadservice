@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.util.Log;
 
+import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.utilitieslibrary.Application;
 import io.cloudwalk.pos.utilitieslibrary.models.ServiceModel;
 

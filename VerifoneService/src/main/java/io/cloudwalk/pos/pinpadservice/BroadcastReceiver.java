@@ -2,7 +2,8 @@ package io.cloudwalk.pos.pinpadservice;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
+import io.cloudwalk.pos.loglibrary.Log;
 
 import static android.content.Intent.ACTION_BOOT_COMPLETED;
 

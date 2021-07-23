@@ -1,7 +1,8 @@
 package io.cloudwalk.pos.utilitieslibrary;
 
 import android.content.Context;
-import android.util.Log;
+
+import io.cloudwalk.pos.loglibrary.Log;
 
 public class Application extends android.app.Application {
     private static final String TAG = Application.class.getSimpleName();
