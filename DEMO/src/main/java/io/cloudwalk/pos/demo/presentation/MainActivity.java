@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +15,7 @@ import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -42,22 +44,29 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                // TODO: develop a proper way to test internal requests
+                Bundle request = new Bundle();
 
-                Bundle bundle = new Bundle();
+                request.putString(ABECS.CMD_ID, ABECS.OPN);
+                request.putLong  (ABECS.OPN_OPMODE, 0);
+                request.putString(ABECS.OPN_MOD, "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
+                request.putString(ABECS.OPN_EXP, "0D");
 
-                bundle.putString(ABECS.CMD_ID, ABECS.OPN);
+                Bundle response = PinpadManager.request(request);
 
-                PinpadManager.request(bundle);
+                String[] content = { null };
 
-                bundle = new Bundle();
+                try {
+                    content[0] = DataUtility.bundleToJSON(response).toString(4);
+                } catch (Exception exception) {
+                    content[0] = Log.getStackTraceString(exception);
+                }
 
-                bundle.putString(ABECS.CMD_ID, ABECS.OPN);
-                bundle.putLong  (ABECS.OPN_OPMODE, 0);
-                bundle.putString(ABECS.OPN_MOD, "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
-                bundle.putString(ABECS.OPN_EXP, "0D");
-
-                PinpadManager.request(bundle);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView) findViewById(R.id.tv_main_content_scrolling)).setText(content[0]);
+                    }
+                });
             }
         }.start();
     }
