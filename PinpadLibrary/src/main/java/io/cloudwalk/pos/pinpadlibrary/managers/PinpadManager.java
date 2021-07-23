@@ -24,6 +24,10 @@ public class PinpadManager {
 
     private static final byte ACK = 0x06;
 
+    private static final byte CAN = 0x18;
+
+    private static final byte EOT = 0x04;
+
     private static final byte NAK = 0x15;
 
     /**
@@ -41,8 +45,8 @@ public class PinpadManager {
      * @param timeout
      * @return
      */
-    private static int recv(byte[] output, long timeout) {
-        Log.d(TAG, "recv");
+    private static int receive(byte[] output, long timeout) {
+        Log.d(TAG, "receive");
 
         long timestamp = SystemClock.elapsedRealtime();
 
@@ -55,14 +59,24 @@ public class PinpadManager {
 
             result = -1;
         } finally {
-            Log.d(TAG, "recv::result [" + result + "]");
+            Log.d(TAG, "receive::result [" + result + "]");
 
             Log.h(TAG, output, result);
 
-            Log.d(TAG, "recv::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+            Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 
         return result;
+    }
+
+    /**
+     *
+     * @param output
+     * @param timeout
+     * @return
+     */
+    private static int recv(byte[] output, long timeout) {
+        return receive(output, timeout);
     }
 
     /**
@@ -121,7 +135,7 @@ public class PinpadManager {
         Bundle output = null;
 
         try {
-            byte[] request  = PinpadUtility.build(input);
+            byte[] request  = PinpadUtility.buildDataPacket(input);
             byte[] response = new byte[2048 + 4];
 
             int retry  = 3;
@@ -138,7 +152,7 @@ public class PinpadManager {
                     break;
 
                 case "UNKNOWN":
-                    Log.e(TAG, "request::ABECS.CMD_ID [UNKNOWN]");
+                    Log.e(TAG, "request::ABECS.CMD_ID (missing)");
                     /* no break */
 
                 default: abort(); break;
@@ -155,12 +169,14 @@ public class PinpadManager {
 
                 if (status < 0) {
                     throw new RuntimeException();
+                } else {
+                    if (response[0] != ACK) {
+                        if (--retry <= 0) {
+                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
+                        }
+                    }
                 }
-
-                if (--retry <= 0 && status == 0) {
-                    throw new TimeoutException();
-                }
-            } while (status <= 0);
+            } while (response[0] != ACK);
 
             do {
                 status = recv(response, 10000);
@@ -170,7 +186,7 @@ public class PinpadManager {
                 }
             } while (status <= 0);
 
-            output = PinpadUtility.parse(response);
+            output = PinpadUtility.parseDataPacket(response, status);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
@@ -194,7 +210,7 @@ public class PinpadManager {
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
-            byte[] request  = new byte[] { 0x18 };
+            byte[] request  = new byte[] { CAN };
             byte[] response = new byte[2048 + 4];
 
             int retry  = 3;
@@ -211,16 +227,18 @@ public class PinpadManager {
 
                 if (status < 0) {
                     throw new RuntimeException();
+                } else {
+                    if (response[0] != EOT) {
+                        if (--retry <= 0) {
+                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
+                        }
+                    }
                 }
-
-                if (--retry <= 0 && status == 0) {
-                    throw new TimeoutException();
-                }
-            } while (status <= 0);
+            } while (response[0] != EOT);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
-            Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+            Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
     }
 

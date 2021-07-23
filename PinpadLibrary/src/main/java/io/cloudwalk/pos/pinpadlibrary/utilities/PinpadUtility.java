@@ -25,18 +25,18 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    private static byte[] wrap(byte[] input) {
-        Log.d(TAG, "wrap");
+    private static byte[] wrapDataPacket(byte[] input, int length) {
+        Log.d(TAG, "wrapDataPacket");
 
         byte[] pkt = new byte[2044 + 4];
 
         pkt[0] = 0x16; /* PKTSTART */
 
-        int length = Math.min(input.length, 2044 + 4);
+        int threshold = Math.min(length, 2044 + 4);
 
         int j = 1;
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < threshold; i++) {
             switch (input[i]) {
                 case 0x13: /* DC3 */
                     pkt[j++] = 0x13;
@@ -61,11 +61,11 @@ public class PinpadUtility {
 
         pkt[j] = 0x17; /* PKTSTOP */
 
-        byte[] crc = new byte[input.length + 1];
+        byte[] crc = new byte[length + 1];
 
-        System.arraycopy(input, 0, crc, 0, input.length);
+        System.arraycopy(input, 0, crc, 0, length);
 
-        crc[input.length] = pkt[j];
+        crc[length] = pkt[j];
 
         crc = DataUtility.CRC16_XMODEM(crc);
 
@@ -76,19 +76,57 @@ public class PinpadUtility {
         return pkt;
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
-    public static byte[] build(@NotNull Bundle input) {
-        Log.d(TAG, "build");
+    private static byte[] unwrapDataPacket(byte[] input, int length) {
+        Log.d(TAG, "unwrapDataPacket");
 
-        // TODO: build(Bundle); // enforcing <<CAN>>
+        byte[] pkt = new byte[2048 - 4];
 
-        byte[] cmd = "OPN".getBytes(UTF_8);
+        int threshold = Math.min(length, 2044 + 4);
 
-        return wrap(cmd);
+        int j = 0;
+
+        for (int i = 1; i < threshold; i++) {
+            switch (input[i]) {
+                case 0x16: /* PKTSTART */
+                    continue;
+
+                case 0x17: /* PKTSTOP  */
+                    i = threshold;
+                    continue;
+
+                case 0x13:
+                    switch (input[++i]) {
+                        case 0x33: /* DC3 */
+                            pkt[j++] = 0x13;
+                            break;
+
+                        case 0x36: /* SYN */
+                            pkt[j++] = 0x16;
+                            break;
+
+                        case 0x37: /* ETB */
+                            pkt[j++] = 0x17;
+                            break;
+
+                        default:
+                            pkt[j++] = input[i];
+                            break;
+                    }
+                    break;
+
+                default:
+                    pkt[j++] = input[i];
+                    break;
+            }
+        }
+
+        // TODO: validate CRC (log only?)
+
+        byte[] output = new byte[j];
+
+        System.arraycopy(pkt, 0, output, 0, j);
+
+        return output;
     }
 
     /**
@@ -96,10 +134,29 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static Bundle parse(byte[] input) {
-        Log.d(TAG, "parse");
+    public static byte[] buildDataPacket(@NotNull Bundle input) {
+        Log.d(TAG, "buildDataPacket");
 
-        // TODO: parse(byte[])
+        // TODO: buildDataPacket(Bundle);
+
+        byte[] cmd = "OPN".getBytes(UTF_8);
+
+        return wrapDataPacket(cmd, cmd.length);
+    }
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public static Bundle parseDataPacket(byte[] input, int length) {
+        Log.d(TAG, "parseDataPacket");
+
+        byte[] response = unwrapDataPacket(input, input.length);
+
+        Log.h(TAG, response, response.length);
+
+        // TODO: parseDataPacket(byte[])
 
         return new Bundle();
     }
