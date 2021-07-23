@@ -6,7 +6,6 @@ import android.os.SystemClock;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.Application;
@@ -37,6 +36,68 @@ public class PinpadManager {
     }
 
     /**
+     *
+     * @param output
+     * @param timeout
+     * @return
+     */
+    private static int recv(byte[] output, long timeout) {
+        Log.d(TAG, "recv");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        int result = 0;
+
+        try {
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().recv(output, timeout);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            result = -1;
+        } finally {
+            Log.d(TAG, "recv::result [" + result + "]");
+
+            Log.h(TAG, output, result);
+
+            Log.d(TAG, "recv::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param input
+     * @param length
+     * @return
+     */
+    private static int send(byte[] input, int length) {
+        Log.d(TAG, "send");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        int result = 0;
+
+        try {
+            Log.h(TAG, input, length);
+
+            String application = Application.getPackageContext().getPackageName();
+
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().send(application, input, length);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            result = -1;
+        } finally {
+            Log.d(TAG, "send::result [" + result + "]");
+
+            Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+        }
+
+        return result;
+    }
+
+    /**
      * Retrieves a valid instance of {@link IBinder}.
      *
      * @return {@link IBinder}
@@ -61,30 +122,36 @@ public class PinpadManager {
 
         try {
             byte[] request  = PinpadUtility.build(input);
-
-            IPinpadManager pinpad = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager();
-
             byte[] response = new byte[2048 + 4];
 
             int retry  = 3;
             int status = 0;
 
+            switch (input.getString(ABECS.CMD_ID, "UNKNOWN")) {
+                // TODO: review all commands that shouldn't be preceded by an abort
+                case ABECS.TLR:
+                case ABECS.TLE:
+                case ABECS.GCR:
+                case ABECS.GCX: // case ABECS.GOC:
+                case ABECS.GOX:
+                // case ABECS.FNX: case ABECS.FNC:
+                    break;
+
+                case "UNKNOWN":
+                    Log.e(TAG, "request::ABECS.CMD_ID [UNKNOWN]");
+                    /* no break */
+
+                default: abort(); break;
+            }
+
             do {
-                Log.h(TAG, request, request.length);
-
-                String application = Application.getPackageContext().getPackageName();
-
-                status = pinpad.send(application, request, request.length);
-
-                Log.d(TAG, "request::pinpad.send(byte[]) [" + status + "]");
+                status = send(request, request.length);
 
                 if (status < 0) {
                     throw new RuntimeException();
                 }
 
-                status = pinpad.recv(response, 2000);
-
-                Log.d(TAG, "request::pinpad.recv(byte[], long) [" + status + "]");
+                status = recv(response, 2000);
 
                 if (status < 0) {
                     throw new RuntimeException();
@@ -93,23 +160,13 @@ public class PinpadManager {
                 if (--retry <= 0 && status == 0) {
                     throw new TimeoutException();
                 }
-
-                if (status > 0) {
-                    Log.h(TAG, response, status);
-                }
             } while (status <= 0);
 
             do {
-                status = pinpad.recv(response, 10000);
-
-                Log.d(TAG, "request::pinpad.recv(byte[], long) [" + status + "]");
+                status = recv(response, 10000);
 
                 if (status < 0) {
                     throw new RuntimeException();
-                }
-
-                if (status > 0) {
-                    Log.h(TAG, response, status);
                 }
             } while (status <= 0);
 
@@ -126,6 +183,45 @@ public class PinpadManager {
         }
 
         return output;
+    }
+
+    /**
+     *
+     */
+    public static void abort() {
+        Log.d(TAG, "abort");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        try {
+            byte[] request  = new byte[] { 0x18 };
+            byte[] response = new byte[2048 + 4];
+
+            int retry  = 3;
+            int status = 0;
+
+            do {
+                status = send(request, request.length);
+
+                if (status < 0) {
+                    throw new RuntimeException();
+                }
+
+                status = recv(response, 2000);
+
+                if (status < 0) {
+                    throw new RuntimeException();
+                }
+
+                if (--retry <= 0 && status == 0) {
+                    throw new TimeoutException();
+                }
+            } while (status <= 0);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+        } finally {
+            Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+        }
     }
 
     /**
