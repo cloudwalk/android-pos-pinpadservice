@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +42,13 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                PinpadManager.request(new Bundle());
+                // TODO: develop a proper way to test internal requests
+
+                Bundle bundle = new Bundle();
+
+                bundle.putString(ABECS.CMD_ID, ABECS.OPN);
+
+                PinpadManager.request(bundle);
             }
         }.start();
     }

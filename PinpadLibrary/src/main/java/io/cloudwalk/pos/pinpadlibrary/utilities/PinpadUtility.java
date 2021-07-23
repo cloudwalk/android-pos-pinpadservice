@@ -5,8 +5,10 @@ import android.os.Bundle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -137,11 +139,27 @@ public class PinpadUtility {
     public static byte[] buildDataPacket(@NotNull Bundle input) {
         Log.d(TAG, "buildDataPacket");
 
-        // TODO: buildDataPacket(Bundle);
+        byte[] cmd = null;
 
-        byte[] cmd = "OPN".getBytes(UTF_8);
+        String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
 
-        return wrapDataPacket(cmd, cmd.length);
+        switch (CMD_ID) {
+            case ABECS.OPN: cmd = "OPN".getBytes(UTF_8); break;
+            case ABECS.GIN: break;
+            case ABECS.GIX: break;
+
+            case "DWK": // TODO: case ABECS.DWK:
+                break;
+
+            case ABECS.CLO: break;
+            case ABECS.CLX: break;
+
+            default:
+                /* Nothing to do */
+                break;
+        }
+
+        return (cmd != null) ? wrapDataPacket(cmd, cmd.length) : new byte[2044 + 4];
     }
 
     /**
@@ -156,8 +174,29 @@ public class PinpadUtility {
 
         Log.h(TAG, response, response.length);
 
-        // TODO: parseDataPacket(byte[])
+        String CMD_ID = String.format(Locale.getDefault(), "%c%c%c", input[0], input[1], input[2]);
 
-        return new Bundle();
+        switch (CMD_ID) {
+            case ABECS.OPN: break;
+            case ABECS.GIN: break;
+            case ABECS.GIX: break;
+
+            case "DWK": // TODO: case ABECS.DWK:
+                break;
+
+            case ABECS.CLO: break;
+            case ABECS.CLX: break;
+
+            default:
+                /* Nothing to do */
+                break;
+        }
+
+        Bundle output = new Bundle();
+
+        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
+        output.putSerializable(ABECS.RSP_EXCEPTION, new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]"));
+
+        return output;
     }
 }
