@@ -13,6 +13,8 @@ public class ABECS {
     public static final String OPN_OPMODE       = "OPN_OPMODE";
     public static final String OPN_MOD          = "OPN_MOD";
     public static final String OPN_EXP          = "OPN_EXP";
+    public static final String OPN_CRKSLEN      = "OPN_CRKSLEN";
+    public static final String OPN_CRKSEC       = "OPN_CRKSEC";
 
     public static final String GIN              = "GIN";
     public static final String GIN_ACQIDX       = "GIN_ACQIDX";

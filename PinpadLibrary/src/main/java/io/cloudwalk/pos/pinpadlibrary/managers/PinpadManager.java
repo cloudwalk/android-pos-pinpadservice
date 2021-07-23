@@ -130,9 +130,12 @@ public class PinpadManager {
     public static Bundle request(@NotNull Bundle input) {
         Log.d(TAG, "request");
 
-        long timestamp = SystemClock.elapsedRealtime();
+        long overhead  = SystemClock.elapsedRealtime();
+        long timestamp = overhead;
 
         Bundle output = null;
+
+        String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
 
         try {
             byte[] request  = PinpadUtility.buildDataPacket(input);
@@ -141,7 +144,9 @@ public class PinpadManager {
             int retry  = 3;
             int status = 0;
 
-            switch (input.getString(ABECS.CMD_ID, "UNKNOWN")) {
+            timestamp = SystemClock.elapsedRealtime();
+
+            switch (CMD_ID) {
                 // TODO: review all commands that shouldn't be preceded by an abort
                 case ABECS.TLR:
                 case ABECS.TLE:
@@ -152,7 +157,7 @@ public class PinpadManager {
                     break;
 
                 case "UNKNOWN":
-                    Log.e(TAG, "request::ABECS.CMD_ID (missing)");
+                    Log.e(TAG, "request::ABECS.CMD_ID [" + CMD_ID + "]");
                     /* no break */
 
                 default: abort(); break;
@@ -186,6 +191,8 @@ public class PinpadManager {
                 }
             } while (status <= 0);
 
+            timestamp = SystemClock.elapsedRealtime() - timestamp;
+
             output = PinpadUtility.parseDataPacket(response, status);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
@@ -195,7 +202,9 @@ public class PinpadManager {
             output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
             output.putSerializable(ABECS.RSP_EXCEPTION, exception);
         } finally {
-            Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+            overhead = SystemClock.elapsedRealtime() - overhead;
+
+            Log.d(TAG, "request::timestamp " + ((!CMD_ID.equals("UNKNOWN")) ? "(" + CMD_ID + ") " : "") + "[" + overhead + "] [" + (overhead - timestamp) + "]");
         }
 
         return output;

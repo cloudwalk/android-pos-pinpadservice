@@ -5,13 +5,13 @@ import android.os.Bundle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
 
 public class PinpadUtility {
     private static final String TAG = PinpadUtility.class.getSimpleName();
@@ -27,7 +27,8 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    private static byte[] wrapDataPacket(byte[] input, int length) {
+    private static byte[] wrapDataPacket(byte[] input, int length)
+            throws Exception {
         Log.d(TAG, "wrapDataPacket");
 
         byte[] pkt = new byte[2044 + 4];
@@ -78,7 +79,8 @@ public class PinpadUtility {
         return pkt;
     }
 
-    private static byte[] unwrapDataPacket(byte[] input, int length) {
+    private static byte[] unwrapDataPacket(byte[] input, int length)
+            throws Exception {
         Log.d(TAG, "unwrapDataPacket");
 
         byte[] pkt = new byte[2048 - 4];
@@ -122,7 +124,7 @@ public class PinpadUtility {
             }
         }
 
-        // TODO: validate CRC (log only?)
+        // TODO: validate CRC (exception?)
 
         byte[] output = new byte[j];
 
@@ -136,15 +138,16 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static byte[] buildDataPacket(@NotNull Bundle input) {
+    public static byte[] buildDataPacket(@NotNull Bundle input)
+            throws Exception {
         Log.d(TAG, "buildDataPacket");
 
-        byte[] cmd = null;
+        byte[] request = null;
 
         String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
 
         switch (CMD_ID) {
-            case ABECS.OPN: cmd = "OPN".getBytes(UTF_8); break;
+            case ABECS.OPN: request = OPN.buildDataPacket(input); break;
             case ABECS.GIN: break;
             case ABECS.GIX: break;
 
@@ -159,7 +162,11 @@ public class PinpadUtility {
                 break;
         }
 
-        return (cmd != null) ? wrapDataPacket(cmd, cmd.length) : new byte[2044 + 4];
+        if (request != null) {
+            return wrapDataPacket(request, request.length);
+        }
+
+        throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
     /**
@@ -167,17 +174,16 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static Bundle parseDataPacket(byte[] input, int length) {
+    public static Bundle parseDataPacket(byte[] input, int length)
+            throws Exception {
         Log.d(TAG, "parseDataPacket");
 
-        byte[] response = unwrapDataPacket(input, input.length);
+        byte[] response = unwrapDataPacket(input, length);
 
-        Log.h(TAG, response, response.length);
-
-        String CMD_ID = String.format(Locale.getDefault(), "%c%c%c", input[0], input[1], input[2]);
+        String CMD_ID = String.format(US, "%c%c%c", response[0], response[1], response[2]);
 
         switch (CMD_ID) {
-            case ABECS.OPN: break;
+            case ABECS.OPN: return OPN.parseDataPacket(response, response.length);
             case ABECS.GIN: break;
             case ABECS.GIX: break;
 
@@ -192,11 +198,6 @@ public class PinpadUtility {
                 break;
         }
 
-        Bundle output = new Bundle();
-
-        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
-        output.putSerializable(ABECS.RSP_EXCEPTION, new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]"));
-
-        return output;
+        throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 }
