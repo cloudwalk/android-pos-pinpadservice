@@ -8,6 +8,8 @@ import java.util.Arrays;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.commands.CLO;
+import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
@@ -154,8 +156,8 @@ public class PinpadUtility {
             case "DWK": // TODO: case ABECS.DWK:
                 break;
 
-            case ABECS.CLO: break;
-            case ABECS.CLX: break;
+            case ABECS.CLO: request = CLO.buildDataPacket(input); break;
+            case ABECS.CLX: request = CLX.buildDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -190,8 +192,8 @@ public class PinpadUtility {
             case "DWK": // TODO: case ABECS.DWK:
                 break;
 
-            case ABECS.CLO: break;
-            case ABECS.CLX: break;
+            case ABECS.CLO: return CLO.parseDataPacket(response, response.length);
+            case ABECS.CLX: return CLX.parseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */

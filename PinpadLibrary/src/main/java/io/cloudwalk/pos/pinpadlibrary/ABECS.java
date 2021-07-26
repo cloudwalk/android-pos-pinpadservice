@@ -65,8 +65,11 @@ public class ABECS {
     public static final String PP_BIGRAND       = "PP_BIGRAND";
 
     public static final String CLO              = "CLO";
+    public static final String CLO_MSG          = "CLO_MSG";
 
     public static final String CLX              = "CLX";
+    public static final String SPE_DSPMSG       = "SPE_DSPMSG";
+    public static final String SPE_MFNAME       = "SPE_MFNAME";
 
     public static final String CEX              = "CEX";
     public static final String SPE_CEXOPT       = "SPE_CEXOPT";
@@ -144,7 +147,6 @@ public class ABECS {
     public static final String SPE_GCXOPT       = "SPE_GCXOPT";
     public static final String SPE_EMVDATA      = "SPE_EMVDATA";
     public static final String SPE_TAGLIST      = "SPE_TAGLIST";
-    public static final String SPE_DSPMSG       = "SPE_DSPMSG";
     public static final String PP_CARDTYPE      = "PP_CARDTYPE";
     public static final String PP_ICCSTAT       = "PP_ICCSTAT";
     public static final String PP_AIDTABINFO    = "PP_AIDTABINFO";

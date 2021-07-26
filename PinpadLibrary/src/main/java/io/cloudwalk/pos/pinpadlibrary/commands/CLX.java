@@ -10,11 +10,11 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-public class CLO {
-    private static final String TAG = CLO.class.getSimpleName();
+public class CLX {
+    private static final String TAG = CLX.class.getSimpleName();
 
-    private CLO() {
-        Log.d(TAG, "CLO");
+    private CLX() {
+        Log.d(TAG, "CLX");
 
         /* Nothing to do */
     }
@@ -49,9 +49,20 @@ public class CLO {
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
         byte[] CMD_LEN1     = new byte[3];
-        String CLO_MSG      = String.format(US, "%-32.32s", input.getString(ABECS.CLO_MSG, ""));
+        String SPE_DSPMSG   = input.getString(ABECS.SPE_DSPMSG);
+        String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
 
-        stream[1].write(("" + CLO_MSG).getBytes());
+        /* 2021-07-26: BCPP 001.19 from Verifone is ignoring both SPE_DSPMSG and SPE_MFNAME */
+
+        if (SPE_DSPMSG != null) {
+            stream[1].write(String.format(US, "%.128s", SPE_DSPMSG).getBytes());
+        }
+
+        if (SPE_MFNAME != null) {
+            SPE_MFNAME = SPE_MFNAME.toUpperCase();
+
+            stream[1].write(String.format(US, "%-8.8s", SPE_MFNAME).getBytes());
+        }
 
         byte[] CMD_DATA = stream[1].toByteArray();
 
