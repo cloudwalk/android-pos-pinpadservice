@@ -10,6 +10,7 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.commands.CLO;
 import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
+import io.cloudwalk.pos.pinpadlibrary.commands.GIN;
 import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
@@ -150,7 +151,7 @@ public class PinpadUtility {
 
         switch (CMD_ID) {
             case ABECS.OPN: request = OPN.buildDataPacket(input); break;
-            case ABECS.GIN: break;
+            case ABECS.GIN: request = GIN.buildDataPacket(input); break;
             case ABECS.GIX: break;
 
             case "DWK": // TODO: case ABECS.DWK:
@@ -186,7 +187,7 @@ public class PinpadUtility {
 
         switch (CMD_ID) {
             case ABECS.OPN: return OPN.parseDataPacket(response, response.length);
-            case ABECS.GIN: break;
+            case ABECS.GIN: return GIN.parseDataPacket(response, response.length);
             case ABECS.GIX: break;
 
             case "DWK": // TODO: case ABECS.DWK:

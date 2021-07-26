@@ -93,6 +93,8 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         try {
             result = getPinpad().recebeResposta(output, timeout);
+
+            // TODO: result = intercept(result);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }

@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
@@ -31,12 +32,8 @@ public class CLO {
 
         Bundle output = new Bundle();
 
-        int index  = (RSP_STAT[0] - 0x30) * 100;
-            index += (RSP_STAT[1] - 0x30) * 10;
-            index += (RSP_STAT[2] - 0x30);
-
         output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[index]);
+        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)]);
 
         return output;
     }

@@ -28,10 +28,13 @@ public class ABECS {
     public static final String GIN_ACQNAM       = "GIN_ACQNAM";
     public static final String GIN_KRNLVER      = "GIN_KRNLVER";
     public static final String GIN_APPVERS      = "GIN_APPVERS";
+    public static final String GIN_RUF1         = "GIN_RUF1";
+    public static final String GIN_RUF2         = "GIN_RUF2";
     public static final String GIN_CTLSVER      = "GIN_CTLSVER";
     public static final String GIN_MCTLSVER     = "GIN_MCTLSVER";
     public static final String GIN_VCTLSVER     = "GIN_VCTLSVER";
     public static final String GIN_DUKPT        = "GIN_DUKPT";
+    public static final String GIN_RUF3         = "GIN_RUF3";
 
     public static final String GIX              = "GIX";
     public static final String PP_SERNUM        = "PP_SERNUM";

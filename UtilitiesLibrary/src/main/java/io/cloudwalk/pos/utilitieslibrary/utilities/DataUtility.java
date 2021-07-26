@@ -260,6 +260,24 @@ public class DataUtility {
     }
 
     /**
+     * Converts given {@code input} to {@code int}.<br>
+     * One must consider the possibility of overflow according to given {@code length}.
+     *
+     * @param input {@code byte[]}
+     * @param length {@code int}
+     * @return {@code int}
+     */
+    public static int byteArrayToInt(byte[] input, int length) {
+        int output = 0;
+
+        for (int i = length - 1, j = 0; i >= 0; i--, j++) {
+            output += (input[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
+        }
+
+        return output;
+    }
+
+    /**
      * {@link String} binary search.<br>
      * Bear in mind binary searches require a {@code haystack} properly sorted.
      *
