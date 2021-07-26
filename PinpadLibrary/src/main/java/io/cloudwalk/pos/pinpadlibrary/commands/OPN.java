@@ -62,8 +62,14 @@ public class OPN {
         byte[] OPN_EXPLEN   = new byte[1];
         String OPN_EXP      = input.getString(ABECS.OPN_EXP);
 
+        byte[] CMD_DATA;
+
         switch ((int) OPN_OPMODE) {
             case -1:
+                /* Nothing to do */
+                break;
+
+            default:
                 stream[1].write(("" + OPN_OPMODE).getBytes());
 
                 OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes();
@@ -75,18 +81,16 @@ public class OPN {
 
                 stream[1].write(OPN_EXPLEN);
                 stream[1].write(OPN_EXP.getBytes());
-                /* no break */
-
-            default:
-                byte[] CMD_DATA = stream[1].toByteArray();
-
-                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
-
-                stream[0].write(CMD_ID.getBytes(UTF_8));
-                stream[0].write(CMD_LEN1);
-                stream[0].write(CMD_DATA);
                 break;
         }
+
+        CMD_DATA = stream[1].toByteArray();
+
+        CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
+
+        stream[0].write(CMD_ID.getBytes(UTF_8));
+        stream[0].write(CMD_LEN1);
+        stream[0].write(CMD_DATA);
 
         return stream[0].toByteArray();
     }
