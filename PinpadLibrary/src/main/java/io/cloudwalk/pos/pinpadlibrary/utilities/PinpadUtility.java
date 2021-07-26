@@ -8,9 +8,7 @@ import java.util.Arrays;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.commands.CLO;
 import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
-import io.cloudwalk.pos.pinpadlibrary.commands.GIN;
 import io.cloudwalk.pos.pinpadlibrary.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
@@ -152,13 +150,7 @@ public class PinpadUtility {
 
         switch (CMD_ID) {
             case ABECS.OPN: request = OPN.buildDataPacket(input); break;
-            case ABECS.GIN: request = GIN.buildDataPacket(input); break;
             case ABECS.GIX: request = GIX.buildDataPacket(input); break;
-
-            case "DWK": // TODO: case ABECS.DWK:
-                break;
-
-            case ABECS.CLO: request = CLO.buildDataPacket(input); break;
             case ABECS.CLX: request = CLX.buildDataPacket(input); break;
 
             default:
@@ -188,13 +180,7 @@ public class PinpadUtility {
 
         switch (CMD_ID) {
             case ABECS.OPN: return OPN.parseDataPacket(response, response.length);
-            case ABECS.GIN: return GIN.parseDataPacket(response, response.length);
             case ABECS.GIX: return GIX.parseDataPacket(response, response.length);
-
-            case "DWK": // TODO: case ABECS.DWK:
-                break;
-
-            case ABECS.CLO: return CLO.parseDataPacket(response, response.length);
             case ABECS.CLX: return CLX.parseDataPacket(response, response.length);
 
             default:

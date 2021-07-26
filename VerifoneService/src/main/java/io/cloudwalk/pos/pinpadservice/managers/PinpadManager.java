@@ -2,6 +2,8 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import android.os.Bundle;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
@@ -12,12 +14,15 @@ import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String TAG = PinpadManager.class.getSimpleName();
 
     private static final PinpadManager sPinpadManager = new PinpadManager();
+
+    private static final Queue<byte[]> sQueue = new LinkedList<>();
 
     private static final Semaphore sRecvSemaphore = new Semaphore(1, true);
 
@@ -77,6 +82,37 @@ public class PinpadManager extends IPinpadManager.Stub {
         return sAcessoDiretoPinpad;
     }
 
+    private static byte[] intercept(boolean send, byte[] data, int length) {
+        Log.d(TAG, "intercept");
+
+        byte[] output = new byte[length];
+
+        System.arraycopy(data, 0, output, 0, length);
+
+        if (send) {
+            if (length > 4) {
+                byte[] CMD_ID = new byte[3];
+
+                System.arraycopy(data, 1, CMD_ID, 0, 3);
+
+                switch (new String(CMD_ID)) {
+                    case ABECS.GIN:
+                    case ABECS.DWK:
+                    case ABECS.CLO:
+                        Log.w(TAG, "intercept::" + new String(CMD_ID) + " request (artificial NAK registered)");
+
+                        return new byte[] { 0x15 }; /* NAK */
+
+                    default:
+                        /* Nothing to do */
+                        break;
+                }
+            }
+        }
+
+        return output;
+    }
+
     public static PinpadManager getInstance() {
         Log.d(TAG, "getInstance");
 
@@ -87,19 +123,27 @@ public class PinpadManager extends IPinpadManager.Stub {
     public int recv(byte[] output, long timeout) {
         Log.d(TAG, "recv");
 
-        sSendSemaphore.acquireUninterruptibly();
+        sRecvSemaphore.acquireUninterruptibly();
 
         int result = -1;
 
         try {
-            result = getPinpad().recebeResposta(output, timeout);
+            byte[] response = sQueue.poll();
 
-            // TODO: intercept(result, false, output, result);
+            if (response != null) {
+                Log.w(TAG, "recv::artificial NAK response thrown");
+
+                System.arraycopy(response, 0, output, 0, response.length);
+
+                result = response.length;
+            } else {
+                result = getPinpad().recebeResposta(output, timeout);
+            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        sSendSemaphore.release();
+        sRecvSemaphore.release();
 
         return result;
     }
@@ -108,21 +152,25 @@ public class PinpadManager extends IPinpadManager.Stub {
     public int send(String application, byte[] input, int length) {
         Log.d(TAG, "send");
 
-        sRecvSemaphore.acquireUninterruptibly();
+        sSendSemaphore.acquireUninterruptibly();
 
         Log.d(TAG, "send::application [" + application + "]");
 
         int result = -1;
 
         try {
-            result = getPinpad().enviaComando(input, length);
+            byte[] request = intercept(true, input, length);
 
-            // TODO: intercept(result, true, input, length);
+            if (request[0] != 0x15) {
+                result = getPinpad().enviaComando(request, request.length);
+            } else {
+                result = (sQueue.add(request)) ? 0 : -1;
+            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        sRecvSemaphore.release();
+        sSendSemaphore.release();
 
         return result;
     }
