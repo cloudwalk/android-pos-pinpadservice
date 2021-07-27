@@ -126,7 +126,7 @@ public class PinpadUtility {
             }
         }
 
-        // TODO: validate CRC (exception?)
+        // TODO: validate CRC and throw exception
 
         byte[] output = new byte[j];
 

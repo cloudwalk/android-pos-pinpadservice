@@ -47,38 +47,87 @@ public class GIX {
 
         System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
 
-        int i = 0;
+        int cursor    = 0;
+        int threshold = 0;
 
         do {
             byte[] T = new byte[4];
             byte[] L = new byte[4];
 
-            System.arraycopy(RSP_DATA, i, T, 2, 2); i += 2;
+            System.arraycopy(RSP_DATA, cursor, T, 2, 2); cursor += 2;
 
-            System.arraycopy(RSP_DATA, i, L, 2, 2); i += 2;
+            int tag = ByteBuffer.wrap(T).getInt();
 
-            int threshold = ByteBuffer.wrap(L).getInt();
+            System.arraycopy(RSP_DATA, cursor, L, 2, 2); cursor += 2;
+
+            threshold = ByteBuffer.wrap(L).getInt();
 
             byte[] V = new byte[threshold];
 
-            System.arraycopy(RSP_DATA, i, V, 0, threshold);
+            System.arraycopy(RSP_DATA, cursor, V, 0, threshold);
 
-            i += threshold;
+            switch (tag) {
+                case 0x8001: output.putString(ABECS.PP_SERNUM,      new String(V)); break;
+                case 0x8002: output.putString(ABECS.PP_PARTNBR,     new String(V)); break;
+                case 0x8003: output.putString(ABECS.PP_MODEL,       new String(V)); break;
+                case 0x8004: output.putString(ABECS.PP_MNNAME,      new String(V)); break;
+                case 0x8005: output.putString(ABECS.PP_CAPAB,       new String(V)); break;
+                case 0x8006: output.putString(ABECS.PP_SOVER,       new String(V)); break;
+                case 0x8007: output.putString(ABECS.PP_SPECVER,     new String(V)); break;
+                case 0x8008: output.putString(ABECS.PP_MANVERS,     new String(V)); break;
+                case 0x8009: output.putString(ABECS.PP_APPVERS,     new String(V)); break;
+                case 0x800A: output.putString(ABECS.PP_GENVERS,     new String(V)); break;
+                case 0x8010: output.putString(ABECS.PP_KRNLVER,     new String(V)); break;
+                case 0x8011: output.putString(ABECS.PP_CTLSVER,     new String(V)); break;
+                case 0x8012: output.putString(ABECS.PP_MCTLSVER,    new String(V)); break;
+                case 0x8013: output.putString(ABECS.PP_VCTLSVER,    new String(V)); break;
+                case 0x8014: output.putString(ABECS.PP_AECTLSVER,   new String(V)); break;
+                case 0x8015: output.putString(ABECS.PP_DPCTLSVER,   new String(V)); break;
+                case 0x8016: output.putString(ABECS.PP_PUREVER,     new String(V)); break;
+                case 0x8032: output.putString(ABECS.PP_MKTDESP,     new String(V)); break;
+                case 0x8033: output.putString(ABECS.PP_MKTDESD,     new String(V)); break;
+                case 0x8035: output.putString(ABECS.PP_DKPTTDESP,   new String(V)); break;
+                case 0x8036: output.putString(ABECS.PP_DKPTTDESD,   new String(V)); break;
 
-            switch (ByteBuffer.wrap(T).getInt()) {
-                case 0x8001:
-                    output.putString(ABECS.PP_SERNUM,  new String(V));
+                case 0x8020: // TODO: intercept response @PinpadService?
+                    output.putLong(ABECS.PP_DSPTXTSZ, 0L);
                     break;
 
-                case 0x8002:
-                    output.putString(ABECS.PP_PARTNBR, new String(V));
+                case 0x8021: // TODO: intercept response @PinpadService?
+                    output.putLong(ABECS.PP_DSPGRSZ, 0L);
+                    break;
+
+                case 0x805A:
+                    output.putString(ABECS.PP_BIGRAND, DataUtility.byteToHexString(V));
+                    break;
+
+                case 0x8062: // TODO: intercept response @PinpadService?
+                    output.putString(ABECS.PP_TLRMEM, "00000000");
                     break;
 
                 default:
+                    if (tag >= 0x9100 && tag <= 0x9163) {
+                        Log.d(TAG, "PP_KSNTDESPnn"); Log.h(TAG, V, V.length);
+
+                        // TODO: PP_KSNTDESPnn
+                    }
+
+                    if (tag >= 0x9200 && tag <= 0x9263) {
+                        Log.d(TAG, "PP_KSNTDESDnn"); Log.h(TAG, V, V.length);
+
+                        // TODO: PP_KSNTDESDnn
+                    }
+
+                    if (tag >= 0x9300 && tag <= 0x9363) {
+                        Log.d(TAG, "PP_TABVERnn");   Log.h(TAG, V, V.length);
+
+                        // TODO: PP_TABVERnn
+                    }
+
                     /* Nothing to do */
                     break;
             }
-        } while (i < RSP_DATA.length);
+        } while ((cursor += threshold) < RSP_DATA.length);
 
         return output;
     }

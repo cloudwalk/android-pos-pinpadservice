@@ -91,6 +91,8 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         if (send) {
             if (length > 4) {
+                // TODO: add comment(s)
+
                 byte[] CMD_ID = new byte[3];
 
                 System.arraycopy(data, 1, CMD_ID, 0, 3);
