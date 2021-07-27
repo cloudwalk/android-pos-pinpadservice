@@ -19,6 +19,7 @@ public class ABECS {
     public static final String GIN              = "GIN";
 
     public static final String GIX              = "GIX";
+    public static final String SPE_IDLIST       = "SPE_IDLIST";
     public static final String PP_SERNUM        = "PP_SERNUM";
     public static final String PP_PARTNBR       = "PP_PARTNBR";
     public static final String PP_MODEL         = "PP_MODEL";

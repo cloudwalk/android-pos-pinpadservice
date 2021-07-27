@@ -107,6 +107,26 @@ public class MainActivity extends AppCompatActivity {
                         ((TextView) findViewById(R.id.tv_main_content_scrolling)).setText(content[0]);
                     }
                 });
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.GIX);
+                request.putString(ABECS.SPE_IDLIST, "800180048035910A910B920A920B930093049363");
+
+                response = PinpadManager.request(request);
+
+                try {
+                    content[0] += "\r\n" + DataUtility.bundleToJSON(response).toString(4);
+                } catch (Exception exception) {
+                    content[0] += "\r\n" + Log.getStackTraceString(exception);
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView) findViewById(R.id.tv_main_content_scrolling)).setText(content[0]);
+                    }
+                });
             }
         }.start();
     }

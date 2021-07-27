@@ -62,8 +62,6 @@ public class OPN {
         byte[] OPN_EXPLEN   = new byte[1];
         String OPN_EXP      = input.getString(ABECS.OPN_EXP);
 
-        byte[] CMD_DATA;
-
         switch ((int) OPN_OPMODE) {
             case -1:
                 /* Nothing to do */
@@ -84,7 +82,7 @@ public class OPN {
                 break;
         }
 
-        CMD_DATA = stream[1].toByteArray();
+        byte[] CMD_DATA = stream[1].toByteArray();
 
         CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
 

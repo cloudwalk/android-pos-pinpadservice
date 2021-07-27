@@ -15,6 +15,8 @@ import static java.util.Locale.US;
 public class GIX {
     private static final String TAG = GIX.class.getSimpleName();
 
+    private static final byte[] SPE_IDLIST = new byte[] { 0x00, 0x01 };
+
     private GIX() {
         Log.d(TAG, "GIX");
 
@@ -32,16 +34,19 @@ public class GIX {
 
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
-        System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
         ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)];
 
         Bundle output = new Bundle();
 
-        output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT,  STAT);
+        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
+        output.putSerializable(ABECS.RSP_STAT, STAT);
 
-        if (STAT != ABECS.STAT.ST_OK) return output;
+        if (STAT != ABECS.STAT.ST_OK) {
+            return output;
+        }
+
+        System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
         RSP_DATA = new byte[DataUtility.byteArrayToInt(RSP_LEN1, RSP_LEN1.length)];
 
@@ -107,21 +112,24 @@ public class GIX {
 
                 default:
                     if (tag >= 0x9100 && tag <= 0x9163) {
-                        Log.d(TAG, "PP_KSNTDESPnn"); Log.h(TAG, V, V.length);
+                        String key = ABECS.PP_KSNTDESPnn.replace("nn", String.format(US, "%02d", (tag - 0x9100)));
 
-                        // TODO: PP_KSNTDESPnn
+                        output.putString(key, DataUtility.byteToHexString(V));
+                        continue;
                     }
 
                     if (tag >= 0x9200 && tag <= 0x9263) {
-                        Log.d(TAG, "PP_KSNTDESDnn"); Log.h(TAG, V, V.length);
+                        String key = ABECS.PP_KSNTDESDnn.replace("nn", String.format(US, "%02d", (tag - 0x9200)));
 
-                        // TODO: PP_KSNTDESDnn
+                        output.putString(key, DataUtility.byteToHexString(V));
+                        continue;
                     }
 
                     if (tag >= 0x9300 && tag <= 0x9363) {
-                        Log.d(TAG, "PP_TABVERnn");   Log.h(TAG, V, V.length);
+                        String key = ABECS.PP_TABVERnn  .replace("nn", String.format(US, "%02d", (tag - 0x9300)));
 
-                        // TODO: PP_TABVERnn
+                        output.putString(key, new String(V));
+                        continue;
                     }
 
                     /* Nothing to do */
@@ -140,7 +148,23 @@ public class GIX {
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
         byte[] CMD_LEN1     = new byte[3];
-        byte[] CMD_DATA     = stream[1].toByteArray();
+        String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
+
+        if (SPE_IDLIST != null) {
+            ByteBuffer buffer = ByteBuffer.allocate(2);
+
+            SPE_IDLIST = SPE_IDLIST.length() > 128 ? SPE_IDLIST.substring(0, 128) : SPE_IDLIST;
+
+            byte[] T = GIX.SPE_IDLIST;
+            byte[] L = buffer.putShort((short) (SPE_IDLIST.length() / 2)).array();
+            byte[] V = DataUtility.hexStringToByteArray(SPE_IDLIST);
+
+            stream[1].write(T);
+            stream[1].write(L);
+            stream[1].write(V);
+        }
+
+        byte[] CMD_DATA = stream[1].toByteArray();
 
         CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
 
