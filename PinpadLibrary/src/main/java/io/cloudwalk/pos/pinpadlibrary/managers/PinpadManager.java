@@ -190,7 +190,9 @@ public class PinpadManager {
                 }
             } while (status <= 0);
 
-            timestamp = SystemClock.elapsedRealtime() - timestamp;
+            if (timestamp > overhead) {
+                timestamp = SystemClock.elapsedRealtime() - timestamp;
+            }
 
             output = PinpadUtility.parseDataPacket(response, status);
         } catch (Exception exception) {
@@ -200,6 +202,10 @@ public class PinpadManager {
 
             output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
             output.putSerializable(ABECS.RSP_EXCEPTION, exception);
+
+            if (timestamp > overhead) {
+                timestamp = SystemClock.elapsedRealtime() - timestamp;
+            }
         } finally {
             overhead = SystemClock.elapsedRealtime() - overhead;
 

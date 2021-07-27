@@ -50,7 +50,7 @@ public class GIX {
         int cursor    = 0;
         int threshold = 0;
 
-        do {
+        while ((cursor += threshold) < RSP_DATA.length) {
             byte[] T = new byte[4];
             byte[] L = new byte[4];
 
@@ -127,7 +127,7 @@ public class GIX {
                     /* Nothing to do */
                     break;
             }
-        } while ((cursor += threshold) < RSP_DATA.length);
+        }
 
         return output;
     }

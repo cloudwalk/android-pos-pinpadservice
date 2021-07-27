@@ -82,37 +82,33 @@ public class PinpadManager extends IPinpadManager.Stub {
         return sAcessoDiretoPinpad;
     }
 
-    private static byte[] intercept(boolean send, byte[] data, int length) {
+    private static byte[] intercept(byte[] data, int length) {
         Log.d(TAG, "intercept");
 
-        byte[] output = new byte[length];
-
-        System.arraycopy(data, 0, output, 0, length);
-
-        if (send) {
+        try {
             if (length > 4) {
-                // TODO: add comment(s)
-
                 byte[] CMD_ID = new byte[3];
 
                 System.arraycopy(data, 1, CMD_ID, 0, 3);
 
                 switch (new String(CMD_ID)) {
-                    case ABECS.GIN:
-                    case ABECS.DWK:
-                    case ABECS.CLO:
-                        Log.w(TAG, "intercept::" + new String(CMD_ID) + " request (artificial NAK registered)");
-
-                        return new byte[] { 0x15 }; /* NAK */
-
-                    default:
+                    case ABECS.CLX:
+                    case ABECS.GIX:
+                    case ABECS.OPN:
                         /* Nothing to do */
                         break;
+
+                    default:
+                        Log.w(TAG, "intercept::NAK registered");
+
+                        return new byte[]{0x15}; // TODO: NAK if CRC fails, .ERR010......... otherwise?
                 }
             }
+        } finally {
+            Log.h(TAG, data, length);
         }
 
-        return output;
+        return data;
     }
 
     public static PinpadManager getInstance() {
@@ -133,14 +129,14 @@ public class PinpadManager extends IPinpadManager.Stub {
             byte[] response = sQueue.poll();
 
             if (response != null) {
-                Log.w(TAG, "recv::artificial NAK response thrown");
-
                 System.arraycopy(response, 0, output, 0, response.length);
 
                 result = response.length;
             } else {
                 result = getPinpad().recebeResposta(output, timeout);
             }
+
+            Log.h(TAG, output, result);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
@@ -161,7 +157,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         int result = -1;
 
         try {
-            byte[] request = intercept(true, input, length);
+            byte[] request = intercept(input, length);
 
             if (request[0] != 0x15) {
                 result = getPinpad().enviaComando(request, request.length);
