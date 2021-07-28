@@ -99,8 +99,8 @@ public class SplashActivity extends AppCompatActivity {
         timestamp = SystemClock.elapsedRealtime() - timestamp;
 
         /* Ensures the SplashActivity will be shown for a minimum amount of time */
-        if (timestamp < 1500) {
-            SystemClock.sleep(1500 - timestamp);
+        if (timestamp < 750) {
+            SystemClock.sleep(750 - timestamp);
         }
 
         sStartSemaphore.release();
