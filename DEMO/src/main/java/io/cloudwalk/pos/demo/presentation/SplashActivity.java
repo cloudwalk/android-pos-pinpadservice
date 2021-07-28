@@ -1,10 +1,16 @@
 package io.cloudwalk.pos.demo.presentation;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BulletSpan;
 import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
@@ -24,6 +30,14 @@ public class SplashActivity extends AppCompatActivity {
 
     private boolean sOnBackPressed = false;
 
+    private SpannableString getBullet(@ColorInt int color) {
+        SpannableString output = new SpannableString("  ");
+
+        output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+
+        return output;
+    }
+
     private boolean getOnBackPressed() {
         boolean onBackPressed;
 
@@ -42,6 +56,43 @@ public class SplashActivity extends AppCompatActivity {
         sOnBackPressed = onBackPressed;
 
         sOnBackPressedSemaphore.release();
+    }
+
+    private void updateContentScrolling(int status, String message) {
+        SpannableStringBuilder[] content = { new SpannableStringBuilder() };
+
+        switch (status) {
+            case 0: /* SUCCESS */
+                content[0].append(getBullet(Color.GREEN));
+                break;
+
+            case 1: /* FAILURE */
+                content[0].append(getBullet(Color.RED));
+                break;
+
+            case 2: /* PROCESSING */
+                content[0].append(getBullet(Color.BLUE));
+                break;
+
+            default:
+                content[0].append(getBullet(Color.GRAY));
+                break;
+        }
+
+        content[0].append(message);
+
+        Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView) findViewById(R.id.tv_splash_content_scrolling)).setText(content[0]);
+
+                semaphore[0].release();
+            }
+        });
+
+        semaphore[0].acquireUninterruptibly();
     }
 
     private void loadApplication() {
@@ -86,13 +137,7 @@ public class SplashActivity extends AppCompatActivity {
 
                 /* A reconnection strategy is recommended in here. */
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.tv_splash_content_scrolling))
-                                .setText("PinpadService was either disconnected, not found or its bind failed due to missing permissions");
-                    }
-                });
+                updateContentScrolling(1, "PinpadService was either disconnected, not found or its bind failed due to missing permissions");
             }
         });
 
@@ -114,6 +159,8 @@ public class SplashActivity extends AppCompatActivity {
         ActivitySplashBinding binding = ActivitySplashBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
+
+        updateContentScrolling(2, getString(R.string.warning_application_starting));
 
         /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {

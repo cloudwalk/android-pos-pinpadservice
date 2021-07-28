@@ -1,11 +1,17 @@
 package io.cloudwalk.pos.demo.presentation;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BulletSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -28,6 +34,14 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean sOnBackPressed = false;
 
+    private SpannableString getBullet(@ColorInt int color) {
+        SpannableString output = new SpannableString("  ");
+
+        output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+
+        return output;
+    }
+
     private boolean getOnBackPressed() {
         boolean onBackPressed;
 
@@ -48,6 +62,43 @@ public class MainActivity extends AppCompatActivity {
         sOnBackPressedSemaphore.release();
     }
 
+    private void updateStatus(int status, String message) {
+        SpannableStringBuilder[] content = { new SpannableStringBuilder() };
+
+        switch (status) {
+            case 0: /* SUCCESS */
+                content[0].append(getBullet(Color.GREEN));
+                break;
+
+            case 1: /* FAILURE */
+                content[0].append(getBullet(Color.RED));
+                break;
+
+            case 2: /* PROCESSING */
+                content[0].append(getBullet(Color.BLUE));
+                break;
+
+            default:
+                content[0].append(getBullet(Color.GRAY));
+                break;
+        }
+
+        content[0].append(message);
+
+        Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView) findViewById(R.id.tv_app_status)).setText(content[0]);
+
+                semaphore[0].release();
+            }
+        });
+
+        semaphore[0].acquireUninterruptibly();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
@@ -57,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
+
+        binding.fab.setEnabled(false);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 super.run();
+
+                updateStatus(2, getString(R.string.warning_local_processing));
 
                 Bundle request = new Bundle();
 
@@ -132,9 +187,15 @@ public class MainActivity extends AppCompatActivity {
 
                     if (getOnBackPressed()) {
                         /* Ensures not to go any further if the user has decided to abort */
-                        return;
+                        break;
                     }
                 }
+
+                // TODO: replace R.string.warning_success by R.string.warning_starting_server
+
+                updateStatus(0, getString(R.string.warning_local_success));
+
+                // TODO: startActivity(...ServerActivity); (conditional to 'fab' press?)
             }
         }.start();
     }

@@ -22,7 +22,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fillViewport="true"
-                android:overScrollMode="never"
-                android:text="@string/warning_starting" />
+                android:overScrollMode="never" />
     </HorizontalScrollView>
 </androidx.core.widget.NestedScrollView>
