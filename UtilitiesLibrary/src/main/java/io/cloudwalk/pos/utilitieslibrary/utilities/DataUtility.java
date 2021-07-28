@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -171,6 +172,28 @@ public class DataUtility {
         }
 
         return new String(output, UTF_8);
+    }
+
+    /**
+     * Concatenates variable number of given {@code byte[]} arguments into new {@code byte[]}.
+     *
+     * @param input one or more {@code byte[]}
+     * @return {@code byte[]}
+     */
+    public static byte[] concatByteArray(byte[]... input) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        try {
+            for (byte[] array : input) {
+                stream.write(array);
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            return null;
+        }
+
+        return stream.toByteArray();
     }
 
     /**

@@ -8,7 +8,6 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class CLX {
@@ -45,7 +44,6 @@ public class CLX {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        byte[] CMD_LEN1     = new byte[3];
         String SPE_DSPMSG   = input.getString(ABECS.SPE_DSPMSG);
         String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
 
@@ -62,12 +60,6 @@ public class CLX {
 
         byte[] CMD_DATA = stream[1].toByteArray();
 
-        CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
-
-        stream[0].write(CMD_ID.getBytes(UTF_8));
-        stream[0].write(CMD_LEN1);
-        stream[0].write(CMD_DATA);
-
-        return stream[0].toByteArray();
+        return DataUtility.concatByteArray(CMD_ID.getBytes(), String.format(US, "%03d", CMD_DATA.length).getBytes(), CMD_DATA);
     }
 }

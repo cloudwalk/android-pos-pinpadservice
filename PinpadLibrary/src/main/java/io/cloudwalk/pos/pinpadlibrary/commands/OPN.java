@@ -8,7 +8,6 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class OPN {
@@ -41,7 +40,7 @@ public class OPN {
             System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
             System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
 
-            output.putLong  (ABECS.OPN_CRKSLEN, DataUtility.byteArrayToInt(OPN_CRKSLEN, OPN_CRKSLEN.length));
+            output.putString(ABECS.OPN_CRKSLEN, new String(OPN_CRKSLEN));
             output.putString(ABECS.OPN_CRKSEC,  new String(OPN_CRKSEC));
         }
 
@@ -55,41 +54,28 @@ public class OPN {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        byte[] CMD_LEN1     = new byte[3];
-        long   OPN_OPMODE   = input.getLong  (ABECS.OPN_OPMODE, -1);
+        String OPN_OPMODE   = input.getString(ABECS.OPN_OPMODE);
         byte[] OPN_MODLEN   = new byte[3];
         String OPN_MOD      = input.getString(ABECS.OPN_MOD);
         byte[] OPN_EXPLEN   = new byte[1];
         String OPN_EXP      = input.getString(ABECS.OPN_EXP);
 
-        switch ((int) OPN_OPMODE) {
-            case -1:
-                /* Nothing to do */
-                break;
+        if (OPN_OPMODE != null) {
+            stream[1].write(("" + OPN_OPMODE).getBytes());
 
-            default:
-                stream[1].write(("" + OPN_OPMODE).getBytes());
+            OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes();
 
-                OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes();
+            stream[1].write(OPN_MODLEN);
+            stream[1].write(OPN_MOD.getBytes());
 
-                stream[1].write(OPN_MODLEN);
-                stream[1].write(OPN_MOD.getBytes());
+            OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length() / 2)).getBytes();
 
-                OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length() / 2)).getBytes();
-
-                stream[1].write(OPN_EXPLEN);
-                stream[1].write(OPN_EXP.getBytes());
-                break;
+            stream[1].write(OPN_EXPLEN);
+            stream[1].write(OPN_EXP.getBytes());
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();
 
-        CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
-
-        stream[0].write(CMD_ID.getBytes(UTF_8));
-        stream[0].write(CMD_LEN1);
-        stream[0].write(CMD_DATA);
-
-        return stream[0].toByteArray();
+        return DataUtility.concatByteArray(CMD_ID.getBytes(), String.format(US, "%03d", CMD_DATA.length).getBytes(), CMD_DATA);
     }
 }

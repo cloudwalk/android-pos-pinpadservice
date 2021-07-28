@@ -9,7 +9,6 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class GIX {
@@ -95,19 +94,16 @@ public class GIX {
                 case 0x8036: output.putString(ABECS.PP_DKPTTDESD,   new String(V)); break;
 
                 case 0x8020: // TODO: intercept response @PinpadService?
-                    output.putLong(ABECS.PP_DSPTXTSZ, 0L);
+                    output.putString(ABECS.PP_DSPTXTSZ, "0000");
                     break;
 
                 case 0x8021: // TODO: intercept response @PinpadService?
-                    output.putLong(ABECS.PP_DSPGRSZ, 0L);
+                case 0x8062: // TODO: 0x8020, 0x8021 and 0x8062 are all coming back as { 0x00, 0x00 ... }
+                    output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
                     break;
 
                 case 0x805A:
                     output.putString(ABECS.PP_BIGRAND, DataUtility.byteToHexString(V));
-                    break;
-
-                case 0x8062: // TODO: intercept response @PinpadService?
-                    output.putString(ABECS.PP_TLRMEM, "00000000");
                     break;
 
                 default:
@@ -147,7 +143,6 @@ public class GIX {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        byte[] CMD_LEN1     = new byte[3];
         String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
 
         if (SPE_IDLIST != null) {
@@ -166,12 +161,6 @@ public class GIX {
 
         byte[] CMD_DATA = stream[1].toByteArray();
 
-        CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes();
-
-        stream[0].write(CMD_ID.getBytes(UTF_8));
-        stream[0].write(CMD_LEN1);
-        stream[0].write(CMD_DATA);
-
-        return stream[0].toByteArray();
+        return DataUtility.concatByteArray(CMD_ID.getBytes(), String.format(US, "%03d", CMD_DATA.length).getBytes(), CMD_DATA);
     }
 }
