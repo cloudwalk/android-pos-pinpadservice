@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.pos.demo.PinpadServer;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.pos.loglibrary.Log;
@@ -127,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
 
                 updateStatus(2, getString(R.string.warning_local_processing));
 
+                String[] contentScrolling = { "" };
+
                 Bundle request = new Bundle();
 
                 List<Bundle> requestList = new ArrayList<>(0);
@@ -159,25 +162,23 @@ public class MainActivity extends AppCompatActivity {
 
                 requestList.add(request);
 
-                String[] content = { "" };
-
                 Semaphore semaphore = new Semaphore(0, true);
 
                 for (Bundle item : requestList) {
                     Bundle response = PinpadManager.request(item);
 
-                    content[0] += ((content[0].isEmpty()) ? "" : "\r\n");
+                    contentScrolling[0] += ((contentScrolling[0].isEmpty()) ? "" : "\r\n");
 
                     try {
-                        content[0] += DataUtility.bundleToJSON(response).toString(4);
+                        contentScrolling[0] += DataUtility.bundleToJSON(response).toString(4);
                     } catch (Exception exception) {
-                        content[0] += Log.getStackTraceString(exception);
+                        contentScrolling[0] += Log.getStackTraceString(exception);
                     }
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ((TextView) findViewById(R.id.tv_main_content_scrolling)).setText(content[0]);
+                            ((TextView) findViewById(R.id.tv_main_content_scrolling)).setText(contentScrolling[0]);
 
                             semaphore.release();
                         }
@@ -191,11 +192,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                // TODO: replace R.string.warning_success by R.string.warning_starting_server
+                contentScrolling[0] = "";
 
-                updateStatus(0, getString(R.string.warning_local_success));
+                // TODO: start server according to 'fab' press?
 
-                // TODO: startActivity(...ServerActivity); (conditional to 'fab' press?)
+                updateStatus(2, "Bringing up server...");
+
+                PinpadServer server = new PinpadServer(new PinpadServer.Callback() {
+                    @Override
+                    public void onSuccess(String address, String backlog) {
+                        Log.d(TAG, "onSuccess");
+
+                        updateStatus(0, "Server up and running " + address);
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                        Log.d(TAG, "onFailure");
+
+                        updateStatus(1, "Server offline\r\n  " + exception.getMessage());
+                    }
+                });
+
+                // TODO: close server when application is stopped
             }
         }.start();
     }

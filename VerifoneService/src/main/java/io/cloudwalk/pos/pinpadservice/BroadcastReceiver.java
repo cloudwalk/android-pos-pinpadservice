@@ -14,10 +14,8 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive");
 
-        Log.d(TAG, "onReceive::intent.getAction() [" + intent.getAction() + "]");
-
         if (intent.getAction().equals(ACTION_BOOT_COMPLETED)) {
-            /* 2021-07-15: deprecated (not required) */
+            /* 2021-07-15: deprecated... */
 
             // Intent service = new Intent();
             // service.setClassName(context.getPackageName(), context.getPackageName() + ".PinpadService");

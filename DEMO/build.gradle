@@ -42,6 +42,7 @@ dependencies {
     implementation project(path: ':PinpadLibrary')
     implementation project(path: ':UtilitiesLibrary')
     implementation project(path: ':LogLibrary')
+    implementation 'org.jetbrains:annotations:15.0'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

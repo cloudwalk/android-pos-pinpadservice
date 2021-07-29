@@ -14,7 +14,8 @@
             android:id="@+id/hsv_main_content_scrolling"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="14dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
             android:scrollbars="horizontal"
             android:overScrollMode="never">
         <TextView
