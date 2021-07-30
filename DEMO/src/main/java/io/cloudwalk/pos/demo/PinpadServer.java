@@ -99,8 +99,6 @@ public class PinpadServer {
 
                         int count = 0;
 
-                        // TODO: check connection while communicating?
-
                         while ((count = input.read(buffer)) > 0) {
                             Log.h(TAG, buffer, count);
 
@@ -112,8 +110,6 @@ public class PinpadServer {
                         // TODO: PinpadManager.receive(...)
                     }
                 } catch (Exception exception) {
-                    Log.e(TAG, Log.getStackTraceString(exception));
-
                     close(exception);
                 }
             }
@@ -175,8 +171,6 @@ public class PinpadServer {
 
                     accept(inetAddress);
                 } catch (Exception exception) {
-                    Log.e(TAG, Log.getStackTraceString(exception));
-
                     sSemaphore.release();
 
                     close(exception);
