@@ -102,7 +102,7 @@ public class PinpadServer {
                         while ((count = input.read(buffer)) > 0) {
                             Log.h(TAG, buffer, count);
 
-                            output.write(buffer, 0, count); /* 2021-07-29: only echoing for now */
+                            output.write(buffer, 0, count);
                             output.flush();
                         }
 
@@ -155,7 +155,8 @@ public class PinpadServer {
                 super.run();
 
                 try {
-                    sWifiManager = (WifiManager) Application.getPackageContext().getSystemService(WIFI_SERVICE);
+                    sWifiManager = (WifiManager) Application.getPackageContext()
+                            .getApplicationContext().getSystemService(WIFI_SERVICE);
 
                     InetAddress inetAddress = getInetAddress();
 
