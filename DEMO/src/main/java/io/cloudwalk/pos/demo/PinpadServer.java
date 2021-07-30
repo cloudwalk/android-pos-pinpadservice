@@ -18,6 +18,7 @@ import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.presentation.MainActivity;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.Application;
 
 import static android.content.Context.WIFI_SERVICE;
@@ -106,6 +107,23 @@ public class PinpadServer {
                             output.flush();
 
                             sCallback.onSend(buffer, count);
+
+                            /* TODO: replicate PinpadManager.request(Bundle) logic
+
+                            sCallback.onRecv(buffer, count);
+
+                            PinpadManager.send(buffer, count);
+
+                            byte[] response = new byte[2048];
+
+                            count = PinpadManager.receive(response, 60000);
+
+                            output.write(response, 0, count);
+                            output.flush();
+
+                            sCallback.onSend(response, count);
+
+                             */
                         }
 
                         // TODO: PinpadManager.send(...)

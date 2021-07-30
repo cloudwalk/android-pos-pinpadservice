@@ -45,70 +45,8 @@ public class PinpadManager {
      * @param timeout
      * @return
      */
-    private static int receive(byte[] output, long timeout) {
-        Log.d(TAG, "receive");
-
-        long timestamp = SystemClock.elapsedRealtime();
-
-        int result = 0;
-
-        try {
-            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().recv(output, timeout);
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            result = -1;
-        } finally {
-            Log.d(TAG, "receive::result [" + result + "]");
-
-            Log.h(TAG, output, result);
-
-            Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param output
-     * @param timeout
-     * @return
-     */
     private static int recv(byte[] output, long timeout) {
         return receive(output, timeout);
-    }
-
-    /**
-     *
-     * @param input
-     * @param length
-     * @return
-     */
-    private static int send(byte[] input, int length) {
-        Log.d(TAG, "send");
-
-        long timestamp = SystemClock.elapsedRealtime();
-
-        int result = 0;
-
-        try {
-            Log.h(TAG, input, length);
-
-            String application = Application.getPackageContext().getPackageName();
-
-            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().send(application, input, length);
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            result = -1;
-        } finally {
-            Log.d(TAG, "send::result [" + result + "]");
-
-            Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
-        }
-
-        return result;
     }
 
     /**
@@ -279,6 +217,36 @@ public class PinpadManager {
     }
 
     /**
+     *
+     * @param output
+     * @param timeout
+     * @return
+     */
+    public static int receive(byte[] output, long timeout) {
+        Log.d(TAG, "receive");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        int result = 0;
+
+        try {
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().recv(output, timeout);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            result = -1;
+        } finally {
+            Log.d(TAG, "receive::result [" + result + "]");
+
+            Log.h(TAG, output, result);
+
+            Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+        }
+
+        return result;
+    }
+
+    /**
      * Binds the Pinpad Service.<br>
      * Ensures the binding will be undone in the event of a service disconnection.
      */
@@ -286,6 +254,38 @@ public class PinpadManager {
         Log.d(TAG, "register");
 
         ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE, callback);
+    }
+
+    /**
+     *
+     * @param input
+     * @param length
+     * @return
+     */
+    public static int send(byte[] input, int length) {
+        Log.d(TAG, "send");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        int result = 0;
+
+        try {
+            Log.h(TAG, input, length);
+
+            String application = Application.getPackageContext().getPackageName();
+
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().send(application, input, length);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            result = -1;
+        } finally {
+            Log.d(TAG, "send::result [" + result + "]");
+
+            Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+        }
+
+        return result;
     }
 
     /**
