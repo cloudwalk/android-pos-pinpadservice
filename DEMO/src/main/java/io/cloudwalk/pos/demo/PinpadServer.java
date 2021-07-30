@@ -38,9 +38,9 @@ public class PinpadServer {
     public static interface Callback {
         void onFailure(Exception exception);
 
-        void onRecv(byte[] trace);
+        void onRecv(byte[] trace, int length);
 
-        void onSend(byte[] trace);
+        void onSend(byte[] trace, int length);
 
         void onSuccess(String localSocket);
     }
@@ -100,10 +100,12 @@ public class PinpadServer {
                         int count = 0;
 
                         while ((count = input.read(buffer)) > 0) {
-                            Log.h(TAG, buffer, count);
+                            sCallback.onRecv(buffer, count);
 
                             output.write(buffer, 0, count);
                             output.flush();
+
+                            sCallback.onSend(buffer, count);
                         }
 
                         // TODO: PinpadManager.send(...)

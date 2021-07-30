@@ -130,8 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
                 updateStatus(2, getString(R.string.warning_local_processing));
 
-                String[] contentScrolling = { "" };
-
                 Bundle request = new Bundle();
 
                 List<Bundle> requestList = new ArrayList<>(0);
@@ -173,35 +171,47 @@ public class MainActivity extends AppCompatActivity {
 
                 Semaphore semaphore = new Semaphore(0, true);
 
+                // TODO: auto-scrolling?
+
+                String[] contentScrolling = { "" };
+
                 for (Bundle item : requestList) {
                     Bundle response = PinpadManager.request(item);
 
                     contentScrolling[0] += ((contentScrolling[0].isEmpty()) ? "" : "\r\n");
 
                     try {
-                        contentScrolling[0] += DataUtility.bundleToJSON(response).toString(4);
+                        contentScrolling[0] += DataUtility.bundleToJSON(response).toString(4) + "\r\n";
                     } catch (Exception exception) {
                         contentScrolling[0] += Log.getStackTraceString(exception);
                     }
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((TextView) findViewById(R.id.tv_main_content_scrolling)).setText(contentScrolling[0]);
+                    // String[] trace = contentScrolling.split("\n");
 
-                            semaphore.release();
-                        }
-                    });
+                    // for (String slice : trace) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView tvMainContentScrolling = findViewById(R.id.tv_main_content_scrolling);
 
-                    semaphore.acquireUninterruptibly();
+                                tvMainContentScrolling.setText(contentScrolling[0]);
+
+                                // tvMainContentScrolling.append("\r\n" + slice);
+
+                                // ((NestedScrollView) findViewById(R.id.nsv_main_content_scrolling)).smoothScrollTo(0, tvMainContentScrolling.getBottom());
+
+                                semaphore.release();
+                            }
+                        });
+
+                        semaphore.acquireUninterruptibly();
+                    // }
 
                     if (getOnBackPressed()) {
                         /* Ensures not to go any further if the user has decided to abort */
                         break;
                     }
                 }
-
-                contentScrolling[0] = "";
 
                 // TODO: start server according to 'fab' press?
 
@@ -216,13 +226,17 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onRecv(byte[] trace) {
+                    public void onRecv(byte[] trace, int length) {
                         Log.d(TAG, "onRecv");
+
+                        Log.h(TAG, trace, length);
                     }
 
                     @Override
-                    public void onSend(byte[] trace) {
+                    public void onSend(byte[] trace, int length) {
                         Log.d(TAG, "onSend");
+
+                        Log.h(TAG, trace, length);
                     }
 
                     @Override
