@@ -33,12 +33,8 @@ public class Log {
         return android.util.Log.e(tag, msg, tr);
     }
 
-    public static String getStackTraceString(Throwable tr) {
-        return android.util.Log.getStackTraceString(tr);
-    }
-
-    public static int h(String tag, @NotNull byte[] input, int length) {
-        StringBuilder[] msg = { new StringBuilder(), new StringBuilder() };
+    public static String getByteTraceString(byte[] input, int length) {
+        StringBuilder[] msg = { new StringBuilder(), new StringBuilder(), new StringBuilder() };
 
         for (int i = 0; i < length; i++) {
             byte b = input[i];
@@ -66,7 +62,7 @@ public class Log {
             if ((i > 0 && msg[1].length() % 16 == 0) || (i + 1) >= length) {
                 msg[0].append(msg[1]);
 
-                android.util.Log.d(tag, "\r\n" + msg[0].toString());
+                msg[2].append("\r\n").append(msg[0]);
 
                 msg[0].delete(0, msg[0].length());
 
@@ -74,7 +70,19 @@ public class Log {
             }
         }
 
-        return 0;
+        return msg[2].toString();
+    }
+
+    public static String getStackTraceString(Throwable tr) {
+        return android.util.Log.getStackTraceString(tr);
+    }
+
+    public static void h(String tag, byte[] input, int length) {
+        String[] msg = getByteTraceString(input, length).split("\r\n");
+
+        for (String slice : msg) {
+            android.util.Log.d(tag, slice);
+        }
     }
 
     public static int i(String tag, String msg, Throwable tr) {
