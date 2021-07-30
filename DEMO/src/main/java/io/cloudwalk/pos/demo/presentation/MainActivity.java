@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
 
+    private PinpadServer sPinpadServer = null;
+
     private boolean sOnBackPressed = false;
 
     private SpannableString getBullet(@ColorInt int color) {
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        binding.fab.setEnabled(false);
+        binding.fab.setVisibility(View.GONE);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.OPN_MOD,    "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
                 request.putString(ABECS.OPN_EXP,    "0D");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -147,18 +149,25 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_DSPMSG, " HAVE FAITH...  ");
                 request.putString(ABECS.SPE_MFNAME, "FAITH000");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID,     ABECS.GIX);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID,     ABECS.GIX);
                 request.putString(ABECS.SPE_IDLIST, "800180048035910A910B920A920B930093049363");
+
+                // requestList.add(request);
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID,     ABECS.GIX);
+                request.putString(ABECS.SPE_IDLIST, "800180028003800480058006800780088009800A80108011801280138014801580168032803380358036910A920B9300");
 
                 requestList.add(request);
 
@@ -198,23 +207,31 @@ public class MainActivity extends AppCompatActivity {
 
                 updateStatus(2, "Bringing up server...");
 
-                PinpadServer server = new PinpadServer(new PinpadServer.Callback() {
-                    @Override
-                    public void onSuccess(String address, String backlog) {
-                        Log.d(TAG, "onSuccess");
-
-                        updateStatus(0, "Server up and running " + address);
-                    }
-
+                sPinpadServer = new PinpadServer(new PinpadServer.Callback() {
                     @Override
                     public void onFailure(Exception exception) {
                         Log.d(TAG, "onFailure");
 
                         updateStatus(1, "Server offline\r\n  " + exception.getMessage());
                     }
-                });
 
-                // TODO: close server when application is stopped
+                    @Override
+                    public void onRecv(byte[] trace) {
+                        Log.d(TAG, "onRecv");
+                    }
+
+                    @Override
+                    public void onSend(byte[] trace) {
+                        Log.d(TAG, "onSend");
+                    }
+
+                    @Override
+                    public void onSuccess(String localSocket) {
+                        Log.d(TAG, "onSuccess");
+
+                        updateStatus(0, "Server up and running " + localSocket);
+                    }
+                });
             }
         }.start();
     }
@@ -235,6 +252,8 @@ public class MainActivity extends AppCompatActivity {
         setOnBackPressed(true);
 
         finish();
+
+        sPinpadServer.close();
     }
 
     @Override

@@ -279,7 +279,9 @@ public class DataUtility {
         wCRCin &= 0xffff;
         wCRCin ^= 0x0000;
 
-        return hexStringToByteArray(Integer.toHexString(wCRCin));
+        String trace = Integer.toHexString(wCRCin);
+
+        return hexStringToByteArray((trace.length() % 2 != 0) ? "0" + trace : trace);
     }
 
     /**

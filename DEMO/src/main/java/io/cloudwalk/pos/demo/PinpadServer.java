@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.ByteOrder;
+import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.presentation.MainActivity;
 import io.cloudwalk.pos.loglibrary.Log;
@@ -24,21 +25,31 @@ import static android.content.Context.WIFI_SERVICE;
 public class PinpadServer {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private PinpadServer.Callback sCallback = null;
+
+    private Semaphore sSemaphore = new Semaphore(1, true);
+
     private ServerSocket sServerSocket = null;
+
+    private WifiManager sWifiManager = null;
 
     private WifiManager.WifiLock sWifiLock = null;
 
     public static interface Callback {
-        void onSuccess(String address, String backlog);
-
         void onFailure(Exception exception);
+
+        void onRecv(byte[] trace);
+
+        void onSend(byte[] trace);
+
+        void onSuccess(String localSocket);
     }
 
-    private InetAddress getInetAddress(WifiManager wifiManager)
+    private InetAddress getInetAddress()
             throws Exception {
         Log.d(TAG, "getInetAddress");
 
-        int ip = wifiManager.getConnectionInfo().getIpAddress();
+        int ip = sWifiManager.getConnectionInfo().getIpAddress();
 
         if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
             ip = Integer.reverseBytes(ip);
@@ -47,96 +58,136 @@ public class PinpadServer {
         return InetAddress.getByAddress(BigInteger.valueOf(ip).toByteArray());
     }
 
+    private void accept(InetAddress currentAddress) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                try {
+                    String localSocketAddress = sServerSocket.getLocalSocketAddress().toString();
+
+                    sSemaphore.release();
+
+                    sCallback.onSuccess(localSocketAddress);
+
+                    while (true) {
+                        Log.d(TAG, "Waiting for a client...");
+
+                        Socket client = null;
+
+                        try {
+                            sSemaphore.acquireUninterruptibly();
+
+                            client = sServerSocket.accept();
+                        } catch (SocketTimeoutException warning) {
+                            String[] hostAddress = { currentAddress.getHostAddress(), getInetAddress().getHostAddress() };
+
+                            // TODO: handle host address change?
+
+                            continue;
+                        } finally {
+                            sSemaphore.release();
+                        }
+
+                        Log.d(TAG, "client.getHostAddress() [" + client.getInetAddress().getHostAddress() + "]");
+
+                        DataInputStream  input  = new DataInputStream (new BufferedInputStream (client.getInputStream ()));
+                        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(client.getOutputStream()));
+
+                        byte[] buffer = new byte[2048];
+
+                        int count = 0;
+
+                        // TODO: check connection while communicating?
+
+                        while ((count = input.read(buffer)) > 0) {
+                            Log.h(TAG, buffer, count);
+
+                            output.write(buffer, 0, count); /* 2021-07-29: only echoing for now */
+                            output.flush();
+                        }
+
+                        // TODO: PinpadManager.send(...)
+                        // TODO: PinpadManager.receive(...)
+                    }
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+
+                    close(exception);
+                }
+            }
+        }.start();
+    }
+
+    private void close(Exception exception) {
+        Log.d(TAG, "close");
+
+        sSemaphore.acquireUninterruptibly();
+
+        if (sServerSocket != null) {
+            try {
+                sServerSocket.close();
+            } catch (Exception warning) {
+                Log.w(TAG, Log.getStackTraceString(warning));
+            }
+        }
+
+        if (sWifiLock != null) {
+            if (sWifiLock.isHeld()) {
+                sWifiLock.release();
+            }
+        }
+
+        sSemaphore.release();
+
+        if (exception != null) {
+            sCallback.onFailure(exception);
+        }
+    }
+
     public PinpadServer(@NotNull PinpadServer.Callback callback) {
         Log.d(TAG, "PinpadServer");
 
-        try {
-            WifiManager wifiManager = (WifiManager) Application.getPackageContext().getSystemService(WIFI_SERVICE);
+        sSemaphore.acquireUninterruptibly();
 
-            InetAddress inetAddress = getInetAddress(wifiManager);
+        sCallback = callback;
 
-            sServerSocket = new ServerSocket(8080, 1, inetAddress);
-
-            sServerSocket.setSoTimeout(2000);
-
-            if (sWifiLock == null) {
-                sWifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
-
-                sWifiLock.acquire();
-            }
-
-            callback.onSuccess(sServerSocket.getLocalSocketAddress().toString(), "1");
-
-            // TODO: create new thread?
-
-            while (true) {
-                Log.d(TAG, "Waiting for a client...");
-
-                Socket client = null;
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
 
                 try {
-                    client = sServerSocket.accept();
-                } catch (SocketTimeoutException warning) {
-                    String[] hostAddress = { inetAddress.getHostAddress(), getInetAddress(wifiManager).getHostAddress() };
+                    sWifiManager = (WifiManager) Application.getPackageContext().getSystemService(WIFI_SERVICE);
 
-                    // TODO: handle host address change?
+                    InetAddress inetAddress = getInetAddress();
 
-                    continue;
+                    sServerSocket = new ServerSocket(8080, 1, inetAddress);
+
+                    sServerSocket.setSoTimeout(200);
+
+                    if (sWifiLock == null) {
+                        sWifiLock = sWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
+                    }
+
+                    sWifiLock.acquire();
+
+                    accept(inetAddress);
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+
+                    sSemaphore.release();
+
+                    close(exception);
                 }
-
-                Log.d(TAG, "client.getHostAddress() [" + client.getInetAddress().getHostAddress() + "]");
-
-                DataInputStream  input  = new DataInputStream (new BufferedInputStream (client.getInputStream ()));
-                DataOutputStream output = new DataOutputStream(new BufferedOutputStream(client.getOutputStream()));
-
-                byte[] buffer = new byte[2048];
-
-                int count = 0;
-
-                // TODO: check connection while communicating?
-
-                while ((count = input.read(buffer)) > 0) {
-                    Log.h(TAG, buffer, count);
-
-                    output.write(buffer, 0, count); /* 2021-07-29: only echoing for now */
-                    output.flush();
-                }
-
-                // TODO: PinpadManager.send(...)
-                // TODO: PinpadManager.receive(...)
             }
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            if (sServerSocket != null) {
-                try {
-                    sServerSocket.close();
-                } catch (Exception warning) {
-                    Log.w(TAG, Log.getStackTraceString(warning));
-                }
-
-                sServerSocket = null;
-            }
-
-            if (sWifiLock != null) {
-                sWifiLock.release();
-
-                sWifiLock = null;
-            }
-
-            callback.onFailure(exception);
-        }
+        }.start();
     }
 
     public void close() {
         Log.d(TAG, "close");
 
-        try {
-            if (sServerSocket != null) { // TODO: make it thread-safe?
-                sServerSocket.close();
-            }
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-        }
+        close(null);
     }
 }
