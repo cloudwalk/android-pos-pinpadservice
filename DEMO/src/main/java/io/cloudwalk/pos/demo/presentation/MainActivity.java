@@ -1,9 +1,8 @@
 package io.cloudwalk.pos.demo.presentation;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -17,10 +16,9 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,11 @@ import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private static final Semaphore sAutoScrollSemaphore = new Semaphore(1, true);
+
     private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
+
+    private static final int sMainAdapterContentLimit = 200; // TODO: 20000?
 
     private MainAdapter mMainAdapter = null;
 
@@ -46,9 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView = null;
 
+    private boolean sAutoScroll = true;
+
     private boolean sOnBackPressed = false;
 
     private SpannableString getBullet(@ColorInt int color) {
+        Log.d(TAG, "getBullet");
+
         SpannableString output = new SpannableString("  ");
 
         output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
@@ -56,7 +62,33 @@ public class MainActivity extends AppCompatActivity {
         return output;
     }
 
+    private boolean getAutoScroll() {
+        Log.d(TAG, "getAutoScroll");
+
+        boolean autoScroll;
+
+        sAutoScrollSemaphore.acquireUninterruptibly();
+
+        autoScroll = sAutoScroll;
+
+        sAutoScrollSemaphore.release();
+
+        return autoScroll;
+    }
+
+    private void setAutoScroll(boolean autoScroll) {
+        Log.d(TAG, "setAutoScroll");
+
+        sAutoScrollSemaphore.acquireUninterruptibly();
+
+        sAutoScroll = autoScroll;
+
+        sAutoScrollSemaphore.release();
+    }
+
     private boolean getOnBackPressed() {
+        Log.d(TAG, "getOnBackPressed");
+
         boolean onBackPressed;
 
         sOnBackPressedSemaphore.acquireUninterruptibly();
@@ -69,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOnBackPressed(boolean onBackPressed) {
+        Log.d(TAG, "setOnBackPressed");
+
         sOnBackPressedSemaphore.acquireUninterruptibly();
 
         sOnBackPressed = onBackPressed;
@@ -77,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateStatus(int status, String message) {
+        Log.d(TAG, "updateStatus");
+
         SpannableStringBuilder[] content = { new SpannableStringBuilder() };
 
         switch (status) {
@@ -123,21 +159,41 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        binding.fab.setVisibility(View.GONE);
+        binding.fab.setEnabled(false);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAutoScroll(true);
+
+                        int limit = sMainAdapterContentLimit;
+
+                        int count = mMainAdapter.getItemCount();
+
+                        if (count >= limit) {
+                            mMainAdapter.clear(0, count - (limit / 2));
+
+                            count = mMainAdapter.getItemCount();
+                        }
+
+                        mRecyclerView.scrollToPosition(count - 1);
+
+                        binding.fab.setEnabled(false);
+
+                        Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_pause);
+
+                        binding.fab.setImageDrawable(drawable);
+                    }
+                });
             }
         });
 
         mRecyclerView = findViewById(R.id.rv_main_content);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
-        // layoutManager.setReverseLayout(true);
 
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -152,8 +208,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
                 Log.d(TAG, "onInterceptTouchEvent");
-                // TODO: conditional to 'fab' press?
-                // return true;
+
+                setAutoScroll(false);
+
+                binding.fab.setEnabled(true);
+
+                Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_play);
+
+                binding.fab.setImageDrawable(drawable);
+
                 return false;
             }
 
@@ -208,36 +271,56 @@ public class MainActivity extends AppCompatActivity {
 
                 requestList.add(request);
 
-                Semaphore semaphore = new Semaphore(0, true);
-
-                // TODO: auto-scrolling?
+                Semaphore[] semaphore = { new Semaphore(0, true) };
 
                 int i = 0;
                 int j = 0;
 
                 while (i++ < 6400) {
                     for (Bundle item : requestList) {
-                        String[] contentScrolling = { "" };
+                        String content = "";
 
                         // Bundle response = PinpadManager.request(item);
 
                         try {
-                            // contentScrolling += DataUtility.bundleToJSON(response).toString(4) + "\r\n";
-                            contentScrolling[0] = "item " + j++;
+                            // content += DataUtility.bundleToJSON(response).toString(4) + "\r\n";
+                            content = "" + j++;
                         } catch (Exception exception) {
-                            contentScrolling[0] = Log.getStackTraceString(exception);
+                            content = Log.getStackTraceString(exception);
                         }
 
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mMainAdapter.push(mRecyclerView, contentScrolling[0]);
+                        String[] trace = content.split("\n");
 
-                                semaphore.release();
-                            }
-                        });
+                        for (String line : trace) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        int limit = sMainAdapterContentLimit;
 
-                        semaphore.acquireUninterruptibly();
+                                        mMainAdapter.push(line);
+
+                                        int count = mMainAdapter.getItemCount();
+
+                                        if (!getAutoScroll()) {
+                                            return;
+                                        }
+
+                                        if (count >= limit) {
+                                            mMainAdapter.clear(0, count - (limit / 2));
+
+                                            count = mMainAdapter.getItemCount();
+                                        }
+
+                                        mRecyclerView.scrollToPosition(count - 1);
+                                    } finally {
+                                        semaphore[0].release();
+                                    }
+                                }
+                            });
+
+                            semaphore[0].acquireUninterruptibly();
+                        }
 
                         if (getOnBackPressed()) {
                             /* Ensures not to go any further if the user has decided to abort */
@@ -245,8 +328,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-
-                // TODO: start server according to 'fab' press?
 
                 updateStatus(2, "Bringing up server...");
 
@@ -256,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "onFailure");
 
                         updateStatus(1, "Server offline\r\n  " + exception.getMessage());
+
+                        // TODO: reuse 'fab'?
                     }
 
                     @Override

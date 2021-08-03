@@ -78,38 +78,26 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         return itemCount;
     }
 
-    public void push(RecyclerView recyclerView, String trace) {
+    public void clear(int index, int count) { // TODO: turn it into 'truncate'?
+        Log.d(TAG, "pop");
+
+        sSemaphore.acquireUninterruptibly();
+
+        sTraceList.subList(index, count).clear();
+
+        notifyItemRangeRemoved(index, count);
+
+        sSemaphore.release();
+    }
+
+    public void push(String trace) {
         Log.d(TAG, "push");
 
         sSemaphore.acquireUninterruptibly();
 
-        /*
-        if (sTraceList.size() >= 640) {
-            for (int i = 0; i < 64; i++) {
-                sTraceList.remove(i);
+        sTraceList.add(trace); // TODO: drop if too much was pushed?
 
-                notifyItemRemoved(i);
-            }
-
-            sTraceList.set(0, "... (truncated)");
-
-            notifyItemChanged(0);
-        }
-         */
-
-        String[] data = trace.split("\n");
-
-        for (String slice : data) {
-            sTraceList.add(slice);
-
-            int position = sTraceList.size();
-
-            notifyItemInserted(position);
-
-            if (recyclerView != null) {
-                recyclerView.scrollToPosition(position - 1);
-            }
-        }
+        notifyItemInserted(sTraceList.size());
 
         sSemaphore.release();
     }
