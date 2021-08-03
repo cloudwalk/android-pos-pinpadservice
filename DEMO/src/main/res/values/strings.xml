@@ -2,7 +2,7 @@
     <string name="app_name">POC 2104301453: DEMO</string>
 
     <string name="action_settings">Settings</string>
+    <string name="placeholder_id_tv_trace" translatable="false">\@id+/tv_trace</string>
     <string name="warning_local_processing">Processing local request(s)…</string>
     <string name="warning_application_starting">Connecting local service(s)…</string>
-    <string name="warning_local_success">Finished local processing</string>
 </resources>

@@ -2,17 +2,23 @@ package io.cloudwalk.pos.demo.presentation;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -22,6 +28,7 @@ import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.PinpadServer;
 import io.cloudwalk.pos.demo.R;
+import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
@@ -33,7 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
 
+    private MainAdapter mMainAdapter = null;
+
     private PinpadServer sPinpadServer = null;
+
+    private RecyclerView mRecyclerView = null;
 
     private boolean sOnBackPressed = false;
 
@@ -122,6 +133,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mRecyclerView = findViewById(R.id.rv_main_content);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+
+        // layoutManager.setReverseLayout(true);
+
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setScrollContainer(true);
+        mRecyclerView.setItemAnimator(null);
+
+        mMainAdapter = new MainAdapter();
+
+        mRecyclerView.setAdapter(mMainAdapter);
+
+        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                Log.d(TAG, "onInterceptTouchEvent");
+                // TODO: conditional to 'fab' press?
+                // return true;
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                Log.d(TAG, "onTouchEvent");
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+                Log.d(TAG, "onRequestDisallowInterceptTouchEvent");
+            }
+        });
+
         /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {
             @Override
@@ -158,13 +204,6 @@ public class MainActivity extends AppCompatActivity {
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID,     ABECS.GIX);
-                request.putString(ABECS.SPE_IDLIST, "800180048035910A910B920A920B930093049363");
-
-                // requestList.add(request);
-
-                request = new Bundle();
-
-                request.putString(ABECS.CMD_ID,     ABECS.GIX);
                 request.putString(ABECS.SPE_IDLIST, "800180028003800480058006800780088009800A80108011801280138014801580168032803380358036910A920B9300");
 
                 requestList.add(request);
@@ -173,43 +212,37 @@ public class MainActivity extends AppCompatActivity {
 
                 // TODO: auto-scrolling?
 
-                String[] contentScrolling = { "" };
+                int i = 0;
+                int j = 0;
 
-                for (Bundle item : requestList) {
-                    Bundle response = PinpadManager.request(item);
+                while (i++ < 6400) {
+                    for (Bundle item : requestList) {
+                        String[] contentScrolling = { "" };
 
-                    contentScrolling[0] += ((contentScrolling[0].isEmpty()) ? "" : "\r\n");
+                        // Bundle response = PinpadManager.request(item);
 
-                    try {
-                        contentScrolling[0] += DataUtility.bundleToJSON(response).toString(4) + "\r\n";
-                    } catch (Exception exception) {
-                        contentScrolling[0] += Log.getStackTraceString(exception);
-                    }
+                        try {
+                            // contentScrolling += DataUtility.bundleToJSON(response).toString(4) + "\r\n";
+                            contentScrolling[0] = "item " + j++;
+                        } catch (Exception exception) {
+                            contentScrolling[0] = Log.getStackTraceString(exception);
+                        }
 
-                    // String[] trace = contentScrolling.split("\n");
-
-                    // for (String slice : trace) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                TextView tvMainContentScrolling = findViewById(R.id.tv_main_content_scrolling);
-
-                                tvMainContentScrolling.setText(contentScrolling[0]);
-
-                                // tvMainContentScrolling.append("\r\n" + slice);
-
-                                // ((NestedScrollView) findViewById(R.id.nsv_main_content_scrolling)).smoothScrollTo(0, tvMainContentScrolling.getBottom());
+                                mMainAdapter.push(mRecyclerView, contentScrolling[0]);
 
                                 semaphore.release();
                             }
                         });
 
                         semaphore.acquireUninterruptibly();
-                    // }
 
-                    if (getOnBackPressed()) {
-                        /* Ensures not to go any further if the user has decided to abort */
-                        break;
+                        if (getOnBackPressed()) {
+                            /* Ensures not to go any further if the user has decided to abort */
+                            break;
+                        }
                     }
                 }
 

@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/hsv_main_content_scrolling"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:scrollbars="vertical"
-        android:overScrollMode="never"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="io.cloudwalk.pos.demo.presentation.MainActivity"
-        tools:showIn="@layout/activity_main">
-    <HorizontalScrollView
-            android:id="@+id/hsv_main_content_scrolling"
-            android:layout_width="match_parent"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:scrollbars="horizontal"
+        android:overScrollMode="never">
+    <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginBottom="14dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginRight="14dp"
-            android:scrollbars="horizontal"
-            android:overScrollMode="never">
-        <TextView
-                android:id="@+id/tv_main_content_scrolling"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fillViewport="true" />
-    </HorizontalScrollView>
-</androidx.core.widget.NestedScrollView>
+            android:id="@+id/rv_main_content"
+            android:gravity="start"
+            android:overScrollMode="never" />
+</HorizontalScrollView>
