@@ -32,6 +32,8 @@ public class PinpadServer {
 
     private ServerSocket sServerSocket = null;
 
+    private Socket sClientSocket = null;
+
     private WifiManager sWifiManager = null;
 
     private WifiManager.WifiLock sWifiLock = null;
@@ -75,12 +77,10 @@ public class PinpadServer {
                     while (true) {
                         Log.d(TAG, "Waiting for a client...");
 
-                        Socket client = null;
-
                         try {
                             sSemaphore.acquireUninterruptibly();
 
-                            client = sServerSocket.accept();
+                            sClientSocket = sServerSocket.accept();
                         } catch (SocketTimeoutException warning) {
                             String[] hostAddress = { currentAddress.getHostAddress(), getInetAddress().getHostAddress() };
 
@@ -91,17 +91,17 @@ public class PinpadServer {
                             sSemaphore.release();
                         }
 
-                        Log.d(TAG, "client.getHostAddress() [" + client.getInetAddress().getHostAddress() + "]");
+                        Log.d(TAG, "client.getHostAddress() [" + sClientSocket.getInetAddress().getHostAddress() + "]");
 
-                        DataInputStream  input  = new DataInputStream (new BufferedInputStream (client.getInputStream ()));
-                        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(client.getOutputStream()));
+                        DataInputStream  input  = new DataInputStream (new BufferedInputStream (sClientSocket.getInputStream ()));
+                        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(sClientSocket.getOutputStream()));
 
                         byte[] buffer = new byte[2048];
 
                         int count = 0;
 
                         while ((count = input.read(buffer)) > 0) {
-                            sCallback.onRecv(buffer, count);
+                            sCallback.onRecv(buffer, count); // TODO: make it asynchronous?
 
                             output.write(buffer, 0, count);
                             output.flush();
@@ -141,12 +141,16 @@ public class PinpadServer {
 
         sSemaphore.acquireUninterruptibly();
 
-        if (sServerSocket != null) {
-            try {
-                sServerSocket.close();
-            } catch (Exception warning) {
-                Log.w(TAG, Log.getStackTraceString(warning));
+        try {
+            if (sClientSocket != null) {
+                sClientSocket.close();
             }
+
+            if (sServerSocket != null) {
+                sServerSocket.close();
+            }
+        } catch (Exception warning) {
+            Log.w(TAG, Log.getStackTraceString(warning));
         }
 
         if (sWifiLock != null) {
