@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
 
-    private static final int sMainAdapterContentLimit = 200; // TODO: 20000?
+    private static final int sMainAdapterContentLimit = 200; // TODO: 2000?
 
     private MainAdapter mMainAdapter = null;
 
@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean sAutoScroll = true;
 
     private boolean sOnBackPressed = false;
+
+    private boolean sServerTraceOn = false;
 
     private SpannableString getBullet(@ColorInt int color) {
         Log.d(TAG, "getBullet");
@@ -292,13 +294,13 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.OPN_MOD,    "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
                 request.putString(ABECS.OPN_EXP,    "0D");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID,     ABECS.CLX);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 for (Bundle TX : requestList) {
                     try {
@@ -333,7 +335,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onRecv(byte[] trace, int length) {
                         Log.d(TAG, "onRecv");
 
-                        updateContentScrolling("  \r\nRX\r\n" + Log.getByteTraceString(trace, length));
+                        if (!sServerTraceOn) { // TODO: make it thread-safe?
+                            mMainAdapter.clear(0, mMainAdapter.getItemCount());
+                        }
+
+                        updateContentScrolling(((sServerTraceOn) ? "  \r\n" : "") + "RX\r\n" + Log.getByteTraceString(trace, length));
+
+                        sServerTraceOn = true;
                     }
 
                     @Override
