@@ -14,7 +14,9 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.POC2104301453.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.POC2104301453.AppBarOverlay"
+            parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="Theme.POC2104301453.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.POC2104301453.PopupOverlay"
+            parent="ThemeOverlay.AppCompat.Light" />
 </resources>

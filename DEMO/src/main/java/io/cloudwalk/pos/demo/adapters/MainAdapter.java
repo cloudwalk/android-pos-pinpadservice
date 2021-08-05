@@ -95,9 +95,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
         sSemaphore.acquireUninterruptibly();
 
-        sTraceList.add(trace); // TODO: drop if too much was pushed?
+        if (!trace.isEmpty() && !trace.equals("\r")) {
+            sTraceList.add(trace); // TODO: drop if too much was pushed?
 
-        notifyItemInserted(sTraceList.size());
+            notifyItemInserted(sTraceList.size());
+        }
 
         sSemaphore.release();
     }

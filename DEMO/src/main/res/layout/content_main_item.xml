@@ -5,4 +5,6 @@
         android:layout_height="wrap_content"
         android:fillViewport="true"
         android:overScrollMode="never"
-        android:text="@string/placeholder_id_tv_trace" />
+        android:text="@string/placeholder_id_tv_trace"
+        android:fontFamily="monospace"
+        android:textSize="12sp" />

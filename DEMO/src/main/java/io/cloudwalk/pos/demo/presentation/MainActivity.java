@@ -110,6 +110,43 @@ public class MainActivity extends AppCompatActivity {
         sOnBackPressedSemaphore.release();
     }
 
+    private void updateContentScrolling(String message) {
+        Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        String[] trace = message.split("\n");
+
+        for (String line : trace) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int limit = sMainAdapterContentLimit;
+
+                        mMainAdapter.push(line);
+
+                        int count = mMainAdapter.getItemCount();
+
+                        if (!getAutoScroll()) {
+                            return;
+                        }
+
+                        if (count >= limit) {
+                            mMainAdapter.clear(0, count - (limit / 2));
+
+                            count = mMainAdapter.getItemCount();
+                        }
+
+                        mRecyclerView.scrollToPosition(count - 1);
+                    } finally {
+                        semaphore[0].release();
+                    }
+                }
+            });
+
+            semaphore[0].acquireUninterruptibly();
+        }
+    }
+
     private void updateStatus(int status, String message) {
         Log.d(TAG, "updateStatus");
 
@@ -243,89 +280,40 @@ public class MainActivity extends AppCompatActivity {
 
                 List<Bundle> requestList = new ArrayList<>(0);
 
-                request.putString(ABECS.CMD_ID,     ABECS.OPN);
-                request.putString(ABECS.OPN_OPMODE, "0");
-                request.putString(ABECS.OPN_MOD,    "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
-                request.putString(ABECS.OPN_EXP,    "0D");
-
-                // requestList.add(request);
-
-                request = new Bundle();
-
-                request.putString(ABECS.CMD_ID,     ABECS.CLX);
-                request.putString(ABECS.SPE_DSPMSG, " HAVE FAITH...  ");
-                request.putString(ABECS.SPE_MFNAME, "FAITH000");
-
-                // requestList.add(request);
-
-                request = new Bundle();
-
-                request.putString(ABECS.CMD_ID,     ABECS.GIX);
-
-                // requestList.add(request);
-
-                request = new Bundle();
-
                 request.putString(ABECS.CMD_ID,     ABECS.GIX);
                 request.putString(ABECS.SPE_IDLIST, "800180028003800480058006800780088009800A80108011801280138014801580168032803380358036910A920B9300");
 
                 requestList.add(request);
 
-                Semaphore[] semaphore = { new Semaphore(0, true) };
+                request = new Bundle();
 
-                int i = 0;
-                int j = 0;
+                request.putString(ABECS.CMD_ID,     ABECS.OPN);
+                request.putString(ABECS.OPN_OPMODE, "0");
+                request.putString(ABECS.OPN_MOD,    "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
+                request.putString(ABECS.OPN_EXP,    "0D");
 
-                while (i++ < 6400) {
-                    for (Bundle item : requestList) {
-                        String content = "";
+                requestList.add(request);
 
-                        // Bundle response = PinpadManager.request(item);
+                request = new Bundle();
 
-                        try {
-                            // content += DataUtility.bundleToJSON(response).toString(4) + "\r\n";
-                            content = "" + j++;
-                        } catch (Exception exception) {
-                            content = Log.getStackTraceString(exception);
-                        }
+                request.putString(ABECS.CMD_ID,     ABECS.CLX);
 
-                        String[] trace = content.split("\n");
+                requestList.add(request);
 
-                        for (String line : trace) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        int limit = sMainAdapterContentLimit;
+                for (Bundle TX : requestList) {
+                    try {
+                        updateContentScrolling("\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
 
-                                        mMainAdapter.push(line);
+                        Bundle RX = PinpadManager.request(TX);
 
-                                        int count = mMainAdapter.getItemCount();
-
-                                        if (!getAutoScroll()) {
-                                            return;
-                                        }
-
-                                        if (count >= limit) {
-                                            mMainAdapter.clear(0, count - (limit / 2));
-
-                                            count = mMainAdapter.getItemCount();
-                                        }
-
-                                        mRecyclerView.scrollToPosition(count - 1);
-                                    } finally {
-                                        semaphore[0].release();
-                                    }
-                                }
-                            });
-
-                            semaphore[0].acquireUninterruptibly();
-                        }
+                        updateContentScrolling("\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 
                         if (getOnBackPressed()) {
                             /* Ensures not to go any further if the user has decided to abort */
                             break;
                         }
+                    } catch (Exception exception) {
+                        updateContentScrolling(Log.getStackTraceString(exception));
                     }
                 }
 
@@ -345,14 +333,14 @@ public class MainActivity extends AppCompatActivity {
                     public void onRecv(byte[] trace, int length) {
                         Log.d(TAG, "onRecv");
 
-                        Log.h(TAG, trace, length);
+                        updateContentScrolling("  \r\nRX\r\n" + Log.getByteTraceString(trace, length));
                     }
 
                     @Override
                     public void onSend(byte[] trace, int length) {
                         Log.d(TAG, "onSend");
 
-                        Log.h(TAG, trace, length);
+                        updateContentScrolling("  \r\nTX\r\n" + Log.getByteTraceString(trace, length));
                     }
 
                     @Override
@@ -383,7 +371,9 @@ public class MainActivity extends AppCompatActivity {
 
         finish();
 
-        sPinpadServer.close();
+        if (sPinpadServer != null) {
+            sPinpadServer.close();
+        }
     }
 
     @Override
