@@ -36,6 +36,8 @@ import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    // TODO: review overall operation regarding parallel execution
+
     private static final Semaphore sAutoScrollSemaphore = new Semaphore(1, true);
 
     private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean sAutoScroll = true;
 
-    private boolean sOnBackPressed = false;
+    private boolean sStopStatus = false;
 
     private boolean sServerTraceOn = false;
 
@@ -88,26 +90,26 @@ public class MainActivity extends AppCompatActivity {
         sAutoScrollSemaphore.release();
     }
 
-    private boolean getOnBackPressed() {
-        Log.d(TAG, "getOnBackPressed");
+    private boolean getStopStatus() {
+        Log.d(TAG, "getStopStatus");
 
-        boolean onBackPressed;
+        boolean stopStatus;
 
         sOnBackPressedSemaphore.acquireUninterruptibly();
 
-        onBackPressed = sOnBackPressed;
+        stopStatus = sStopStatus;
 
         sOnBackPressedSemaphore.release();
 
-        return onBackPressed;
+        return stopStatus;
     }
 
-    private void setOnBackPressed(boolean onBackPressed) {
-        Log.d(TAG, "setOnBackPressed");
+    private void setStopStatus(boolean stopStatus) {
+        Log.d(TAG, "setStopStatus");
 
         sOnBackPressedSemaphore.acquireUninterruptibly();
 
-        sOnBackPressed = onBackPressed;
+        sStopStatus = stopStatus;
 
         sOnBackPressedSemaphore.release();
     }
@@ -269,6 +271,39 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onRequestDisallowInterceptTouchEvent");
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+
+        super.onPause();
+
+        setStopStatus(true);
+
+        finish();
+        if (sPinpadServer != null) { // TODO: add semaphore (to handle instantiation on another thread)
+            sPinpadServer.close();
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed");
+
+        super.onBackPressed();
+
+        onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+
+        overridePendingTransition(0, 0);
+
+        super.onResume();
 
         /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {
@@ -294,13 +329,13 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.OPN_MOD,    "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
                 request.putString(ABECS.OPN_EXP,    "0D");
 
-                // requestList.add(request);
+                requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID,     ABECS.CLX);
 
-                // requestList.add(request);
+                requestList.add(request);
 
                 for (Bundle TX : requestList) {
                     try {
@@ -310,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
 
                         updateContentScrolling("\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 
-                        if (getOnBackPressed()) {
+                        if (getStopStatus()) {
                             /* Ensures not to go any further if the user has decided to abort */
                             break;
                         }
@@ -360,37 +395,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }.start();
-    }
-
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause");
-
-        super.onPause();
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d(TAG, "onBackPressed");
-
-        super.onBackPressed();
-
-        setOnBackPressed(true);
-
-        finish();
-
-        if (sPinpadServer != null) {
-            sPinpadServer.close();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-
-        overridePendingTransition(0, 0);
-
-        super.onResume();
     }
 
     @Override
