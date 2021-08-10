@@ -206,6 +206,12 @@ public class MainActivity extends AppCompatActivity {
             requestList.add(request);
         }
 
+        request = new Bundle();
+
+        request.putString(ABECS.CMD_ID, ABECS.TLE);
+
+        requestList.add(request);
+
         for (Bundle TX : requestList) {
             try {
                 updateContentScrolling(null, "\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
