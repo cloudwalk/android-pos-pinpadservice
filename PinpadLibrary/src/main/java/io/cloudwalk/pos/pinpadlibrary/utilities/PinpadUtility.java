@@ -140,7 +140,7 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static byte[] buildDataPacket(@NotNull Bundle input)
+    public static byte[] buildDataPacket(@NotNull Bundle input) // TODO: rename? buildRequestDataPacket?
             throws Exception {
         Log.d(TAG, "buildDataPacket");
 
@@ -170,7 +170,7 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static Bundle parseDataPacket(byte[] input, int length)
+    public static Bundle parseDataPacket(byte[] input, int length) // TODO: rename? parseResponseDataPacket?
             throws Exception {
         Log.d(TAG, "parseDataPacket");
 
