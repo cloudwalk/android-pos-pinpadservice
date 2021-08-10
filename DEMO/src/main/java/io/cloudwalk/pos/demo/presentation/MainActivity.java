@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
 
                         binding.fab.setEnabled(false);
 
-                        Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_pause); // TODO: update drawable
+                        Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.baseline_pause_24);
 
                         binding.fab.setImageDrawable(drawable);
                     }
@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
 
                 binding.fab.setEnabled(true);
 
-                Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_play); // TODO: update drawable
+                Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.baseline_play_arrow_24);
 
                 binding.fab.setImageDrawable(drawable);
 

@@ -48,6 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_media_pause" />
+            app:backgroundTint="@color/fab_bg_color_selector"
+            app:srcCompat="@drawable/baseline_pause_24"
+            app:tint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
