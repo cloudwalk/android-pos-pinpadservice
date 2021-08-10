@@ -19,9 +19,9 @@ public class CLX {
         /* Nothing to do */
     }
 
-    public static Bundle parseDataPacket(byte[] input, int length)
+    public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
-        Log.d(TAG, "parseDataPacket");
+        Log.d(TAG, "parseResponseDataPacket");
 
         byte[] RSP_ID       = new byte[3];
         byte[] RSP_STAT     = new byte[3];
@@ -37,9 +37,9 @@ public class CLX {
         return output;
     }
 
-    public static byte[] buildDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(Bundle input)
             throws Exception {
-        Log.d(TAG, "buildDataPacket");
+        Log.d(TAG, "buildRequestDataPacket");
 
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 

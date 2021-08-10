@@ -140,18 +140,18 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static byte[] buildDataPacket(@NotNull Bundle input) // TODO: rename? buildRequestDataPacket?
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
-        Log.d(TAG, "buildDataPacket");
+        Log.d(TAG, "buildRequestDataPacket");
 
         byte[] request = null;
 
         String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
 
         switch (CMD_ID) {
-            case ABECS.OPN: request = OPN.buildDataPacket(input); break;
-            case ABECS.GIX: request = GIX.buildDataPacket(input); break;
-            case ABECS.CLX: request = CLX.buildDataPacket(input); break;
+            case ABECS.OPN: request = OPN.buildRequestDataPacket(input); break;
+            case ABECS.GIX: request = GIX.buildRequestDataPacket(input); break;
+            case ABECS.CLX: request = CLX.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -170,18 +170,18 @@ public class PinpadUtility {
      * @param input
      * @return
      */
-    public static Bundle parseDataPacket(byte[] input, int length) // TODO: rename? parseResponseDataPacket?
+    public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
-        Log.d(TAG, "parseDataPacket");
+        Log.d(TAG, "parseResponseDataPacket");
 
         byte[] response = unwrapDataPacket(input, length);
 
         String CMD_ID = String.format(US, "%c%c%c", response[0], response[1], response[2]);
 
         switch (CMD_ID) {
-            case ABECS.OPN: return OPN.parseDataPacket(response, response.length);
-            case ABECS.GIX: return GIX.parseDataPacket(response, response.length);
-            case ABECS.CLX: return CLX.parseDataPacket(response, response.length);
+            case ABECS.OPN: return OPN.parseResponseDataPacket(response, response.length);
+            case ABECS.GIX: return GIX.parseResponseDataPacket(response, response.length);
+            case ABECS.CLX: return CLX.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */

@@ -76,7 +76,7 @@ public class PinpadManager {
         String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
 
         try {
-            byte[] request  = PinpadUtility.buildDataPacket(input);
+            byte[] request  = PinpadUtility.buildRequestDataPacket(input);
             byte[] response = new byte[2048 + 4];
 
             int retry  = 3;
@@ -132,7 +132,7 @@ public class PinpadManager {
                 timestamp = SystemClock.elapsedRealtime() - timestamp;
             }
 
-            output = PinpadUtility.parseDataPacket(response, status);
+            output = PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
