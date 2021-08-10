@@ -53,7 +53,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
                 @Override
                 public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
-                    Log.d(TAG, "mensagemNotificacao::s [" + s + "], tipoNotificacao [" + tipoNotificacao + "]");
+                    Log.d(TAG, "mensagemNotificacao::s [" + ((s != null) ? s.replace("\n", "\\n") : s) + "], tipoNotificacao [" + tipoNotificacao + "]");
                 }
 
                 @Override

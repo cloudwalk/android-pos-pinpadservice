@@ -1,6 +1,6 @@
 package io.cloudwalk.pos.loglibrary;
 
-import org.jetbrains.annotations.NotNull;
+import static java.util.Locale.US;
 
 public class Log {
     private static final String TAG =  Log.class.getSimpleName();
@@ -39,7 +39,7 @@ public class Log {
         for (int i = 0; i < length; i++) {
             byte b = input[i];
 
-            msg[0].append(String.format("%02X ", b));
+            msg[0].append(String.format(US, "%02X ", b));
 
             msg[1].append((b > 0x20 && b < 0x7F) ? (char) b : '.');
 
