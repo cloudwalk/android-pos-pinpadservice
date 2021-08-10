@@ -407,13 +407,21 @@ public class MainActivity extends AppCompatActivity {
 
         finish();
 
-        acquire(1);
+        /* 'onPause' runs on the UI thread, hence the new thread not to block it */
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
 
-        if (mPinpadServer != null) {
-            mPinpadServer.close();
-        }
+                acquire(1);
 
-        release(1);
+                if (mPinpadServer != null) {
+                    mPinpadServer.close();
+                }
+
+                release(1);
+            }
+        }.start();
 
     }
 
@@ -434,7 +442,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onResume();
 
-        /* 'onResume' shouldn't be blocked by potentially demanding routines, hence the thread */
+        /* 'onResume' runs on the UI thread, hence the new thread not to block it */
         new Thread() {
             @Override
             public void run() {
