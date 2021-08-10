@@ -153,17 +153,17 @@ public class MainActivity extends AppCompatActivity {
 
         for (Bundle TX : requestList) {
             try {
-                updateContentScrolling("\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
+                updateContentScrolling(null, "\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
 
                 Bundle RX = PinpadManager.request(TX);
 
-                updateContentScrolling("\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
+                updateContentScrolling(null, "\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 
                 if (getStopStatus()) {
                     return;
                 }
             } catch (Exception exception) {
-                updateContentScrolling(Log.getStackTraceString(exception));
+                updateContentScrolling(null, Log.getStackTraceString(exception));
             }
         }
     }
@@ -204,52 +204,27 @@ public class MainActivity extends AppCompatActivity {
         release(0);
     }
 
-    private void updateContentScrolling(String message) { // TODO: 'split' version and 'no split' version?
-        Log.d(TAG, "updateContentScrolling");
+    private void updateContentScrolling(String delim, String message) {
+        Log.d(TAG, "updateContentScrolling:: delim [" + delim + "]");
+
+        String[] trace = null;
+
+        if (delim != null && !delim.isEmpty()) {
+            trace = message.split(delim);
+        } else {
+            trace = new String[] { message };
+        }
 
         Semaphore[] semaphore = { new Semaphore(0, true) };
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int limit = MAIN_ADAPTER_CONTENT_LIMIT;
-
-                    mMainAdapter.push(message);
-
-                    int count = mMainAdapter.getItemCount();
-
-                    if (!getAutoScroll()) {
-                        return;
-                    }
-
-                    if (count >= limit) {
-                        mMainAdapter.clear(0, count - (limit / 2));
-
-                        count = mMainAdapter.getItemCount();
-                    }
-
-                    mRecyclerView.scrollToPosition(count - 1);
-                } finally {
-                    semaphore[0].release();
-                }
-            }
-        });
-
-        semaphore[0].acquireUninterruptibly();
-
-
-        /*
-        String[] trace = message.split("\n");
-
-        for (String line : trace) {
+        for (String chunk : trace) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         int limit = MAIN_ADAPTER_CONTENT_LIMIT;
 
-                        mMainAdapter.push(line);
+                        mMainAdapter.push(chunk);
 
                         int count = mMainAdapter.getItemCount();
 
@@ -272,7 +247,6 @@ public class MainActivity extends AppCompatActivity {
 
             semaphore[0].acquireUninterruptibly();
         }
-         */
     }
 
     private void updateStatus(int status, String message) {
@@ -470,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
                             mMainAdapter.clear(0, mMainAdapter.getItemCount());
                         }
 
-                        updateContentScrolling(((serverTraceOn) ? "  \r\n" : "") + "RX\r\n" + Log.getByteTraceString(trace, length));
+                        updateContentScrolling(null, ((serverTraceOn) ? "  \r\n" : "") + "RX\r\n" + Log.getByteTraceString(trace, length));
 
                         setServerTraceStatus(true);
                     }
@@ -479,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onSend(byte[] trace, int length) {
                         Log.d(TAG, "onSend");
 
-                        updateContentScrolling("  \r\nTX\r\n" + Log.getByteTraceString(trace, length));
+                        updateContentScrolling(null, "  \r\nTX\r\n" + Log.getByteTraceString(trace, length));
                     }
 
                     @Override
