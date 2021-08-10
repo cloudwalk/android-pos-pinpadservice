@@ -64,11 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean
             mStopStatus    = false;
 
-    // TODO: acquire(index)
-    // TODO: release(index)
-
     private SpannableString getBullet(@ColorInt int color) {
-        Log.d(TAG, "getBullet");
+        Log.d(TAG, "getBullet::color [" + color + "]");
 
         SpannableString output = new SpannableString("  ");
 
@@ -82,13 +79,11 @@ public class MainActivity extends AppCompatActivity {
 
         boolean autoScroll;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].acquireUninterruptibly()");
-        SEMAPHORE[0].acquireUninterruptibly();
+        acquire(0);
 
         autoScroll = mAutoScroll;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].release()");
-        SEMAPHORE[0].release();
+        release(0);
 
         return autoScroll;
     }
@@ -98,13 +93,11 @@ public class MainActivity extends AppCompatActivity {
 
         boolean serverTraceStatus;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].acquireUninterruptibly()");
-        SEMAPHORE[0].acquireUninterruptibly();
+        acquire(0);
 
         serverTraceStatus = mServerTraceOn;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].release()");
-        SEMAPHORE[0].release();
+        release(0);
 
         return serverTraceStatus;
     }
@@ -114,18 +107,24 @@ public class MainActivity extends AppCompatActivity {
 
         boolean stopStatus;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].acquireUninterruptibly()");
-        SEMAPHORE[0].acquireUninterruptibly();
+        acquire(0);
 
         stopStatus = mStopStatus;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].release()");
-        SEMAPHORE[0].release();
+        release(0);
 
         return stopStatus;
     }
 
+    private void acquire(int index) {
+        Log.d(TAG, "acquire::index [" + index + "]");
+
+        SEMAPHORE[index].acquireUninterruptibly();
+    }
+
     private void processLocalRequests() {
+        Log.d(TAG, "processLocalRequests");
+
         updateStatus(2, getString(R.string.warning_local_processing));
 
         Bundle request = new Bundle();
@@ -161,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 updateContentScrolling("\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 
                 if (getStopStatus()) {
-                    throw new InterruptedException();
+                    return;
                 }
             } catch (Exception exception) {
                 updateContentScrolling(Log.getStackTraceString(exception));
@@ -169,45 +168,78 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setAutoScroll(boolean autoScroll) {
-        Log.d(TAG, "setAutoScroll");
+    private void release(int index) {
+        Log.d(TAG, "release::index [" + index + "]");
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].acquireUninterruptibly()");
-        SEMAPHORE[0].acquireUninterruptibly();
+        SEMAPHORE[index].release();
+    }
+
+    private void setAutoScroll(boolean autoScroll) {
+        Log.d(TAG, "setAutoScroll::autoScroll [" + autoScroll + "]");
+
+        acquire(0);
 
         mAutoScroll = autoScroll;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].release()");
-        SEMAPHORE[0].release();
+        release(0);
     }
 
     private void setServerTraceStatus(boolean serverTraceStatus) {
-        Log.d(TAG, "setServerTraceStatus");
+        Log.d(TAG, "setServerTraceStatus::serverTraceStatus [" + serverTraceStatus + "]");
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].acquireUninterruptibly()");
-        SEMAPHORE[0].acquireUninterruptibly();
+        acquire(0);
 
         mServerTraceOn = serverTraceStatus;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].release()");
-        SEMAPHORE[0].release();
+        release(0);
     }
 
     private void setStopStatus(boolean stopStatus) {
-        Log.d(TAG, "setStopStatus");
+        Log.d(TAG, "setStopStatus::stopStatus [" + stopStatus + "]");
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].acquireUninterruptibly()");
-        SEMAPHORE[0].acquireUninterruptibly();
+        acquire(0);
 
         mStopStatus = stopStatus;
 
-        Log.d(TAG, "SEMAPHORE[" + 0 + "].release()");
-        SEMAPHORE[0].release();
+        release(0);
     }
 
-    private void updateContentScrolling(String message) { // TODO: 'split' version and 'no split' version
+    private void updateContentScrolling(String message) { // TODO: 'split' version and 'no split' version?
+        Log.d(TAG, "updateContentScrolling");
+
         Semaphore[] semaphore = { new Semaphore(0, true) };
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int limit = MAIN_ADAPTER_CONTENT_LIMIT;
+
+                    mMainAdapter.push(message);
+
+                    int count = mMainAdapter.getItemCount();
+
+                    if (!getAutoScroll()) {
+                        return;
+                    }
+
+                    if (count >= limit) {
+                        mMainAdapter.clear(0, count - (limit / 2));
+
+                        count = mMainAdapter.getItemCount();
+                    }
+
+                    mRecyclerView.scrollToPosition(count - 1);
+                } finally {
+                    semaphore[0].release();
+                }
+            }
+        });
+
+        semaphore[0].acquireUninterruptibly();
+
+
+        /*
         String[] trace = message.split("\n");
 
         for (String line : trace) {
@@ -240,10 +272,11 @@ public class MainActivity extends AppCompatActivity {
 
             semaphore[0].acquireUninterruptibly();
         }
+         */
     }
 
     private void updateStatus(int status, String message) {
-        Log.d(TAG, "updateStatus");
+        Log.d(TAG, "updateStatus::status [" + status + "]");
 
         SpannableStringBuilder[] content = { new SpannableStringBuilder() };
 
@@ -315,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
 
                         binding.fab.setEnabled(false);
 
-                        Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_pause);
+                        Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_pause); // TODO: update drawable
 
                         binding.fab.setImageDrawable(drawable);
                     }
@@ -345,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
 
                 binding.fab.setEnabled(true);
 
-                Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_play);
+                Drawable drawable = AppCompatResources.getDrawable(getApplicationContext(), android.R.drawable.ic_media_play); // TODO: update drawable
 
                 binding.fab.setImageDrawable(drawable);
 
@@ -374,15 +407,13 @@ public class MainActivity extends AppCompatActivity {
 
         finish();
 
-        Log.d(TAG, "SEMAPHORE[" + 1 + "].acquireUninterruptibly()");
-        SEMAPHORE[1].acquireUninterruptibly();
+        acquire(1);
 
         if (mPinpadServer != null) {
             mPinpadServer.close();
         }
 
-        Log.d(TAG, "SEMAPHORE[" + 1 + "].release()");
-        SEMAPHORE[1].release();
+        release(1);
 
     }
 
@@ -403,15 +434,13 @@ public class MainActivity extends AppCompatActivity {
 
         super.onResume();
 
-        /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
+        /* 'onResume' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {
             @Override
             public void run() {
                 super.run();
 
                 processLocalRequests();
-
-                updateStatus(2, "Bringing up server...");
 
                 PinpadServer.Callback callback = new PinpadServer.Callback() {
                     @Override
@@ -453,21 +482,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
 
-                try {
-                    Log.d(TAG, "SEMAPHORE[" + 1 + "].acquireUninterruptibly()");
-                    SEMAPHORE[1].acquireUninterruptibly();
+                acquire(1);
 
-                    if (getStopStatus()) {
-                        throw new InterruptedException();
-                    }
+                if (!getStopStatus()) {
+                    updateStatus(2, "Bringing up server...");
 
                     mPinpadServer = new PinpadServer(callback);
-                } catch (Exception exception) {
-                    Log.d(TAG, Log.getStackTraceString(exception));
-                } finally {
-                    Log.d(TAG, "SEMAPHORE[" + 1 + "].release()");
-                    SEMAPHORE[1].release();
                 }
+
+                release(1);
             }
         }.start();
     }
