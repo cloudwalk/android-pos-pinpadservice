@@ -8,6 +8,7 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class OPN {
@@ -61,21 +62,21 @@ public class OPN {
         String OPN_EXP      = input.getString(ABECS.OPN_EXP);
 
         if (OPN_OPMODE != null) {
-            stream[1].write(("" + OPN_OPMODE).getBytes());
+            stream[1].write(("" + OPN_OPMODE).getBytes(UTF_8));
 
-            OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes();
+            OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes(UTF_8);
 
             stream[1].write(OPN_MODLEN);
-            stream[1].write(OPN_MOD.getBytes());
+            stream[1].write(OPN_MOD.getBytes(UTF_8));
 
-            OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length() / 2)).getBytes();
+            OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length() / 2)).getBytes(UTF_8);
 
             stream[1].write(OPN_EXPLEN);
-            stream[1].write(OPN_EXP.getBytes());
+            stream[1].write(OPN_EXP.getBytes(UTF_8));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(), String.format(US, "%03d", CMD_DATA.length).getBytes(), CMD_DATA);
+        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
     }
 }

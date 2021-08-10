@@ -95,6 +95,10 @@ public class PinpadManager extends IPinpadManager.Stub {
                     case ABECS.CLX:
                     case ABECS.GIX:
                     case ABECS.OPN:
+
+                    case ABECS.TLI:
+                    case ABECS.TLR:
+                    case ABECS.TLE:
                         /* Nothing to do */
                         break;
 

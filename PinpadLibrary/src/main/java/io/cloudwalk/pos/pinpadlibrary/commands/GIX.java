@@ -9,6 +9,7 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class GIX {
@@ -161,6 +162,6 @@ public class GIX {
 
         byte[] CMD_DATA = stream[1].toByteArray();
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(), String.format(US, "%03d", CMD_DATA.length).getBytes(), CMD_DATA);
+        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
     }
 }

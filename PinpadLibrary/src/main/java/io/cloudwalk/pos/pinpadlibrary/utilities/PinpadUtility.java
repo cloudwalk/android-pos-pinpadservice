@@ -11,6 +11,7 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
+import io.cloudwalk.pos.pinpadlibrary.commands.TLI;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.util.Locale.US;
@@ -153,6 +154,8 @@ public class PinpadUtility {
             case ABECS.GIX: request = GIX.buildRequestDataPacket(input); break;
             case ABECS.CLX: request = CLX.buildRequestDataPacket(input); break;
 
+            case ABECS.TLI: request = TLI.buildRequestDataPacket(input); break;
+
             default:
                 /* Nothing to do */
                 break;
@@ -182,6 +185,8 @@ public class PinpadUtility {
             case ABECS.OPN: return OPN.parseResponseDataPacket(response, response.length);
             case ABECS.GIX: return GIX.parseResponseDataPacket(response, response.length);
             case ABECS.CLX: return CLX.parseResponseDataPacket(response, response.length);
+
+            case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
