@@ -50,7 +50,7 @@ public class PinpadServer {
 
     private InetAddress getInetAddress()
             throws Exception {
-        Log.d(TAG, "getInetAddress");
+        /* Log.d(TAG, "getInetAddress"); */
 
         int ip = sWifiManager.getConnectionInfo().getIpAddress();
 
@@ -62,6 +62,8 @@ public class PinpadServer {
     }
 
     private void accept(InetAddress currentAddress) {
+        Log.d(TAG, "accept");
+
         new Thread() {
             @Override
             public void run() {
@@ -75,7 +77,7 @@ public class PinpadServer {
                     sCallback.onSuccess(localSocketAddress);
 
                     while (true) {
-                        Log.d(TAG, "Waiting for a client...");
+                        /* Log.d(TAG, "Waiting for a client..."); */
 
                         try {
                             sSemaphore.acquireUninterruptibly();
@@ -84,9 +86,7 @@ public class PinpadServer {
                         } catch (SocketTimeoutException warning) {
                             String[] hostAddress = { currentAddress.getHostAddress(), getInetAddress().getHostAddress() };
 
-                            // TODO: handle host address change?
-
-                            continue;
+                            continue; // TODO: handle host address change?
                         } finally {
                             sSemaphore.release();
                         }
