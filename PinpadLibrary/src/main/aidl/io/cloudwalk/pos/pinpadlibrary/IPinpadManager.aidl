@@ -6,11 +6,14 @@ interface IPinpadManager {
     /**
      *
      */
-    int recv(out byte[] output, in long timeout);
+    int recv(out byte[] output,
+              in long timeout);
 
     /**
      *
      */
     int send( in String application,
-              in byte[] input,  in  int length);
+              in IServiceCallback callback,
+              in byte[] input,
+              in  int length);
 }

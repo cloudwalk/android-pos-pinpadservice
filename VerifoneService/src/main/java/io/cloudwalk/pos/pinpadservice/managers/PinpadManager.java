@@ -1,7 +1,11 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
-import android.os.Bundle;
+import static java.util.Locale.US;
 
+import android.os.Bundle;
+import android.os.RemoteException;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
@@ -16,19 +20,35 @@ import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
+import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 
 public class PinpadManager extends IPinpadManager.Stub {
-    private static final String TAG = PinpadManager.class.getSimpleName();
+    private static final String
+            TAG = PinpadManager.class.getSimpleName();
 
-    private static final PinpadManager sPinpadManager = new PinpadManager();
+    private static final PinpadManager
+            sPinpadManager = new PinpadManager();
 
-    private static final Queue<byte[]> sQueue = new LinkedList<>();
+    private static final Queue<byte[]>
+            sQueue = new LinkedList<>();
 
-    private static final Semaphore sRecvSemaphore = new Semaphore(1, true);
+    private static final Semaphore[]
+            sClbkSemaphore = {
+                    new Semaphore(1, true),
+                    new Semaphore(1, true)
+            };
 
-    private static final Semaphore sSendSemaphore = new Semaphore(1, true);
+    private static final Semaphore
+            sRecvSemaphore = new Semaphore(1, true);
 
-    private static AcessoDiretoPinpad sAcessoDiretoPinpad = null;
+    private static final Semaphore
+            sSendSemaphore = new Semaphore(1, true);
+
+    private static AcessoDiretoPinpad
+            sAcessoDiretoPinpad = null;
+
+    private static IServiceCallback
+            sServiceCallback = null;
 
     /**
      * Runnable interface.
@@ -53,22 +73,91 @@ public class PinpadManager extends IPinpadManager.Stub {
             InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
                 @Override
                 public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
-                    Log.d(TAG, "mensagemNotificacao::s [" + ((s != null) ? s.replace("\n", "\\n") : s) + "], tipoNotificacao [" + tipoNotificacao + "]");
+                    Log.d(TAG, "mensagemNotificacao::s [" + ((s != null) ? s.replace("\n", "\\n") : "null") + "], tipoNotificacao [" + tipoNotificacao + "]");
+
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            super.run();
+
+                            sClbkSemaphore[1].acquireUninterruptibly();
+
+                            IServiceCallback callback = getServiceCallback();
+
+                            if (callback != null) {
+                                Bundle bundle = new Bundle();
+
+                                bundle.putString("NTF_MSG", s);
+
+                                try {
+                                    callback.onNotificationThrow(bundle, tipoNotificacao.ordinal());
+                                } catch (Exception exception) {
+                                    Log.e(TAG, Log.getStackTraceString(exception));
+                                }
+                            }
+
+                            sClbkSemaphore[1].release();
+                        }
+                    }.start();
                 }
 
                 @Override
                 public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
                     Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
+
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            super.run();
+
+                            sClbkSemaphore[1].acquireUninterruptibly();
+
+                            IServiceCallback callback = getServiceCallback();
+
+                            if (callback != null) {
+                                Bundle bundle = new Bundle();
+
+                                bundle.putString("NTF_MSG", notificacaoCapturaPin.obtemMensagemCapturaPin());
+                                bundle.putString("NTF_CNT", String.format(US, "%03d", notificacaoCapturaPin.obtemQuantidadeDigitosPin()));
+
+                                try {
+                                    callback.onNotificationThrow(bundle, -1);
+                                } catch (Exception exception) {
+                                    Log.e(TAG, Log.getStackTraceString(exception));
+                                }
+                            }
+
+                            sClbkSemaphore[1].release();
+                        }
+                    }.start();
                 }
 
                 @Override
                 public void menu(Menu menu) {
                     Log.d(TAG, "menu::menu [" + menu + "]");
+
+                    IServiceCallback callback = getServiceCallback();
+
+                    if (callback != null) {
+                        Bundle bundle = new Bundle();
+
+                        bundle.putString("NTF_TTL", menu.obtemTituloMenu());
+                        bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
+                        bundle.putString("NTF_TOT", String.format(US, "%03d", menu.obtemTimeout()));
+
+                        try {
+                            menu.obtemMenuCallback().informaOpcaoSelecionada(callback.onSelectionRequired(bundle));
+                        } catch (RemoteException exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+                        }
+                    }
                 }
 
                 @Override
                 public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
                     Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
+
+                    // TODO: VFSystemService?! VFService?!
                 }
             };
 
@@ -80,6 +169,24 @@ public class PinpadManager extends IPinpadManager.Stub {
         }
 
         return sAcessoDiretoPinpad;
+    }
+
+    private static IServiceCallback getServiceCallback() {
+        Log.d(TAG, "getServiceCallback");
+
+        IServiceCallback output;
+
+        sClbkSemaphore[0].acquireUninterruptibly();
+
+        if (sServiceCallback == null) {
+            Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
+        }
+
+        output = sServiceCallback;
+
+        sClbkSemaphore[0].release();
+
+        return output;
     }
 
     private static byte[] intercept(byte[] data, int length) {
@@ -113,6 +220,16 @@ public class PinpadManager extends IPinpadManager.Stub {
         }
 
         return data;
+    }
+
+    private static void setServiceCallback(IServiceCallback callback) {
+        Log.d(TAG, "setServiceCallback");
+
+        sClbkSemaphore[0].acquireUninterruptibly();
+
+        sServiceCallback = callback;
+
+        sClbkSemaphore[0].release();
     }
 
     public static PinpadManager getInstance() {
@@ -151,12 +268,16 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     @Override
-    public int send(String application, byte[] input, int length) {
+    public int send(String application, IServiceCallback callback, byte[] input, int length) {
         Log.d(TAG, "send");
 
         sSendSemaphore.acquireUninterruptibly();
 
         Log.d(TAG, "send::application [" + application + "]");
+
+        if (length > 1) { /* 2021-08-11: e.g. not <<CAN>> */
+            setServiceCallback(callback);
+        }
 
         int result = -1;
 

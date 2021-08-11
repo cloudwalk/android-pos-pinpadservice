@@ -1,5 +1,7 @@
 package io.cloudwalk.pos.demo.presentation;
 
+import static java.util.Locale.US;
+
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -30,6 +33,7 @@ import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
@@ -127,6 +131,48 @@ public class MainActivity extends AppCompatActivity {
 
         updateStatus(2, getString(R.string.warning_local_processing));
 
+        IServiceCallback callback = new IServiceCallback.Stub() {
+            @Override
+            public int onSelectionRequired(Bundle output) {
+                Log.d(TAG, "onSelectionRequired");
+
+                String ttl = output.getString("NTF_TTL");
+                ArrayList<String> opt = output.getStringArrayList("NTF_OPT");
+                String tot = output.getString("NTF_TOT");
+
+                // TODO: AlertDialog!?
+
+                return 0;
+            }
+
+            @Override
+            public void onNotificationThrow(Bundle output, int type) {
+                Log.d(TAG, "onNotificationThrow");
+
+                String msg = output.getString("NTF_MSG");
+                String cnt = output.getString("NTF_CNT");
+
+                msg = msg.replace("\n", "\\n");
+
+                Log.d(TAG, "onNotificationThrow::msg [" + msg + "]" + ((cnt != null) ? (", cnt [" + cnt + "]") : ""));
+
+                boolean local;
+
+                // TODO: replace updateStatus by appendStatus or updateStatusDetail?!
+
+                acquire(1);
+
+                local = (mPinpadServer == null);
+
+                release(1);
+
+                updateStatus(2, ((local) ? getString(R.string.warning_local_processing) : "// TODO")
+                                    + "\n  Last notification:"
+                                    + "\n\t- \"" + String.format(US, "%03d", type) + "\" " + (Calendar.getInstance().getTime())
+                                    + "\n\t- " + ((cnt != null) ? ("(" + cnt + ") ") : "") + "\"" + msg + "\"");
+            }
+        };
+
         Bundle request = new Bundle();
 
         List<Bundle> requestList = new ArrayList<>(0);
@@ -216,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 updateContentScrolling(null, "\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
 
-                Bundle RX = PinpadManager.request(TX);
+                Bundle RX = PinpadManager.request(callback, TX);
 
                 updateContentScrolling(null, "\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 

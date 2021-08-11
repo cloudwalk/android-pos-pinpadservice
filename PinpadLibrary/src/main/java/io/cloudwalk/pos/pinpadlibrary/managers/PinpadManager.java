@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
+import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.Application;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
@@ -65,7 +66,7 @@ public class PinpadManager {
      * @param input
      * @return
      */
-    public static Bundle request(@NotNull Bundle input) {
+    public static Bundle request(IServiceCallback callback, @NotNull Bundle input) {
         Log.d(TAG, "request");
 
         long overhead  = SystemClock.elapsedRealtime();
@@ -101,7 +102,7 @@ public class PinpadManager {
             }
 
             do {
-                status = send(request, request.length);
+                status = send(callback, request, request.length);
 
                 if (status < 0) {
                     throw new RuntimeException();
@@ -169,7 +170,7 @@ public class PinpadManager {
             int status = 0;
 
             do {
-                status = send(request, request.length);
+                status = send(null, request, request.length);
 
                 if (status < 0) {
                     throw new RuntimeException();
@@ -262,7 +263,7 @@ public class PinpadManager {
      * @param length
      * @return
      */
-    public static int send(byte[] input, int length) {
+    public static int send(IServiceCallback callback, byte[] input, int length) {
         Log.d(TAG, "send");
 
         long timestamp = SystemClock.elapsedRealtime();
@@ -274,7 +275,7 @@ public class PinpadManager {
 
             String application = Application.getPackageContext().getPackageName();
 
-            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().send(application, input, length);
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().send(application, callback, input, length);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
