@@ -87,7 +87,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                             if (callback != null) {
                                 Bundle bundle = new Bundle();
 
-                                bundle.putString("NTF_MSG", s);
+                                bundle.putString("NTF_MSG", (s != null) ? s : "");
 
                                 try {
                                     callback.onNotificationThrow(bundle, tipoNotificacao.ordinal());
@@ -105,31 +105,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
                     Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            super.run();
-
-                            sClbkSemaphore[1].acquireUninterruptibly();
-
-                            IServiceCallback callback = getServiceCallback();
-
-                            if (callback != null) {
-                                Bundle bundle = new Bundle();
-
-                                bundle.putString("NTF_MSG", notificacaoCapturaPin.obtemMensagemCapturaPin());
-                                bundle.putString("NTF_CNT", String.format(US, "%03d", notificacaoCapturaPin.obtemQuantidadeDigitosPin()));
-
-                                try {
-                                    callback.onNotificationThrow(bundle, -1);
-                                } catch (Exception exception) {
-                                    Log.e(TAG, Log.getStackTraceString(exception));
-                                }
-                            }
-
-                            sClbkSemaphore[1].release();
-                        }
-                    }.start();
+                    // TODO: to be used internally (GOX) (GPN)
                 }
 
                 @Override
@@ -212,7 +188,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     default:
                         Log.w(TAG, "intercept::NAK registered");
 
-                        return new byte[]{0x15}; // TODO: NAK if CRC fails, .ERR010......... otherwise?
+                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise?
                 }
             }
         } finally {

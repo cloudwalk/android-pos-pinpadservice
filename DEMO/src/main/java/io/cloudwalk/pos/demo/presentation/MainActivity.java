@@ -149,27 +149,11 @@ public class MainActivity extends AppCompatActivity {
             public void onNotificationThrow(Bundle output, int type) {
                 Log.d(TAG, "onNotificationThrow");
 
-                String msg = output.getString("NTF_MSG");
-                String cnt = output.getString("NTF_CNT");
+                String msg = output.getString("NTF_MSG").replace("\n", "\\n");
 
-                msg = msg.replace("\n", "\\n");
+                Log.d(TAG, "onNotificationThrow::type [" + type + "] msg [" + msg + "]");
 
-                Log.d(TAG, "onNotificationThrow::msg [" + msg + "]" + ((cnt != null) ? (", cnt [" + cnt + "]") : ""));
-
-                boolean local;
-
-                // TODO: replace updateStatus by appendStatus or updateStatusDetail?!
-
-                acquire(1);
-
-                local = (mPinpadServer == null);
-
-                release(1);
-
-                updateStatus(2, ((local) ? getString(R.string.warning_local_processing) : "// TODO")
-                                    + "\n  Last notification:"
-                                    + "\n\t- \"" + String.format(US, "%03d", type) + "\" " + (Calendar.getInstance().getTime())
-                                    + "\n\t- " + ((cnt != null) ? ("(" + cnt + ") ") : "") + "\"" + msg + "\"");
+                // TODO: AlertDialog!?
             }
         };
 
@@ -179,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         request.putString(ABECS.CMD_ID, ABECS.CLX);
 
-        // requestList.add(request);
+        requestList.add(request);
 
         request = new Bundle();
 
