@@ -5,12 +5,17 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 public class ServiceModel {
+    private static final String
+            TAG = ServiceModel.class.getSimpleName();
 
-    private ComponentName mComponentName;
+    private ComponentName
+            mComponentName;
 
-    private IBinder mService;
+    private IBinder
+            mService;
 
-    private ServiceConnection mServiceConnection;
+    private ServiceConnection
+            mServiceConnection;
 
     public ServiceModel(ComponentName name, IBinder service) {
         this(name, service, null);

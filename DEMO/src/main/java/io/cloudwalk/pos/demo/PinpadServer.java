@@ -16,27 +16,32 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteOrder;
 import java.util.concurrent.Semaphore;
 
-import io.cloudwalk.pos.demo.presentation.MainActivity;
 import io.cloudwalk.pos.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.Application;
 
 import static android.content.Context.WIFI_SERVICE;
 
 public class PinpadServer {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String
+            TAG = PinpadServer.class.getSimpleName();
 
-    private PinpadServer.Callback sCallback = null;
+    private PinpadServer.Callback
+            sCallback = null;
 
-    private Semaphore sSemaphore = new Semaphore(1, true);
+    private Semaphore
+            sSemaphore = new Semaphore(1, true);
 
-    private ServerSocket sServerSocket = null;
+    private ServerSocket
+            sServerSocket = null;
 
-    private Socket sClientSocket = null;
+    private Socket
+            sClientSocket = null;
 
-    private WifiManager sWifiManager = null;
+    private WifiManager
+            sWifiManager = null;
 
-    private WifiManager.WifiLock sWifiLock = null;
+    private WifiManager.WifiLock
+            sWifiLock = null;
 
     public static interface Callback {
         void onFailure(Exception exception);

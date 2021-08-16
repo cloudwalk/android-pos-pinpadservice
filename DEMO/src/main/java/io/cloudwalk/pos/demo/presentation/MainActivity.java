@@ -1,7 +1,5 @@
 package io.cloudwalk.pos.demo.presentation;
 
-import static java.util.Locale.US;
-
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -17,16 +15,15 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.pos.demo.AppCompatActivity;
 import io.cloudwalk.pos.demo.PinpadServer;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
@@ -43,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Semaphore[]
             SEMAPHORE = {
-                    new Semaphore(1, true), /* mAutoScroll, mStopStatus and mServerTraceOn */
+                    new Semaphore(1, true), /* mAutoScroll and mServerTraceOn */
                     new Semaphore(1, true), /* mPinpadServer */
             };
 
@@ -51,22 +48,19 @@ public class MainActivity extends AppCompatActivity {
             MAIN_ADAPTER_CONTENT_LIMIT = 2000;
 
     private MainAdapter
-            mMainAdapter   = null;
+            mMainAdapter = null;
 
     private PinpadServer
-            mPinpadServer  = null;
+            mPinpadServer = null;
 
     private RecyclerView
-            mRecyclerView  = null;
+            mRecyclerView = null;
 
     private boolean
-            mAutoScroll    = true;
+            mAutoScroll = true;
 
     private boolean
             mServerTraceOn = false;
-
-    private boolean
-            mStopStatus    = false;
 
     private SpannableString getBullet(@ColorInt int color) {
         Log.d(TAG, "getBullet::color [" + color + "]");
@@ -104,20 +98,6 @@ public class MainActivity extends AppCompatActivity {
         release(0);
 
         return serverTraceStatus;
-    }
-
-    private boolean getStopStatus() {
-        Log.d(TAG, "getStopStatus");
-
-        boolean stopStatus;
-
-        acquire(0);
-
-        stopStatus = mStopStatus;
-
-        release(0);
-
-        return stopStatus;
     }
 
     private void acquire(int index) {
@@ -250,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
                 updateContentScrolling(null, "\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 
-                if (getStopStatus()) {
+                if (wasPaused()) {
                     return;
                 }
             } catch (Exception exception) {
@@ -281,16 +261,6 @@ public class MainActivity extends AppCompatActivity {
         acquire(0);
 
         mServerTraceOn = serverTraceStatus;
-
-        release(0);
-    }
-
-    private void setStopStatus(boolean stopStatus) {
-        Log.d(TAG, "setStopStatus::stopStatus [" + stopStatus + "]");
-
-        acquire(0);
-
-        mStopStatus = stopStatus;
 
         release(0);
     }
@@ -468,8 +438,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onPause();
 
-        setStopStatus(true);
-
         finish();
 
         /* 'onPause' runs on the UI thread, hence the new thread not to block it */
@@ -487,16 +455,6 @@ public class MainActivity extends AppCompatActivity {
                 release(1);
             }
         }.start();
-
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d(TAG, "onBackPressed");
-
-        super.onBackPressed();
-
-        onPause();
     }
 
     @Override
@@ -557,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
 
                 acquire(1);
 
-                if (!getStopStatus()) {
+                if (!wasPaused()) {
                     updateStatus(2, "Bringing up server...");
 
                     mPinpadServer = new PinpadServer(callback);

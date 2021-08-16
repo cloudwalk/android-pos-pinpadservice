@@ -17,19 +17,26 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeoutException;
 
 public class PinpadManager {
-    private static final String TAG = PinpadManager.class.getSimpleName();
+    private static final String
+            TAG = PinpadManager.class.getSimpleName();
 
-    private static final String ACTION_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice.PinpadService";
+    private static final String
+            ACTION_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice.PinpadService";
 
-    private static final String PACKAGE_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice";
+    private static final String
+            PACKAGE_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice";
 
-    private static final byte ACK = 0x06;
+    private static final byte
+            ACK = 0x06;
 
-    private static final byte CAN = 0x18;
+    private static final byte
+            CAN = 0x18;
 
-    private static final byte EOT = 0x04;
+    private static final byte
+            EOT = 0x04;
 
-    private static final byte NAK = 0x15;
+    private static final byte
+            NAK = 0x15;
 
     /**
      * Constructor.

@@ -1,18 +1,16 @@
 package io.cloudwalk.pos.pinpadlibrary.commands;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
 
 import android.os.Bundle;
-
-import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class TLE {
-    private static final String TAG = TLE.class.getSimpleName();
+    private static final String
+            TAG = TLE.class.getSimpleName();
 
     private TLE() {
         Log.d(TAG, "TLE");

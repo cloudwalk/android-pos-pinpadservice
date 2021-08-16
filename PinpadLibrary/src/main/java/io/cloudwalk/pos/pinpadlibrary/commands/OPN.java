@@ -12,7 +12,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class OPN {
-    private static final String TAG = OPN.class.getSimpleName();
+    private static final String
+            TAG = OPN.class.getSimpleName();
 
     private OPN() {
         Log.d(TAG, "OPN");

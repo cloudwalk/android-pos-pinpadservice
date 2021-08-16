@@ -20,9 +20,11 @@ import io.cloudwalk.pos.loglibrary.Log;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DataUtility {
-    private static final String TAG = DataUtility.class.getSimpleName();
+    private static final String
+            TAG = DataUtility.class.getSimpleName();
 
-    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[]
+            HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
      * Converts given {@link List} to {@link JSONArray}.<br>

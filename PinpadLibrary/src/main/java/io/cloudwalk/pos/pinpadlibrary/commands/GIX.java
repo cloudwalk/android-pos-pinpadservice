@@ -13,9 +13,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class GIX {
-    private static final String TAG = GIX.class.getSimpleName();
+    private static final String
+            TAG = GIX.class.getSimpleName();
 
-    private static final byte[] SPE_IDLIST = new byte[] { 0x00, 0x01 };
+    private static final byte[]
+            SPE_IDLIST = new byte[] { 0x00, 0x01 };
 
     private GIX() {
         Log.d(TAG, "GIX");

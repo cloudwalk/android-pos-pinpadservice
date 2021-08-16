@@ -19,7 +19,8 @@ import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 import static java.util.Locale.US;
 
 public class PinpadUtility {
-    private static final String TAG = PinpadUtility.class.getSimpleName();
+    private static final String
+            TAG = PinpadUtility.class.getSimpleName();
 
     private PinpadUtility() {
         Log.d(TAG, "PinpadUtility");

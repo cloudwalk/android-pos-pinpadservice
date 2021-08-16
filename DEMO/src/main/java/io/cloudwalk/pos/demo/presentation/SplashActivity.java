@@ -1,7 +1,6 @@
 package io.cloudwalk.pos.demo.presentation;
 
 import androidx.annotation.ColorInt;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.pos.demo.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
 import io.cloudwalk.pos.loglibrary.Log;
@@ -22,13 +22,11 @@ import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
 public class SplashActivity extends AppCompatActivity {
-    private static final String TAG = SplashActivity.class.getSimpleName();
+    private static final String
+            TAG = SplashActivity.class.getSimpleName();
 
-    private static final Semaphore sOnBackPressedSemaphore = new Semaphore(1, true);
-
-    private Semaphore sStartSemaphore = new Semaphore(-1, true);
-
-    private boolean sOnBackPressed = false;
+    private Semaphore
+            mSemaphore = new Semaphore(-1, true);
 
     private SpannableString getBullet(@ColorInt int color) {
         SpannableString output = new SpannableString("  ");
@@ -36,26 +34,6 @@ public class SplashActivity extends AppCompatActivity {
         output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 
         return output;
-    }
-
-    private boolean getOnBackPressed() {
-        boolean onBackPressed;
-
-        sOnBackPressedSemaphore.acquireUninterruptibly();
-
-        onBackPressed = sOnBackPressed;
-
-        sOnBackPressedSemaphore.release();
-
-        return onBackPressed;
-    }
-
-    private void setOnBackPressed(boolean onBackPressed) {
-        sOnBackPressedSemaphore.acquireUninterruptibly();
-
-        sOnBackPressed = onBackPressed;
-
-        sOnBackPressedSemaphore.release();
     }
 
     private void updateContentScrolling(int status, String message) {
@@ -104,16 +82,13 @@ public class SplashActivity extends AppCompatActivity {
          * dependencies are ready. For that, the semaphore instantiation must take into account the
          * right amount of permits: (number of dependencies * -1)
          * See SplashActivity#loadDependencies() for further insight on the number of permits */
-        sStartSemaphore.acquireUninterruptibly();
+        mSemaphore.acquireUninterruptibly();
 
-        if (getOnBackPressed()) {
-            /* Ensures not to go any further if the user has decided to abort */
-            return;
+        if (!wasPaused()) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
+            overridePendingTransition(0, 0);
         }
-
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-
-        overridePendingTransition(0, 0);
 
         finish();
     }
@@ -128,7 +103,7 @@ public class SplashActivity extends AppCompatActivity {
             public void onSuccess() {
                 Log.d(TAG, "onSuccess");
 
-                sStartSemaphore.release();
+                mSemaphore.release();
             }
 
             @Override
@@ -148,7 +123,7 @@ public class SplashActivity extends AppCompatActivity {
             SystemClock.sleep(750 - timestamp);
         }
 
-        sStartSemaphore.release();
+        mSemaphore.release();
     }
 
     @Override
@@ -171,25 +146,5 @@ public class SplashActivity extends AppCompatActivity {
                 loadApplication();
             }
         }.start();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-
-        super.onResume();
-
-        setOnBackPressed(false);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d(TAG, "onBackPressed");
-
-        super.onBackPressed();
-
-        setOnBackPressed(true);
-
-        finish();
     }
 }

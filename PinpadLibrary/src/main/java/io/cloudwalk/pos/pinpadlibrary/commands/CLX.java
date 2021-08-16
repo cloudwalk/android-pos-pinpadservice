@@ -12,7 +12,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class CLX {
-    private static final String TAG = CLX.class.getSimpleName();
+    private static final String
+            TAG = CLX.class.getSimpleName();
 
     private CLX() {
         Log.d(TAG, "CLX");

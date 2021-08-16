@@ -12,7 +12,8 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class TLI {
-    private static final String TAG = TLI.class.getSimpleName();
+    private static final String
+            TAG = TLI.class.getSimpleName();
 
     private TLI() {
         Log.d(TAG, "TLI");

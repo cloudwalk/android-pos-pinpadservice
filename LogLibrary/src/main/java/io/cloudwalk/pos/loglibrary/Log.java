@@ -3,19 +3,26 @@ package io.cloudwalk.pos.loglibrary;
 import static java.util.Locale.US;
 
 public class Log {
-    private static final String TAG =  Log.class.getSimpleName();
+    private static final String
+            TAG =  Log.class.getSimpleName();
 
-    public static final int ASSERT = Log.ASSERT;
+    public static final int
+            ASSERT = Log.ASSERT;
 
-    public static final int DEBUG = Log.DEBUG;
+    public static final int
+            DEBUG = Log.DEBUG;
 
-    public static final int ERROR = Log.ERROR;
+    public static final int
+            ERROR = Log.ERROR;
 
-    public static final int INFO = Log.INFO;
+    public static final int
+            INFO = Log.INFO;
 
-    public static final int VERBOSE = Log.VERBOSE;
+    public static final int
+            VERBOSE = Log.VERBOSE;
 
-    public static final int WARN = Log.WARN;
+    public static final int
+            WARN = Log.WARN;
 
     public static int d(String tag, String msg, Throwable tr) {
         return android.util.Log.d(tag, msg, tr);

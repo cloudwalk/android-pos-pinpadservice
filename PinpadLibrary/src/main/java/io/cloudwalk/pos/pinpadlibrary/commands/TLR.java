@@ -12,7 +12,8 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class TLR {
-    private static final String TAG = TLR.class.getSimpleName();
+    private static final String
+            TAG = TLR.class.getSimpleName();
 
     private TLR() {
         Log.d(TAG, "TLR");

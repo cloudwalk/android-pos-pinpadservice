@@ -15,11 +15,14 @@ import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.loglibrary.Log;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
-    private static final String TAG = MainAdapter.class.getSimpleName();
+    private static final String
+            TAG = MainAdapter.class.getSimpleName();
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore
+            sSemaphore = new Semaphore(1, true);
 
-    private ArrayList<String> sTraceList = new ArrayList<>(0);
+    private ArrayList<String>
+            sTraceList = new ArrayList<>(0);
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView mTrace;
