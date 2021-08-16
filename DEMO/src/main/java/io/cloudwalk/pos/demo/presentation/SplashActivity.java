@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
 
-import io.cloudwalk.pos.demo.AppCompatActivity;
+import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
 import io.cloudwalk.pos.loglibrary.Log;

@@ -23,9 +23,9 @@ public class Application extends android.app.Application {
 
         super.onCreate();
 
-        LifecycleListener lifecycleListener = new LifecycleListener();
+        LifecycleObserver lifecycleObserver = new LifecycleObserver();
 
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(lifecycleListener);
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(lifecycleObserver);
 
         Application.sPackageContext = getApplicationContext();
     }
