@@ -17,6 +17,8 @@ import java.nio.ByteOrder;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.pos.utilitieslibrary.Application;
 
 import static android.content.Context.WIFI_SERVICE;
@@ -25,23 +27,35 @@ public class PinpadServer {
     private static final String
             TAG = PinpadServer.class.getSimpleName();
 
-    private PinpadServer.Callback
-            sCallback = null;
+    private static final byte
+            ACK = 0x06;
 
-    private Semaphore
-            sSemaphore = new Semaphore(1, true);
+    private static final byte
+            EOT = 0x04;
+
+    private IServiceCallback
+            mServiceCallback = null;
+
+    private PinpadServer.Callback
+            mServerCallback = null;
+
+    private Semaphore[]
+            mSemaphore = {
+                    new Semaphore(1, true),
+                    new Semaphore(1, true)
+            };
 
     private ServerSocket
-            sServerSocket = null;
+            mServerSocket = null;
 
     private Socket
-            sClientSocket = null;
+            mClientSocket = null;
 
     private WifiManager
-            sWifiManager = null;
+            mWifiManager = null;
 
     private WifiManager.WifiLock
-            sWifiLock = null;
+            mWifiLock = null;
 
     public static interface Callback {
         void onFailure(Exception exception);
@@ -55,9 +69,9 @@ public class PinpadServer {
 
     private InetAddress getInetAddress()
             throws Exception {
-        /* Log.d(TAG, "getInetAddress"); */
+        // Log.d(TAG, "getInetAddress");
 
-        int ip = sWifiManager.getConnectionInfo().getIpAddress();
+        int ip = mWifiManager.getConnectionInfo().getIpAddress();
 
         if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
             ip = Integer.reverseBytes(ip);
@@ -75,64 +89,76 @@ public class PinpadServer {
                 super.run();
 
                 try {
-                    String localSocketAddress = sServerSocket.getLocalSocketAddress().toString();
+                    String localSocketAddress = mServerSocket.getLocalSocketAddress().toString();
 
-                    sSemaphore.release();
+                    mSemaphore[0].release();
 
-                    sCallback.onSuccess(localSocketAddress);
+                    mServerCallback.onSuccess(localSocketAddress);
 
                     while (true) {
-                        /* Log.d(TAG, "Waiting for a client..."); */
-
                         try {
-                            sSemaphore.acquireUninterruptibly();
+                            mSemaphore[0].acquireUninterruptibly();
 
-                            sClientSocket = sServerSocket.accept();
+                            mClientSocket = mServerSocket.accept();
                         } catch (SocketTimeoutException warning) {
                             String[] hostAddress = { currentAddress.getHostAddress(), getInetAddress().getHostAddress() };
 
                             continue; // TODO: handle host address change?
                         } finally {
-                            sSemaphore.release();
+                            mSemaphore[0].release();
                         }
 
-                        Log.d(TAG, "client.getHostAddress() [" + sClientSocket.getInetAddress().getHostAddress() + "]");
+                        Log.d(TAG, "client.getHostAddress() [" + mClientSocket.getInetAddress().getHostAddress() + "]");
 
-                        DataInputStream  input  = new DataInputStream (new BufferedInputStream (sClientSocket.getInputStream ()));
-                        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(sClientSocket.getOutputStream()));
+                        DataInputStream  input  = new DataInputStream (new BufferedInputStream (mClientSocket.getInputStream ()));
+                        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(mClientSocket.getOutputStream()));
 
-                        byte[] buffer = new byte[2048];
+                        byte[] request = new byte[2048];
 
                         int count = 0;
 
-                        while ((count = input.read(buffer)) > 0) {
-                            sCallback.onRecv(buffer, count); // TODO: make it asynchronous?
+                        while ((count = input.read(request)) > 0) {
+                            onRecv(request, count);
 
-                            output.write(buffer, 0, count);
-                            output.flush();
+                            count = PinpadManager.send(mServiceCallback, request, count);
 
-                            sCallback.onSend(buffer, count);
-
-                            /* TODO: replicate PinpadManager.request(Bundle) logic
-
-                            sCallback.onRecv(buffer, count);
-
-                            PinpadManager.send(buffer, count);
+                            if (count < 0) {
+                                Log.e(TAG, "accept::count [" + count + "]");
+                                continue;
+                            }
 
                             byte[] response = new byte[2048];
 
-                            count = PinpadManager.receive(response, 60000);
+                            count = PinpadManager.receive(response, 1900);
+
+                            if (count != 1) {
+                                Log.e(TAG, "accept::count [" + count + "]");
+                                continue;
+                            }
+
+                            onSend(response, count);
 
                             output.write(response, 0, count);
                             output.flush();
 
-                            sCallback.onSend(response, count);
+                            if (response[0] != ACK && response[0] != EOT) {
+                                continue;
+                            }
 
-                             */
+                            do {
+                                count = PinpadManager.receive(response, 9900);
+                            } while (count == 0);
+
+                            if (count < 0) {
+                                Log.e(TAG, "accept::count [" + count + "]");
+                                continue;
+                            }
+
+                            onSend(response, count);
+
+                            output.write(response, 0, count);
+                            output.flush();
                         }
-
-                        // TODO: PinpadManager.send(...)
-                        // TODO: PinpadManager.receive(...)
                     }
                 } catch (Exception exception) {
                     close(exception);
@@ -144,39 +170,70 @@ public class PinpadServer {
     private void close(Exception exception) {
         Log.d(TAG, "close");
 
-        sSemaphore.acquireUninterruptibly();
+        mSemaphore[0].acquireUninterruptibly();
 
         try {
-            if (sClientSocket != null) {
-                sClientSocket.close();
+            if (mClientSocket != null) {
+                mClientSocket.close();
             }
 
-            if (sServerSocket != null) {
-                sServerSocket.close();
+            if (mServerSocket != null) {
+                mServerSocket.close();
             }
         } catch (Exception warning) {
             Log.w(TAG, Log.getStackTraceString(warning));
         }
 
-        if (sWifiLock != null) {
-            if (sWifiLock.isHeld()) {
-                sWifiLock.release();
+        if (mWifiLock != null) {
+            if (mWifiLock.isHeld()) {
+                mWifiLock.release();
             }
         }
 
-        sSemaphore.release();
+        mSemaphore[0].release();
 
         if (exception != null) {
-            sCallback.onFailure(exception);
+            mServerCallback.onFailure(exception);
         }
     }
 
-    public PinpadServer(@NotNull PinpadServer.Callback callback) {
+    private void onRecv(byte[] input, int length) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                mSemaphore[1].acquireUninterruptibly();
+
+                mServerCallback.onRecv(input, length);
+
+                mSemaphore[1].release();
+            }
+        }.start();
+    }
+
+    private void onSend(byte[] input, int length) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                mSemaphore[1].acquireUninterruptibly();
+
+                mServerCallback.onSend(input, length);
+
+                mSemaphore[1].release();
+            }
+        }.start();
+    }
+
+    public PinpadServer(@NotNull PinpadServer.Callback serverCallback, IServiceCallback pinpadCallback) {
         Log.d(TAG, "PinpadServer");
 
-        sSemaphore.acquireUninterruptibly();
+        mSemaphore[0].acquireUninterruptibly();
 
-        sCallback = callback;
+        mServerCallback = serverCallback;
+        mServiceCallback = pinpadCallback;
 
         new Thread() {
             @Override
@@ -184,24 +241,24 @@ public class PinpadServer {
                 super.run();
 
                 try {
-                    sWifiManager = (WifiManager) Application.getPackageContext()
+                    mWifiManager = (WifiManager) Application.getPackageContext()
                             .getApplicationContext().getSystemService(WIFI_SERVICE);
 
                     InetAddress inetAddress = getInetAddress();
 
-                    sServerSocket = new ServerSocket(8080, 1, inetAddress);
+                    mServerSocket = new ServerSocket(8080, 1, inetAddress);
 
-                    sServerSocket.setSoTimeout(200);
+                    mServerSocket.setSoTimeout(200);
 
-                    if (sWifiLock == null) {
-                        sWifiLock = sWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
+                    if (mWifiLock == null) {
+                        mWifiLock = mWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
                     }
 
-                    sWifiLock.acquire();
+                    mWifiLock.acquire();
 
                     accept(inetAddress);
                 } catch (Exception exception) {
-                    sSemaphore.release();
+                    mSemaphore[0].release();
 
                     close(exception);
                 }

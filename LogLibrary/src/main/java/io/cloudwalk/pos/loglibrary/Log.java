@@ -69,7 +69,7 @@ public class Log {
             if ((i > 0 && msg[1].length() % 16 == 0) || (i + 1) >= length) {
                 msg[0].append(msg[1]);
 
-                msg[2].append("\r\n").append(msg[0]);
+                msg[2].append("\n").append(msg[0]);
 
                 msg[0].delete(0, msg[0].length());
 
@@ -85,7 +85,7 @@ public class Log {
     }
 
     public static void h(String tag, byte[] input, int length) {
-        String[] msg = getByteTraceString(input, length).split("\r\n");
+        String[] msg = getByteTraceString(input, length).split("\n");
 
         for (String slice : msg) {
             android.util.Log.d(tag, slice);

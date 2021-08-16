@@ -106,36 +106,10 @@ public class MainActivity extends AppCompatActivity {
         SEMAPHORE[index].acquireUninterruptibly();
     }
 
-    private void processLocalRequests() {
+    private void processLocalRequests(IServiceCallback serviceCallback) {
         Log.d(TAG, "processLocalRequests");
 
         updateStatus(2, getString(R.string.warning_local_processing));
-
-        IServiceCallback callback = new IServiceCallback.Stub() {
-            @Override
-            public int onSelectionRequired(Bundle output) {
-                Log.d(TAG, "onSelectionRequired");
-
-                String ttl = output.getString("NTF_TTL");
-                ArrayList<String> opt = output.getStringArrayList("NTF_OPT");
-                String tot = output.getString("NTF_TOT");
-
-                // TODO: AlertDialog!?
-
-                return 0;
-            }
-
-            @Override
-            public void onNotificationThrow(Bundle output, int type) {
-                Log.d(TAG, "onNotificationThrow");
-
-                String msg = output.getString("NTF_MSG").replace("\n", "\\n");
-
-                Log.d(TAG, "onNotificationThrow::type [" + type + "] msg [" + msg + "]");
-
-                // TODO: AlertDialog!?
-            }
-        };
 
         Bundle request = new Bundle();
 
@@ -226,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 updateContentScrolling(null, "\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
 
-                Bundle RX = PinpadManager.request(callback, TX);
+                Bundle RX = PinpadManager.request(serviceCallback, TX);
 
                 updateContentScrolling(null, "\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
 
@@ -471,14 +445,36 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                processLocalRequests();
+                IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+                    @Override
+                    public int onSelectionRequired(Bundle output) {
+                        Log.d(TAG, "onSelectionRequired");
 
-                PinpadServer.Callback callback = new PinpadServer.Callback() {
+                        // TODO: AlertDialog!?
+
+                        return 0;
+                    }
+
+                    @Override
+                    public void onNotificationThrow(Bundle output, int type) {
+                        Log.d(TAG, "onNotificationThrow");
+
+                        String msg = output.getString("NTF_MSG").replace("\n", "\\n");
+
+                        Log.d(TAG, "onNotificationThrow::type [" + type + "] msg [" + msg + "]");
+
+                        // TODO: AlertDialog!?
+                    }
+                };
+
+                processLocalRequests(serviceCallback);
+
+                PinpadServer.Callback serverCallback = new PinpadServer.Callback() {
                     @Override
                     public void onFailure(Exception exception) {
                         Log.d(TAG, "onFailure");
 
-                        updateStatus(1, "Server offline\r\n  " + exception.getMessage());
+                        updateStatus(1, "Server offline\n  " + exception.getMessage());
 
                         // TODO: reuse 'fab'?
                     }
@@ -493,7 +489,9 @@ public class MainActivity extends AppCompatActivity {
                             mMainAdapter.clear(0, mMainAdapter.getItemCount());
                         }
 
-                        updateContentScrolling(null, ((serverTraceOn) ? "  \r\n" : "") + "RX\r\n" + Log.getByteTraceString(trace, length));
+                        String content = ((serverTraceOn) ? "  \n" : "") + "(RX)" + Log.getByteTraceString(trace, length);
+
+                        updateContentScrolling(null, content);
 
                         setServerTraceStatus(true);
                     }
@@ -502,7 +500,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onSend(byte[] trace, int length) {
                         Log.d(TAG, "onSend");
 
-                        updateContentScrolling(null, "  \r\nTX\r\n" + Log.getByteTraceString(trace, length));
+                        String content = "  \n(TX)" + Log.getByteTraceString(trace, length);
+
+                        updateContentScrolling(null, content);
                     }
 
                     @Override
@@ -518,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!wasPaused()) {
                     updateStatus(2, "Bringing up server...");
 
-                    mPinpadServer = new PinpadServer(callback);
+                    mPinpadServer = new PinpadServer(serverCallback, serviceCallback);
                 }
 
                 release(1);
