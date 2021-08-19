@@ -10,6 +10,8 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
@@ -24,6 +26,9 @@ import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 public class SplashActivity extends AppCompatActivity {
     private static final String
             TAG = SplashActivity.class.getSimpleName();
+
+    private Menu
+            mMenu = null;
 
     private Semaphore
             mSemaphore = new Semaphore(-1, true);
@@ -113,6 +118,14 @@ public class SplashActivity extends AppCompatActivity {
                 /* A reconnection strategy is recommended in here. */
 
                 updateContentScrolling(1, "PinpadService was either disconnected, not found or its bind failed due to missing permissions");
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Inflate the menu; this adds items to the action bar if it is present.
+                        getMenuInflater().inflate(R.menu.menu_main, mMenu);
+                    }
+                });
             }
         });
 
@@ -146,5 +159,36 @@ public class SplashActivity extends AppCompatActivity {
                 loadApplication();
             }
         }.start();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu");
+
+        // Not inflating the menu in here 'cause the SplashActivity should have
+        // a limited lifecycle...
+        // (but saving it for later, if anything goes wrong)
+        mMenu = menu;
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected");
+
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        // noinspection SimplifiableIfStatement
+
+        if (id == R.id.action_about) {
+            (new AboutAlertDialog(this)).show();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
