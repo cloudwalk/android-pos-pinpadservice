@@ -14,6 +14,8 @@ public class Application extends android.app.Application {
             sPackageContext = null;
 
     public static Context getPackageContext() {
+        Log.d(TAG, "getPackageContext");
+
         return Application.sPackageContext;
     }
 

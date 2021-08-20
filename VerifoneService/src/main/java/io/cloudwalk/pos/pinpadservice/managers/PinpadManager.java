@@ -175,13 +175,9 @@ public class PinpadManager extends IPinpadManager.Stub {
                 System.arraycopy(data, 1, CMD_ID, 0, 3);
 
                 switch (new String(CMD_ID)) {
-                    case ABECS.CLX:
-                    case ABECS.GIX:
-                    case ABECS.OPN:
-
-                    case ABECS.TLI:
-                    case ABECS.TLR:
-                    case ABECS.TLE:
+                    case ABECS.CLX: case ABECS.GIX: case ABECS.OPN:
+                    case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                    case ABECS.CEX:
                         /* Nothing to do */
                         break;
 

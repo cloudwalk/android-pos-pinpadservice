@@ -34,6 +34,8 @@ public class SplashActivity extends AppCompatActivity {
             mSemaphore = new Semaphore(-1, true);
 
     private SpannableString getBullet(@ColorInt int color) {
+        Log.d(TAG, "getBullet::color [" + color + "]");
+
         SpannableString output = new SpannableString("  ");
 
         output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
@@ -42,6 +44,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void updateContentScrolling(int status, String message) {
+        Log.d(TAG, "updateContentScrolling");
+
         SpannableStringBuilder[] content = { new SpannableStringBuilder() };
 
         switch (status) {

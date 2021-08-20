@@ -4,10 +4,13 @@ import android.os.Bundle;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
@@ -16,6 +19,7 @@ import io.cloudwalk.pos.pinpadlibrary.commands.TLI;
 import io.cloudwalk.pos.pinpadlibrary.commands.TLR;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
 public class PinpadUtility {
@@ -161,6 +165,8 @@ public class PinpadUtility {
             case ABECS.TLR: request = TLR.buildRequestDataPacket(input); break;
             case ABECS.TLE: request = TLE.buildRequestDataPacket(input); break;
 
+            case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
+
             default:
                 /* Nothing to do */
                 break;
@@ -171,6 +177,41 @@ public class PinpadUtility {
         }
 
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+    }
+
+    public static byte[] buildRequestTag(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
+            throws Exception {
+        Log.d(TAG, "buildRequestTag");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        byte[] T = null;
+        byte[] L = null;
+        byte[] V = null;
+
+        switch (type) { // TODO: take care of alignment (length)?!
+            case A:
+            case S:
+            case N:
+                T = DataUtility.hexStringToByteArray(tag);
+                L = ByteBuffer.allocate(2).putShort((short) (value.length())).array();
+                V = value.getBytes(UTF_8);
+                break;
+
+            case H:
+            case X:
+            case B:
+                T = DataUtility.hexStringToByteArray(tag);
+                L = ByteBuffer.allocate(2).putShort((short) (value.length() / 2)).array();
+                V = DataUtility.hexStringToByteArray(value);
+                break;
+        }
+
+        stream.write(T);
+        stream.write(L);
+        stream.write(V);
+
+        return stream.toByteArray();
     }
 
     /**
@@ -194,6 +235,8 @@ public class PinpadUtility {
             case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
             case ABECS.TLR: return TLR.parseResponseDataPacket(response, response.length);
             case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
+
+            case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */

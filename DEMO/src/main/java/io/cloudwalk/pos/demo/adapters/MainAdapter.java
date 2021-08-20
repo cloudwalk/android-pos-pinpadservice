@@ -36,7 +36,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         }
 
         public void bind(@NonNull String trace) {
-            android.util.Log.d(TAG, "ViewHolder::bind");
+            Log.d(TAG, "ViewHolder::bind");
 
             mTrace.setText(trace);
         }

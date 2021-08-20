@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -149,17 +150,9 @@ public class GIX {
         String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
 
         if (SPE_IDLIST != null) {
-            ByteBuffer buffer = ByteBuffer.allocate(2);
-
             SPE_IDLIST = SPE_IDLIST.length() > 128 ? SPE_IDLIST.substring(0, 128) : SPE_IDLIST;
 
-            byte[] T = GIX.SPE_IDLIST;
-            byte[] L = buffer.putShort((short) (SPE_IDLIST.length() / 2)).array();
-            byte[] V = DataUtility.hexStringToByteArray(SPE_IDLIST);
-
-            stream[1].write(T);
-            stream[1].write(L);
-            stream[1].write(V);
+            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.B, "0001", SPE_IDLIST));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

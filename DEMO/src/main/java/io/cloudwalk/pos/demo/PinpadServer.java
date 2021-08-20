@@ -203,6 +203,8 @@ public class PinpadServer {
             public void run() {
                 super.run();
 
+                Log.d(TAG, "onRecv");
+
                 mSemaphore[1].acquireUninterruptibly();
 
                 mServerCallback.onRecv(input, length);
@@ -217,6 +219,8 @@ public class PinpadServer {
             @Override
             public void run() {
                 super.run();
+
+                Log.d(TAG, "onSend");
 
                 mSemaphore[1].acquireUninterruptibly();
 

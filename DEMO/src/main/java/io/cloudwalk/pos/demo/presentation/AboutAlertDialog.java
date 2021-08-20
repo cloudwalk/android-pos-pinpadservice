@@ -20,6 +20,8 @@ public class AboutAlertDialog extends AlertDialog {
      */
     private AboutAlertDialog(Context context) {
         super(context);
+
+        Log.d(TAG, "AboutAlertDialog");
     }
 
     /**
@@ -27,6 +29,8 @@ public class AboutAlertDialog extends AlertDialog {
      */
     private AboutAlertDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
+
+        Log.d(TAG, "AboutAlertDialog");
     }
 
     /**
@@ -34,6 +38,8 @@ public class AboutAlertDialog extends AlertDialog {
      */
     private AboutAlertDialog(Context context, int themeResId) {
         super(context, themeResId);
+
+        Log.d(TAG, "AboutAlertDialog");
     }
 
     /**

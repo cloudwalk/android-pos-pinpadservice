@@ -155,4 +155,12 @@ public class ABECS {
             /* Nothing to do */
         }
     }
+
+    public static enum TYPE {
+        A, S, N, H, X, B;
+
+        private TYPE() {
+            /* Nothing to do */
+        }
+    }
 }

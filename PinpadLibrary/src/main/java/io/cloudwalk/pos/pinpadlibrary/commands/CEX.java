@@ -1,5 +1,8 @@
 package io.cloudwalk.pos.pinpadlibrary.commands;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
+
 import android.os.Bundle;
 
 import java.io.ByteArrayOutputStream;
@@ -9,15 +12,12 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
-public class CLX {
+public class CEX {
     private static final String
-            TAG = CLX.class.getSimpleName();
+            TAG = CEX.class.getSimpleName();
 
-    private CLX() {
-        Log.d(TAG, "CLX");
+    private CEX() {
+        Log.d(TAG, "CEX");
 
         /* Nothing to do */
     }
@@ -34,8 +34,10 @@ public class CLX {
 
         Bundle output = new Bundle();
 
-        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)]);
+        output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
+        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)]);
+
+        // TODO: parse CEX response specifics
 
         return output;
     }
@@ -47,19 +49,20 @@ public class CLX {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_DSPMSG   = input.getString(ABECS.SPE_DSPMSG);
-        String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
+        String SPE_CEXOPT   = input.getString(ABECS.SPE_CEXOPT);
+        String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
+        String SPE_PANMASK  = input.getString(ABECS.SPE_PANMASK);
 
-        if (SPE_DSPMSG != null) {
-            SPE_DSPMSG = SPE_DSPMSG.length() > 128 ? SPE_DSPMSG.substring(0, 128) : SPE_DSPMSG;
-
-            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.S, "001B", SPE_DSPMSG));
+        if (SPE_CEXOPT != null) {
+            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.A, "0006", SPE_CEXOPT));
         }
 
-        if (SPE_MFNAME != null) {
-            SPE_MFNAME = String.format(US, "%-8.8s", SPE_MFNAME.toUpperCase());
+        if (SPE_TIMEOUT != null) {
+            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+        }
 
-            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.S, "001E", SPE_MFNAME));
+        if (SPE_PANMASK != null) {
+            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.N, "0023", SPE_PANMASK));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();
