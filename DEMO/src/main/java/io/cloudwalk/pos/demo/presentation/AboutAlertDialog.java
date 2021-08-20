@@ -96,5 +96,7 @@ public class AboutAlertDialog extends AlertDialog {
                 + context.getString(R.string.content_about);
 
         ((TextView) view.findViewById(R.id.tv_about)).setText(contentView);
+
+        // setCanceledOnTouchOutside(false);
     }
 }

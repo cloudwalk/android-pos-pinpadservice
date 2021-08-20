@@ -152,7 +152,7 @@ public class GIX {
         if (SPE_IDLIST != null) {
             SPE_IDLIST = SPE_IDLIST.length() > 128 ? SPE_IDLIST.substring(0, 128) : SPE_IDLIST;
 
-            stream[1].write(PinpadUtility.buildRequestTag(ABECS.TYPE.B, "0001", SPE_IDLIST));
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0001", SPE_IDLIST));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

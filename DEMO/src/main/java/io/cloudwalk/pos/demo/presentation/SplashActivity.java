@@ -2,6 +2,7 @@ package io.cloudwalk.pos.demo.presentation;
 
 import androidx.annotation.ColorInt;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,11 +28,28 @@ public class SplashActivity extends AppCompatActivity {
     private static final String
             TAG = SplashActivity.class.getSimpleName();
 
+    private AlertDialog
+            mAboutAlertDialog = null;
+
     private Menu
             mMenu = null;
 
-    private Semaphore
-            mSemaphore = new Semaphore(-1, true);
+    private Semaphore[]
+            mSemaphore = { new Semaphore(-1, true), new Semaphore(0, true) };
+
+    private Menu getMenu() {
+        Log.d(TAG, "getMenu");
+
+        Menu menu;
+
+        mSemaphore[1].acquireUninterruptibly();
+
+        menu = mMenu;
+
+        mSemaphore[1].release();
+
+        return menu;
+    }
 
     private SpannableString getBullet(@ColorInt int color) {
         Log.d(TAG, "getBullet::color [" + color + "]");
@@ -41,6 +59,69 @@ public class SplashActivity extends AppCompatActivity {
         output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 
         return output;
+    }
+
+    private void loadApplication() {
+        Log.d(TAG, "loadApplication");
+
+        loadDependencies();
+
+        /* The 'acquire' call serves the purpose of blocking the application till all required
+         * dependencies are ready. For that, the semaphore instantiation must take into account the
+         * right amount of permits: (number of dependencies * -1)
+         * See SplashActivity#loadDependencies() for further insight on the number of permits */
+        mSemaphore[0].acquireUninterruptibly();
+
+        if (!wasPaused()) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
+            overridePendingTransition(0, 0);
+        }
+
+        finish();
+    }
+
+    private void loadDependencies() {
+        Log.d(TAG, "loadDependencies");
+
+        long timestamp = SystemClock.elapsedRealtime();
+
+        PinpadManager.register(new ServiceUtility.Callback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "onSuccess");
+
+                mSemaphore[0].release();
+            }
+
+            @Override
+            public void onFailure() {
+                Log.d(TAG, "onFailure");
+
+                /* A reconnection strategy is recommended in here. */
+
+                updateContentScrolling(1, "PinpadService was either disconnected, not found or its bind failed due to missing permissions");
+
+                Menu menu = getMenu();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Inflate the menu; this adds items to the action bar if it is present.
+                        getMenuInflater().inflate(R.menu.menu_main, menu);
+                    }
+                });
+            }
+        });
+
+        timestamp = SystemClock.elapsedRealtime() - timestamp;
+
+        /* Ensures the SplashActivity will be shown for a minimum amount of time */
+        if (timestamp < 750) {
+            SystemClock.sleep(750 - timestamp);
+        }
+
+        mSemaphore[0].release();
     }
 
     private void updateContentScrolling(int status, String message) {
@@ -82,67 +163,6 @@ public class SplashActivity extends AppCompatActivity {
         semaphore[0].acquireUninterruptibly();
     }
 
-    private void loadApplication() {
-        Log.d(TAG, "loadApplication");
-
-        loadDependencies();
-
-        /* The 'acquire' call serves the purpose of blocking the application till all required
-         * dependencies are ready. For that, the semaphore instantiation must take into account the
-         * right amount of permits: (number of dependencies * -1)
-         * See SplashActivity#loadDependencies() for further insight on the number of permits */
-        mSemaphore.acquireUninterruptibly();
-
-        if (!wasPaused()) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-
-            overridePendingTransition(0, 0);
-        }
-
-        finish();
-    }
-
-    private void loadDependencies() {
-        Log.d(TAG, "loadDependencies");
-
-        long timestamp = SystemClock.elapsedRealtime();
-
-        PinpadManager.register(new ServiceUtility.Callback() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "onSuccess");
-
-                mSemaphore.release();
-            }
-
-            @Override
-            public void onFailure() {
-                Log.d(TAG, "onFailure");
-
-                /* A reconnection strategy is recommended in here. */
-
-                updateContentScrolling(1, "PinpadService was either disconnected, not found or its bind failed due to missing permissions");
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Inflate the menu; this adds items to the action bar if it is present.
-                        getMenuInflater().inflate(R.menu.menu_main, mMenu);
-                    }
-                });
-            }
-        });
-
-        timestamp = SystemClock.elapsedRealtime() - timestamp;
-
-        /* Ensures the SplashActivity will be shown for a minimum amount of time */
-        if (timestamp < 750) {
-            SystemClock.sleep(750 - timestamp);
-        }
-
-        mSemaphore.release();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
@@ -153,6 +173,8 @@ public class SplashActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         updateContentScrolling(2, getString(R.string.warning_application_starting));
+
+        mAboutAlertDialog = new AboutAlertDialog(this);
 
         /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {
@@ -166,6 +188,15 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        Log.d(TAG, "onStop");
+
+        super.onStop();
+
+        mAboutAlertDialog.dismiss();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu");
 
@@ -173,6 +204,8 @@ public class SplashActivity extends AppCompatActivity {
         // a limited lifecycle...
         // (but saving it for later, if anything goes wrong)
         mMenu = menu;
+
+        mSemaphore[1].release();
 
         return true;
     }
@@ -189,7 +222,7 @@ public class SplashActivity extends AppCompatActivity {
         // noinspection SimplifiableIfStatement
 
         if (id == R.id.action_about) {
-            (new AboutAlertDialog(this)).show();
+            mAboutAlertDialog.show();
             return true;
         }
 

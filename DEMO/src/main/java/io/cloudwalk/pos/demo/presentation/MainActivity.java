@@ -1,5 +1,6 @@
 package io.cloudwalk.pos.demo.presentation;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int
             MAIN_ADAPTER_CONTENT_LIMIT = 2000;
+
+    private AlertDialog
+            mAboutAlertDialog = null;
 
     private MainAdapter
             mMainAdapter = null;
@@ -413,6 +417,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onRequestDisallowInterceptTouchEvent");
             }
         });
+
+        mAboutAlertDialog = new AboutAlertDialog(this);
     }
 
     @Override
@@ -536,6 +542,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        Log.d(TAG, "onStop");
+
+        super.onStop();
+
+        mAboutAlertDialog.dismiss();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu");
 
@@ -556,7 +571,7 @@ public class MainActivity extends AppCompatActivity {
         // noinspection SimplifiableIfStatement
 
         if (id == R.id.action_about) {
-            (new AboutAlertDialog(this)).show();
+            mAboutAlertDialog.show();
             return true;
         }
 

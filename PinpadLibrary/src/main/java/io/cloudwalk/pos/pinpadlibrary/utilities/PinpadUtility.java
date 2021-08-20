@@ -179,9 +179,9 @@ public class PinpadUtility {
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    public static byte[] buildRequestTag(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
+    public static byte[] buildRequestTLV(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
             throws Exception {
-        Log.d(TAG, "buildRequestTag");
+        Log.d(TAG, "buildRequestTLV");
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
@@ -246,5 +246,5 @@ public class PinpadUtility {
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    // TODO: parseResponseTag(...)
+    // TODO: parseResponseTLV(...)
 }
