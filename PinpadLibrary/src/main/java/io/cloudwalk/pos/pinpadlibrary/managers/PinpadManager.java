@@ -112,13 +112,13 @@ public class PinpadManager {
                 status = send(callback, request, request.length);
 
                 if (status < 0) {
-                    throw new RuntimeException();
+                    throw new RuntimeException("request::status [" + status + "]");
                 }
 
                 status = recv(response, 2000);
 
                 if (status < 0) {
-                    throw new RuntimeException();
+                    throw new RuntimeException("request::status [" + status + "]");
                 } else {
                     if (response[0] != ACK) {
                         if (--retry <= 0) {
@@ -132,7 +132,7 @@ public class PinpadManager {
                 status = recv(response, 10000);
 
                 if (status < 0) {
-                    throw new RuntimeException();
+                    throw new RuntimeException("request::status [" + status + "]");
                 }
             } while (status <= 0);
 
@@ -180,13 +180,13 @@ public class PinpadManager {
                 status = send(null, request, request.length);
 
                 if (status < 0) {
-                    throw new RuntimeException();
+                    throw new RuntimeException("request::status [" + status + "]");
                 }
 
                 status = recv(response, 2000);
 
                 if (status < 0) {
-                    throw new RuntimeException();
+                    throw new RuntimeException("request::status [" + status + "]");
                 } else {
                     if (response[0] != EOT) {
                         if (--retry <= 0) {

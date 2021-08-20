@@ -189,7 +189,7 @@ public class PinpadUtility {
         byte[] L = null;
         byte[] V = null;
 
-        switch (type) { // TODO: ensure alignment (length)!?
+        switch (type) { // TODO: ensure alignment and length!?
             case A:
             case S:
             case N:
