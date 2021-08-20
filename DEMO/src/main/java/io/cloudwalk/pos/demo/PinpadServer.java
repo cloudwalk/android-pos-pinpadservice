@@ -103,7 +103,7 @@ public class PinpadServer {
                         } catch (SocketTimeoutException warning) {
                             String[] hostAddress = { currentAddress.getHostAddress(), getInetAddress().getHostAddress() };
 
-                            continue; // TODO: handle host address change?
+                            continue; // TODO: handle host address change!?
                         } finally {
                             mSemaphore[0].release();
                         }

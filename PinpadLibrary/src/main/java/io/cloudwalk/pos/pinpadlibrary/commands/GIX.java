@@ -97,11 +97,11 @@ public class GIX {
                 case 0x8035: output.putString(ABECS.PP_DKPTTDESP,   new String(V)); break;
                 case 0x8036: output.putString(ABECS.PP_DKPTTDESD,   new String(V)); break;
 
-                case 0x8020: // TODO: intercept response @PinpadService?
+                case 0x8020: // TODO: intercept response @PinpadService!?
                     output.putString(ABECS.PP_DSPTXTSZ, "0000");
                     break;
 
-                case 0x8021: // TODO: intercept response @PinpadService?
+                case 0x8021: // TODO: intercept response @PinpadService!?
                 case 0x8062: // TODO: 0x8020, 0x8021 and 0x8062 are all coming back as { 0x00, 0x00 ... }
                     output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
                     break;

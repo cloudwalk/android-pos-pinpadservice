@@ -189,7 +189,7 @@ public class PinpadUtility {
         byte[] L = null;
         byte[] V = null;
 
-        switch (type) { // TODO: take care of alignment (length)?!
+        switch (type) { // TODO: ensure alignment (length)!?
             case A:
             case S:
             case N:
@@ -245,4 +245,6 @@ public class PinpadUtility {
 
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
+
+    // TODO: parseResponseTag(...)
 }

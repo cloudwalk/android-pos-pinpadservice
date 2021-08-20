@@ -485,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
 
                         updateStatus(1, "Server offline\n  " + exception.getMessage());
 
-                        // TODO: reuse 'fab'?
+                        // TODO: reuse 'fab'!?
                     }
 
                     @Override

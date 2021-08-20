@@ -133,7 +133,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
                     Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-                    // TODO: VFSystemService?! VFService?!
+                    // TODO: VFSystemService!? VFService!?
                 }
             };
 
@@ -184,7 +184,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     default:
                         Log.w(TAG, "intercept::NAK registered");
 
-                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise?
+                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
                 }
             }
         } finally {

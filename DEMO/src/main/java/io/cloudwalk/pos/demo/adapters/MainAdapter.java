@@ -81,7 +81,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         return itemCount;
     }
 
-    public void clear(int index, int count) { // TODO: turn it into 'truncate'?
+    public void clear(int index, int count) { // TODO: turn it into 'truncate'!?
         Log.d(TAG, "pop");
 
         sSemaphore.acquireUninterruptibly();
@@ -99,7 +99,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         sSemaphore.acquireUninterruptibly();
 
         if (!trace.isEmpty()) {
-            sTraceList.add(trace); // TODO: drop if too much was pushed?
+            sTraceList.add(trace); // TODO: drop if too much was pushed!?
 
             notifyItemInserted(sTraceList.size());
         }

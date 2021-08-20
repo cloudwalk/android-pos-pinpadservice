@@ -96,9 +96,9 @@ public class PinpadManager {
                 // TODO: review all commands that shouldn't be preceded by an abort
                 case ABECS.TLR:
                 case ABECS.TLE:
-                /* case ABECS.GCR: */ case ABECS.GCX:
-                /* case ABECS.GOC: case ABECS.GOX: */
-                /* case ABECS.FNX: case ABECS.FNC: */
+                case ABECS.GCX:
+                // case ABECS.GOX:
+                // case ABECS.FNX:
                     break;
 
                 case "UNKNOWN":
