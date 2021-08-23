@@ -28,18 +28,34 @@ public class CEX {
 
         byte[] RSP_ID       = new byte[3];
         byte[] RSP_STAT     = new byte[3];
+        byte[] RSP_LEN1     = new byte[3];
+        byte[] RSP_DATA     = null;
 
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
 
         Bundle output = new Bundle();
 
+        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)];
+
         output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)]);
+        output.putSerializable(ABECS.RSP_STAT,  STAT);
 
-        // TODO: parse CEX response specifics
+        switch (STAT) {
+            case ST_OK:
+                System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
-        return output;
+                RSP_DATA = new byte[DataUtility.byteArrayToInt(RSP_LEN1, RSP_LEN1.length)];
+
+                System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
+
+                output.putAll(PinpadUtility.parseResponseTLV(RSP_DATA, RSP_DATA.length));
+
+                /* no break */
+
+            default:
+                return output;
+        }
     }
 
     public static byte[] buildRequestDataPacket(Bundle input)
