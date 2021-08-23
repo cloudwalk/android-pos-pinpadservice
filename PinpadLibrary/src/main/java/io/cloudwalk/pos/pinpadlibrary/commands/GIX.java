@@ -72,8 +72,6 @@ public class GIX {
         String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
 
         if (SPE_IDLIST != null) {
-            SPE_IDLIST = SPE_IDLIST.length() > 128 ? SPE_IDLIST.substring(0, 128) : SPE_IDLIST;
-
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0001", SPE_IDLIST));
         }
 

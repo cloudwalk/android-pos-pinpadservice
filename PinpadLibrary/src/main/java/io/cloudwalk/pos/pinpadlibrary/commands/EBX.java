@@ -12,12 +12,12 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-public class CEX {
+public class EBX {
     private static final String
-            TAG = CEX.class.getSimpleName();
+            TAG = EBX.class.getSimpleName();
 
-    private CEX() {
-        Log.d(TAG, "CEX");
+    private EBX() {
+        Log.d(TAG, "EBX");
 
         /* Nothing to do */
     }
@@ -65,20 +65,30 @@ public class CEX {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_CEXOPT   = input.getString(ABECS.SPE_CEXOPT);
-        String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
-        String SPE_PANMASK  = input.getString(ABECS.SPE_PANMASK);
+        String SPE_DATAIN   = input.getString(ABECS.SPE_DATAIN);
+        String SPE_MTHDDAT  = input.getString(ABECS.SPE_MTHDDAT);
+        String SPE_KEYIDX   = input.getString(ABECS.SPE_KEYIDX);
+        String SPE_WKENC    = input.getString(ABECS.SPE_WKENC);
+        String SPE_IVCBC    = input.getString(ABECS.SPE_IVCBC);
 
-        if (SPE_CEXOPT  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "0006", SPE_CEXOPT));
+        if (SPE_DATAIN  != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "000F", SPE_DATAIN));
         }
 
-        if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+        if (SPE_MTHDDAT != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0003", SPE_MTHDDAT));
         }
 
-        if (SPE_PANMASK != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0023", SPE_PANMASK));
+        if (SPE_KEYIDX  != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
+        }
+
+        if (SPE_WKENC   != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "000A", SPE_WKENC));
+        }
+
+        if (SPE_IVCBC   != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "001D", SPE_IVCBC));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

@@ -67,6 +67,15 @@ public class ABECS {
     public static final String PP_TRK2INC       = "PP_TRK2INC";
     public static final String PP_TRK3INC       = "PP_TRK3INC";
 
+    public static final String EBX              = "EBX";
+    public static final String SPE_DATAIN       = "SPE_DATAIN";
+    public static final String SPE_MTHDDAT      = "SPE_MTHDDAT";
+    public static final String SPE_KEYIDX       = "SPE_KEYIDX";
+    public static final String SPE_WKENC        = "SPE_WKENC";
+    public static final String SPE_IVCBC        = "SPE_IVCBC";
+    public static final String PP_DATAOUT       = "PP_DATAOUT";
+    public static final String PP_KSN           = "PP_KSN";
+
     public static final String CKE              = "CKE";
 
     public static final String GTS              = "GTS";

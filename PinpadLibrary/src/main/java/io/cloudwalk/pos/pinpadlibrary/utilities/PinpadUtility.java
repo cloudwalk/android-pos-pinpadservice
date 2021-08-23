@@ -12,6 +12,7 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
+import io.cloudwalk.pos.pinpadlibrary.commands.EBX;
 import io.cloudwalk.pos.pinpadlibrary.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
 import io.cloudwalk.pos.pinpadlibrary.commands.TLE;
@@ -166,6 +167,7 @@ public class PinpadUtility {
             case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
 
             case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
+            case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -223,6 +225,9 @@ public class PinpadUtility {
                 case 0x8041: output.putString(ABECS.PP_TRK1INC,     new String(V)); break;
                 case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
+
+                case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.byteToHexString(V)); break;
+                case 0x804C: output.putString(ABECS.PP_KSN,         DataUtility.byteToHexString(V)); break;
 
                 case 0x8020: // TODO: intercept response @PinpadService!?
                     output.putString(ABECS.PP_DSPTXTSZ, "0000");
@@ -290,6 +295,7 @@ public class PinpadUtility {
             case ABECS.TLE: request = TLE.buildRequestDataPacket(input); break;
 
             case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
+            case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -297,10 +303,14 @@ public class PinpadUtility {
         }
 
         if (request != null) {
-            return wrapDataPacket(request, request.length);
-        }
+            if (request.length <= 2048) {
+                return wrapDataPacket(request, request.length);
+            }
 
-        throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+            throw new RuntimeException("CMD_ID [" + CMD_ID + "] packet exceeds maximum length (2048)");
+        } else {
+            throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+        }
     }
 
     public static byte[] buildRequestTLV(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
@@ -313,18 +323,14 @@ public class PinpadUtility {
         byte[] L = null;
         byte[] V = null;
 
-        switch (type) { // TODO: ensure alignment and length!?
-            case A:
-            case S:
-            case N:
+        switch (type) {
+            case A: case S: case N:
                 T = DataUtility.hexStringToByteArray(tag);
                 L = ByteBuffer.allocate(2).putShort((short) (value.length())).array();
                 V = value.getBytes(UTF_8);
                 break;
 
-            case H:
-            case X:
-            case B:
+            case H: case X: case B:
                 T = DataUtility.hexStringToByteArray(tag);
                 L = ByteBuffer.allocate(2).putShort((short) (value.length() / 2)).array();
                 V = DataUtility.hexStringToByteArray(value);

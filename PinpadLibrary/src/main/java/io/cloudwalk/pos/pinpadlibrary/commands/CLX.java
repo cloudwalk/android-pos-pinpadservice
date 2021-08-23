@@ -51,14 +51,10 @@ public class CLX {
         String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
 
         if (SPE_DSPMSG != null) {
-            SPE_DSPMSG = SPE_DSPMSG.length() > 128 ? SPE_DSPMSG.substring(0, 128) : SPE_DSPMSG;
-
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
         }
 
         if (SPE_MFNAME != null) {
-            SPE_MFNAME = String.format(US, "%-8.8s", SPE_MFNAME.toUpperCase());
-
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001E", SPE_MFNAME));
         }
 
