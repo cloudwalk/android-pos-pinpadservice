@@ -179,6 +179,8 @@ public class PinpadManager extends IPinpadManager.Stub {
                     case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                     case ABECS.CEX:
                         /* Nothing to do */
+
+                        // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
                         break;
 
                     default:

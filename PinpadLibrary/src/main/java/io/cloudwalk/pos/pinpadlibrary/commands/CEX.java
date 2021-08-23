@@ -70,14 +70,23 @@ public class CEX {
         String SPE_PANMASK  = input.getString(ABECS.SPE_PANMASK);
 
         if (SPE_CEXOPT != null) {
+            SPE_CEXOPT = String.format(US, "%-6.6s", SPE_CEXOPT)
+                    .replace(" ", "0");
+
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "0006", SPE_CEXOPT));
         }
 
         if (SPE_TIMEOUT != null) {
+            SPE_TIMEOUT = String.format(US, "%2.2s", SPE_TIMEOUT)
+                    .replace(" ", "0");
+
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
         if (SPE_PANMASK != null) {
+            SPE_PANMASK = String.format(US, "%4.4s", SPE_PANMASK)
+                    .replace(" ", "0");
+
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0023", SPE_PANMASK));
         }
 
