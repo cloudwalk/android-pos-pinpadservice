@@ -14,11 +14,14 @@ import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 
 public class PinpadManager {
     private static final String
             TAG = PinpadManager.class.getSimpleName();
+
+    private static final Semaphore sSemaphore = new Semaphore(1, true);
 
     private static final String
             ACTION_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice.PinpadService";
@@ -49,127 +52,16 @@ public class PinpadManager {
 
     /**
      *
-     * @param output
-     * @param timeout
-     * @return
+     * @param internal
      */
-    private static int recv(byte[] output, long timeout) {
-        return receive(output, timeout);
-    }
-
-    /**
-     * Retrieves a valid instance of {@link IBinder}.
-     *
-     * @return {@link IBinder}
-     */
-    public static IBinder retrieve() {
-        Log.d(TAG, "retrieve");
-
-        return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
-    }
-
-    /**
-     *
-     * @param input
-     * @return
-     */
-    public static Bundle request(IServiceCallback callback, @NotNull Bundle input) {
-        Log.d(TAG, "request");
-
-        long overhead  = SystemClock.elapsedRealtime();
-        long timestamp = overhead;
-
-        Bundle output = null;
-
-        String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
-
-        try {
-            byte[] request  = PinpadUtility.buildRequestDataPacket(input);
-            byte[] response = new byte[2048 + 4];
-
-            int retry  = 3;
-            int status = 0;
-
-            timestamp = SystemClock.elapsedRealtime();
-
-            switch (CMD_ID) {
-                // TODO: review all commands that shouldn't be preceded by an abort
-                case ABECS.TLR:
-                case ABECS.TLE:
-                case ABECS.GCX:
-                // case ABECS.GOX:
-                // case ABECS.FNX:
-                    break;
-
-                case "UNKNOWN":
-                    Log.e(TAG, "request::ABECS.CMD_ID [" + CMD_ID + "]");
-                    /* no break */
-
-                default: abort(); break;
-            }
-
-            do {
-                status = send(callback, request, request.length);
-
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                }
-
-                status = recv(response, 2000);
-
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                } else {
-                    if (response[0] != ACK) {
-                        if (--retry <= 0) {
-                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
-                        }
-                    }
-                }
-            } while (response[0] != ACK);
-
-            do {
-                status = recv(response, 10000);
-
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                }
-            } while (status <= 0);
-
-            if (timestamp >= overhead) {
-                timestamp = SystemClock.elapsedRealtime() - timestamp;
-            }
-
-            output = PinpadUtility.parseResponseDataPacket(response, status);
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            output = new Bundle();
-
-            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
-            output.putSerializable(ABECS.RSP_EXCEPTION, exception);
-
-            if (timestamp >= overhead) {
-                timestamp = SystemClock.elapsedRealtime() - timestamp;
-            }
-        } finally {
-            overhead = SystemClock.elapsedRealtime() - overhead;
-
-            Log.d(TAG, "request::timestamp " + ((!CMD_ID.equals("UNKNOWN")) ? "(" + CMD_ID + ") " : "") + "[" + overhead + "] [" + (overhead - timestamp) + "]");
-        }
-
-        return output;
-    }
-
-    /**
-     *
-     */
-    public static void abort() {
-        Log.d(TAG, "abort");
+    private static void abort(boolean internal) {
+        Log.d(TAG, "abort::internal [" + internal + "]");
 
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
+            if (!internal) acquire();
+
             byte[] request  = new byte[] { CAN };
             byte[] response = new byte[2048 + 4];
 
@@ -198,8 +90,163 @@ public class PinpadManager {
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
+            if (!internal) release();
+
             Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
+    }
+
+    /**
+     *
+     */
+    private static void acquire() {
+        Log.d(TAG, "acquire");
+
+        sSemaphore.acquireUninterruptibly();
+    }
+
+    /**
+     *
+     * @param output
+     * @param timeout
+     * @return
+     */
+    private static int recv(byte[] output, long timeout) {
+        return receive(output, timeout);
+    }
+
+    /**
+     *
+     */
+    private static void release() {
+        Log.d(TAG, "release");
+
+        int availablePermits = sSemaphore.availablePermits();
+
+        Log.d(TAG, "release::availablePermits [" + availablePermits + "]");
+
+        if (availablePermits <= 0) {
+            sSemaphore.release();
+        }
+    }
+
+    /**
+     * Retrieves a valid instance of {@link IBinder}.
+     *
+     * @return {@link IBinder}
+     */
+    public static IBinder retrieve() {
+        Log.d(TAG, "retrieve");
+
+        return ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+    }
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public static Bundle request(IServiceCallback callback, @NotNull Bundle input) {
+        Log.d(TAG, "request");
+
+        long overhead  = SystemClock.elapsedRealtime();
+        long timestamp = overhead;
+
+        Bundle output = null;
+        String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
+
+        try {
+            acquire();
+
+            byte[] request  = PinpadUtility.buildRequestDataPacket(input);
+            byte[] response = new byte[2048 + 4];
+
+            int retry  = 3;
+            int status = 0;
+
+            timestamp = SystemClock.elapsedRealtime();
+
+            switch (CMD_ID) {
+                // TODO: review all commands that shouldn't be preceded by an abort
+                case ABECS.TLR:
+                case ABECS.TLE:
+                // case ABECS.GTK:
+                case ABECS.GCX:
+                // case ABECS.GOX:
+                // case ABECS.FNX:
+                    break;
+
+                case "UNKNOWN":
+                    Log.e(TAG, "request::ABECS.CMD_ID [" + CMD_ID + "]");
+                    /* no break */
+
+                default: abort(true); break;
+            }
+
+            do {
+                status = send(callback, request, request.length);
+
+                if (status < 0) {
+                    throw new RuntimeException("request::status [" + status + "]");
+                }
+
+                status = recv(response, 2000);
+
+                if (status < 0) {
+                    throw new RuntimeException("request::status [" + status + "]");
+                } else {
+                    if (response[0] != ACK) {
+                        if (--retry <= 0) {
+                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
+                        }
+                    }
+                }
+            } while (response[0] != ACK);
+
+            release();
+
+            do {
+                status = recv(response, 10000);
+
+                if (status < 0) {
+                    throw new RuntimeException("request::status [" + status + "]");
+                }
+            } while (status <= 0);
+
+            if (timestamp >= overhead) {
+                timestamp = SystemClock.elapsedRealtime() - timestamp;
+            }
+
+            output = PinpadUtility.parseResponseDataPacket(response, status);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            output = new Bundle();
+
+            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
+            output.putSerializable(ABECS.RSP_EXCEPTION, exception);
+
+            if (timestamp >= overhead) {
+                timestamp = SystemClock.elapsedRealtime() - timestamp;
+            }
+        } finally {
+            release();
+
+            overhead = SystemClock.elapsedRealtime() - overhead;
+
+            Log.d(TAG, "request::timestamp " + ((!CMD_ID.equals("UNKNOWN")) ? "(" + CMD_ID + ") " : "") + "[" + overhead + "] [" + (overhead - timestamp) + "]");
+        }
+
+        return output;
+    }
+
+    /**
+     *
+     */
+    public static void abort() {
+        Log.d(TAG, "abort");
+
+        abort(false);
     }
 
     /**
