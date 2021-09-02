@@ -75,6 +75,19 @@ public class PinpadManager extends IPinpadManager.Stub {
                 public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
                     Log.d(TAG, "mensagemNotificacao::s [" + ((s != null) ? s.replace("\n", "\\n") : "null") + "], tipoNotificacao [" + tipoNotificacao + "]");
 
+                    Semaphore semaphore = new Semaphore(1, true);
+
+                    switch (tipoNotificacao) {
+                        case DSP_INICIA_PIN:    /* 16 */
+                        case DSP_ENCERRA_PIN:   /* 17 */
+                            semaphore.acquireUninterruptibly();
+                            break;
+
+                        default:
+                            /* Nothing to do */
+                            break;
+                    }
+
                     new Thread() {
                         @Override
                         public void run() {
@@ -96,9 +109,13 @@ public class PinpadManager extends IPinpadManager.Stub {
                                 }
                             }
 
+                            semaphore.release();
+
                             sClbkSemaphore[1].release();
                         }
                     }.start();
+
+                    semaphore.acquireUninterruptibly();
                 }
 
                 @Override
@@ -249,7 +266,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         Log.d(TAG, "send::application [" + application + "]");
 
-        if (length > 1) { /* 2021-08-11: e.g. not <<CAN>> */
+        if (length > 1) { /* 2021-08-11: e.g. not a control byte - e.g. <<CAN>> */
             setServiceCallback(callback);
         }
 
