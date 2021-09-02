@@ -52,52 +52,6 @@ public class PinpadManager {
 
     /**
      *
-     * @param internal
-     */
-    private static void abort(boolean internal) {
-        Log.d(TAG, "abort::internal [" + internal + "]");
-
-        long timestamp = SystemClock.elapsedRealtime();
-
-        try {
-            if (!internal) acquire();
-
-            byte[] request  = new byte[] { CAN };
-            byte[] response = new byte[2048 + 4];
-
-            int retry  = 3;
-            int status = 0;
-
-            do {
-                status = send(null, request, request.length);
-
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                }
-
-                status = recv(response, 2000);
-
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                } else {
-                    if (response[0] != EOT) {
-                        if (--retry <= 0) {
-                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
-                        }
-                    }
-                }
-            } while (response[0] != EOT);
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-        } finally {
-            if (!internal) release();
-
-            Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
-        }
-    }
-
-    /**
-     *
      */
     private static void acquire() {
         Log.d(TAG, "acquire");
@@ -166,23 +120,6 @@ public class PinpadManager {
 
             timestamp = SystemClock.elapsedRealtime();
 
-            switch (CMD_ID) {
-                // TODO: review all commands that shouldn't be preceded by an abort
-                case ABECS.TLR:
-                case ABECS.TLE:
-                // case ABECS.GTK:
-                case ABECS.GCX:
-                // case ABECS.GOX:
-                // case ABECS.FNX:
-                    break;
-
-                case "UNKNOWN":
-                    Log.e(TAG, "request::ABECS.CMD_ID [" + CMD_ID + "]");
-                    /* no break */
-
-                default: abort(true); break;
-            }
-
             do {
                 status = send(callback, request, request.length);
 
@@ -246,7 +183,43 @@ public class PinpadManager {
     public static void abort() {
         Log.d(TAG, "abort");
 
-        abort(false);
+        long timestamp = SystemClock.elapsedRealtime();
+
+        try {
+            acquire();
+
+            byte[] request  = new byte[] { CAN };
+            byte[] response = new byte[2048 + 4];
+
+            int retry  = 3;
+            int status = 0;
+
+            do {
+                status = send(null, request, request.length);
+
+                if (status < 0) {
+                    throw new RuntimeException("request::status [" + status + "]");
+                }
+
+                status = recv(response, 2000);
+
+                if (status < 0) {
+                    throw new RuntimeException("request::status [" + status + "]");
+                } else {
+                    if (response[0] != EOT) {
+                        if (--retry <= 0) {
+                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
+                        }
+                    }
+                }
+            } while (response[0] != EOT);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+        } finally {
+            release();
+
+            Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+        }
     }
 
     /**
