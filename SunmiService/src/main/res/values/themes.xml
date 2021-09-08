@@ -3,7 +3,7 @@
     <style name="Theme.POC2104301453" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/black</item>
-        <!-- <item name="colorPrimaryVariant">@color/black</item> -->
+        <!-- <item name="colorPrimaryVariant">@color/purple_700</item> -->
         <item name="colorOnPrimary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
