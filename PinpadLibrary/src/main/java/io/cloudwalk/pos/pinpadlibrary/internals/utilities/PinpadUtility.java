@@ -253,7 +253,7 @@ public class PinpadUtility {
                 case 0x8041: output.putString(ABECS.PP_TRK1INC,     new String(V)); break;
                 case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
-                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break;
+                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: should have same format as PP_TRACK2 and PP_TRACK3
                 case 0x8045: output.putString(ABECS.PP_TRACK2,      DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8046: output.putString(ABECS.PP_TRACK3,      DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8047: output.putString(ABECS.PP_TRK1KSN,     DataUtility.getHexStringFromByteArray(V)); break;
