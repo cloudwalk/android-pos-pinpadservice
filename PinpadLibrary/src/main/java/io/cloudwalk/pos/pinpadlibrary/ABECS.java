@@ -154,6 +154,8 @@ public class ABECS {
     public static final String PP_EMVDATA       = "PP_EMVDATA";
     public static final String PP_DEVTYPE       = "PP_DEVTYPE";
 
+    public static final String GED              = "GED";
+
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,
         ST_NOSEC,           ST_F1,              ST_F2,

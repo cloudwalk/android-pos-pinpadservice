@@ -14,6 +14,7 @@ import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.GED;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
@@ -191,6 +192,7 @@ public class PinpadUtility {
             case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
 
             case ABECS.GCX: return GCX.parseResponseDataPacket(response, response.length);
+            case ABECS.GED: return GED.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -338,6 +340,7 @@ public class PinpadUtility {
             case ABECS.TLE: request = TLE.buildRequestDataPacket(input); break;
 
             case ABECS.GCX: request = GCX.buildRequestDataPacket(input); break;
+            case ABECS.GED: request = GED.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -399,7 +402,7 @@ public class PinpadUtility {
                     case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
                     case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
                     case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                    case ABECS.GCX:
+                    case ABECS.GCX: case ABECS.GED:
                         /* Nothing to do */
 
                         // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
