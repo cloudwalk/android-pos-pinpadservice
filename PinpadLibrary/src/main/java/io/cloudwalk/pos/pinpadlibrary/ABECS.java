@@ -68,6 +68,14 @@ public class ABECS {
     public static final String PP_TRK2INC       = "PP_TRK2INC";
     public static final String PP_TRK3INC       = "PP_TRK3INC";
 
+    public static final String CHP              = "CHP";
+
+    public static final String CKE              = "CKE";
+
+    public static final String DEX              = "DEX";
+
+    public static final String DSP              = "DSP";
+
     public static final String EBX              = "EBX";
     public static final String SPE_DATAIN       = "SPE_DATAIN";
     public static final String SPE_MTHDDAT      = "SPE_MTHDDAT";
@@ -77,7 +85,34 @@ public class ABECS {
     public static final String PP_DATAOUT       = "PP_DATAOUT";
     public static final String PP_KSN           = "PP_KSN";
 
-    public static final String CKE              = "CKE";
+    public static final String ENB              = "ENB";
+
+    public static final String GCD              = "GCD";
+
+    public static final String GDU              = "GDU";
+
+    public static final String GKY              = "GKY";
+
+    public static final String GPN              = "GPN";
+
+    public static final String GTK              = "GTK";
+    public static final String SPE_TRACKS       = "SPE_TRACKS";
+    public static final String SPE_OPNDIG       = "SPE_OPNDIG";
+    public static final String SPE_PBKMOD       = "SPE_PBKMOD";
+    public static final String SPE_PBKEXP       = "SPE_PBKEXP";
+    public static final String PP_TRACK1        = "PP_TRACK1";
+    public static final String PP_TRACK2        = "PP_TRACK2";
+    public static final String PP_TRACK3        = "PP_TRACK3";
+    public static final String PP_TRK1KSN       = "PP_TRK1KSN";
+    public static final String PP_TRK2KSN       = "PP_TRK2KSN";
+    public static final String PP_TRK3KSN       = "PP_TRK3KSN";
+    public static final String PP_ENCPAN        = "PP_ENCPAN";
+    public static final String PP_ENCPANKSN     = "PP_ENCPANKSN";
+    public static final String PP_ENCKRAND      = "PP_ENCKRAND";
+
+    public static final String MNU              = "MNU";
+
+    public static final String RMC              = "RMC";
 
     public static final String GTS              = "GTS";
 
