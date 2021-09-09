@@ -1,4 +1,7 @@
-package io.cloudwalk.pos.pinpadlibrary.commands;
+package io.cloudwalk.pos.pinpadlibrary.internals.commands;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
 
 import android.os.Bundle;
 
@@ -6,18 +9,14 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
-public class CLX {
+public class TLR {
     private static final String
-            TAG = CLX.class.getSimpleName();
+            TAG = TLR.class.getSimpleName();
 
-    private CLX() {
-        Log.d(TAG, "CLX");
+    private TLR() {
+        Log.d(TAG, "TLR");
 
         /* Nothing to do */
     }
@@ -34,8 +33,8 @@ public class CLX {
 
         Bundle output = new Bundle();
 
-        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
+        output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
+        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
         return output;
     }
@@ -47,16 +46,13 @@ public class CLX {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_DSPMSG   = input.getString(ABECS.SPE_DSPMSG);
-        String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
+        String TLR_NREC     = input.getString(ABECS.TLR_NREC);
+        String TLR_DATA     = input.getString(ABECS.TLR_DATA);
 
-        if (SPE_DSPMSG != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
-        }
+        TLR_DATA = TLR_DATA.length() > 999 ? TLR_DATA.substring(0, 999) : TLR_DATA;
 
-        if (SPE_MFNAME != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001E", SPE_MFNAME));
-        }
+        stream[1].write(TLR_NREC.getBytes(UTF_8));
+        stream[1].write(TLR_DATA.getBytes(UTF_8));
 
         byte[] CMD_DATA = stream[1].toByteArray();
 

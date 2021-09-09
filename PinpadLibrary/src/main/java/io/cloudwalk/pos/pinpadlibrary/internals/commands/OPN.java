@@ -1,4 +1,4 @@
-package io.cloudwalk.pos.pinpadlibrary.commands;
+package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
 import android.os.Bundle;
 

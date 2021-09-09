@@ -1,4 +1,4 @@
-package io.cloudwalk.pos.pinpadlibrary.utilities;
+package io.cloudwalk.pos.pinpadlibrary.internals.utilities;
 
 import android.os.Bundle;
 
@@ -10,14 +10,14 @@ import java.util.Arrays;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.commands.CEX;
-import io.cloudwalk.pos.pinpadlibrary.commands.CLX;
-import io.cloudwalk.pos.pinpadlibrary.commands.EBX;
-import io.cloudwalk.pos.pinpadlibrary.commands.GIX;
-import io.cloudwalk.pos.pinpadlibrary.commands.OPN;
-import io.cloudwalk.pos.pinpadlibrary.commands.TLE;
-import io.cloudwalk.pos.pinpadlibrary.commands.TLI;
-import io.cloudwalk.pos.pinpadlibrary.commands.TLR;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.CLX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLE;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLI;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLR;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -33,11 +33,6 @@ public class PinpadUtility {
         /* Nothing to do */
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
     private static byte[] wrapDataPacket(byte[] input, int length)
             throws Exception {
         Log.d(TAG, "wrapDataPacket");
@@ -144,11 +139,6 @@ public class PinpadUtility {
         return output;
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
     public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
@@ -272,11 +262,6 @@ public class PinpadUtility {
         return output;
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
     public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");

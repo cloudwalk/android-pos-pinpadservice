@@ -1,4 +1,7 @@
-package io.cloudwalk.pos.pinpadlibrary.commands;
+package io.cloudwalk.pos.pinpadlibrary.internals.commands;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
 
 import android.os.Bundle;
 
@@ -6,21 +9,15 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.utilities.PinpadUtility;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
-public class GIX {
+public class EBX {
     private static final String
-            TAG = GIX.class.getSimpleName();
+            TAG = EBX.class.getSimpleName();
 
-    private static final byte[]
-            SPE_IDLIST = new byte[] { 0x00, 0x01 };
-
-    private GIX() {
-        Log.d(TAG, "GIX");
+    private EBX() {
+        Log.d(TAG, "EBX");
 
         /* Nothing to do */
     }
@@ -37,12 +34,12 @@ public class GIX {
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
 
-        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
-
         Bundle output = new Bundle();
 
-        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT, STAT);
+        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
+
+        output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
+        output.putSerializable(ABECS.RSP_STAT,  STAT);
 
         switch (STAT) {
             case ST_OK:
@@ -68,10 +65,30 @@ public class GIX {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
+        String SPE_DATAIN   = input.getString(ABECS.SPE_DATAIN);
+        String SPE_MTHDDAT  = input.getString(ABECS.SPE_MTHDDAT);
+        String SPE_KEYIDX   = input.getString(ABECS.SPE_KEYIDX);
+        String SPE_WKENC    = input.getString(ABECS.SPE_WKENC);
+        String SPE_IVCBC    = input.getString(ABECS.SPE_IVCBC);
 
-        if (SPE_IDLIST != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0001", SPE_IDLIST));
+        if (SPE_DATAIN  != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "000F", SPE_DATAIN));
+        }
+
+        if (SPE_MTHDDAT != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0003", SPE_MTHDDAT));
+        }
+
+        if (SPE_KEYIDX  != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
+        }
+
+        if (SPE_WKENC   != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "000A", SPE_WKENC));
+        }
+
+        if (SPE_IVCBC   != null) {
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "001D", SPE_IVCBC));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

@@ -1,7 +1,8 @@
 package io.cloudwalk.pos.pinpadlibrary;
 
 public class ABECS {
-    public static final String TAG = ABECS.class.getSimpleName();
+    public static final String
+            TAG = ABECS.class.getSimpleName();
 
     public static final String RSP_EXCEPTION    = "RSP_EXCEPTION";
 

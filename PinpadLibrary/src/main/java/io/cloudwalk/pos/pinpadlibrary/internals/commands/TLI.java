@@ -1,19 +1,22 @@
-package io.cloudwalk.pos.pinpadlibrary.commands;
+package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
 
 import android.os.Bundle;
+
+import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-public class TLE {
+public class TLI {
     private static final String
-            TAG = TLE.class.getSimpleName();
+            TAG = TLI.class.getSimpleName();
 
-    private TLE() {
-        Log.d(TAG, "TLE");
+    private TLI() {
+        Log.d(TAG, "TLI");
 
         /* Nothing to do */
     }
@@ -40,6 +43,17 @@ public class TLE {
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        return DataUtility.concatByteArray(input.getString(ABECS.CMD_ID).getBytes(UTF_8), "000".getBytes(UTF_8));
+        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+
+        String CMD_ID       = input.getString(ABECS.CMD_ID);
+        String TLI_ACQIDX   = input.getString(ABECS.TLI_ACQIDX);
+        String TLI_TABVER   = input.getString(ABECS.TLI_TABVER);
+
+        stream[1].write(TLI_ACQIDX.getBytes(UTF_8));
+        stream[1].write(TLI_TABVER.getBytes(UTF_8));
+
+        byte[] CMD_DATA = stream[1].toByteArray();
+
+        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
     }
 }
