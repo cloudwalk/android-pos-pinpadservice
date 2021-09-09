@@ -29,22 +29,12 @@ public class GIX {
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        byte[] RSP_ID       = new byte[3];
-        byte[] RSP_STAT     = new byte[3];
         byte[] RSP_LEN1     = new byte[3];
         byte[] RSP_DATA     = null;
 
-        System.arraycopy(input, 0, RSP_ID,   0, 3);
-        System.arraycopy(input, 3, RSP_STAT, 0, 3);
+        Bundle output = PinpadUtility.CMD.parseResponseDataPacket(input, length);
 
-        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
-
-        Bundle output = new Bundle();
-
-        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT, STAT);
-
-        switch (STAT) {
+        switch ((ABECS.STAT) output.getSerializable(ABECS.RSP_STAT)) {
             case ST_OK:
                 System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 

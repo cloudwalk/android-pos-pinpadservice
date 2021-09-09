@@ -245,7 +245,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             byte[] request = PinpadUtility.intercept(input, length);
 
             if (request[0] != 0x15) {
-                result = getPinpad().enviaComando(request, request.length);
+                result = getPinpad().enviaComando(request, length);
             } else {
                 result = (sQueue.add(request)) ? 0 : -1;
             }
