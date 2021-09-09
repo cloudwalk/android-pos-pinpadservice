@@ -486,6 +486,25 @@ public class MainActivity extends AppCompatActivity {
 
                 requestList.add(request);
 
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.GCX);
+                request.putString(ABECS.SPE_TRNTYPE, "00");
+                request.putString(ABECS.SPE_ACQREF, "04");
+                request.putString(ABECS.SPE_APPTYPE, "02");
+                request.putString(ABECS.SPE_AMOUNT, "000000000999");
+                request.putString(ABECS.SPE_CASHBACK, "000000000000");
+                request.putString(ABECS.SPE_TRNCURR, "986");
+                request.putString(ABECS.SPE_TRNDATE, "210909");
+                request.putString(ABECS.SPE_TRNTIME, "163800");
+                request.putString(ABECS.SPE_GCXOPT, "10000");
+                request.putString(ABECS.SPE_PANMASK, "0404");
+                request.putString(ABECS.SPE_TAGLIST, "5F285F24");
+                request.putString(ABECS.SPE_TIMEOUT, "3C");
+                request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
+
+                requestList.add(request);
+
                 for (Bundle TX : requestList) {
                     try {
                         updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));

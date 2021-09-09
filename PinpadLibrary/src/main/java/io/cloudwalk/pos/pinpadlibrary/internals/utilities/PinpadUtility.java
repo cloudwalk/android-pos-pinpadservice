@@ -13,6 +13,7 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
@@ -180,14 +181,16 @@ public class PinpadUtility {
             case ABECS.GIX: return GIX.parseResponseDataPacket(response, response.length);
             case ABECS.CLX: return CLX.parseResponseDataPacket(response, response.length);
 
-            case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
-            case ABECS.TLR: return TLR.parseResponseDataPacket(response, response.length);
-            case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
-
             case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
             case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
             case ABECS.GTK: return GTK.parseResponseDataPacket(response, response.length);
             case ABECS.RMC: return RMC.parseResponseDataPacket(response, response.length);
+
+            case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
+            case ABECS.TLR: return TLR.parseResponseDataPacket(response, response.length);
+            case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
+
+            case ABECS.GCX: return GCX.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -237,6 +240,25 @@ public class PinpadUtility {
                 case 0x8014: output.putString(ABECS.PP_AECTLSVER,   new String(V)); break;
                 case 0x8015: output.putString(ABECS.PP_DPCTLSVER,   new String(V)); break;
                 case 0x8016: output.putString(ABECS.PP_PUREVER,     new String(V)); break;
+                case 0x8032: output.putString(ABECS.PP_MKTDESP,     new String(V)); break;
+                case 0x8033: output.putString(ABECS.PP_MKTDESD,     new String(V)); break;
+                case 0x8035: output.putString(ABECS.PP_DKPTTDESP,   new String(V)); break;
+                case 0x8036: output.putString(ABECS.PP_DKPTTDESD,   new String(V)); break;
+                case 0x8040: output.putString(ABECS.PP_EVENT,       new String(V)); break;
+                case 0x8041: output.putString(ABECS.PP_TRK1INC,     new String(V)); break;
+                case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
+                case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
+                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: should have same format as PP_TRACK2 and PP_TRACK3
+                case 0x804F: output.putString(ABECS.PP_CARDTYPE,    new String(V)); break;
+                case 0x8050: output.putString(ABECS.PP_ICCSTAT,     new String(V)); break;
+                case 0x8051: output.putString(ABECS.PP_AIDTABINFO,  new String(V)); break;
+                case 0x8052: output.putString(ABECS.PP_PAN,         new String(V)); break;
+                case 0x8053: output.putString(ABECS.PP_PANSEQNO,    new String(V)); break;
+                case 0x8055: output.putString(ABECS.PP_CHNAME,      new String(V)); break;
+                case 0x805B: output.putString(ABECS.PP_LABEL,       new String(V)); break;
+                case 0x805C: output.putString(ABECS.PP_ISSCNTRY,    new String(V)); break;
+                case 0x805D: output.putString(ABECS.PP_CARDEXP,     new String(V)); break;
+                case 0x8060: output.putString(ABECS.PP_DEVTYPE,     new String(V)); break;
 
                 case 0x8020: // TODO: intercept response @PinpadService!?
                     output.putString(ABECS.PP_DSPTXTSZ, "0000");
@@ -247,15 +269,6 @@ public class PinpadUtility {
                     output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
                     break;
 
-                case 0x8032: output.putString(ABECS.PP_MKTDESP,     new String(V)); break;
-                case 0x8033: output.putString(ABECS.PP_MKTDESD,     new String(V)); break;
-                case 0x8035: output.putString(ABECS.PP_DKPTTDESP,   new String(V)); break;
-                case 0x8036: output.putString(ABECS.PP_DKPTTDESD,   new String(V)); break;
-                case 0x8040: output.putString(ABECS.PP_EVENT,       new String(V)); break;
-                case 0x8041: output.putString(ABECS.PP_TRK1INC,     new String(V)); break;
-                case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
-                case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
-                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: should have same format as PP_TRACK2 and PP_TRACK3
                 case 0x8045: output.putString(ABECS.PP_TRACK2,      DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8046: output.putString(ABECS.PP_TRACK3,      DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8047: output.putString(ABECS.PP_TRK1KSN,     DataUtility.getHexStringFromByteArray(V)); break;
@@ -265,6 +278,7 @@ public class PinpadUtility {
                 case 0x804B: output.putString(ABECS.PP_ENCPANKSN,   DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x804C: output.putString(ABECS.PP_KSN,         DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x8054: output.putString(ABECS.PP_EMVDATA,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8063: output.putString(ABECS.PP_ENCKRAND,    DataUtility.getHexStringFromByteArray(V)); break;
 
                 case 0x805A:
@@ -314,14 +328,16 @@ public class PinpadUtility {
             case ABECS.GIX: request = GIX.buildRequestDataPacket(input); break;
             case ABECS.CLX: request = CLX.buildRequestDataPacket(input); break;
 
-            case ABECS.TLI: request = TLI.buildRequestDataPacket(input); break;
-            case ABECS.TLR: request = TLR.buildRequestDataPacket(input); break;
-            case ABECS.TLE: request = TLE.buildRequestDataPacket(input); break;
-
             case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
             case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
             case ABECS.GTK: request = GTK.buildRequestDataPacket(input); break;
             case ABECS.RMC: request = RMC.buildRequestDataPacket(input); break;
+
+            case ABECS.TLI: request = TLI.buildRequestDataPacket(input); break;
+            case ABECS.TLR: request = TLR.buildRequestDataPacket(input); break;
+            case ABECS.TLE: request = TLE.buildRequestDataPacket(input); break;
+
+            case ABECS.GCX: request = GCX.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -383,6 +399,7 @@ public class PinpadUtility {
                     case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
                     case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
                     case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                    case ABECS.GCX:
                         /* Nothing to do */
 
                         // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
