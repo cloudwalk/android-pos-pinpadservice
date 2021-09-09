@@ -36,7 +36,7 @@ public class CEX {
 
         Bundle output = new Bundle();
 
-        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)];
+        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
 
         output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
         output.putSerializable(ABECS.RSP_STAT,  STAT);
@@ -45,7 +45,7 @@ public class CEX {
             case ST_OK:
                 System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
-                RSP_DATA = new byte[DataUtility.byteArrayToInt(RSP_LEN1, RSP_LEN1.length)];
+                RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
 
                 System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
 

@@ -226,8 +226,8 @@ public class PinpadUtility {
                 case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
 
-                case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.byteToHexString(V)); break;
-                case 0x804C: output.putString(ABECS.PP_KSN,         DataUtility.byteToHexString(V)); break;
+                case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x804C: output.putString(ABECS.PP_KSN,         DataUtility.getHexStringFromByteArray(V)); break;
 
                 case 0x8020: // TODO: intercept response @PinpadService!?
                     output.putString(ABECS.PP_DSPTXTSZ, "0000");
@@ -239,21 +239,21 @@ public class PinpadUtility {
                     break;
 
                 case 0x805A:
-                    output.putString(ABECS.PP_BIGRAND, DataUtility.byteToHexString(V));
+                    output.putString(ABECS.PP_BIGRAND, DataUtility.getHexStringFromByteArray(V));
                     break;
 
                 default:
                     if (tag >= 0x9100 && tag <= 0x9163) {
                         String key = ABECS.PP_KSNTDESPnn.replace("nn", String.format(US, "%02d", (tag - 0x9100)));
 
-                        output.putString(key, DataUtility.byteToHexString(V));
+                        output.putString(key, DataUtility.getHexStringFromByteArray(V));
                         continue;
                     }
 
                     if (tag >= 0x9200 && tag <= 0x9263) {
                         String key = ABECS.PP_KSNTDESDnn.replace("nn", String.format(US, "%02d", (tag - 0x9200)));
 
-                        output.putString(key, DataUtility.byteToHexString(V));
+                        output.putString(key, DataUtility.getHexStringFromByteArray(V));
                         continue;
                     }
 
@@ -325,15 +325,15 @@ public class PinpadUtility {
 
         switch (type) {
             case A: case S: case N:
-                T = DataUtility.hexStringToByteArray(tag);
+                T = DataUtility.getByteArrayFromHexString(tag);
                 L = ByteBuffer.allocate(2).putShort((short) (value.length())).array();
                 V = value.getBytes(UTF_8);
                 break;
 
             case H: case X: case B:
-                T = DataUtility.hexStringToByteArray(tag);
+                T = DataUtility.getByteArrayFromHexString(tag);
                 L = ByteBuffer.allocate(2).putShort((short) (value.length() / 2)).array();
-                V = DataUtility.hexStringToByteArray(value);
+                V = DataUtility.getByteArrayFromHexString(value);
                 break;
         }
 

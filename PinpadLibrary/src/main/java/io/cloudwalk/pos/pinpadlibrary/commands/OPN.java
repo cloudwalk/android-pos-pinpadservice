@@ -36,7 +36,7 @@ public class OPN {
         Bundle output = new Bundle();
 
         output.putString      (ABECS.RSP_ID,    new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)]);
+        output.putSerializable(ABECS.RSP_STAT,  ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
         if (length > 6) {
             System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);

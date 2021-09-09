@@ -187,7 +187,7 @@ public class ServiceUtility {
 
                 try {
                     if ((index = search(cls)) >= 0) {
-                        return;
+                        return; // TODO: add `callback` instance to the list!?
                     }
 
                     Log.d(TAG, "cls [" + cls + "]");

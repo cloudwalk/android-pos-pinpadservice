@@ -3,7 +3,6 @@ package io.cloudwalk.pos.pinpadlibrary.commands;
 import android.os.Bundle;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
@@ -38,7 +37,7 @@ public class GIX {
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
 
-        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.byteArrayToInt(RSP_STAT, RSP_STAT.length)];
+        ABECS.STAT STAT = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
 
         Bundle output = new Bundle();
 
@@ -49,7 +48,7 @@ public class GIX {
             case ST_OK:
                 System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
-                RSP_DATA = new byte[DataUtility.byteArrayToInt(RSP_LEN1, RSP_LEN1.length)];
+                RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
 
                 System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
 

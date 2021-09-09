@@ -475,11 +475,11 @@ public class MainActivity extends AppCompatActivity {
 
                 for (Bundle TX : requestList) {
                     try {
-                        updateContentScrolling(null, "\"TX\": " + DataUtility.bundleToJSON(TX).toString(4));
+                        updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
 
                         Bundle RX = PinpadManager.request(serviceCallback, TX);
 
-                        updateContentScrolling(null, "\"RX\": " + DataUtility.bundleToJSON(RX).toString(4));
+                        updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
 
                         if (wasPaused()) {
                             return;
