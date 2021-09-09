@@ -16,6 +16,7 @@ import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLE;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLI;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLR;
@@ -186,6 +187,7 @@ public class PinpadUtility {
             case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
             case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
             case ABECS.GTK: return GTK.parseResponseDataPacket(response, response.length);
+            case ABECS.RMC: return RMC.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -319,6 +321,7 @@ public class PinpadUtility {
             case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
             case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
             case ABECS.GTK: request = GTK.buildRequestDataPacket(input); break;
+            case ABECS.RMC: request = RMC.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -378,7 +381,7 @@ public class PinpadUtility {
 
                 switch (new String(CMD_ID)) {
                     case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
-                    case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
+                    case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
                     case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         /* Nothing to do */
 

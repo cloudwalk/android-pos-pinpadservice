@@ -113,6 +113,7 @@ public class ABECS {
     public static final String MNU              = "MNU";
 
     public static final String RMC              = "RMC";
+    public static final String RMC_MSG          = "RMC_MSG";
 
     public static final String GTS              = "GTS";
 

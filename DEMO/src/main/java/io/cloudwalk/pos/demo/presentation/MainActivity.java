@@ -472,6 +472,13 @@ public class MainActivity extends AppCompatActivity {
 
                 request = new Bundle();
 
+                request.putString(ABECS.CMD_ID, ABECS.RMC);
+                request.putString(ABECS.RMC_MSG, "                                ");
+
+                requestList.add(request);
+
+                request = new Bundle();
+
                 request.putString(ABECS.CMD_ID, ABECS.EBX);
                 request.putString(ABECS.SPE_DATAIN, "00010203040506070809101112131415");
                 request.putString(ABECS.SPE_MTHDDAT, "51");
