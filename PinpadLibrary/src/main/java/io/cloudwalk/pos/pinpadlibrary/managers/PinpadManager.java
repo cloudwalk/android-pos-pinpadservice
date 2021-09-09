@@ -21,7 +21,8 @@ public class PinpadManager {
     private static final String
             TAG = PinpadManager.class.getSimpleName();
 
-    private static final Semaphore sSemaphore = new Semaphore(1, true);
+    private static final Semaphore
+            sSemaphore = new Semaphore(1, true);
 
     private static final String
             ACTION_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice.PinpadService";
@@ -51,7 +52,7 @@ public class PinpadManager {
     }
 
     /**
-     *
+     * See {@link Semaphore#acquireUninterruptibly()}.
      */
     private static void acquire() {
         Log.d(TAG, "acquire");
@@ -60,17 +61,15 @@ public class PinpadManager {
     }
 
     /**
-     *
-     * @param output
-     * @param timeout
-     * @return
+     * See {@link PinpadManager#receive(byte[], long)}.
      */
     private static int recv(byte[] output, long timeout) {
         return receive(output, timeout);
     }
 
     /**
-     *
+     * Releases a permit if the number of available permits doesn't already surpasses zero.<br>
+     * See {@link Semaphore#release()}.
      */
     private static void release() {
         Log.d(TAG, "release");
@@ -96,9 +95,11 @@ public class PinpadManager {
     }
 
     /**
+     * Performs an ABECS PINPAD request using the key/value format, heavily based on the default
+     * public data format, as specified by the ABECS PINPAD protocol.
      *
-     * @param input
-     * @return
+     * @param input {@link Bundle}
+     * @return {@link Bundle}
      */
     public static Bundle request(IServiceCallback callback, @NotNull Bundle input) {
         Log.d(TAG, "request");
@@ -106,8 +107,8 @@ public class PinpadManager {
         long overhead  = SystemClock.elapsedRealtime();
         long timestamp = overhead;
 
-        Bundle output = null;
-        String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
+        Bundle output;
+        String CMD_ID  = input.getString(ABECS.CMD_ID, "UNKNOWN");
 
         try {
             acquire();
@@ -178,7 +179,7 @@ public class PinpadManager {
     }
 
     /**
-     *
+     * Performs an ABECS PINPAD abort request, interrupting blocking or sequential commands.
      */
     public static void abort() {
         Log.d(TAG, "abort");
@@ -245,10 +246,13 @@ public class PinpadManager {
     }
 
     /**
+     * Waits for the processing result of a previously sent ABECS PINPAD request.<br>
+     * See {@link PinpadManager#send(IServiceCallback, byte[], int)}.
      *
-     * @param output
-     * @param timeout
-     * @return
+     * @param output {@code byte[]} as specified by ABECS PINPAD protocol
+     * @param timeout self-describing (milliseconds)
+     * @return {@code int} bigger than zero if the request was processed successfully, less than
+     *         zero in the event of a failure and zero if timeout was reached
      */
     public static int receive(byte[] output, long timeout) {
         Log.d(TAG, "receive");
@@ -285,10 +289,13 @@ public class PinpadManager {
     }
 
     /**
+     * Performs an ABECS PINPAD request using the default public data format.<br>
+     * Does not wait the processing result.
      *
-     * @param input
-     * @param length
-     * @return
+     * @param input {@code byte[]} as specified by ABECS PINPAD protocol
+     * @param length {@code input} length
+     * @return {@code int} bigger than zero if the request was sent successfully, less than zero
+     *         otherwise
      */
     public static int send(IServiceCallback callback, byte[] input, int length) {
         Log.d(TAG, "send");
