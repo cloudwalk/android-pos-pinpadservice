@@ -388,6 +388,9 @@ public class PinpadUtility {
                         // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
                         break;
 
+                    // case ABECS.GPN: case ABECS.GOX:
+                        // break;
+
                     default:
                         Log.w(TAG, "intercept::NAK registered");
 

@@ -36,7 +36,7 @@ public class RMC {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String RMC_MSG      = input.getString(ABECS.RMC_MSG);
+        String RMC_MSG      = input.getString(ABECS.RMC_MSG); // TODO: should be notified to the application, but it isn't
 
         stream[1].write(RMC_MSG.getBytes(UTF_8));
 
