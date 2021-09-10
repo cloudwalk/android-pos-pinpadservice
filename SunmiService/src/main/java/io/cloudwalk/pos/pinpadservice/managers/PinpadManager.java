@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
 
+import com.sunmi.pay.hardware.aidl.AidlConstants;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -26,6 +28,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.utilitieslibrary.Application;
+import sunmi.paylib.SunmiPayKernel;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -57,18 +60,6 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     private static long
             sTimestamp = SystemClock.elapsedRealtime();
-
-    /**
-     * Runnable interface.
-     */
-    public static interface Runnable {
-        /**
-         * @return {@link Bundle}
-         * @throws Exception self-describing
-         */
-        Bundle run(Bundle input)
-                throws Exception;
-    }
 
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
@@ -158,7 +149,42 @@ public class PinpadManager extends IPinpadManager.Stub {
                 public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
                     Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-                    // TODO: PayLib!?
+                    int[] status = ledsContactless.checaLedsAcesos();
+
+                    for (int i = 0; i < status.length; i++) {
+                        Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
+
+                        int led = -1;
+
+                        try {
+                            switch (i) {
+                                case 0:
+                                    led = AidlConstants.LedLight.BLUE_LIGHT;
+                                    break;
+
+                                case 1:
+                                    led = AidlConstants.LedLight.YELLOW_LIGHT;
+                                    break;
+
+                                case 2:
+                                    led = AidlConstants.LedLight.GREEN_LIGHT;
+                                    break;
+
+                                case 3:
+                                    led = AidlConstants.LedLight.RED_LIGHT;
+                                    break;
+
+                                default:
+                                    continue;
+                            }
+
+                            SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
+
+                            SystemClock.sleep(50); /* 2021-09-10: UX */
+                        } catch (RemoteException exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+                        }
+                    }
                 }
             };
 
@@ -230,17 +256,19 @@ public class PinpadManager extends IPinpadManager.Stub {
                     switch (new String(CMD_ID)) {
                         case ABECS.GPN:
                         case ABECS.GOX:
-                            sTimestamp = SystemClock.elapsedRealtime() - sTimestamp;
-
-                            if (sTimestamp < 1500) { // TODO: must exist a better way!
-                                SystemClock.sleep(1500 - sTimestamp);
-                            }
-
                             PinCaptureActivity.onNotificationThrow("", -1, -2);
-                            break;
+                            /* no break */
 
                         default:
-                            /* Nothing to do */
+                            for (int i = 0; i < 4; i++) {
+                                try {
+                                    SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
+
+                                    SystemClock.sleep(50); /* 2021-09-10: UX */
+                                } catch (RemoteException exception) {
+                                    Log.e(TAG, Log.getStackTraceString(exception));
+                                }
+                            }
                             break;
                     }
                 }

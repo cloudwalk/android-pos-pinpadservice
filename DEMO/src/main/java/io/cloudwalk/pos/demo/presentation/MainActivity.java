@@ -303,42 +303,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mAboutAlertDialog = new AboutAlertDialog(this);
-    }
-
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause");
-
-        super.onPause();
-
-        finish();
-
-        /* 'onPause' runs on the UI thread, hence the new thread not to block it */
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                PinpadManager.abort();
-
-                acquire(1);
-
-                if (mPinpadServer != null) {
-                    mPinpadServer.close();
-                }
-
-                release(1);
-            }
-        }.start();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-
-        overridePendingTransition(0, 0);
-
-        super.onResume();
 
         /* 'onResume' runs on the UI thread, hence the new thread not to block it */
         new Thread() {
@@ -376,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
 
                 request.putString(ABECS.CMD_ID, ABECS.CLX);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -385,14 +349,14 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.OPN_MOD, "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
                 request.putString(ABECS.OPN_EXP, "0D");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.GIX);
                 request.putString(ABECS.SPE_IDLIST, "800180028003800480058006800780088009800A80108011801280138014801580168032803380358036910A920B9300");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -400,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.TLI_ACQIDX, "00");
                 request.putString(ABECS.TLI_TABVER, "0123456789");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -408,10 +372,10 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.TLR_NREC, "03");
                 request.putString(ABECS.TLR_DATA,
                         "3141040107A000000494201000000000000000000002ELO DEBITO      03000100010001076986200000000000000000000000000060D0E87000F0A00122FC408480000010000000FC6084900000000000R093B9AC9FF00001388000013880000100000000000000000000000000000000000000009F37040000000000000000000000000000000000Y1Z1Y3Z3FC408480000010000000FC60849000"
-                      + "3141040210A0000000041010D0761300000000000001Master CREDITO  030002000200020769862000000000000000000000000000E0F8C8F000F0A00122FE50BCA0000000000000FE50BCF80000000000R143B9AC9FF0000000000001388000019F02065F2A029A039C0195059F370400000000009F37040000000000000000000000000000000000Y1Z1Y3Z3F45084800C0000000000F45084800C"
-                      + "3141040310A0000000041010D0761200000000000002Master DEBITO   030002000200020769862000000000000000000000000000E0F8C8F000F0A00122FE50BCA0000000000000FE50BCF80000000000R143B9AC9FF0000000000001388000019F02065F2A029A039C0195059F370400000000009F37040000000000000000000000000000000000Y1Z1Y3Z3F45084800C0000000000F45084800C");
+                                + "3141040210A0000000041010D0761300000000000001Master CREDITO  030002000200020769862000000000000000000000000000E0F8C8F000F0A00122FE50BCA0000000000000FE50BCF80000000000R143B9AC9FF0000000000001388000019F02065F2A029A039C0195059F370400000000009F37040000000000000000000000000000000000Y1Z1Y3Z3F45084800C0000000000F45084800C"
+                                + "3141040310A0000000041010D0761200000000000002Master DEBITO   030002000200020769862000000000000000000000000000E0F8C8F000F0A00122FE50BCA0000000000000FE50BCF80000000000R143B9AC9FF0000000000001388000019F02065F2A029A039C0195059F370400000000009F37040000000000000000000000000000000000Y1Z1Y3Z3F45084800C0000000000F45084800C");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 ArrayList<String> list = new ArrayList<>(0);
 
@@ -446,14 +410,14 @@ public class MainActivity extends AppCompatActivity {
                     request.putString(ABECS.TLR_NREC, "01");
                     request.putString(ABECS.TLR_DATA, item);
 
-                    requestList.add(request);
+                    // requestList.add(request);
                 }
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.TLE);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -462,20 +426,20 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_TIMEOUT, "3C");
                 request.putString(ABECS.SPE_PANMASK, "0404");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.GTK);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.RMC);
                 request.putString(ABECS.RMC_MSG, "HAVE FAITH...                   ");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -484,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_MTHDDAT, "51");
                 request.putString(ABECS.SPE_KEYIDX, "11");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -509,6 +473,24 @@ public class MainActivity extends AppCompatActivity {
 
                 request.putString(ABECS.CMD_ID, ABECS.GED);
                 request.putString(ABECS.SPE_TAGLIST, "5F285F24");
+
+                requestList.add(request);
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.GOX);
+                request.putString(ABECS.SPE_ACQREF, "04");
+                request.putString(ABECS.SPE_TRNTYPE, "00");
+                request.putString(ABECS.SPE_AMOUNT, "000000000999");
+                request.putString(ABECS.SPE_CASHBACK, "000000000000");
+                request.putString(ABECS.SPE_TRNCURR, "986");
+                request.putString(ABECS.SPE_GCXOPT, "11100");
+                request.putString(ABECS.SPE_MTHDPIN, "3");
+                request.putString(ABECS.SPE_KEYIDX, "10");
+                request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
+                //TODO: request.putString(ABECS.SPE_TRMPAR, "...");
+                request.putString(ABECS.SPE_TAGLIST, "5F285F24");
+                request.putString(ABECS.SPE_TIMEOUT, "3C");
 
                 requestList.add(request);
 
@@ -540,6 +522,26 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 
         mAboutAlertDialog.dismiss();
+
+        finish();
+
+        /* 'onStop' runs on the UI thread, hence the new thread not to block it */
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                PinpadManager.abort();
+
+                acquire(1);
+
+                if (mPinpadServer != null) {
+                    mPinpadServer.close();
+                }
+
+                release(1);
+            }
+        }.start();
     }
 
     @Override
