@@ -156,6 +156,11 @@ public class ABECS {
 
     public static final String GED              = "GED";
 
+    public static final String GOX              = "GOX";
+    public static final String SPE_GOXOPT       = "SPE_GOXOPT";
+    public static final String SPE_MTHDPIN      = "SPE_MTHDPIN";
+    public static final String SPE_TRMPAR       = "SPE_TRMPAR";
+
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,
         ST_NOSEC,           ST_F1,              ST_F2,

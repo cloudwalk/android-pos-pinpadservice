@@ -2,8 +2,11 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.Locale.US;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.SystemClock;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,9 +21,11 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.Menu;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
+import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
+import io.cloudwalk.pos.utilitieslibrary.Application;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -50,6 +55,9 @@ public class PinpadManager extends IPinpadManager.Stub {
     private static IServiceCallback
             sServiceCallback = null;
 
+    private static long
+            sTimestamp = SystemClock.elapsedRealtime();
+
     /**
      * Runnable interface.
      */
@@ -75,13 +83,11 @@ public class PinpadManager extends IPinpadManager.Stub {
                 public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
                     Log.d(TAG, "mensagemNotificacao::s [" + ((s != null) ? s.replace("\n", "\\n") : "null") + "], tipoNotificacao [" + tipoNotificacao + "]");
 
-                    Semaphore semaphore = new Semaphore(1, true);
-
                     switch (tipoNotificacao) {
                         case DSP_INICIA_PIN:    /* 16 */
                         case DSP_ENCERRA_PIN:   /* 17 */
-                            semaphore.acquireUninterruptibly();
-                            break;
+                            PinCaptureActivity.onNotificationThrow(s, -1, tipoNotificacao.ordinal());
+                            return;
 
                         default:
                             /* Nothing to do */
@@ -109,20 +115,19 @@ public class PinpadManager extends IPinpadManager.Stub {
                                 }
                             }
 
-                            semaphore.release();
-
                             sClbkSemaphore[1].release();
                         }
                     }.start();
-
-                    semaphore.acquireUninterruptibly();
                 }
 
                 @Override
                 public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
                     Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
-                    // TODO: to be used internally (GOX) (GPN)
+                    String msg   = notificacaoCapturaPin.obtemMensagemCapturaPin();
+                       int count = notificacaoCapturaPin.obtemQuantidadeDigitosPin();
+
+                    PinCaptureActivity.onNotificationThrow(msg, count, -1);
                 }
 
                 @Override
@@ -182,6 +187,68 @@ public class PinpadManager extends IPinpadManager.Stub {
         return output;
     }
 
+    private static byte[] intercept(boolean send, byte[] data, int length) {
+        Log.d(TAG, "intercept");
+
+        try {
+            if (length > 4) {
+                byte[] CMD_ID = new byte[3];
+
+                System.arraycopy(data, 1, CMD_ID, 0, 3);
+
+                if (send) {
+                    switch (new String(CMD_ID)) {
+                        case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
+                        case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
+                        case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                        case ABECS.GCX: case ABECS.GED:
+                            /* Nothing to do */
+
+                            // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
+                            break;
+
+                        case ABECS.GPN:
+                        case ABECS.GOX:
+                            Context context = Application.getPackageContext();
+
+                            context.startActivity(new Intent(context, PinCaptureActivity.class));
+
+                            sTimestamp = SystemClock.elapsedRealtime();
+
+                            PinCaptureActivity.acquire();
+                            break;
+
+                        default:
+                            Log.w(TAG, "intercept::NAK registered");
+
+                            return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                    }
+                } else {
+                    switch (new String(CMD_ID)) {
+                        case ABECS.GPN:
+                        case ABECS.GOX:
+                            sTimestamp = SystemClock.elapsedRealtime() - sTimestamp;
+
+                            if (sTimestamp < 1500) { // TODO: must exist a better way!
+                                SystemClock.sleep(1500 - sTimestamp);
+                            }
+
+                            PinCaptureActivity.onNotificationThrow("", -1, -2);
+                            break;
+
+                        default:
+                            /* Nothing to do */
+                            break;
+                    }
+                }
+            }
+        } finally {
+            Log.h(TAG, data, length);
+        }
+
+        return data;
+    }
+
     private static void setServiceCallback(IServiceCallback callback) {
         Log.d(TAG, "setServiceCallback");
 
@@ -215,6 +282,8 @@ public class PinpadManager extends IPinpadManager.Stub {
                 result = response.length;
             } else {
                 result = getPinpad().recebeResposta(output, timeout);
+
+                output = intercept(false, output, result);
             }
 
             Log.h(TAG, output, result);
@@ -242,7 +311,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         int result = -1;
 
         try {
-            byte[] request = PinpadUtility.intercept(input, length);
+            byte[] request = intercept(true, input, length);
 
             if (request[0] != 0x15) {
                 result = getPinpad().enviaComando(request, length);

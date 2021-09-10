@@ -12,7 +12,6 @@
             android:roundIcon="@mipmap/ic_pinpadservice_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.POC2104301453">
-        <activity android:name=".presentation.PinActivity" />
 
         <receiver
                 android:name=".BroadcastReceiver"
@@ -28,7 +27,7 @@
                 android:exported="true"
                 android:isolatedProcess="false"
                 android:name=".PinpadService"
-                tools:targetApi="n" />
+                tools:targetApi="l" />
     </application>
 
 </manifest>

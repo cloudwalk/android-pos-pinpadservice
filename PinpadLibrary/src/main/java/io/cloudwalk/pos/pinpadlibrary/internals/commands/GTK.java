@@ -26,28 +26,7 @@ public class GTK {
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        byte[] RSP_LEN1     = new byte[3];
-        byte[] RSP_DATA     = null;
-
-        Bundle output = PinpadUtility.CMD.parseResponseDataPacket(input, length);
-
-        switch ((ABECS.STAT) output.getSerializable(ABECS.RSP_STAT)) {
-            case ST_OK:
-                if (length > 6) {
-                    System.arraycopy(input, 6, RSP_LEN1, 0, 3);
-
-                    RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
-
-                    System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
-
-                    output.putAll(PinpadUtility.parseResponseTLV(RSP_DATA, RSP_DATA.length));
-                }
-
-                /* no break */
-
-            default:
-                return output;
-        }
+        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
     }
 
     public static byte[] buildRequestDataPacket(Bundle input)

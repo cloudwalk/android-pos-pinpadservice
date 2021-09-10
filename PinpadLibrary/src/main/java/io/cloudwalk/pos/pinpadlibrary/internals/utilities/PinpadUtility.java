@@ -16,6 +16,7 @@ import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GED;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.GOX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
@@ -42,8 +43,10 @@ public class PinpadUtility {
                 throws Exception {
             Log.d(TAG, "parseResponseDataPacket");
 
-            byte[] RSP_ID = new byte[3];
-            byte[] RSP_STAT = new byte[3];
+            byte[] RSP_ID       = new byte[3];
+            byte[] RSP_STAT     = new byte[3];
+            byte[] RSP_LEN1     = new byte[3];
+            byte[] RSP_DATA     = null;
 
             System.arraycopy(input, 0, RSP_ID, 0, 3);
             System.arraycopy(input, 3, RSP_STAT, 0, 3);
@@ -53,7 +56,24 @@ public class PinpadUtility {
             output.putString(ABECS.RSP_ID, new String(RSP_ID));
             output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
-            return output;
+            switch ((ABECS.STAT) output.getSerializable(ABECS.RSP_STAT)) {
+                case ST_OK:
+                case ST_TABVERDIF:
+                    if (length > 6) {
+                        System.arraycopy(input, 6, RSP_LEN1, 0, 3);
+
+                        RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
+
+                        System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
+
+                        output.putAll(PinpadUtility.parseResponseTLV(RSP_DATA, RSP_DATA.length));
+                    }
+
+                    /* no break */
+
+                default:
+                    return output;
+            }
         }
     }
 
@@ -193,6 +213,7 @@ public class PinpadUtility {
 
             case ABECS.GCX: return GCX.parseResponseDataPacket(response, response.length);
             case ABECS.GED: return GED.parseResponseDataPacket(response, response.length);
+            case ABECS.GOX: return GOX.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -341,6 +362,7 @@ public class PinpadUtility {
 
             case ABECS.GCX: request = GCX.buildRequestDataPacket(input); break;
             case ABECS.GED: request = GED.buildRequestDataPacket(input); break;
+            case ABECS.GOX: request = GOX.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */
@@ -387,40 +409,5 @@ public class PinpadUtility {
         stream.write(V);
 
         return stream.toByteArray();
-    }
-
-    public static byte[] intercept(byte[] data, int length) {
-        Log.d(TAG, "intercept");
-
-        try {
-            if (length > 4) {
-                byte[] CMD_ID = new byte[3];
-
-                System.arraycopy(data, 1, CMD_ID, 0, 3);
-
-                switch (new String(CMD_ID)) {
-                    case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
-                    case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
-                    case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                    case ABECS.GCX: case ABECS.GED:
-                        /* Nothing to do */
-
-                        // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
-                        break;
-
-                    // case ABECS.GPN: case ABECS.GOX:
-                        // break;
-
-                    default:
-                        Log.w(TAG, "intercept::NAK registered");
-
-                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
-                }
-            }
-        } finally {
-            Log.h(TAG, data, length);
-        }
-
-        return data;
     }
 }

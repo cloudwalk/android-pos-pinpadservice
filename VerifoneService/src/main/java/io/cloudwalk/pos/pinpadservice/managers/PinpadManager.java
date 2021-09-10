@@ -18,9 +18,9 @@ import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -182,6 +182,43 @@ public class PinpadManager extends IPinpadManager.Stub {
         return output;
     }
 
+    private static byte[] intercept(byte[] data, int length) {
+        Log.d(TAG, "intercept");
+
+        try {
+            if (length > 4) {
+                byte[] CMD_ID = new byte[3];
+
+                System.arraycopy(data, 1, CMD_ID, 0, 3);
+
+                switch (new String(CMD_ID)) {
+                    case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
+                    case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
+                    case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                    case ABECS.GCX: case ABECS.GED:
+                        /* Nothing to do */
+
+                        // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
+                        break;
+
+                    case ABECS.GPN:
+                    case ABECS.GOX:
+                        // TODO: PIN capture activity
+                        break;
+
+                    default:
+                        Log.w(TAG, "intercept::NAK registered");
+
+                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                }
+            }
+        } finally {
+            Log.h(TAG, data, length);
+        }
+
+        return data;
+    }
+
     private static void setServiceCallback(IServiceCallback callback) {
         Log.d(TAG, "setServiceCallback");
 
@@ -242,7 +279,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         int result = -1;
 
         try {
-            byte[] request = PinpadUtility.intercept(input, length);
+            byte[] request = intercept(input, length);
 
             if (request[0] != 0x15) {
                 result = getPinpad().enviaComando(request, length);

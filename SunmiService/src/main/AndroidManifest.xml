@@ -12,7 +12,7 @@
             android:roundIcon="@mipmap/ic_pinpadservice_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.POC2104301453">
-        <activity android:name=".presentation.PinActivity" />
+        <activity android:name=".presentation.PinCaptureActivity" />
 
         <receiver
                 android:name=".BroadcastReceiver"

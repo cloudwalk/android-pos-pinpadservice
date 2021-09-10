@@ -26,10 +26,18 @@ public class OPN {
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
+        byte[] RSP_ID       = new byte[3];
+        byte[] RSP_STAT     = new byte[3];
         byte[] OPN_CRKSLEN  = new byte[3];
         byte[] OPN_CRKSEC   = new byte[512];
 
-        Bundle output = PinpadUtility.CMD.parseResponseDataPacket(input, length);
+        System.arraycopy(input, 0, RSP_ID, 0, 3);
+        System.arraycopy(input, 3, RSP_STAT, 0, 3);
+
+        Bundle output = new Bundle();
+
+        output.putString(ABECS.RSP_ID, new String(RSP_ID));
+        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
         if (length > 6) {
             System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
