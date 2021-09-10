@@ -87,7 +87,7 @@ public class GOX {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "000A", SPE_WKENC));
         }
 
-        if (SPE_DSPMSG != null) {
+        if (SPE_DSPMSG != null) { // TODO: should it accept '\n'?
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
         }
 

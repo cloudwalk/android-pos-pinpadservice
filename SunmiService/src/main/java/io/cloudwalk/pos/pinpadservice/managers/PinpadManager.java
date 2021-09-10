@@ -87,6 +87,8 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case DSP_INICIA_PIN:    /* 16 */
                         case DSP_ENCERRA_PIN:   /* 17 */
                             PinCaptureActivity.onNotificationThrow(s, -1, tipoNotificacao.ordinal());
+
+                            // TODO: expose to the one who made the request
                             return;
 
                         default:
@@ -127,7 +129,8 @@ public class PinpadManager extends IPinpadManager.Stub {
                     String msg   = notificacaoCapturaPin.obtemMensagemCapturaPin();
                        int count = notificacaoCapturaPin.obtemQuantidadeDigitosPin();
 
-                    PinCaptureActivity.onNotificationThrow(msg, count, -1);
+                    // TODO: expose to the one who made the request
+                    // TODO: reuse code from `mensagemNotificacao`!?
                 }
 
                 @Override

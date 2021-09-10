@@ -1,12 +1,12 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +18,7 @@ import br.com.setis.sunmi.ppcomp.PINplug;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
 
-public class PinCaptureActivity extends AppCompatActivity {
+public class PinCaptureActivity extends Activity {
     private static final String
             TAG = PinCaptureActivity.class.getSimpleName();
 
@@ -26,7 +26,7 @@ public class PinCaptureActivity extends AppCompatActivity {
             sSemaphore = new Semaphore(0, true);
 
     @SuppressLint("StaticFieldLeak")
-    private static AppCompatActivity
+    private static Activity
             mActivity = null;
 
     private String buildJSONLayoutInfo() {
@@ -138,49 +138,17 @@ public class PinCaptureActivity extends AppCompatActivity {
         sSemaphore.release(permits);
     }
 
-    private static void setKeyboardVisibility(boolean status) {
-        Log.d(TAG, "setKeyboardVisibility");
+    private static void setVisibility(boolean status) {
+        Log.d(TAG, "setVisibility");
 
         if (mActivity != null) {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mActivity.findViewById(R.id.fl_pin_keyboard).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
+                    mActivity.findViewById(R.id.rl_pin_capture).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
                 }
             });
         }
-    }
-
-    private static void updateTextView(String msg) {
-        Log.d(TAG, "updateTextView");
-
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                AppCompatActivity activity = mActivity; // TODO: getActivity();
-
-                if (activity == null) {
-                    return;
-                }
-
-                acquire();
-
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        TextView tvMain = activity.findViewById(R.id.tv_main);
-
-                        Log.d(TAG, "updateTextView::msg [" + msg + "]");
-
-                        tvMain.setText(msg);
-
-                        release();
-                    }
-                });
-            }
-        }.start();
     }
 
     @Override
@@ -204,8 +172,6 @@ public class PinCaptureActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                updateTextView(getString(R.string.warning_processing));
-
                 PINplug.setPinpadType(1, buildJSONLayoutInfo());
 
                 release(2);
@@ -222,34 +188,24 @@ public class PinCaptureActivity extends AppCompatActivity {
     public static void onNotificationThrow(String msg, int count, int type) {
         Log.d(TAG, "onNotificationThrow");
 
-        AppCompatActivity activity = mActivity; // TODO: getActivity();
+        Activity activity = mActivity; // TODO: getActivity();
 
         if (activity == null) {
             return;
         }
 
         switch (type) {
-            case -1:
-                StringBuilder pwd = new StringBuilder("\n");
-
-                for (int i = 0; i < count; i++) { pwd.append("*"); }
-
-                updateTextView(msg + pwd);
-                break;
-
             case -2:
                 activity.finish();
                 activity.overridePendingTransition(0, 0);
                 break;
 
             case 16: /* DSP_INICIA_PIN */
-                setKeyboardVisibility(true);
+                setVisibility(true);
                 break;
 
             case 17: /* DSP_ENCERRA_PIN: */
-                setKeyboardVisibility(false);
-
-                updateTextView(activity.getString(R.string.warning_processing));
+                setVisibility(false);
                 break;
 
             default:
