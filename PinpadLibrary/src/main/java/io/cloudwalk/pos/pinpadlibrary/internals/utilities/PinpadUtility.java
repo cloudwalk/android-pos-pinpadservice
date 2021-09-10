@@ -278,6 +278,7 @@ public class PinpadUtility {
                 case 0x8052: output.putString(ABECS.PP_PAN,         new String(V)); break;
                 case 0x8053: output.putString(ABECS.PP_PANSEQNO,    new String(V)); break;
                 case 0x8055: output.putString(ABECS.PP_CHNAME,      new String(V)); break;
+                case 0x8056: output.putString(ABECS.PP_GOXRES,      new String(V)); break;
                 case 0x805B: output.putString(ABECS.PP_LABEL,       new String(V)); break;
                 case 0x805C: output.putString(ABECS.PP_ISSCNTRY,    new String(V)); break;
                 case 0x805D: output.putString(ABECS.PP_CARDEXP,     new String(V)); break;
@@ -302,6 +303,7 @@ public class PinpadUtility {
                 case 0x804C: output.putString(ABECS.PP_KSN,         DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8054: output.putString(ABECS.PP_EMVDATA,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x8057: output.putString(ABECS.PP_PINBLK,      DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8063: output.putString(ABECS.PP_ENCKRAND,    DataUtility.getHexStringFromByteArray(V)); break;
 
                 case 0x805A:
