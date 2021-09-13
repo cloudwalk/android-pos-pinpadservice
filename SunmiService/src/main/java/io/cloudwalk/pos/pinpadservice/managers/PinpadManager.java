@@ -30,7 +30,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             sQueue = new LinkedList<>();
 
     private static final Semaphore
-            sClbkSemaphore = new Semaphore(1, true);
+            sLoadSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
@@ -38,14 +38,8 @@ public class PinpadManager extends IPinpadManager.Stub {
     private static final Semaphore
             sSendSemaphore = new Semaphore(1, true);
 
-    private static final Semaphore
-            sMnftSemaphore = new Semaphore(1, true);
-
     private static AcessoDiretoPinpad
             sAcessoDiretoPinpad = null;
-
-    private static IServiceCallback
-            sServiceCallback = null;
 
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
@@ -54,9 +48,11 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static AcessoDiretoPinpad getPinpad() {
+        Log.d(TAG, "getPinpad");
+
         AcessoDiretoPinpad pinpad;
 
-        sMnftSemaphore.acquireUninterruptibly();
+        sLoadSemaphore.acquireUninterruptibly();
 
         if (sAcessoDiretoPinpad == null) {
             try {
@@ -68,7 +64,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         pinpad = sAcessoDiretoPinpad;
 
-        sMnftSemaphore.release();
+        sLoadSemaphore.release();
 
         return pinpad;
     }
@@ -139,24 +135,6 @@ public class PinpadManager extends IPinpadManager.Stub {
         return sPinpadManager;
     }
 
-    public static IServiceCallback getServiceCallback() {
-        Log.d(TAG, "getServiceCallback");
-
-        IServiceCallback output;
-
-        sClbkSemaphore.acquireUninterruptibly();
-
-        if (sServiceCallback == null) {
-            Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
-        }
-
-        output = sServiceCallback;
-
-        sClbkSemaphore.release();
-
-        return output;
-    }
-
     @Override
     public int recv(byte[] output, long timeout) {
         Log.d(TAG, "recv");
@@ -196,8 +174,8 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         Log.d(TAG, "send::application [" + application + "]");
 
-        if (length > 1) { /* 2021-08-11: e.g. not a control byte - e.g. <<CAN>> */
-            setServiceCallback(callback);
+        if (length > 1) { /* 2021-08-11: not a control byte */
+            CallbackUtility.setServiceCallback(callback);
         }
 
         int result = -1;
@@ -217,15 +195,5 @@ public class PinpadManager extends IPinpadManager.Stub {
         sSendSemaphore.release();
 
         return result;
-    }
-
-    public static void setServiceCallback(IServiceCallback callback) {
-        Log.d(TAG, "setServiceCallback");
-
-        sClbkSemaphore.acquireUninterruptibly();
-
-        sServiceCallback = callback;
-
-        sClbkSemaphore.release();
     }
 }

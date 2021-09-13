@@ -18,7 +18,6 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import sunmi.paylib.SunmiPayKernel;
 
@@ -26,8 +25,14 @@ public class CallbackUtility {
     private static final String
             TAG = CallbackUtility.class.getSimpleName();
 
-    private static final Semaphore
-            sClbkSemaphore = new Semaphore(1, true);
+    private static final Semaphore[]
+            sClbkSemaphore = {
+                    new Semaphore(1, true),
+                    new Semaphore(1, true)
+            };
+
+    private static IServiceCallback
+            sServiceCallback = null;
 
     private CallbackUtility() {
         /* Nothing to do */
@@ -65,9 +70,9 @@ public class CallbackUtility {
             public void run() {
                 super.run();
 
-                sClbkSemaphore.acquireUninterruptibly();
+                sClbkSemaphore[0].acquireUninterruptibly();
 
-                IServiceCallback callback = PinpadManager.getServiceCallback();
+                IServiceCallback callback = getServiceCallback();
 
                 if (callback != null) {
                     Bundle bundle = new Bundle();
@@ -81,7 +86,7 @@ public class CallbackUtility {
                     }
                 }
 
-                sClbkSemaphore.release();
+                sClbkSemaphore[0].release();
 
                 semaphore.release();
             }
@@ -103,7 +108,7 @@ public class CallbackUtility {
     private static void menu(Menu menu) {
         Log.d(TAG, "menu::menu [" + menu + "]");
 
-        IServiceCallback callback = PinpadManager.getServiceCallback();
+        IServiceCallback callback = getServiceCallback();
 
         if (callback != null) {
             Bundle bundle = new Bundle();
@@ -150,12 +155,42 @@ public class CallbackUtility {
         }
     }
 
+    public static IServiceCallback getServiceCallback() {
+        Log.d(TAG, "getServiceCallback");
+
+        IServiceCallback output;
+
+        sClbkSemaphore[1].acquireUninterruptibly();
+
+        if (sServiceCallback == null) {
+            Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
+        }
+
+        output = sServiceCallback;
+
+        sClbkSemaphore[1].release();
+
+        return output;
+    }
+
+    public static void setServiceCallback(IServiceCallback callback) {
+        Log.d(TAG, "setServiceCallback");
+
+        sClbkSemaphore[1].acquireUninterruptibly();
+
+        sServiceCallback = callback;
+
+        sClbkSemaphore[1].release();
+    }
+
     public static InterfaceUsuarioPinpad getCallback() {
         Log.d(TAG, "getCallback");
 
         return new InterfaceUsuarioPinpad() {
             @Override
             public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
+                //TODO: translate `TipoNotificacao`
+
                 CallbackUtility.mensagemNotificacao(s, tipoNotificacao);
             }
 
