@@ -2,6 +2,8 @@ package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
 
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
+
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -38,23 +40,21 @@ public class CallbackUtility {
         /* Nothing to do */
     }
 
-    private static void mensagemNotificacao(String mensagem, TipoNotificacao tipoNotificacao) {
-        Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "], tipoNotificacao [" + tipoNotificacao + "]");
+    private static void mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
+        Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
         boolean sync = false;
 
         switch (tipoNotificacao) {
-            case DSP_INICIA_PIN:    /* 16 */
-            case DSP_ENCERRA_PIN:   /* 17 */
-                PinCaptureActivity.onNotificationThrow(mensagem, -1, tipoNotificacao.ordinal());
+            case NTF_PIN_START:
+            case NTF_PIN_ENTRY:
+            case NTF_PIN_FINISH:
+                PinCaptureActivity.onNotificationThrow(mensagem, count, tipoNotificacao);
                 /* no break */
 
-            case DSP_SENHA_INVALIDA:
-            case DSP_SENHA_ULTIMA_TENTATIVA:
-            case DSP_SENHA_BLOQUEADA:
-            case DSP_SENHA_VERIFICADA:
-            case DSP_CARTAO_BLOQUEADO:
-            case DSP_REAPRESENTE_CARTAO:
+            case NTF_AID_INVALID:
+            case NTF_PIN_INVALID: case NTF_PIN_LAST_TRY: case NTF_PIN_BLOCKED: case NTF_PIN_VERIFIED:
+            case NTF_CARD_BLOCKED:
                 sync = true;
                 break;
 
@@ -75,12 +75,18 @@ public class CallbackUtility {
                 IServiceCallback callback = getServiceCallback();
 
                 if (callback != null) {
-                    Bundle bundle = new Bundle();
+                    Bundle bundle     = new Bundle();
+                    StringBuilder pin = new StringBuilder();
+
+                    for (int i = 0; i < count; i++) {
+                        pin.append("*");
+                    }
 
                     bundle.putString("NTF_MSG", (mensagem != null) ? mensagem : "");
+                    bundle.putString("NTF_PIN", pin.toString());
 
                     try {
-                        callback.onNotificationThrow(bundle, tipoNotificacao.ordinal());
+                        callback.onNotificationThrow(bundle, tipoNotificacao);
                     } catch (Exception exception) {
                         Log.e(TAG, Log.getStackTraceString(exception));
                     }
@@ -101,8 +107,7 @@ public class CallbackUtility {
         String msg   = notificacaoCapturaPin.obtemMensagemCapturaPin();
            int count = notificacaoCapturaPin.obtemQuantidadeDigitosPin();
 
-        // TODO: expose to the one who made the request
-        // TODO: reuse code from `mensagemNotificacao`!?
+           mensagemNotificacao(msg, count, NTF_PIN_ENTRY);
     }
 
     private static void menu(Menu menu) {
@@ -114,8 +119,9 @@ public class CallbackUtility {
             Bundle bundle = new Bundle();
 
             bundle.putString("NTF_TTL", menu.obtemTituloMenu());
-            bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
             bundle.putString("NTF_TOT", String.format(US, "%03d", menu.obtemTimeout()));
+
+            bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
 
             try {
                 menu.obtemMenuCallback().informaOpcaoSelecionada(callback.onSelectionRequired(bundle));
@@ -188,10 +194,31 @@ public class CallbackUtility {
 
         return new InterfaceUsuarioPinpad() {
             @Override
-            public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
-                //TODO: translate `TipoNotificacao`
+            public void mensagemNotificacao(String mensagem, TipoNotificacao tipoNotificacao) {
+                int type = -1;
 
-                CallbackUtility.mensagemNotificacao(s, tipoNotificacao);
+                switch (tipoNotificacao) {
+                    case DSP_LIVRE:                         type = NTF;                         break;
+                    case DSP_2X16:                          type = NTF_2x16;                    break;
+                    case DSP_PROCESSANDO:                   type = NTF_PROCESSING;              break;
+                    case DSP_INSIRA_PASSE_CARTAO:           type = NTF_INSERT_SWIPE_CARD;       break;
+                    case DSP_APROXIME_INSIRA_PASSE_CARTAO:  type = NTF_TAP_INSERT_SWIPE_CARD;   break;
+                    case DSP_SELECIONE:                     type = NTF_SELECT;                  break;
+                    case DSP_SELECIONADO:                   type = NTF_SELECTED;                break;
+                    case DSP_APP_INVALIDA:                  type = NTF_AID_INVALID;             break;
+                    case DSP_SENHA_INVALIDA:                type = NTF_PIN_INVALID;             break;
+                    case DSP_SENHA_ULTIMA_TENTATIVA:        type = NTF_PIN_LAST_TRY;            break;
+                    case DSP_SENHA_BLOQUEADA:               type = NTF_PIN_BLOCKED;             break;
+                    case DSP_SENHA_VERIFICADA:              type = NTF_PIN_VERIFIED;            break;
+                    case DSP_CARTAO_BLOQUEADO:              type = NTF_CARD_BLOCKED;            break;
+                    case DSP_RETIRE_CARTAO:                 type = NTF_REMOVE_CARD;             break;
+                    case DSP_ATUALIZANDO_TABELAS:           type = NTF_UPDATING;                break;
+                    case DSP_REAPRESENTE_CARTAO:            type = NTF_RETAP_CARD;              break;
+                    case DSP_INICIA_PIN:                    type = NTF_PIN_START;               break;
+                    case DSP_ENCERRA_PIN:                   type = NTF_PIN_FINISH;              break;
+                }
+
+                CallbackUtility.mensagemNotificacao(mensagem, -1, type);
             }
 
             @Override

@@ -1,10 +1,11 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -195,16 +196,16 @@ public class PinCaptureActivity extends Activity {
         }
 
         switch (type) {
-            case -2:
+            case -1:
                 activity.finish();
                 activity.overridePendingTransition(0, 0);
                 break;
 
-            case 16: /* DSP_INICIA_PIN */
+            case NTF_PIN_START:
                 setVisibility(true);
                 break;
 
-            case 17: /* DSP_ENCERRA_PIN: */
+            case NTF_PIN_FINISH:
                 setVisibility(false);
                 break;
 

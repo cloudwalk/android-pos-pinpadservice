@@ -107,7 +107,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     switch (new String(CMD_ID)) {
                         case ABECS.GPN:
                         case ABECS.GOX:
-                            PinCaptureActivity.onNotificationThrow("", -1, -2);
+                            PinCaptureActivity.onNotificationThrow("", -1, -1);
                             /* no break */
 
                         default:

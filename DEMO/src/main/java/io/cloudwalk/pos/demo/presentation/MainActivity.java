@@ -315,18 +315,30 @@ public class MainActivity extends AppCompatActivity {
                     public int onSelectionRequired(Bundle output) {
                         Log.d(TAG, "onSelectionRequired");
 
+                        try {
+                            String trace = DataUtility.getJSONObjectFromBundle(output, true).toString();
+
+                            Log.d(TAG, "onSelectionRequired::" + trace);
+                        } catch (Exception exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+                        }
+
                         // TODO: AlertDialog!?
 
-                        return 0;
+                        return 1;
                     }
 
                     @Override
                     public void onNotificationThrow(Bundle output, int type) {
                         Log.d(TAG, "onNotificationThrow");
 
-                        String msg = output.getString("NTF_MSG").replace("\n", "\\n");
+                        try {
+                            String trace = DataUtility.getJSONObjectFromBundle(output, true).toString();
 
-                        Log.d(TAG, "onNotificationThrow::type [" + type + "] msg [" + msg + "]");
+                            Log.d(TAG, "onNotificationThrow::type [" + type + "] trace " + trace + "");
+                        } catch (Exception exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+                        }
 
                         // TODO: AlertDialog!?
                     }
@@ -455,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.CMD_ID, ABECS.GCX);
                 request.putString(ABECS.SPE_TRNTYPE, "00");
                 request.putString(ABECS.SPE_ACQREF, "04");
-                request.putString(ABECS.SPE_APPTYPE, "02");
+                request.putString(ABECS.SPE_APPTYPE, "0102");
                 request.putString(ABECS.SPE_AMOUNT, "000000000999");
                 request.putString(ABECS.SPE_CASHBACK, "000000000000");
                 request.putString(ABECS.SPE_TRNCURR, "986");
