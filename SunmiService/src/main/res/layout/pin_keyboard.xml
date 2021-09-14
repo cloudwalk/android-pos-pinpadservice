@@ -127,13 +127,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="6"/>
+                    android:text="6" />
             <Button
                     android:id="@+id/keyboard_custom_pos17"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="6"/>
+                    android:text="6" />
         </LinearLayout>
 
         <LinearLayout
@@ -146,37 +146,37 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="7"/>
+                    android:text="7" />
             <Button
                     android:id="@+id/keyboard_custom_pos19"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="7"/>
+                    android:text="7" />
             <Button
                     android:id="@+id/keyboard_custom_pos20"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="8"/>
+                    android:text="8" />
             <Button
                     android:id="@+id/keyboard_custom_pos21"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="8"/>
+                    android:text="8" />
             <Button
                     android:id="@+id/keyboard_custom_pos22"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="9"/>
+                    android:text="9" />
             <Button
                     android:id="@+id/keyboard_custom_pos23"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="9"/>
+                    android:text="9" />
         </LinearLayout>
 
         <LinearLayout
@@ -188,36 +188,36 @@
                     android:id="@+id/keyboard_custom_pos24"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
             <Button
                     android:id="@+id/keyboard_custom_pos25"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
             <Button
                     android:id="@+id/keyboard_custom_pos26"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="0"/>
+                    android:text="0" />
             <Button
                     android:id="@+id/keyboard_custom_pos27"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="0"/>
+                    android:text="0" />
             <Button
                     android:id="@+id/keyboard_custom_pos28"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="L"/>
+                    android:text="L" />
             <Button
                     android:id="@+id/keyboard_custom_pos29"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="L"/>
+                    android:text="L" />
         </LinearLayout>
     </LinearLayout>
 </merge>

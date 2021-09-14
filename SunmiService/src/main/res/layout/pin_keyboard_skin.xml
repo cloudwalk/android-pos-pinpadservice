@@ -18,7 +18,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="Cancel"/>
+                    android:text="Cancel" />
 
             <Button
                     android:id="@+id/keyboard_custom_btnE"
@@ -27,7 +27,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="Enter"/>
+                    android:text="Enter" />
         </LinearLayout>
 
         <LinearLayout
@@ -42,7 +42,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="1"/>
+                    android:text="1" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn2"
@@ -51,7 +51,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="2"/>
+                    android:text="2" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn3"
@@ -60,7 +60,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="3"/>
+                    android:text="3" />
 
         </LinearLayout>
 
@@ -76,7 +76,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="4"/>
+                    android:text="4" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn5"
@@ -85,7 +85,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="5"/>
+                    android:text="5" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn6"
@@ -94,7 +94,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="6"/>
+                    android:text="6" />
 
         </LinearLayout>
 
@@ -110,7 +110,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="7"/>
+                    android:text="7" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn8"
@@ -119,7 +119,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="8"/>
+                    android:text="8" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn9"
@@ -128,7 +128,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="9"/>
+                    android:text="9" />
 
         </LinearLayout>
 
@@ -144,7 +144,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:visibility="invisible"/>
+                    android:visibility="invisible" />
 
             <Button
                     android:id="@+id/keyboard_custom_btn0"
@@ -153,7 +153,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="0"/>
+                    android:text="0" />
 
             <Button
                     android:id="@+id/keyboard_custom_btnD"
@@ -162,7 +162,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
-                    android:text="Delete"/>
+                    android:text="Delete" />
 
         </LinearLayout>
     </LinearLayout>
