@@ -524,7 +524,7 @@ public class MainActivity extends AppCompatActivity {
 
                         updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
 
-                        if (wasPaused()) {
+                        if (wasStopped()) {
                             return;
                         }
                     } catch (Exception exception) {

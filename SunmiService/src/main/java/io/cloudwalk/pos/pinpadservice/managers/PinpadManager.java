@@ -150,13 +150,13 @@ public class PinpadManager extends IPinpadManager.Stub {
                 System.arraycopy(response, 0, output, 0, response.length);
 
                 result = response.length;
+
+                Log.h(TAG, output, result);
             } else {
                 result = getPinpad().recebeResposta(output, timeout);
 
                 output = intercept(false, output, result);
             }
-
-            Log.h(TAG, output, result);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }

@@ -13,7 +13,8 @@
             android:supportsRtl="true"
             android:theme="@style/PinpadService.Theme.MaterialComponents.NoActionBar">
         <activity
-                android:name=".presentation.PinCaptureActivity" />
+                android:name=".presentation.PinCaptureActivity"
+                android:launchMode="singleTask" />
 
         <receiver
                 android:name=".BroadcastReceiver"
