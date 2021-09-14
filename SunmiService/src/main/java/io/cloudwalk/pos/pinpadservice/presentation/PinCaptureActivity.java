@@ -142,11 +142,13 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static void setVisibility(boolean status) {
         Log.d(TAG, "setVisibility");
 
-        if (mActivity != null) {
-            mActivity.runOnUiThread(new Runnable() {
+        AppCompatActivity activity = mActivity; // TODO: getActivity(); for thread-safeness
+
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mActivity.findViewById(R.id.rl_pin_capture).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
+                    activity.findViewById(R.id.rl_pin_capture).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
                 }
             });
         }
@@ -159,7 +161,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pin_capture);
 
-        mActivity = this;
+        mActivity = this; // TODO: setActivity(); for thread-safeness
     }
 
     @Override
@@ -189,7 +191,7 @@ public class PinCaptureActivity extends AppCompatActivity {
     public static void onNotificationThrow(String msg, int count, int type) {
         Log.d(TAG, "onNotificationThrow");
 
-        AppCompatActivity activity = mActivity; // TODO: getActivity();
+        AppCompatActivity activity = mActivity; // TODO: getActivity(); for thread-safeness
 
         if (activity == null) {
             return;
