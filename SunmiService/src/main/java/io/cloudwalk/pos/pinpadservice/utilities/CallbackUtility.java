@@ -49,7 +49,7 @@ public class CallbackUtility {
             case NTF_PIN_START:
             case NTF_PIN_ENTRY:
             case NTF_PIN_FINISH:
-                PinCaptureActivity.onNotificationThrow(mensagem, count, tipoNotificacao);
+                PinCaptureActivity.onNotificationThrow(tipoNotificacao);
                 /* no break */
 
             case NTF_AID_INVALID:

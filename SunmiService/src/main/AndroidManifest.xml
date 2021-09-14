@@ -4,6 +4,7 @@
         package="io.cloudwalk.pos.pinpadservice">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
 
     <application
             android:allowBackup="true"

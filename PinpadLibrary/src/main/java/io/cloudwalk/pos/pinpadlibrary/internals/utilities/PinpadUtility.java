@@ -18,6 +18,7 @@ import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GED;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GOX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.GPN;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
@@ -205,6 +206,7 @@ public class PinpadUtility {
 
             case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
             case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
+            case ABECS.GPN: return GPN.parseResponseDataPacket(response, response.length);
             case ABECS.GTK: return GTK.parseResponseDataPacket(response, response.length);
             case ABECS.RMC: return RMC.parseResponseDataPacket(response, response.length);
 
@@ -235,11 +237,15 @@ public class PinpadUtility {
             byte[] T = new byte[4];
             byte[] L = new byte[4];
 
-            System.arraycopy(stream, cursor, T, 2, 2); cursor += 2;
+            System.arraycopy(stream, cursor, T, 2, 2);
+
+            cursor += 2;
 
             int tag = ByteBuffer.wrap(T).getInt();
 
-            System.arraycopy(stream, cursor, L, 2, 2); cursor += 2;
+            System.arraycopy(stream, cursor, L, 2, 2);
+
+            cursor += 2;
 
             threshold = ByteBuffer.wrap(L).getInt();
 
@@ -359,6 +365,7 @@ public class PinpadUtility {
 
             case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
             case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
+            case ABECS.GPN: request = GPN.buildRequestDataPacket(input); break;
             case ABECS.GTK: request = GTK.buildRequestDataPacket(input); break;
             case ABECS.RMC: request = RMC.buildRequestDataPacket(input); break;
 

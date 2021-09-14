@@ -1,5 +1,8 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_FINISH;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_START;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
@@ -57,6 +60,12 @@ public class PinpadManager extends IPinpadManager.Stub {
         if (sAcessoDiretoPinpad == null) {
             try {
                 sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
+
+                Context context = Application.getPackageContext();
+
+                context.startActivity(new Intent(context, PinCaptureActivity.class));
+
+                PinCaptureActivity.acquire();
             } catch (Exception exception) {
                 Log.e(TAG, Log.getStackTraceString(exception));
             }
@@ -74,28 +83,25 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         try {
             if (length > 4) {
-                byte[] CMD_ID = new byte[3];
+                byte[] slice = new byte[3];
 
-                System.arraycopy(data, 1, CMD_ID, 0, 3);
+                System.arraycopy(data, 1, slice, 0, 3);
+
+                String CMD_ID = new String(slice);
+
+                Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
 
                 if (send) {
-                    switch (new String(CMD_ID)) {
+                    switch (CMD_ID) {
                         case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
                         case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                        case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
-                            /* Nothing to do */
-
+                        case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                             // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
                             break;
 
                         case ABECS.GPN:
-                        case ABECS.GOX:
-                            Context context = Application.getPackageContext();
-
-                            context.startActivity(new Intent(context, PinCaptureActivity.class));
-
-                            PinCaptureActivity.acquire();
+                            PinCaptureActivity.onNotificationThrow(NTF_PIN_START);
                             break;
 
                         default:
@@ -104,10 +110,9 @@ public class PinpadManager extends IPinpadManager.Stub {
                             return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
                     }
                 } else {
-                    switch (new String(CMD_ID)) {
+                    switch (CMD_ID) {
                         case ABECS.GPN:
-                        case ABECS.GOX:
-                            PinCaptureActivity.onNotificationThrow("", -1, -1);
+                            PinCaptureActivity.onNotificationThrow(NTF_PIN_FINISH);
                             /* no break */
 
                         default:

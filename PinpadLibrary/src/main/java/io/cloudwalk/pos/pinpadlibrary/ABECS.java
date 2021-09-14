@@ -94,6 +94,17 @@ public class ABECS {
     public static final String GKY              = "GKY";
 
     public static final String GPN              = "GPN";
+    public static final String GPN_METHOD       = "GPN_METHOD";
+    public static final String GPN_KEYIDX       = "GPN_KEYIDX";
+    public static final String GPN_WKENC        = "GPN_WKENC";
+    public static final String GPN_PANLEN       = "GPN_PANLEN";
+    public static final String GPN_PAN          = "GPN_PAN";
+    public static final String GPN_ENTRIES      = "GPN_ENTRIES";
+    public static final String GPN_MIN1         = "GPN_MIN1";
+    public static final String GPN_MAX1         = "GPN_MAX1";
+    public static final String GPN_MSG1         = "GPN_MSG1";
+    public static final String GPN_PINBLK       = "GPN_PINBLK";
+    public static final String GPN_KSN          = "GPN_KSN";
 
     public static final String GTK              = "GTK";
     public static final String SPE_TRACKS       = "SPE_TRACKS";
