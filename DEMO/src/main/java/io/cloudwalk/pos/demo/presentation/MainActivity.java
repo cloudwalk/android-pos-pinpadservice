@@ -500,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_MTHDPIN, "3");
                 request.putString(ABECS.SPE_KEYIDX, "10");
                 request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
-                //TODO: request.putString(ABECS.SPE_TRMPAR, "...");
+                request.putString(ABECS.SPE_TRMPAR, "00000000250000000025");
                 request.putString(ABECS.SPE_TAGLIST, "5F285F24");
                 request.putString(ABECS.SPE_TIMEOUT, "3C");
 
