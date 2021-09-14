@@ -3,7 +3,6 @@ package io.cloudwalk.pos.pinpadservice.presentation;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
@@ -18,8 +17,9 @@ import java.util.concurrent.Semaphore;
 import br.com.setis.sunmi.ppcomp.PINplug;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
+import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
 
-public class PinCaptureActivity extends Activity {
+public class PinCaptureActivity extends AppCompatActivity {
     private static final String
             TAG = PinCaptureActivity.class.getSimpleName();
 
@@ -27,7 +27,7 @@ public class PinCaptureActivity extends Activity {
             sSemaphore = new Semaphore(0, true);
 
     @SuppressLint("StaticFieldLeak")
-    private static Activity
+    private static AppCompatActivity
             mActivity = null;
 
     private String buildJSONLayoutInfo() {
@@ -189,7 +189,7 @@ public class PinCaptureActivity extends Activity {
     public static void onNotificationThrow(String msg, int count, int type) {
         Log.d(TAG, "onNotificationThrow");
 
-        Activity activity = mActivity; // TODO: getActivity();
+        AppCompatActivity activity = mActivity; // TODO: getActivity();
 
         if (activity == null) {
             return;
