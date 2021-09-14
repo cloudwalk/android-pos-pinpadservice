@@ -163,6 +163,12 @@ public class ABECS {
     public static final String PP_GOXRES        = "PP_GOXRES";
     public static final String PP_PINBLK        = "PP_PINBLK";
 
+    public static final String FCX              = "FCX";
+    public static final String SPE_FCXOPT       = "SPE_FCXOPT";
+    public static final String SPE_ARC          = "SPE_ARC";
+    public static final String PP_FCXRES        = "PP_FCXRES";
+    public static final String PP_ISRESULTS     = "PP_ISRESULTS";
+
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,
         ST_NOSEC,           ST_F1,              ST_F2,

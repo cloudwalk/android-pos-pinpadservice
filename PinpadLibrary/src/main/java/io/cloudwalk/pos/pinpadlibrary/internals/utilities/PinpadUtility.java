@@ -13,6 +13,7 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.FCX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GED;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
@@ -214,6 +215,7 @@ public class PinpadUtility {
             case ABECS.GCX: return GCX.parseResponseDataPacket(response, response.length);
             case ABECS.GED: return GED.parseResponseDataPacket(response, response.length);
             case ABECS.GOX: return GOX.parseResponseDataPacket(response, response.length);
+            case ABECS.FCX: return FCX.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -279,6 +281,7 @@ public class PinpadUtility {
                 case 0x8053: output.putString(ABECS.PP_PANSEQNO,    new String(V)); break;
                 case 0x8055: output.putString(ABECS.PP_CHNAME,      new String(V)); break;
                 case 0x8056: output.putString(ABECS.PP_GOXRES,      new String(V)); break;
+                case 0x8058: output.putString(ABECS.PP_FCXRES,      new String(V)); break;
                 case 0x805B: output.putString(ABECS.PP_LABEL,       new String(V)); break;
                 case 0x805C: output.putString(ABECS.PP_ISSCNTRY,    new String(V)); break;
                 case 0x805D: output.putString(ABECS.PP_CARDEXP,     new String(V)); break;
@@ -304,6 +307,7 @@ public class PinpadUtility {
                 case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8054: output.putString(ABECS.PP_EMVDATA,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8057: output.putString(ABECS.PP_PINBLK,      DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x8059: output.putString(ABECS.PP_ISRESULTS,   DataUtility.getHexStringFromByteArray(V)); break; // TODO: check conversion?!
                 case 0x8063: output.putString(ABECS.PP_ENCKRAND,    DataUtility.getHexStringFromByteArray(V)); break;
 
                 case 0x805A:
@@ -365,6 +369,7 @@ public class PinpadUtility {
             case ABECS.GCX: request = GCX.buildRequestDataPacket(input); break;
             case ABECS.GED: request = GED.buildRequestDataPacket(input); break;
             case ABECS.GOX: request = GOX.buildRequestDataPacket(input); break;
+            case ABECS.FCX: request = FCX.buildRequestDataPacket(input); break;
 
             default:
                 /* Nothing to do */

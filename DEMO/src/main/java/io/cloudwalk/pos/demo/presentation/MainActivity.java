@@ -506,6 +506,16 @@ public class MainActivity extends AppCompatActivity {
 
                 requestList.add(request);
 
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.FCX);
+                request.putString(ABECS.SPE_FCXOPT, "0000");
+                request.putString(ABECS.SPE_ARC, "00");
+                request.putString(ABECS.SPE_TAGLIST, "5F285F24");
+                request.putString(ABECS.SPE_TIMEOUT, "3C");
+
+                requestList.add(request);
+
                 for (Bundle TX : requestList) {
                     try {
                         updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
