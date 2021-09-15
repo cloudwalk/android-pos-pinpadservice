@@ -33,7 +33,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             sQueue = new LinkedList<>();
 
     private static final Semaphore
-            sLoadSemaphore = new Semaphore(1, true);
+            sMngrSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
@@ -47,7 +47,28 @@ public class PinpadManager extends IPinpadManager.Stub {
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
 
-        /* Nothing to do */
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                sMngrSemaphore.acquireUninterruptibly();
+
+                try {
+                    sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
+
+                    Context context = Application.getPackageContext();
+
+                    context.startActivity(new Intent(context, PinCaptureActivity.class));
+
+                    PinCaptureActivity.acquire();
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+                }
+
+                sMngrSemaphore.release();
+            }
+        }.start();
     }
 
     private static AcessoDiretoPinpad getPinpad() {
@@ -55,25 +76,11 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         AcessoDiretoPinpad pinpad;
 
-        sLoadSemaphore.acquireUninterruptibly();
-
-        if (sAcessoDiretoPinpad == null) {
-            try {
-                sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
-
-                Context context = Application.getPackageContext();
-
-                context.startActivity(new Intent(context, PinCaptureActivity.class));
-
-                PinCaptureActivity.acquire();
-            } catch (Exception exception) {
-                Log.e(TAG, Log.getStackTraceString(exception));
-            }
-        }
+        sMngrSemaphore.acquireUninterruptibly();
 
         pinpad = sAcessoDiretoPinpad;
 
-        sLoadSemaphore.release();
+        sMngrSemaphore.release();
 
         return pinpad;
     }
@@ -82,6 +89,8 @@ public class PinpadManager extends IPinpadManager.Stub {
         Log.d(TAG, "intercept");
 
         try {
+            sMngrSemaphore.acquireUninterruptibly();
+
             if (length > 4) {
                 byte[] slice = new byte[3];
 
@@ -128,6 +137,8 @@ public class PinpadManager extends IPinpadManager.Stub {
                 }
             }
         } finally {
+            sMngrSemaphore.release();
+
             Log.h(TAG, data, length);
         }
 
