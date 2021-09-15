@@ -88,6 +88,9 @@ public class ABECS {
     public static final String ENB              = "ENB";
 
     public static final String GCD              = "GCD";
+    public static final String SPE_MSGIDX       = "SPE_MSGIDX";
+    public static final String SPE_MINDIG       = "SPE_MINDIG";
+    public static final String SPE_MAXDIG       = "SPE_MAXDIG";
 
     public static final String GDU              = "GDU";
 

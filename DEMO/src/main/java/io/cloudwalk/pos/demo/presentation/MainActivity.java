@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity {
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.MNU);
-                request.putString(ABECS.SPE_TIMEOUT, "03");
+                request.putString(ABECS.SPE_TIMEOUT, "1E");
                 request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
 
                 ArrayList<String> SPE_MNUOPT = new ArrayList<>(0);
@@ -545,7 +545,17 @@ public class MainActivity extends AppCompatActivity {
 
                 request.putStringArrayList(ABECS.SPE_MNUOPT, SPE_MNUOPT);
 
-                requestList.add(request);
+                // requestList.add(request);
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.GCD);
+                request.putString(ABECS.SPE_MSGIDX, "0033");
+                request.putString(ABECS.SPE_MINDIG, "01");
+                request.putString(ABECS.SPE_MAXDIG, "02");
+                request.putString(ABECS.SPE_TIMEOUT, "3C");
+
+                // requestList.add(request);
 
                 for (Bundle TX : requestList) {
                     try {
