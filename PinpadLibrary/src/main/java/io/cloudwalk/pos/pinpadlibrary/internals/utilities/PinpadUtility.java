@@ -185,7 +185,7 @@ public class PinpadUtility {
             }
         }
 
-        // TODO: validate CRC and throw exception
+        // TODO: validate CRC and throw exception!?
 
         byte[] output = new byte[j];
 
@@ -285,7 +285,7 @@ public class PinpadUtility {
                 case 0x8041: output.putString(ABECS.PP_TRK1INC,     new String(V)); break;
                 case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
-                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: should have same format as PP_TRACK2 and PP_TRACK3
+                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: wrong format!?
                 case 0x804D: output.putString(ABECS.PP_VALUE,       new String(V)); break;
                 case 0x804F: output.putString(ABECS.PP_CARDTYPE,    new String(V)); break;
                 case 0x8050: output.putString(ABECS.PP_ICCSTAT,     new String(V)); break;
@@ -304,7 +304,7 @@ public class PinpadUtility {
                     output.putString(ABECS.PP_DSPTXTSZ, "0000");
                     break;
 
-                case 0x8021: // TODO: intercept response @PinpadService!?
+                case 0x8021:
                 case 0x8062: // TODO: 0x8020, 0x8021 and 0x8062 are all coming back as { 0x00, 0x00 ... }
                     output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
                     break;
@@ -320,7 +320,7 @@ public class PinpadUtility {
                 case 0x804E: output.putString(ABECS.PP_DATAOUT,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8054: output.putString(ABECS.PP_EMVDATA,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8057: output.putString(ABECS.PP_PINBLK,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8059: output.putString(ABECS.PP_ISRESULTS,   DataUtility.getHexStringFromByteArray(V)); break; // TODO: check conversion?!
+                case 0x8059: output.putString(ABECS.PP_ISRESULTS,   DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x8063: output.putString(ABECS.PP_ENCKRAND,    DataUtility.getHexStringFromByteArray(V)); break;
 
                 case 0x805A:

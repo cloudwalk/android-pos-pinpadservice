@@ -42,11 +42,11 @@ public class FCX {
         String SPE_TAGLIST  = input.getString(ABECS.SPE_TAGLIST);
         String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
 
-        if (SPE_FCXOPT != null) {
+        if (SPE_FCXOPT  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0019", SPE_FCXOPT));
         }
 
-        if (SPE_ARC != null) {
+        if (SPE_ARC     != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "001C", SPE_ARC));
         }
 

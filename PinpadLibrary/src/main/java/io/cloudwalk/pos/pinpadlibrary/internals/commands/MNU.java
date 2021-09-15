@@ -46,7 +46,7 @@ public class MNU {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
-        if (SPE_DSPMSG != null) {
+        if (SPE_DSPMSG  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
         }
 

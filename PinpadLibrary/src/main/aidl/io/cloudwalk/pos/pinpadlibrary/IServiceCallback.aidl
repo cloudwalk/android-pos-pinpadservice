@@ -24,7 +24,13 @@ interface IServiceCallback {
     const int NTF_UPDATING                  = 17;
     const int NTF_RETAP_CARD                = 18;
 
+    /**
+     *
+     */
     int onSelectionRequired(inout Bundle output);
 
+    /**
+     *
+     */
     void onNotificationThrow(inout Bundle output, in int type);
 }

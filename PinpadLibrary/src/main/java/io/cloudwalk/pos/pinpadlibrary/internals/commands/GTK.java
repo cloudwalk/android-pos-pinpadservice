@@ -45,7 +45,7 @@ public class GTK {
         String SPE_PBKMOD   = input.getString(ABECS.SPE_PBKMOD);
         String SPE_PBKEXP   = input.getString(ABECS.SPE_PBKEXP);
 
-        if (SPE_TRACKS != null) {
+        if (SPE_TRACKS  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0007", SPE_TRACKS));
         }
 
@@ -53,27 +53,27 @@ public class GTK {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0003", SPE_MTHDDAT));
         }
 
-        if (SPE_IVCBC != null) {
+        if (SPE_IVCBC   != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "001D", SPE_IVCBC));
         }
 
-        if (SPE_OPNDIG != null) {
+        if (SPE_OPNDIG  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0008", SPE_OPNDIG));
         }
 
-        if (SPE_KEYIDX != null) {
+        if (SPE_KEYIDX  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
         }
 
-        if (SPE_WKENC != null) {
+        if (SPE_WKENC   != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "000A", SPE_WKENC));
         }
 
-        if (SPE_PBKMOD != null) {
+        if (SPE_PBKMOD  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0024", SPE_PBKMOD));
         }
 
-        if (SPE_PBKEXP != null) {
+        if (SPE_PBKEXP  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0025", SPE_PBKEXP));
         }
 

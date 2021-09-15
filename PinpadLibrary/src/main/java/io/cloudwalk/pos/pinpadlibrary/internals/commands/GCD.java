@@ -41,15 +41,15 @@ public class GCD {
         String SPE_MAXDIG   = input.getString(ABECS.SPE_MAXDIG);
         String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
 
-        if (SPE_MSGIDX != null) {
+        if (SPE_MSGIDX  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000B", SPE_MSGIDX));
         }
 
-        if (SPE_MINDIG != null) {
+        if (SPE_MINDIG  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000D", SPE_MINDIG));
         }
 
-        if (SPE_MAXDIG != null) {
+        if (SPE_MAXDIG  != null) {
             stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000E", SPE_MAXDIG));
         }
 
