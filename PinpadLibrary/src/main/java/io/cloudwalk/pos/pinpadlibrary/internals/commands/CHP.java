@@ -11,12 +11,12 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
-public class GPN {
+public class CHP {
     private static final String
-            TAG = GPN.class.getSimpleName();
+            TAG = CHP.class.getSimpleName();
 
-    private GPN() {
-        Log.d(TAG, "GPN");
+    private CHP() {
+        Log.d(TAG, "CHP");
 
         /* Nothing to do */
     }
@@ -27,8 +27,8 @@ public class GPN {
 
         byte[] RSP_ID       = new byte[3];
         byte[] RSP_STAT     = new byte[3];
-        byte[] GPN_PINBLK   = new byte[16];
-        byte[] GPN_KSN      = new byte[20];
+        byte[] CHP_RSPLEN   = new byte[3];
+        byte[] CHP_RSP      = new byte[514];
 
         System.arraycopy(input,  0, RSP_ID,     0,  3);
         System.arraycopy(input,  3, RSP_STAT,   0,  3);
@@ -41,11 +41,13 @@ public class GPN {
 
         if (status != ABECS.STAT.ST_OK) return output;
 
-        System.arraycopy(input,  9, GPN_PINBLK, 0, 16);
-        System.arraycopy(input, 25, GPN_KSN,    0, 20);
+        System.arraycopy(input, 9, CHP_RSPLEN, 0, 3);
 
-        output.putString(ABECS.GPN_PINBLK, new String(GPN_PINBLK));
-        output.putString(ABECS.GPN_KSN,    new String(GPN_KSN));
+        int i = DataUtility.getIntFromByteArray(CHP_RSPLEN, 3) * 2;
+
+        System.arraycopy(input, 12, CHP_RSP, 0, i);
+
+        output.putString(ABECS.CHP_RSP, new String(CHP_RSP).substring(0, i));
 
         return output;
     }
@@ -57,29 +59,30 @@ public class GPN {
         ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
         String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String GPN_METHOD   = input.getString(ABECS.GPN_METHOD);
-        String GPN_KEYIDX   = input.getString(ABECS.GPN_KEYIDX);
-        String GPN_WKENC    = input.getString(ABECS.GPN_WKENC);
-        String GPN_PAN      = input.getString(ABECS.GPN_PAN);
-        String GPN_ENTRIES  = input.getString(ABECS.GPN_ENTRIES);
-        String GPN_MIN1     = input.getString(ABECS.GPN_MIN1);
-        String GPN_MAX1     = input.getString(ABECS.GPN_MAX1);
-        String GPN_MSG1     = input.getString(ABECS.GPN_MSG1);
+        String CHP_SLOT     = input.getString(ABECS.CHP_SLOT);
+        String CHP_OPER     = input.getString(ABECS.CHP_OPER);
+        String CHP_CMD      = input.getString(ABECS.CHP_CMD);
+        String CHP_PINFMT   = input.getString(ABECS.CHP_PINFMT);
+        String CHP_PINMSG   = input.getString(ABECS.CHP_PINMSG);
 
-        byte[] GPN_PANLEN   = String.format(US, "%02d",    GPN_PAN.length()).getBytes(UTF_8);
-               GPN_PAN      = String.format(US, "%19.19s", GPN_PAN);
+        stream[1].write(CHP_SLOT.getBytes(UTF_8));
+        stream[1].write(CHP_OPER.getBytes(UTF_8));
 
-        stream[1].write(GPN_METHOD .getBytes(UTF_8));
-        stream[1].write(GPN_KEYIDX .getBytes(UTF_8));
+        byte[] CHP_CMDLEN = String.format(US, "%03d", (CHP_CMD != null) ? (CHP_CMD.length() / 2) : 0).getBytes(UTF_8);
 
-        stream[1].write(DataUtility.getByteArrayFromHexString(GPN_WKENC));
+        stream[1].write(CHP_CMDLEN);
 
-        stream[1].write(GPN_PANLEN);
-        stream[1].write(GPN_PAN    .getBytes(UTF_8));
-        stream[1].write(GPN_ENTRIES.getBytes(UTF_8));
-        stream[1].write(GPN_MIN1   .getBytes(UTF_8));
-        stream[1].write(GPN_MAX1   .getBytes(UTF_8));
-        stream[1].write(GPN_MSG1   .getBytes(UTF_8));
+        if (CHP_CMD != null) {
+            stream[1].write(DataUtility.getByteArrayFromHexString(CHP_CMD));
+        }
+
+        if (CHP_PINFMT != null) {
+            stream[1].write(CHP_PINFMT.getBytes(UTF_8));
+        }
+
+        if (CHP_PINMSG != null) {
+            stream[1].write(CHP_PINMSG.getBytes(UTF_8));
+        }
 
         byte[] CMD_DATA = stream[1].toByteArray();
 

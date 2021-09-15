@@ -11,6 +11,7 @@ import java.util.Arrays;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.CHP;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CLX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.FCX;
@@ -207,6 +208,7 @@ public class PinpadUtility {
             case ABECS.CLX: return CLX.parseResponseDataPacket(response, response.length);
 
             case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
+            case ABECS.CHP: return CHP.parseResponseDataPacket(response, response.length);
             case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
             case ABECS.GCD: return GCD.parseResponseDataPacket(response, response.length);
             case ABECS.GPN: return GPN.parseResponseDataPacket(response, response.length);
@@ -369,6 +371,7 @@ public class PinpadUtility {
             case ABECS.CLX: request = CLX.buildRequestDataPacket(input); break;
 
             case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
+            case ABECS.CHP: request = CHP.buildRequestDataPacket(input); break;
             case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
             case ABECS.GCD: request = GCD.buildRequestDataPacket(input); break;
             case ABECS.GPN: request = GPN.buildRequestDataPacket(input); break;

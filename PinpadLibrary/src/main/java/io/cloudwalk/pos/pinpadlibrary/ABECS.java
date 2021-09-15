@@ -14,7 +14,6 @@ public class ABECS {
     public static final String OPN_OPMODE       = "OPN_OPMODE";
     public static final String OPN_MOD          = "OPN_MOD";
     public static final String OPN_EXP          = "OPN_EXP";
-    public static final String OPN_CRKSLEN      = "OPN_CRKSLEN";
     public static final String OPN_CRKSEC       = "OPN_CRKSEC";
 
     public static final String GIN              = "GIN";
@@ -69,6 +68,12 @@ public class ABECS {
     public static final String PP_TRK3INC       = "PP_TRK3INC";
 
     public static final String CHP              = "CHP";
+    public static final String CHP_SLOT         = "CHP_SLOT";
+    public static final String CHP_OPER         = "CHP_OPER";
+    public static final String CHP_CMD          = "CHP_CMD";
+    public static final String CHP_PINFMT       = "CHP_PINFMT";
+    public static final String CHP_PINMSG       = "CHP_PINMSG";
+    public static final String CHP_RSP          = "CHP_RSP";
 
     public static final String CKE              = "CKE";
 
@@ -100,7 +105,6 @@ public class ABECS {
     public static final String GPN_METHOD       = "GPN_METHOD";
     public static final String GPN_KEYIDX       = "GPN_KEYIDX";
     public static final String GPN_WKENC        = "GPN_WKENC";
-    public static final String GPN_PANLEN       = "GPN_PANLEN";
     public static final String GPN_PAN          = "GPN_PAN";
     public static final String GPN_ENTRIES      = "GPN_ENTRIES";
     public static final String GPN_MIN1         = "GPN_MIN1";

@@ -468,8 +468,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.GPN_METHOD, "3");
                 request.putString(ABECS.GPN_KEYIDX, "11");
                 request.putString(ABECS.GPN_WKENC, "0000000000000000000000000000000000000000000000000000000000000000");
-                request.putString(ABECS.GPN_PANLEN, "16");
-                request.putString(ABECS.GPN_PAN, "5502092192096336   ");
+                request.putString(ABECS.GPN_PAN, "5502092192096336");
                 request.putString(ABECS.GPN_ENTRIES, "1");
                 request.putString(ABECS.GPN_MIN1, "04");
                 request.putString(ABECS.GPN_MAX1, "08");
@@ -554,6 +553,23 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_MINDIG, "01");
                 request.putString(ABECS.SPE_MAXDIG, "02");
                 request.putString(ABECS.SPE_TIMEOUT, "3C");
+
+                // requestList.add(request);
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.CHP);
+                request.putString(ABECS.CHP_SLOT, "0");
+                request.putString(ABECS.CHP_OPER, "1");
+
+                requestList.add(request);
+
+                // request = new Bundle();
+
+                // request.putString(ABECS.CMD_ID, ABECS.CHP);
+                // request.putString(ABECS.CHP_SLOT, "0");
+                // request.putString(ABECS.CHP_OPER, "2");
+                // request.putString(ABECS.CHP_CMD, "00A40000xxyyyy");
 
                 // requestList.add(request);
 
