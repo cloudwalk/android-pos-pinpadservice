@@ -20,6 +20,7 @@ import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GOX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GPN;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.MNU;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLE;
@@ -208,6 +209,7 @@ public class PinpadUtility {
             case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
             case ABECS.GPN: return GPN.parseResponseDataPacket(response, response.length);
             case ABECS.GTK: return GTK.parseResponseDataPacket(response, response.length);
+            case ABECS.MNU: return MNU.parseResponseDataPacket(response, response.length);
             case ABECS.RMC: return RMC.parseResponseDataPacket(response, response.length);
 
             case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
@@ -280,6 +282,7 @@ public class PinpadUtility {
                 case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
                 case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: should have same format as PP_TRACK2 and PP_TRACK3
+                case 0x804D: output.putString(ABECS.PP_VALUE,       new String(V)); break;
                 case 0x804F: output.putString(ABECS.PP_CARDTYPE,    new String(V)); break;
                 case 0x8050: output.putString(ABECS.PP_ICCSTAT,     new String(V)); break;
                 case 0x8051: output.putString(ABECS.PP_AIDTABINFO,  new String(V)); break;
@@ -367,6 +370,7 @@ public class PinpadUtility {
             case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
             case ABECS.GPN: request = GPN.buildRequestDataPacket(input); break;
             case ABECS.GTK: request = GTK.buildRequestDataPacket(input); break;
+            case ABECS.MNU: request = MNU.buildRequestDataPacket(input); break;
             case ABECS.RMC: request = RMC.buildRequestDataPacket(input); break;
 
             case ABECS.TLI: request = TLI.buildRequestDataPacket(input); break;

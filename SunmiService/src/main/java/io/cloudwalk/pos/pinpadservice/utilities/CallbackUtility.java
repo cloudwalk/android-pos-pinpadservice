@@ -124,7 +124,11 @@ public class CallbackUtility {
             bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
 
             try {
-                menu.obtemMenuCallback().informaOpcaoSelecionada(callback.onSelectionRequired(bundle));
+                int option = callback.onSelectionRequired(bundle);
+
+                Log.d(TAG, "menu::option [" + option + "]");
+
+                menu.obtemMenuCallback().informaOpcaoSelecionada(option);
             } catch (RemoteException exception) {
                 Log.e(TAG, Log.getStackTraceString(exception));
             }

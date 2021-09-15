@@ -122,6 +122,8 @@ public class ABECS {
     public static final String PP_ENCKRAND      = "PP_ENCKRAND";
 
     public static final String MNU              = "MNU";
+    public static final String SPE_MNUOPT       = "SPE_MNUOPT";
+    public static final String PP_VALUE         = "PP_VALUE";
 
     public static final String RMC              = "RMC";
     public static final String RMC_MSG          = "RMC_MSG";

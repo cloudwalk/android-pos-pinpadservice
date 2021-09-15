@@ -103,7 +103,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 if (send) {
                     switch (CMD_ID) {
                         case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
-                        case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
+                        case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                             // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?

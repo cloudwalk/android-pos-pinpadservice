@@ -531,6 +531,22 @@ public class MainActivity extends AppCompatActivity {
 
                 requestList.add(request);
 
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.MNU);
+                request.putString(ABECS.SPE_TIMEOUT, "03");
+                request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
+
+                ArrayList<String> SPE_MNUOPT = new ArrayList<>(0);
+
+                SPE_MNUOPT.add("OPT 1 CLWK");
+                SPE_MNUOPT.add("OPT 2 CLWK");
+                SPE_MNUOPT.add("OPT 3 CLWK");
+
+                request.putStringArrayList(ABECS.SPE_MNUOPT, SPE_MNUOPT);
+
+                requestList.add(request);
+
                 for (Bundle TX : requestList) {
                     try {
                         updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
