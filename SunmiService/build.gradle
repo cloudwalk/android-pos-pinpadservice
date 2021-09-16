@@ -12,14 +12,19 @@ android {
         versionCode 1
         versionName "0.0.1"
 
-        setProperty("archivesBaseName", "verifone-$applicationId-$versionName")
+        setProperty("archivesBaseName", "sunmi-$applicationId-vn-$versionName-vc-$versionCode")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            // Enables code shrinking, obfuscation, and optimization.
+            minifyEnabled true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

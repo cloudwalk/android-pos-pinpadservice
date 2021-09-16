@@ -16,7 +16,7 @@ android {
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"
         buildConfigField 'String', 'VERSION_NAME', "\"${versionName}\""
 
-        setProperty("archivesBaseName", "io.cloudwalk.pos.utilitieslibrary-$versionName")
+        setProperty("archivesBaseName", "io.cloudwalk.pos.utilitieslibrary-vn-$versionName-vc-$versionCode")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
