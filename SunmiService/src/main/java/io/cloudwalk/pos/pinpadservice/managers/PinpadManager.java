@@ -1,10 +1,6 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_FINISH;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_START;
-
-import android.content.Context;
-import android.content.Intent;
+import android.os.Bundle;
 import android.os.RemoteException;
 
 import java.util.LinkedList;
@@ -17,9 +13,9 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadservice.R;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.utilitieslibrary.Application;
 import sunmi.paylib.SunmiPayKernel;
 
 public class PinpadManager extends IPinpadManager.Stub {
@@ -56,12 +52,6 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                 try {
                     sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
-
-                    Context context = Application.getPackageContext();
-
-                    context.startActivity(new Intent(context, PinCaptureActivity.class));
-
-                    PinCaptureActivity.acquire();
                 } catch (Exception exception) {
                     Log.e(TAG, Log.getStackTraceString(exception));
                 }
@@ -106,12 +96,20 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
                         case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                        case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                        case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
                             // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
                             break;
 
                         case ABECS.GPN:
-                            PinCaptureActivity.onNotificationThrow(NTF_PIN_START);
+                        case ABECS.GOX:
+                            Bundle bundle = new Bundle();
+
+                            // TODO: allows customization based on the application calling
+
+                            bundle.putInt("layoutResID", R.layout.activity_pin_capture);
+                            bundle.putInt("id", R.id.rl_pin_capture);
+
+                            PinCaptureActivity.startActivity(bundle);
                             break;
 
                         default:
@@ -122,7 +120,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 } else {
                     switch (CMD_ID) {
                         case ABECS.GPN:
-                            PinCaptureActivity.onNotificationThrow(NTF_PIN_FINISH);
+                            PinCaptureActivity.setVisibility(false);
                             /* no break */
 
                         default:

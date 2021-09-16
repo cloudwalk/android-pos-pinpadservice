@@ -1,10 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
-
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -23,6 +20,7 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
 import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.utilitieslibrary.Application;
+import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class PinCaptureActivity extends AppCompatActivity {
     private static final String
@@ -31,9 +29,11 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static final Semaphore
             sSemaphore = new Semaphore(0, true);
 
-    @SuppressLint("StaticFieldLeak")
     private static AppCompatActivity
-            mActivity = null;
+            sActivity = null;
+
+    private static Bundle
+            sExtras = null;
 
     private String buildJSONLayoutInfo() {
         Log.d(TAG, "buildJSONLayoutInfo");
@@ -44,7 +44,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         int[] height      = new int[2];
 
         do {
-            View btnC = findViewById(R.id.keyboard_custom_pos00);
+            View btnC = findViewById(R.id.keyboard_custom_pos00); // TODO: double check!?
 
             btnC.getLocationOnScreen(locationCAN);
             btnC.getLocationOnScreen(locationNUM);
@@ -74,7 +74,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         JSONObject obj = new JSONObject();
 
         try {
-            obj.put("layout",   R.layout.activity_pin_capture);
+            obj.put("layout",   sExtras.getInt("layoutResID"));
 
             obj.put("numX",     numX);
             obj.put("numY",     numY);
@@ -127,59 +127,40 @@ public class PinCaptureActivity extends AppCompatActivity {
         return keyMap;
     }
 
-    private void release(int permits) {
-        Log.d(TAG, "release::permits [" + permits + "]");
-
-        sSemaphore.release(permits);
-    }
-
-    private static void setVisibility(boolean status) {
-        Log.d(TAG, "setVisibility::status [" + status + "]");
-
-        AppCompatActivity activity = mActivity; // TODO: getActivity(); for thread-safeness
-
-        Semaphore semaphore = new Semaphore(0, true);
-
-        if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    activity.findViewById(R.id.rl_pin_capture).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
-
-                    semaphore.release();
-                }
-            });
-        }
-
-        semaphore.acquireUninterruptibly();
-
-        Log.d(TAG, "setVisiblity::R.id.rl_pin_capture [" + status + "]");
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "startActivity");
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pin_capture);
 
-        mActivity = this; // TODO: setActivity(); for thread-safeness
+        sExtras = getIntent().getExtras();
 
-        RelativeLayout relativeLayout = findViewById(R.id.rl_pin_capture);
+        setContentView(sExtras.getInt("layoutResID"));
+
+        sActivity = this;
+
+        RelativeLayout relativeLayout = findViewById(sExtras.getInt("id"));
 
         relativeLayout.getViewTreeObserver()
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                PINplug.setPinpadType(1, buildJSONLayoutInfo());
+                    @Override
+                    public void onGlobalLayout() {
+                        String JSONLayoutInfo = buildJSONLayoutInfo();
 
-                onNotificationThrow(-1);
+                        relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                super.run();
 
-                release(2);
-            }
-        });
+                                PINplug.setPinpadType(1, JSONLayoutInfo);
+
+                                sSemaphore.release(2);
+                            }
+                        } .start();
+                    }
+                });
     }
 
     @Override
@@ -200,55 +181,54 @@ public class PinCaptureActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
-    public static void acquire() {
-        Log.d(TAG, "acquire");
+    public static void setVisibility(boolean status) {
+        Log.d(TAG, "setVisibility::status [" + status + "]");
+
+        AppCompatActivity activity = sActivity;
+
+        Log.d(TAG, "setVisibility::activity [" + activity + "]");
+
+        Semaphore semaphore = new Semaphore(0, true);
+
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.findViewById(sExtras.getInt("id")).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
+
+                    semaphore.release();
+                }
+            });
+
+            if (!status) {
+                activity.finishAndRemoveTask();
+            }
+        }
+
+        semaphore.acquireUninterruptibly();
+    }
+
+    public static void startActivity(Bundle data) {
+        Log.d(TAG, "startActivity");
+
+        try {
+            String[] trace = DataUtility.getJSONObjectFromBundle(data).toString(4).split("\n");
+
+            for (String slice : trace) {
+                Log.d(TAG, "startActivity::" + slice);
+            }
+        } catch (JSONException exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+        }
+
+        Context context = Application.getPackageContext();
+
+        Intent intent = new Intent(context, PinCaptureActivity.class).putExtras(data);
+
+        // TODO: ensure only one activity of this type on the stack
+
+        context.startActivity(intent);
 
         sSemaphore.acquireUninterruptibly();
-    }
-
-    public static void onNotificationThrow(int type) {
-        Log.d(TAG, "onNotificationThrow");
-
-        AppCompatActivity activity = mActivity; // TODO: getActivity(); for thread-safeness
-
-        Log.d(TAG, "onNotificationThrow::activity [" + activity + "]");
-
-        if (activity == null) {
-            return;
-        }
-
-        Log.d(TAG, "onNotificationThrow::type [" + type + "]");
-
-        switch (type) {
-            case NTF_PIN_START:
-                ((ActivityManager) (Application.getPackageContext().getSystemService(Context.ACTIVITY_SERVICE)))
-                        .moveTaskToFront(activity.getTaskId(), 0);
-
-                setVisibility(true);
-                return;
-
-            case NTF_PIN_ENTRY:
-                /* Nothing to do */
-                return;
-
-            case NTF_PIN_FINISH:
-            default:
-                setVisibility(false);
-                break;
-        }
-
-        activity.moveTaskToBack(true);
-    }
-
-    public static void release() {
-        Log.d(TAG, "release");
-
-        int availablePermits = sSemaphore.availablePermits();
-
-        Log.d(TAG, "release::availablePermits [" + availablePermits + "]");
-
-        if (availablePermits <= 0) {
-            sSemaphore.release();
-        }
     }
 }
