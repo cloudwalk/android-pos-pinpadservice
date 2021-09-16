@@ -300,13 +300,15 @@ public class PinpadUtility {
                 case 0x805D: output.putString(ABECS.PP_CARDEXP,     new String(V)); break;
                 case 0x8060: output.putString(ABECS.PP_DEVTYPE,     new String(V)); break;
 
-                case 0x8020: // TODO: intercept response @PinpadService!?
-                    output.putString(ABECS.PP_DSPTXTSZ, "0000");
+                case 0x8020:
+                    // TODO: intercept response @PinpadService!?
+                    // TODO: output.putString(ABECS.PP_DSPTXTSZ, "0000");
                     break;
 
                 case 0x8021:
-                case 0x8062: // TODO: 0x8020, 0x8021 and 0x8062 are all coming back as { 0x00, 0x00 ... }
-                    output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
+                case 0x8062:
+                    // TODO: 0x8020, 0x8021 and 0x8062 are all coming back as { 0x00, 0x00 ... }
+                    // TODO: output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
                     break;
 
                 case 0x8045: output.putString(ABECS.PP_TRACK2,      DataUtility.getHexStringFromByteArray(V)); break;
