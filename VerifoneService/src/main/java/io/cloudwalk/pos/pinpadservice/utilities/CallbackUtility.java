@@ -20,9 +20,15 @@ import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECT;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECTED;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TAP_INSERT_SWIPE_CARD;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_UPDATING;
+import static io.cloudwalk.pos.pinpadservice.managers.PinpadManager.ACTION_VFSERVICE;
+import static io.cloudwalk.pos.pinpadservice.managers.PinpadManager.PACKAGE_VFSERVICE;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
+
+import com.vfi.smartpos.deviceservice.aidl.IDeviceService;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -34,6 +40,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 // import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 
 public class CallbackUtility {
@@ -155,7 +162,26 @@ public class CallbackUtility {
     private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
         Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-        // TODO: handle LEDs
+        int[] status = ledsContactless.checaLedsAcesos();
+
+        try {
+            IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
+            IDeviceService  device = IDeviceService.Stub.asInterface(service);
+
+            for (int i = 0; i < status.length; i++) {
+                Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
+
+                if (status[i] != 0) {
+                    device.getLed().turnOn(i + 1);
+                } else {
+                    device.getLed().turnOff(i + 1);
+                }
+
+                SystemClock.sleep(50); /* 2021-09-10: user experience */
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+        }
     }
 
     public static IServiceCallback getServiceCallback() {

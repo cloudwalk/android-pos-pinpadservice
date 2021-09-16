@@ -1,7 +1,10 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
 import android.os.Bundle;
-import android.os.RemoteException;
+import android.os.IBinder;
+
+import com.vfi.smartpos.deviceservice.aidl.IDeviceService;
+import com.vfi.smartpos.deviceservice.aidl.ILed;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -16,10 +19,17 @@ import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.R;
 // import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
+import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
             TAG = PinpadManager.class.getSimpleName();
+
+    public static final String
+            ACTION_VFSERVICE = "com.verifone.smartpos.service.VerifoneDeviceService";
+
+    public static final String
+            PACKAGE_VFSERVICE = "com.vfi.smartpos.deviceservice";
 
     private static final PinpadManager
             sPinpadManager = new PinpadManager();
@@ -50,6 +60,20 @@ public class PinpadManager extends IPinpadManager.Stub {
                 sMngrSemaphore.acquireUninterruptibly();
 
                 try {
+                    ServiceUtility.register(PACKAGE_VFSERVICE, ACTION_VFSERVICE, new ServiceUtility.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "onSuccess");
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            Log.d(TAG, "onFailure");
+
+                            this.onSuccess();
+                        }
+                    });
+
                     sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
                 } catch (Exception exception) {
                     Log.e(TAG, Log.getStackTraceString(exception));
@@ -109,7 +133,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                                 bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
                                 bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
-                                bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
+                                // bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
                             }
 
                             if (bundle.isEmpty()) {
@@ -117,7 +141,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                                 bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
                                 bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
-                                bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
+                                // bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
                             }
 
                             // TODO: PinCaptureActivity.startActivity(bundle);
@@ -129,7 +153,16 @@ public class PinpadManager extends IPinpadManager.Stub {
                             return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
                     }
                 } else {
-                    // TODO: turn off all LEDs
+                    try {
+                        IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
+                        IDeviceService  device = IDeviceService.Stub.asInterface(service);
+
+                        for (int i = 0; i < 4; i++) {
+                            device.getLed().turnOff(i + 1);
+                        }
+                    } catch (Exception exception) {
+                        Log.e(TAG, Log.getStackTraceString(exception));
+                    }
                 }
             }
         } finally {
