@@ -26,8 +26,11 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static final String
             TAG = PinCaptureActivity.class.getSimpleName();
 
-    private static final Semaphore
-            sSemaphore = new Semaphore(0, true);
+    private static final Semaphore[]
+            sSemaphore = {
+                    new Semaphore(1, true), /* activity sync. control */
+                    new Semaphore(1, true)  /* public methods */
+            };
 
     private static AppCompatActivity
             sActivity = null;
@@ -44,7 +47,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         int[] height      = new int[2];
 
         do {
-            View btnC = findViewById(R.id.keyboard_custom_pos00); // TODO: double check!?
+            View btnC = findViewById(sExtras.getInt("keyboard_custom_pos00"));
 
             btnC.getLocationOnScreen(locationCAN);
             btnC.getLocationOnScreen(locationNUM);
@@ -74,7 +77,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         JSONObject obj = new JSONObject();
 
         try {
-            obj.put("layout",   sExtras.getInt("layoutResID"));
+            obj.put("layout",   sExtras.getInt("activity_pin_capture"));
 
             obj.put("numX",     numX);
             obj.put("numY",     numY);
@@ -135,11 +138,11 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         sExtras = getIntent().getExtras();
 
-        setContentView(sExtras.getInt("layoutResID"));
+        setContentView(sExtras.getInt("activity_pin_capture"));
 
         sActivity = this;
 
-        RelativeLayout relativeLayout = findViewById(sExtras.getInt("id"));
+        RelativeLayout relativeLayout = findViewById(sExtras.getInt("rl_pin_capture"));
 
         relativeLayout.getViewTreeObserver()
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -156,7 +159,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
                                 PINplug.setPinpadType(1, JSONLayoutInfo);
 
-                                sSemaphore.release(2);
+                                sSemaphore[0].release();
                             }
                         } .start();
                     }
@@ -184,32 +187,39 @@ public class PinCaptureActivity extends AppCompatActivity {
     public static void setVisibility(boolean status) {
         Log.d(TAG, "setVisibility::status [" + status + "]");
 
-        AppCompatActivity activity = sActivity;
+        sSemaphore[1].acquireUninterruptibly();
 
-        Log.d(TAG, "setVisibility::activity [" + activity + "]");
+        Semaphore sync = new Semaphore(0, true);
 
-        Semaphore semaphore = new Semaphore(0, true);
-
-        if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
+        if (sActivity != null && sExtras != null) {
+            sActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    activity.findViewById(sExtras.getInt("id")).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
+                    sActivity.findViewById(sExtras.getInt("rl_pin_capture")).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
 
-                    semaphore.release();
+                    if (!status) {
+                        sActivity.finishAndRemoveTask();
+
+                        sActivity = null; sExtras = null;
+
+                        sSemaphore[0].release();
+                    }
+
+                    sync.release();
                 }
             });
 
-            if (!status) {
-                activity.finishAndRemoveTask();
-            }
+            sync.acquireUninterruptibly();
         }
 
-        semaphore.acquireUninterruptibly();
+        sSemaphore[1].release();
     }
 
     public static void startActivity(Bundle data) {
         Log.d(TAG, "startActivity");
+
+        sSemaphore[1].acquireUninterruptibly();
+        sSemaphore[0].acquireUninterruptibly();
 
         try {
             String[] trace = DataUtility.getJSONObjectFromBundle(data).toString(4).split("\n");
@@ -225,10 +235,9 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         Intent intent = new Intent(context, PinCaptureActivity.class).putExtras(data);
 
-        // TODO: ensure only one activity of this type on the stack
-
         context.startActivity(intent);
 
-        sSemaphore.acquireUninterruptibly();
+        sSemaphore[0].acquireUninterruptibly();
+        sSemaphore[1].release();
     }
 }

@@ -7,19 +7,19 @@
         tools:context="io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity">
 
     <RelativeLayout
-            android:id="@+id/rl_pin_capture"
+            android:id="@+id/default_rl_pin_capture"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible">
 
         <FrameLayout
-                android:id="@+id/fl_pin_keyboard"
+                android:id="@+id/default_fl_pin_keyboard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true">
-            <include layout="@layout/pin_keyboard" />
+            <include layout="@layout/default_pin_keyboard" />
 
-            <include layout="@layout/pin_keyboard_skin" />
+            <include layout="@layout/default_pin_keyboard_skin" />
         </FrameLayout>
 
     </RelativeLayout>

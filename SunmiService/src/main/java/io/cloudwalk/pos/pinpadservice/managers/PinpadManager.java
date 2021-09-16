@@ -75,7 +75,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         return pinpad;
     }
 
-    private static byte[] intercept(boolean send, byte[] data, int length) {
+    private static byte[] intercept(String application, boolean send, byte[] data, int length) {
         Log.d(TAG, "intercept");
 
         try {
@@ -104,10 +104,22 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GOX:
                             Bundle bundle = new Bundle();
 
-                            // TODO: allows customization based on the application calling
+                            if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
+                              && application.startsWith("io.cloudwalk.")) {
+                                Log.d(TAG, "intercept::infinitepay [" + application + "]");
 
-                            bundle.putInt("layoutResID", R.layout.activity_pin_capture);
-                            bundle.putInt("id", R.id.rl_pin_capture);
+                                bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
+                                bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
+                                bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
+                            }
+
+                            if (bundle.isEmpty()) {
+                                Log.d(TAG, "intercept::default [" + application + "]");
+
+                                bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
+                                bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
+                                bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
+                            }
 
                             PinCaptureActivity.startActivity(bundle);
                             break;
@@ -118,20 +130,12 @@ public class PinpadManager extends IPinpadManager.Stub {
                             return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
                     }
                 } else {
-                    switch (CMD_ID) {
-                        case ABECS.GPN:
-                            PinCaptureActivity.setVisibility(false);
-                            /* no break */
-
-                        default:
-                            for (int i = 0; i < 4; i++) {
-                                try {
-                                    SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
-                                } catch (RemoteException exception) {
-                                    Log.e(TAG, Log.getStackTraceString(exception));
-                                }
-                            }
-                            break;
+                    for (int i = 0; i < 4; i++) {
+                        try {
+                            SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
+                        } catch (RemoteException exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+                        }
                     }
                 }
             }
@@ -170,7 +174,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             } else {
                 result = getPinpad().recebeResposta(output, timeout);
 
-                output = intercept(false, output, result);
+                output = intercept(null, false, output, result);
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
@@ -196,7 +200,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         int result = -1;
 
         try {
-            byte[] request = intercept(true, input, length);
+            byte[] request = intercept(application, true, input, length);
 
             if (request[0] != 0x15) {
                 result = getPinpad().enviaComando(request, length);
