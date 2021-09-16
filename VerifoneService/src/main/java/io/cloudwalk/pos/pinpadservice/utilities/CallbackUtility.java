@@ -1,27 +1,40 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
-
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_2x16;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_AID_INVALID;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_CARD_BLOCKED;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_INSERT_SWIPE_CARD;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_BLOCKED;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_ENTRY;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_FINISH;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_INVALID;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_LAST_TRY;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_START;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_VERIFIED;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PROCESSING;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_REMOVE_CARD;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_RETAP_CARD;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECT;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECTED;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TAP_INSERT_SWIPE_CARD;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_UPDATING;
 
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.os.SystemClock;
-
-import com.sunmi.pay.hardware.aidl.AidlConstants;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import br.com.setis.sunmi.bibliotecapinpad.InterfaceUsuarioPinpad;
-import br.com.setis.sunmi.bibliotecapinpad.definicoes.LedsContactless;
-import br.com.setis.sunmi.bibliotecapinpad.definicoes.Menu;
-import br.com.setis.sunmi.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
-import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
+import br.com.verifone.bibliotecapinpad.InterfaceUsuarioPinpad;
+import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
+import br.com.verifone.bibliotecapinpad.definicoes.Menu;
+import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
+import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
-import sunmi.paylib.SunmiPayKernel;
+// import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 
 public class CallbackUtility {
     private static final String
@@ -54,7 +67,7 @@ public class CallbackUtility {
             case NTF_PIN_FINISH:
                 visibility = (visibility != 0) ? visibility : 2;
 
-                PinCaptureActivity.setVisibility(visibility != 2);
+                // TODO: PinCaptureActivity.setVisibility(visibility != 2);
                 /* no break */
 
             case NTF_AID_INVALID: case NTF_PIN_INVALID:  case NTF_PIN_LAST_TRY:
@@ -142,31 +155,7 @@ public class CallbackUtility {
     private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
         Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-        int[] status = ledsContactless.checaLedsAcesos();
-
-        for (int i = 0; i < status.length; i++) {
-            Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
-
-            int led = -1;
-
-            try {
-                switch (i) {
-                    case 0: led = AidlConstants.LedLight.BLUE_LIGHT;   break;
-                    case 1: led = AidlConstants.LedLight.YELLOW_LIGHT; break;
-                    case 2: led = AidlConstants.LedLight.GREEN_LIGHT;  break;
-                    case 3: led = AidlConstants.LedLight.RED_LIGHT;    break;
-
-                    default:
-                        continue;
-                }
-
-                SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
-
-                SystemClock.sleep(50); /* 2021-09-10: user experience */
-            } catch (RemoteException exception) {
-                Log.e(TAG, Log.getStackTraceString(exception));
-            }
-        }
+        // TODO: handle LEDs
     }
 
     public static IServiceCallback getServiceCallback() {

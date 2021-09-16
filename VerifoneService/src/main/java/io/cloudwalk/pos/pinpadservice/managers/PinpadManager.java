@@ -1,26 +1,21 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
-import static java.util.Locale.US;
-
 import android.os.Bundle;
 import android.os.RemoteException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
 import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
-import br.com.verifone.bibliotecapinpad.InterfaceUsuarioPinpad;
-import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
-import br.com.verifone.bibliotecapinpad.definicoes.Menu;
-import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
-import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadservice.R;
+// import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
+import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -32,11 +27,8 @@ public class PinpadManager extends IPinpadManager.Stub {
     private static final Queue<byte[]>
             sQueue = new LinkedList<>();
 
-    private static final Semaphore[]
-            sClbkSemaphore = {
-                    new Semaphore(1, true),
-                    new Semaphore(1, true)
-            };
+    private static final Semaphore
+            sMngrSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
@@ -47,186 +39,106 @@ public class PinpadManager extends IPinpadManager.Stub {
     private static AcessoDiretoPinpad
             sAcessoDiretoPinpad = null;
 
-    private static IServiceCallback
-            sServiceCallback = null;
-
-    /**
-     * Runnable interface.
-     */
-    public static interface Runnable {
-        /**
-         * @return {@link Bundle}
-         * @throws Exception self-describing
-         */
-        Bundle run(Bundle input)
-                throws Exception;
-    }
-
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                sMngrSemaphore.acquireUninterruptibly();
+
+                try {
+                    sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+                }
+
+                sMngrSemaphore.release();
+            }
+        }.start();
     }
 
-    private AcessoDiretoPinpad getPinpad() {
+    private static AcessoDiretoPinpad getPinpad() {
         Log.d(TAG, "getPinpad");
 
-        if (sAcessoDiretoPinpad == null) {
-            InterfaceUsuarioPinpad callback = new InterfaceUsuarioPinpad() {
-                @Override
-                public void mensagemNotificacao(String s, TipoNotificacao tipoNotificacao) {
-                    Log.d(TAG, "mensagemNotificacao::s [" + ((s != null) ? s.replace("\n", "\\n") : "null") + "] tipoNotificacao [" + tipoNotificacao + "]");
+        AcessoDiretoPinpad pinpad;
 
-                    Semaphore semaphore = new Semaphore(1, true);
+        sMngrSemaphore.acquireUninterruptibly();
 
-                    switch (tipoNotificacao) {
-                        case DSP_INICIA_PIN:    /* 16 */
-                        case DSP_ENCERRA_PIN:   /* 17 */
-                            semaphore.acquireUninterruptibly();
-                            break;
+        pinpad = sAcessoDiretoPinpad;
 
-                        default:
-                            /* Nothing to do */
-                            break;
-                    }
+        sMngrSemaphore.release();
 
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            super.run();
-
-                            sClbkSemaphore[1].acquireUninterruptibly();
-
-                            IServiceCallback callback = getServiceCallback();
-
-                            if (callback != null) {
-                                Bundle bundle = new Bundle();
-
-                                bundle.putString("NTF_MSG", (s != null) ? s : "");
-
-                                try {
-                                    callback.onNotificationThrow(bundle, tipoNotificacao.ordinal());
-                                } catch (Exception exception) {
-                                    Log.e(TAG, Log.getStackTraceString(exception));
-                                }
-                            }
-
-                            semaphore.release();
-
-                            sClbkSemaphore[1].release();
-                        }
-                    }.start();
-
-                    semaphore.acquireUninterruptibly();
-                }
-
-                @Override
-                public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
-                    Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
-
-                    // TODO: to be used internally (GOX) (GPN)
-                }
-
-                @Override
-                public void menu(Menu menu) {
-                    Log.d(TAG, "menu::menu [" + menu + "]");
-
-                    IServiceCallback callback = getServiceCallback();
-
-                    if (callback != null) {
-                        Bundle bundle = new Bundle();
-
-                        bundle.putString("NTF_TTL", menu.obtemTituloMenu());
-                        bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
-                        bundle.putString("NTF_TOT", String.format(US, "%03d", menu.obtemTimeout()));
-
-                        try {
-                            menu.obtemMenuCallback().informaOpcaoSelecionada(callback.onSelectionRequired(bundle));
-                        } catch (RemoteException exception) {
-                            Log.e(TAG, Log.getStackTraceString(exception));
-                        }
-                    }
-                }
-
-                @Override
-                public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
-                    Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
-
-                    // TODO: VFSystemService!? VFService!?
-                }
-            };
-
-            try {
-                sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(callback);
-            } catch (Exception exception) {
-                Log.e(TAG, Log.getStackTraceString(exception));
-            }
-        }
-
-        return sAcessoDiretoPinpad;
+        return pinpad;
     }
 
-    private static IServiceCallback getServiceCallback() {
-        Log.d(TAG, "getServiceCallback");
-
-        IServiceCallback output;
-
-        sClbkSemaphore[0].acquireUninterruptibly();
-
-        if (sServiceCallback == null) {
-            Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
-        }
-
-        output = sServiceCallback;
-
-        sClbkSemaphore[0].release();
-
-        return output;
-    }
-
-    private static byte[] intercept(byte[] data, int length) {
+    private static byte[] intercept(String application, boolean send, byte[] data, int length) {
         Log.d(TAG, "intercept");
 
         try {
+            sMngrSemaphore.acquireUninterruptibly();
+
             if (length > 4) {
-                byte[] CMD_ID = new byte[3];
+                byte[] slice = new byte[3];
 
-                System.arraycopy(data, 1, CMD_ID, 0, 3);
+                System.arraycopy(data, 1, slice, 0, 3);
 
-                switch (new String(CMD_ID)) {
-                    case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
-                    case ABECS.CEX: case ABECS.EBX: case ABECS.GTK: case ABECS.RMC:
-                    case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                    case ABECS.GCX: case ABECS.GED:
-                        /* Nothing to do */
+                String CMD_ID = new String(slice);
 
-                        // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
-                        break;
+                Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
 
-                    case ABECS.GPN:
-                    case ABECS.GOX:
-                        // TODO: PIN capture activity
-                        break;
+                if (send) {
+                    switch (CMD_ID) {
+                        case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
+                        case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
+                        case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                        case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                        case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
+                            // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
+                            break;
 
-                    default:
-                        Log.w(TAG, "intercept::NAK registered");
+                        case ABECS.GPN:
+                        case ABECS.GOX:
+                            Bundle bundle = new Bundle();
 
-                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                            if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
+                                    && application.startsWith("io.cloudwalk.")) {
+                                Log.d(TAG, "intercept::infinitepay [" + application + "]");
+
+                                bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
+                                bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
+                                bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
+                            }
+
+                            if (bundle.isEmpty()) {
+                                Log.d(TAG, "intercept::default [" + application + "]");
+
+                                bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
+                                bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
+                                bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
+                            }
+
+                            // TODO: PinCaptureActivity.startActivity(bundle);
+                            break;
+
+                        default:
+                            Log.w(TAG, "intercept::NAK registered");
+
+                            return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                    }
+                } else {
+                    // TODO: turn off all LEDs
                 }
             }
         } finally {
+            sMngrSemaphore.release();
+
             Log.h(TAG, data, length);
         }
 
         return data;
-    }
-
-    private static void setServiceCallback(IServiceCallback callback) {
-        Log.d(TAG, "setServiceCallback");
-
-        sClbkSemaphore[0].acquireUninterruptibly();
-
-        sServiceCallback = callback;
-
-        sClbkSemaphore[0].release();
     }
 
     public static PinpadManager getInstance() {
@@ -250,11 +162,13 @@ public class PinpadManager extends IPinpadManager.Stub {
                 System.arraycopy(response, 0, output, 0, response.length);
 
                 result = response.length;
+
+                Log.h(TAG, output, result);
             } else {
                 result = getPinpad().recebeResposta(output, timeout);
-            }
 
-            Log.h(TAG, output, result);
+                output = intercept(null, false, output, result);
+            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
@@ -272,14 +186,14 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         Log.d(TAG, "send::application [" + application + "]");
 
-        if (length > 1) { /* 2021-08-11: e.g. not a control byte - e.g. <<CAN>> */
-            setServiceCallback(callback);
+        if (length > 1) { /* 2021-08-11: not a control byte */
+            CallbackUtility.setServiceCallback(callback);
         }
 
         int result = -1;
 
         try {
-            byte[] request = intercept(input, length);
+            byte[] request = intercept(application, true, input, length);
 
             if (request[0] != 0x15) {
                 result = getPinpad().enviaComando(request, length);

@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.CMD_ID, ABECS.EBX);
                 request.putString(ABECS.SPE_DATAIN, "00010203040506070809101112131415");
                 request.putString(ABECS.SPE_MTHDDAT, "51");
-                request.putString(ABECS.SPE_KEYIDX, "11");
+                request.putString(ABECS.SPE_KEYIDX, "10");
 
                 // requestList.add(request);
 
@@ -466,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
 
                 request.putString(ABECS.CMD_ID, ABECS.GPN);
                 request.putString(ABECS.GPN_METHOD, "3");
-                request.putString(ABECS.GPN_KEYIDX, "11");
+                request.putString(ABECS.GPN_KEYIDX, "10");
                 request.putString(ABECS.GPN_WKENC, "0000000000000000000000000000000000000000000000000000000000000000");
                 request.putString(ABECS.GPN_PAN, "5502092192096336");
                 request.putString(ABECS.GPN_ENTRIES, "1");
@@ -512,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_TRNCURR, "986");
                 request.putString(ABECS.SPE_GCXOPT, "11100");
                 request.putString(ABECS.SPE_MTHDPIN, "3");
-                request.putString(ABECS.SPE_KEYIDX, "11");
+                request.putString(ABECS.SPE_KEYIDX, "10");
                 request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
                 request.putString(ABECS.SPE_TRMPAR, "00000000250000000025");
                 request.putString(ABECS.SPE_TAGLIST, "5F285F24");
