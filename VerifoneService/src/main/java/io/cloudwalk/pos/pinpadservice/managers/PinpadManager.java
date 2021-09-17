@@ -1,10 +1,8 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
-import android.os.Bundle;
 import android.os.IBinder;
 
 import com.vfi.smartpos.deviceservice.aidl.IDeviceService;
-import com.vfi.smartpos.deviceservice.aidl.ILed;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -16,7 +14,6 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.pos.pinpadservice.R;
 // import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
@@ -57,7 +54,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             public void run() {
                 super.run();
 
-                sMngrSemaphore.acquireUninterruptibly();
+                acquire(sMngrSemaphore);
 
                 try {
                     ServiceUtility.register(PACKAGE_VFSERVICE, ACTION_VFSERVICE, new ServiceUtility.Callback() {
@@ -79,7 +76,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     Log.e(TAG, Log.getStackTraceString(exception));
                 }
 
-                sMngrSemaphore.release();
+                release(sMngrSemaphore);
             }
         }.start();
     }
@@ -89,11 +86,11 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         AcessoDiretoPinpad pinpad;
 
-        sMngrSemaphore.acquireUninterruptibly();
+        acquire(sMngrSemaphore);
 
         pinpad = sAcessoDiretoPinpad;
 
-        sMngrSemaphore.release();
+        release(sMngrSemaphore);
 
         return pinpad;
     }
@@ -102,7 +99,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         Log.d(TAG, "intercept");
 
         try {
-            sMngrSemaphore.acquireUninterruptibly();
+            acquire(sMngrSemaphore);
 
             if (length > 4) {
                 byte[] slice = new byte[3];
@@ -120,31 +117,12 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
-                            // TODO: (GIX) rewrite requests that may include 0x8020 and 0x8021!?
+                            /* Nothing to do */
                             break;
 
                         case ABECS.GPN:
                         case ABECS.GOX:
-                            Bundle bundle = new Bundle();
-
-                            if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
-                                    && application.startsWith("io.cloudwalk.")) {
-                                Log.d(TAG, "intercept::infinitepay [" + application + "]");
-
-                                bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
-                                bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
-                                // bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
-                            }
-
-                            if (bundle.isEmpty()) {
-                                Log.d(TAG, "intercept::default [" + application + "]");
-
-                                bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
-                                bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
-                                // bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
-                            }
-
-                            // TODO: PinCaptureActivity.startActivity(bundle);
+                            // TODO: PinCaptureActivity.startActivity(application);
                             break;
 
                         default:
@@ -166,12 +144,30 @@ public class PinpadManager extends IPinpadManager.Stub {
                 }
             }
         } finally {
-            sMngrSemaphore.release();
+            release(sMngrSemaphore);
 
             Log.h(TAG, data, length);
         }
 
         return data;
+    }
+
+    private static void acquire(Semaphore semaphore) {
+        Log.d(TAG, "acquire::semaphore [" + semaphore + "]");
+
+        semaphore.acquireUninterruptibly();
+    }
+
+    private static void release(Semaphore semaphore) {
+        Log.d(TAG, "release::semaphore [" + semaphore + "]");
+
+        int availablePermits = semaphore.availablePermits();
+
+        Log.d(TAG, "release::availablePermits [" + availablePermits + "]");
+
+        if (availablePermits <= 0) {
+            semaphore.release();
+        }
     }
 
     public static PinpadManager getInstance() {
@@ -184,7 +180,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     public int recv(byte[] output, long timeout) {
         Log.d(TAG, "recv");
 
-        sRecvSemaphore.acquireUninterruptibly();
+        acquire(sRecvSemaphore);
 
         int result = -1;
 
@@ -206,7 +202,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        sRecvSemaphore.release();
+        release(sRecvSemaphore);
 
         return result;
     }
@@ -215,7 +211,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     public int send(String application, IServiceCallback callback, byte[] input, int length) {
         Log.d(TAG, "send");
 
-        sSendSemaphore.acquireUninterruptibly();
+        acquire(sSendSemaphore);
 
         Log.d(TAG, "send::application [" + application + "]");
 
@@ -237,7 +233,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        sSendSemaphore.release();
+        release(sSendSemaphore);
 
         return result;
     }

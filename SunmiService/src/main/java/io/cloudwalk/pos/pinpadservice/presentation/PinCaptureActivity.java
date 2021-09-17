@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,7 +21,6 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
 import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.utilitieslibrary.Application;
-import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class PinCaptureActivity extends AppCompatActivity {
     private static final String
@@ -37,6 +37,9 @@ public class PinCaptureActivity extends AppCompatActivity {
 
     private static Bundle
             sExtras = null;
+
+    private static String
+            sApplication = null;
 
     private String buildJSONLayoutInfo() {
         Log.d(TAG, "buildJSONLayoutInfo");
@@ -184,6 +187,27 @@ public class PinCaptureActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
+    public static Bundle getKeyboardResID(String application) {
+        Bundle bundle = new Bundle();
+
+        if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
+           & application.startsWith("io.cloudwalk.")) {
+            Log.d(TAG, "intercept::infinitepay [" + application + "]");
+
+            bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
+            bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
+            bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
+        } else {
+            Log.d(TAG, "intercept::default [" + application + "]");
+
+            bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
+            bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
+            bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
+        }
+
+        return bundle;
+    }
+
     public static void setVisibility(boolean status) {
         Log.d(TAG, "setVisibility::status [" + status + "]");
 
@@ -200,7 +224,9 @@ public class PinCaptureActivity extends AppCompatActivity {
                     if (!status) {
                         sActivity.finishAndRemoveTask();
 
-                        sActivity = null; sExtras = null;
+                        sActivity = null;
+                        sApplication = null;
+                        sExtras = null;
 
                         sSemaphore[0].release();
                     }
@@ -215,25 +241,19 @@ public class PinCaptureActivity extends AppCompatActivity {
         sSemaphore[1].release();
     }
 
-    public static void startActivity(Bundle data) {
-        Log.d(TAG, "startActivity");
+    public static void startActivity(@NotNull String application) {
+        Log.d(TAG, "startActivity::application [" + application + "]");
 
         sSemaphore[1].acquireUninterruptibly();
         sSemaphore[0].acquireUninterruptibly();
 
-        try {
-            String[] trace = DataUtility.getJSONObjectFromBundle(data).toString(4).split("\n");
+        sApplication = application;
 
-            for (String slice : trace) {
-                Log.d(TAG, "startActivity::" + slice);
-            }
-        } catch (JSONException exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-        }
+        Bundle keyboardResID = getKeyboardResID(sApplication);
 
         Context context = Application.getPackageContext();
 
-        Intent intent = new Intent(context, PinCaptureActivity.class).putExtras(data);
+        Intent intent = new Intent(context, PinCaptureActivity.class).putExtras(keyboardResID);
 
         context.startActivity(intent);
 

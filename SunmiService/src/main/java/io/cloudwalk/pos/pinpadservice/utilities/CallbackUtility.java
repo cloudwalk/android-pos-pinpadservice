@@ -149,7 +149,7 @@ public class CallbackUtility {
 
             int led = -1;
 
-            try {
+            // try {
                 switch (i) {
                     case 0: led = AidlConstants.LedLight.BLUE_LIGHT;   break;
                     case 1: led = AidlConstants.LedLight.YELLOW_LIGHT; break;
@@ -160,12 +160,13 @@ public class CallbackUtility {
                         continue;
                 }
 
-                SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
+                /* 2021-09-17: disabled due to bugged BC v1.27 */
+                // SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
 
-                SystemClock.sleep(50); /* 2021-09-10: user experience */
-            } catch (RemoteException exception) {
-                Log.e(TAG, Log.getStackTraceString(exception));
-            }
+            //     SystemClock.sleep(50); /* 2021-09-10: user experience */
+            // } catch (RemoteException exception) {
+            //     Log.e(TAG, Log.getStackTraceString(exception));
+            // }
         }
     }
 
