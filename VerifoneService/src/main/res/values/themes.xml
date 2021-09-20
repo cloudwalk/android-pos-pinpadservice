@@ -17,4 +17,19 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
     </style>
+
+    <!-- InfinitePay application theme -->
+    <style name="InfinitePay.Theme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" />
+
+    <!-- InfinitePay PIN numeric keyboard -->
+    <style name="InfinitePay.Theme.NoActionBar.Keyboard" parent="InfinitePay.Theme.NoActionBar">
+        <item name="android:background">#263238</item>
+        <item name="android:fontFamily">@font/ceraproregular</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_height">120px</item>
+        <item name="android:layout_width">240px</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textColor">#AEBAC6</item>
+        <item name="android:textSize">32sp</item>
+    </style>
 </resources>
