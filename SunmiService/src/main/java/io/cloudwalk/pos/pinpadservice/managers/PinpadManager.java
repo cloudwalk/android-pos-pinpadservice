@@ -1,5 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
+import static java.util.Locale.US;
+
 import android.os.RemoteException;
 
 import java.util.LinkedList;
@@ -74,47 +76,63 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static byte[] intercept(String application, boolean send, byte[] data, int length) {
-        Log.d(TAG, "intercept");
+        Log.d(TAG, "intercept::length [" + length + "] (" + ((send) ? "send" : "recv") + ")");
 
         try {
             acquire(sMngrSemaphore);
 
-            if (length > 4) {
-                byte[] slice = new byte[3];
+            String CMD_ID;
 
-                System.arraycopy(data, 1, slice, 0, 3);
+            switch (length) {
+                case 0:
+                    return data;
 
-                String CMD_ID = new String(slice);
+                case 1:
+                    Log.d(TAG, "intercept::data[0] [" + String.format(US, "%02X", data[0]) + "]");
 
-                Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
-
-                if (send) {
-                    switch (CMD_ID) {
-                        case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
-                        case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
-                        case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
-                        case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                        case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
-                            /* Nothing to do */
-                            break;
-
-                        case ABECS.GPN:
-                        case ABECS.GOX:
-                            PinCaptureActivity.startActivity(application);
-                            break;
-
-                        default:
-                            Log.w(TAG, "intercept::NAK registered");
-
-                            return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                    if (data[0] != 0x04) {
+                        return data;
                     }
-                } else {
-                    for (int i = 0; i < 4; i++) {
-                        try {
-                            SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
-                        } catch (RemoteException exception) {
-                            Log.e(TAG, Log.getStackTraceString(exception));
-                        }
+
+                    CMD_ID = "EOT";
+                    break;
+
+                default:
+                    byte[] slice = new byte[3];
+
+                    System.arraycopy(data, 1, slice, 0, 3);
+
+                    CMD_ID = new String(slice);
+            }
+
+            Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
+
+            if (send) {
+                switch (CMD_ID) {
+                    case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
+                    case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
+                    case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                    case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                    case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
+                        /* Nothing to do */
+                        break;
+
+                    case ABECS.GPN:
+                    case ABECS.GOX:
+                        PinCaptureActivity.startActivity(application);
+                        break;
+
+                    default:
+                        Log.w(TAG, "intercept::NAK registered");
+
+                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                }
+            } else {
+                for (int i = 0; i < 4; i++) {
+                    try {
+                        SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
+                    } catch (RemoteException exception) {
+                        Log.e(TAG, Log.getStackTraceString(exception));
                     }
                 }
             }
@@ -153,7 +171,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     @Override
     public int recv(byte[] output, long timeout) {
-        Log.d(TAG, "recv");
+        Log.d(TAG, "recv::timeout [" + timeout + "]");
 
         acquire(sRecvSemaphore);
 

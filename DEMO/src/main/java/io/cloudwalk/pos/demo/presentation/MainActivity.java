@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
 
         mAboutAlertDialog = new AboutAlertDialog(this);
 
-        /* 'onResume' runs on the UI thread, hence the new thread not to block it */
+        /* 'onCreate' runs on the UI thread, hence the new thread not to block it */
         new Thread() {
             @Override
             public void run() {
@@ -468,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.GPN_METHOD, "3");
                 request.putString(ABECS.GPN_KEYIDX, "10");
                 request.putString(ABECS.GPN_WKENC, "0000000000000000000000000000000000000000000000000000000000000000");
-                request.putString(ABECS.GPN_PAN, "5502092192096336");
+                request.putString(ABECS.GPN_PAN, "5502092192096336   ");
                 request.putString(ABECS.GPN_ENTRIES, "1");
                 request.putString(ABECS.GPN_MIN1, "04");
                 request.putString(ABECS.GPN_MAX1, "08");
@@ -563,6 +563,8 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.CHP_OPER, "1");
 
                 requestList.add(request);
+
+                PinpadManager.abort();
 
                 for (Bundle TX : requestList) {
                     try {

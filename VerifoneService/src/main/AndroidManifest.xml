@@ -12,11 +12,8 @@
             android:roundIcon="@mipmap/ic_pinpadservice_round"
             android:supportsRtl="true"
             android:theme="@style/PinpadService.Theme.MaterialComponents.NoActionBar">
-        <!--
-        <activity
-                android:name=".presentation.PinCaptureActivity"
-                android:launchMode="singleTask" />
-         -->
+
+        <activity android:name=".presentation.PinCaptureActivity" />
 
         <receiver
                 android:name=".BroadcastReceiver"

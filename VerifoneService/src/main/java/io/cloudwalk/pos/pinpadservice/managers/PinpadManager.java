@@ -1,5 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
+import static java.util.Locale.US;
+
 import android.os.IBinder;
 
 import com.vfi.smartpos.deviceservice.aidl.IDeviceService;
@@ -14,7 +16,7 @@ import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-// import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
+import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 
@@ -96,51 +98,69 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static byte[] intercept(String application, boolean send, byte[] data, int length) {
-        Log.d(TAG, "intercept");
+        Log.d(TAG, "intercept::length [" + length + "] (" + ((send) ? "send" : "recv") + ")");
 
         try {
             acquire(sMngrSemaphore);
 
-            if (length > 4) {
-                byte[] slice = new byte[3];
+            String CMD_ID;
 
-                System.arraycopy(data, 1, slice, 0, 3);
+            switch (length) {
+                case 0:
+                    return data;
 
-                String CMD_ID = new String(slice);
+                case 1:
+                    Log.d(TAG, "intercept::data[0] [" + String.format(US, "%02X", data[0]) + "]");
 
-                Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
-
-                if (send) {
-                    switch (CMD_ID) {
-                        case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
-                        case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
-                        case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
-                        case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-                        case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
-                            /* Nothing to do */
-                            break;
-
-                        case ABECS.GPN:
-                        case ABECS.GOX:
-                            // TODO: PinCaptureActivity.startActivity(application);
-                            break;
-
-                        default:
-                            Log.w(TAG, "intercept::NAK registered");
-
-                            return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                    if (data[0] != 0x04) {
+                        return data;
                     }
-                } else {
-                    try {
-                        IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
-                        IDeviceService  device = IDeviceService.Stub.asInterface(service);
 
-                        for (int i = 0; i < 4; i++) {
-                            device.getLed().turnOff(i + 1);
-                        }
-                    } catch (Exception exception) {
-                        Log.e(TAG, Log.getStackTraceString(exception));
+                    CMD_ID = "EOT";
+                    break;
+
+                default:
+                    byte[] slice = new byte[3];
+
+                    System.arraycopy(data, 1, slice, 0, 3);
+
+                    CMD_ID = new String(slice);
+            }
+
+            Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
+
+            if (send) {
+                switch (CMD_ID) {
+                    case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
+                    case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
+                    case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                    case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                    case ABECS.GCX: case ABECS.GED: case ABECS.FCX:
+                        /* Nothing to do */
+                        break;
+
+                    case ABECS.GPN:
+                    case ABECS.GOX:
+                        PinCaptureActivity.startActivity(application);
+                        break;
+
+                    default:
+                        Log.w(TAG, "intercept::NAK registered");
+
+                        return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
+                }
+            } else {
+                PinCaptureActivity.setVisibility(false);
+
+                try {
+                    IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
+                    IDeviceService  device = IDeviceService.Stub.asInterface(service);
+
+                    for (int i = 0; i < 4; i++) {
+                        device.getLed().turnOff(i + 1);
                     }
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
             }
         } finally {
@@ -178,7 +198,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     @Override
     public int recv(byte[] output, long timeout) {
-        Log.d(TAG, "recv");
+        Log.d(TAG, "recv::timeout [" + timeout + "]");
 
         acquire(sRecvSemaphore);
 

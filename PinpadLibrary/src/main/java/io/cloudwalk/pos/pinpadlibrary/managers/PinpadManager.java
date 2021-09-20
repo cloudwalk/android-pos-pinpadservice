@@ -39,9 +39,6 @@ public class PinpadManager {
     private static final byte
             EOT = 0x04;
 
-    private static final byte
-            NAK = 0x15;
-
     /**
      * Constructor.
      */
@@ -124,19 +121,32 @@ public class PinpadManager {
             do {
                 status = send(callback, request, request.length);
 
+                Log.d(TAG, "request::send [" + status + "]");
+
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
                 }
 
                 status = recv(response, 2000);
 
+                Log.d(TAG, "request::recv [" + status + "]");
+
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
                 } else {
-                    if (response[0] != ACK) {
-                        if (--retry <= 0) {
-                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
-                        }
+                    switch (response[0]) {
+                        case ACK:
+                            /* Nothing to do */
+                            break;
+
+                        case EOT:
+                            throw new InterruptedException();
+
+                        default:
+                            if (--retry <= 0) {
+                                throw (status != 0) ? new RuntimeException() : new TimeoutException();
+                            }
+                            break;
                     }
                 }
             } while (response[0] != ACK);
@@ -146,8 +156,14 @@ public class PinpadManager {
             do {
                 status = recv(response, 10000);
 
+                Log.d(TAG, "request::recv [" + status + "]");
+
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
+                } else {
+                    if (response[0] == EOT) {
+                        throw new InterruptedException();
+                    }
                 }
             } while (status <= 0);
 
@@ -190,30 +206,14 @@ public class PinpadManager {
             acquire();
 
             byte[] request  = new byte[] { CAN };
-            byte[] response = new byte[2048 + 4];
 
-            int retry  = 3;
-            int status = 0;
+            int status = send(null, request, request.length);
 
-            do {
-                status = send(null, request, request.length);
+            Log.d(TAG, "abort::send [" + status + "]");
 
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                }
-
-                status = recv(response, 2000);
-
-                if (status < 0) {
-                    throw new RuntimeException("request::status [" + status + "]");
-                } else {
-                    if (response[0] != EOT) {
-                        if (--retry <= 0) {
-                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
-                        }
-                    }
-                }
-            } while (response[0] != EOT);
+            if (status < 0) {
+                throw new RuntimeException("abort::status [" + status + "]");
+            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {

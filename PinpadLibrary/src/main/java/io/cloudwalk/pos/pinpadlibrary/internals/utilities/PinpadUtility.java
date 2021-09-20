@@ -46,7 +46,7 @@ public class PinpadUtility {
 
         public static Bundle parseResponseDataPacket(byte[] input, int length)
                 throws Exception {
-            Log.d(TAG, "parseResponseDataPacket");
+            Log.d(TAG, "parseResponseDataPacket::length [" + length + "]");
 
             byte[] RSP_ID       = new byte[3];
             byte[] RSP_STAT     = new byte[3];
@@ -61,24 +61,17 @@ public class PinpadUtility {
             output.putString(ABECS.RSP_ID, new String(RSP_ID));
             output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
-            switch ((ABECS.STAT) output.getSerializable(ABECS.RSP_STAT)) {
-                case ST_OK:
-                case ST_TABVERDIF:
-                    if (length > 6) {
-                        System.arraycopy(input, 6, RSP_LEN1, 0, 3);
+            if (length > 9) {
+                System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
-                        RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
+                RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
 
-                        System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
+                System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
 
-                        output.putAll(PinpadUtility.parseResponseTLV(RSP_DATA, RSP_DATA.length));
-                    }
-
-                    /* no break */
-
-                default:
-                    return output;
+                output.putAll(PinpadUtility.parseResponseTLV(RSP_DATA, RSP_DATA.length));
             }
+
+            return output;
         }
     }
 

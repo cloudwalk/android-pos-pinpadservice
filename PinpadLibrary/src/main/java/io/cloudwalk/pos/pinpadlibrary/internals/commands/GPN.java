@@ -66,8 +66,9 @@ public class GPN {
         String GPN_MAX1     = input.getString(ABECS.GPN_MAX1);
         String GPN_MSG1     = input.getString(ABECS.GPN_MSG1);
 
-        byte[] GPN_PANLEN   = String.format(US, "%02d",    GPN_PAN.length()).getBytes(UTF_8);
-               GPN_PAN      = String.format(US, "%19.19s", GPN_PAN);
+        byte[] GPN_PANLEN = String.format(US, "%02d", GPN_PAN.trim().length()).getBytes(UTF_8);
+
+        GPN_PAN = String.format(US, "%19.19s", GPN_PAN);
 
         stream[1].write(GPN_METHOD .getBytes(UTF_8));
         stream[1].write(GPN_KEYIDX .getBytes(UTF_8));
