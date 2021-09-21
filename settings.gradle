@@ -1,4 +1,4 @@
-rootProject.name = "POC 2104301453"
+rootProject.name = "android-pos-pinpadservice"
 include ':PinpadLibrary'
 include ':DEMO'
 include ':VerifoneService'
