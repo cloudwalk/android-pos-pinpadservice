@@ -48,10 +48,10 @@ public class PinpadUtility {
                 throws Exception {
             Log.d(TAG, "parseResponseDataPacket::length [" + length + "]");
 
-            byte[] RSP_ID       = new byte[3];
-            byte[] RSP_STAT     = new byte[3];
-            byte[] RSP_LEN1     = new byte[3];
-            byte[] RSP_DATA     = null;
+            byte[] RSP_ID   = new byte[3];
+            byte[] RSP_STAT = new byte[3];
+            byte[] RSP_LEN1 = new byte[3];
+            byte[] RSP_DATA = null;
 
             System.arraycopy(input, 0, RSP_ID, 0, 3);
             System.arraycopy(input, 3, RSP_STAT, 0, 3);
@@ -178,7 +178,7 @@ public class PinpadUtility {
             }
         }
 
-        // TODO: validate CRC and throw exception!?
+        // TODO: validate CRC!?
 
         byte[] output = new byte[j];
 

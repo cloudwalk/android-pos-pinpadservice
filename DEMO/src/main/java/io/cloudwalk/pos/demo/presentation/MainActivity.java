@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
 
                 request.putString(ABECS.CMD_ID, ABECS.CLX);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.OPN_MOD, "A82A660B3C49226EFCDABA7FC68066B83D23D0560EDA3A12B63E9132F299FBF340A5AEBC4CD5DC1F14873F83A80BA9A88D3FEABBAB41DFFC1944BBBAA89F26AF9CC28FF31C497EB91D82F8613E7463C47529FBD1925FD3326A8DC027704DA68860E68BD0A1CEA8DE6EC75604CD3D9A6AF38822DE45AAA0C9FBF2BD4783B0F9A81F6350C0188156F908FAB1F559CFCE1F91A393431E8BF2CD78C04BD530DB441091CDFFB400DAC08B1450DB65C00E2D4AF4E9A85A1A19B61F550F0C289B14BD63DF8A1539A8CF629F98F88EA944D9056675000F95BFD0FEFC56F9D9D66E2701BDBD71933191AE9928F5D623FE8B99ECC777444FFAA83DE456F5C8D3C83EC511AF");
                 request.putString(ABECS.OPN_EXP, "0D");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.TLI_ACQIDX, "00");
                 request.putString(ABECS.TLI_TABVER, "0123456789");
 
-                // requestList.add(request);
+                requestList.add(request);
 
                 ArrayList<String> list = new ArrayList<>(0);
 
@@ -414,14 +414,14 @@ public class MainActivity extends AppCompatActivity {
                     request.putString(ABECS.TLR_NREC, "01");
                     request.putString(ABECS.TLR_DATA, item);
 
-                    // requestList.add(request);
+                    requestList.add(request);
                 }
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.TLE);
 
-                // requestList.add(request);
+                requestList.add(request);
 
                 request = new Bundle();
 
@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.RMC);
-                request.putString(ABECS.RMC_MSG, "HAVE FAITH...                   ");
+                request.putString(ABECS.RMC_MSG, "RMC_MSG                         ");
 
                 requestList.add(request);
 
@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.GPN_ENTRIES, "1");
                 request.putString(ABECS.GPN_MIN1, "04");
                 request.putString(ABECS.GPN_MAX1, "08");
-                request.putString(ABECS.GPN_MSG1, " CLOUDWALK, INC HAVE FAITH...   ");
+                request.putString(ABECS.GPN_MSG1, "GPN_MSG1                        ");
 
                 requestList.add(request);
 
@@ -483,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_PANMASK, "0404");
                 request.putString(ABECS.SPE_TAGLIST, "5F285F24");
                 request.putString(ABECS.SPE_TIMEOUT, "3C");
-                request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
+                request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG      ");
 
                 requestList.add(request);
 
@@ -502,10 +502,10 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_AMOUNT, "000000000999");
                 request.putString(ABECS.SPE_CASHBACK, "000000000000");
                 request.putString(ABECS.SPE_TRNCURR, "986");
-                request.putString(ABECS.SPE_GCXOPT, "11100");
+                request.putString(ABECS.SPE_GOXOPT, "11100");
                 request.putString(ABECS.SPE_MTHDPIN, "3");
                 request.putString(ABECS.SPE_KEYIDX, "10");
-                request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
+                request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG      ");
                 request.putString(ABECS.SPE_TRMPAR, "00000000250000000025");
                 request.putString(ABECS.SPE_TAGLIST, "5F285F24");
                 request.putString(ABECS.SPE_TIMEOUT, "3C");
@@ -526,17 +526,17 @@ public class MainActivity extends AppCompatActivity {
 
                 request.putString(ABECS.CMD_ID, ABECS.MNU);
                 request.putString(ABECS.SPE_TIMEOUT, "0F");
-                request.putString(ABECS.SPE_DSPMSG, "HAVE FAITH...");
+                request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG      ");
 
                 ArrayList<String> SPE_MNUOPT = new ArrayList<>(0);
 
-                SPE_MNUOPT.add("OPT 1 CLWK");
-                SPE_MNUOPT.add("OPT 2 CLWK");
-                SPE_MNUOPT.add("OPT 3 CLWK");
+                SPE_MNUOPT.add("OPT 1");
+                SPE_MNUOPT.add("OPT 2");
+                SPE_MNUOPT.add("OPT 3");
 
                 request.putStringArrayList(ABECS.SPE_MNUOPT, SPE_MNUOPT);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -546,7 +546,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.SPE_MAXDIG, "02");
                 request.putString(ABECS.SPE_TIMEOUT, "0F");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 

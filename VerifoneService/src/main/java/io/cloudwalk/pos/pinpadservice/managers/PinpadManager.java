@@ -179,15 +179,13 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static void release(Semaphore semaphore) {
-        Log.d(TAG, "release::semaphore [" + semaphore + "]");
+        Log.d(TAG, "release");
 
-        int availablePermits = semaphore.availablePermits();
-
-        Log.d(TAG, "release::availablePermits [" + availablePermits + "]");
-
-        if (availablePermits <= 0) {
+        if (semaphore.availablePermits() <= 0) {
             semaphore.release();
         }
+
+        Log.d(TAG, "release::semaphore.availablePermits() [" + semaphore.availablePermits() + "]");
     }
 
     public static PinpadManager getInstance() {

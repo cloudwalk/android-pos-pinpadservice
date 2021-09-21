@@ -71,13 +71,11 @@ public class PinpadManager {
     private static void release() {
         Log.d(TAG, "release");
 
-        int availablePermits = sSemaphore.availablePermits();
-
-        Log.d(TAG, "release::availablePermits [" + availablePermits + "]");
-
-        if (availablePermits <= 0) {
+        if (sSemaphore.availablePermits() <= 0) {
             sSemaphore.release();
         }
+
+        Log.d(TAG, "release::semaphore.availablePermits() [" + sSemaphore.availablePermits() + "]");
     }
 
     /**

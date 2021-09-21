@@ -135,7 +135,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "startActivity");
+        Log.d(TAG, "onCreate");
 
         super.onCreate(savedInstanceState);
 
@@ -188,6 +188,8 @@ public class PinCaptureActivity extends AppCompatActivity {
     }
 
     public static Bundle getKeyboardResID(String application) {
+        Log.d(TAG, "getKeyboardResID::application [" + application + "]");
+
         Bundle bundle = new Bundle();
 
         if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
@@ -244,7 +246,7 @@ public class PinCaptureActivity extends AppCompatActivity {
     public static void startActivity(@NotNull String application) {
         Log.d(TAG, "startActivity::application [" + application + "]");
 
-        sSemaphore[1].acquireUninterruptibly();
+        sSemaphore[1].acquireUninterruptibly(); // TODO: improve sync!? share request ID w/ `setVisibility(boolean)`!?
         sSemaphore[0].acquireUninterruptibly();
 
         sApplication = application;
