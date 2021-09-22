@@ -197,26 +197,15 @@ public class PinpadUtility {
 
         switch (CMD_ID) {
             case ABECS.OPN: return OPN.parseResponseDataPacket(response, response.length);
-            case ABECS.GIX: return GIX.parseResponseDataPacket(response, response.length);
-            case ABECS.CLX: return CLX.parseResponseDataPacket(response, response.length);
-
-            case ABECS.CEX: return CEX.parseResponseDataPacket(response, response.length);
             case ABECS.CHP: return CHP.parseResponseDataPacket(response, response.length);
-            case ABECS.EBX: return EBX.parseResponseDataPacket(response, response.length);
-            case ABECS.GCD: return GCD.parseResponseDataPacket(response, response.length);
             case ABECS.GPN: return GPN.parseResponseDataPacket(response, response.length);
-            case ABECS.GTK: return GTK.parseResponseDataPacket(response, response.length);
-            case ABECS.MNU: return MNU.parseResponseDataPacket(response, response.length);
-            case ABECS.RMC: return RMC.parseResponseDataPacket(response, response.length);
 
-            case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
-            case ABECS.TLR: return TLR.parseResponseDataPacket(response, response.length);
-            case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
-
-            case ABECS.GCX: return GCX.parseResponseDataPacket(response, response.length);
-            case ABECS.GED: return GED.parseResponseDataPacket(response, response.length);
-            case ABECS.GOX: return GOX.parseResponseDataPacket(response, response.length);
-            case ABECS.FCX: return FCX.parseResponseDataPacket(response, response.length);
+            case ABECS.GIX: case ABECS.CLX:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD:
+            case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+            case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                return CMD.parseResponseDataPacket(response, response.length);
 
             default:
                 /* Nothing to do */
@@ -278,7 +267,6 @@ public class PinpadUtility {
                 case 0x8041: output.putString(ABECS.PP_TRK1INC,     new String(V)); break;
                 case 0x8042: output.putString(ABECS.PP_TRK2INC,     new String(V)); break;
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
-                case 0x8044: output.putString(ABECS.PP_TRACK1,      new String(V)); break; // TODO: wrong format!?
                 case 0x804D: output.putString(ABECS.PP_VALUE,       new String(V)); break;
                 case 0x804F: output.putString(ABECS.PP_CARDTYPE,    new String(V)); break;
                 case 0x8050: output.putString(ABECS.PP_ICCSTAT,     new String(V)); break;
@@ -292,6 +280,20 @@ public class PinpadUtility {
                 case 0x805C: output.putString(ABECS.PP_ISSCNTRY,    new String(V)); break;
                 case 0x805D: output.putString(ABECS.PP_CARDEXP,     new String(V)); break;
                 case 0x8060: output.putString(ABECS.PP_DEVTYPE,     new String(V)); break;
+
+                case 0x8044:
+                    int i;
+
+                    for (i = 0; i < V.length; i++) {
+                        if (V[i] < 0x20 || V[i] > 0x7E) {
+                            break;
+                        }
+                    }
+
+                    String PP_TRACK1 = (i < V.length) ? DataUtility.getHexStringFromByteArray(V) : new String(V);
+
+                    output.putString(ABECS.PP_TRACK1, PP_TRACK1);
+                    break;
 
                 case 0x8020:
                     // TODO: intercept response @PinpadService!?

@@ -41,7 +41,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
-// import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
+import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 
 public class CallbackUtility {
     private static final String
@@ -74,7 +74,7 @@ public class CallbackUtility {
             case NTF_PIN_FINISH:
                 visibility = (visibility != 0) ? visibility : 2;
 
-                // TODO: PinCaptureActivity.setVisibility(visibility != 2);
+                PinCaptureActivity.setVisibility(visibility != 2);
                 /* no break */
 
             case NTF_AID_INVALID: case NTF_PIN_INVALID:  case NTF_PIN_LAST_TRY:

@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

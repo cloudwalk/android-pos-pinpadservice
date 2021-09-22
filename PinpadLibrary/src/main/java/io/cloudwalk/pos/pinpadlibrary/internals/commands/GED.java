@@ -22,13 +22,6 @@ public class GED {
         /* Nothing to do */
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
-            throws Exception {
-        Log.d(TAG, "parseResponseDataPacket");
-
-        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
-    }
-
     public static byte[] buildRequestDataPacket(Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");

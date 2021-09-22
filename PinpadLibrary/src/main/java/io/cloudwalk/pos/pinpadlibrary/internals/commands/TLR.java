@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.pos.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
 
 public class TLR {
@@ -20,13 +19,6 @@ public class TLR {
         Log.d(TAG, "TLR");
 
         /* Nothing to do */
-    }
-
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
-            throws Exception {
-        Log.d(TAG, "parseResponseDataPacket");
-
-        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
     }
 
     public static byte[] buildRequestDataPacket(Bundle input)

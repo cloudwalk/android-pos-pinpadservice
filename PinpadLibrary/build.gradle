@@ -9,7 +9,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 30
         versionCode 1
-        versionName "0.0.1"
+        versionName "1.0.0"
 
         buildConfigField 'String', 'PACKAGE_ID', "\"io.cloudwalk.pos.pinpadlibrary\""
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"

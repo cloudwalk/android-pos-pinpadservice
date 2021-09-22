@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.TLI_ACQIDX, "00");
                 request.putString(ABECS.TLI_TABVER, "0123456789");
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 ArrayList<String> list = new ArrayList<>(0);
 
@@ -414,14 +414,14 @@ public class MainActivity extends AppCompatActivity {
                     request.putString(ABECS.TLR_NREC, "01");
                     request.putString(ABECS.TLR_DATA, item);
 
-                    requestList.add(request);
+                    // requestList.add(request);
                 }
 
                 request = new Bundle();
 
                 request.putString(ABECS.CMD_ID, ABECS.TLE);
 
-                requestList.add(request);
+                // requestList.add(request);
 
                 request = new Bundle();
 
@@ -437,6 +437,24 @@ public class MainActivity extends AppCompatActivity {
                 request.putString(ABECS.CMD_ID, ABECS.GTK);
 
                 requestList.add(request);
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.CEX);
+                request.putString(ABECS.SPE_CEXOPT, "011000");
+                request.putString(ABECS.SPE_TIMEOUT, "3C");
+                request.putString(ABECS.SPE_PANMASK, "0404");
+
+                // requestList.add(request);
+
+                request = new Bundle();
+
+                request.putString(ABECS.CMD_ID, ABECS.GTK);
+                request.putString(ABECS.SPE_MTHDDAT, "50");
+                request.putString(ABECS.SPE_OPNDIG, "4");
+                request.putString(ABECS.SPE_KEYIDX, "11");
+
+                // requestList.add(request);
 
                 request = new Bundle();
 
