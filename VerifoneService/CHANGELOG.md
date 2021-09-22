@@ -14,9 +14,10 @@
 ## Known issues
 - SETIS components don't notify PIN capture start and/or finish events, which
   prevents PIN keyboard customization _per_ package (defaults to InfinitePay).
-- `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - EMV LED operation is disabled.
-- Local responses will always disregard `PP_DSPxxx` and `PP_TLRMEM`.
+- `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
+- `PP_DSPxxx` are out of scope and `PP_TLRMEM` is untreated. Its values should
+  be ignored.
 
 ## [1.0.0] - YYYY-MM-DD
 - Initial release.
