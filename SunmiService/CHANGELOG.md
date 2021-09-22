@@ -15,9 +15,6 @@
 - BC 1.27
 
 ## Known issues
-- `GPN` and `GOX` will trigger the instantiation of a translucent activity,
-  which is vulnerable to interactions between its own creation and PIN keyboard
-  exhibition.
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - EMV LED operation is disabled.
 - Local responses will always disregard `PP_DSPxxx` and `PP_TLRMEM`.

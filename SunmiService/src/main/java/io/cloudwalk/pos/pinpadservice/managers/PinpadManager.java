@@ -81,7 +81,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         try {
             acquire(sMngrSemaphore);
 
-            String CMD_ID;
+            String CMD_ID = "UNKNOWN";
 
             switch (length) {
                 case 0:
@@ -98,11 +98,13 @@ public class PinpadManager extends IPinpadManager.Stub {
                     break;
 
                 default:
-                    byte[] slice = new byte[3];
+                    if (length >= 3) {
+                        byte[] slice = new byte[3];
 
-                    System.arraycopy(data, 1, slice, 0, 3);
+                        System.arraycopy(data, 1, slice, 0, 3);
 
-                    CMD_ID = new String(slice);
+                        CMD_ID = new String(slice);
+                    }
             }
 
             Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
@@ -128,6 +130,18 @@ public class PinpadManager extends IPinpadManager.Stub {
                         return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
                 }
             } else {
+                switch (CMD_ID) {
+                    case "EOT":
+                    case ABECS.GPN:
+                    case ABECS.GOX:
+                        PinCaptureActivity.finishActivity();
+                        break;
+
+                    default:
+                        /* Nothing to do */
+                        break;
+                }
+
                 for (int i = 0; i < 4; i++) {
                     try {
                         SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);

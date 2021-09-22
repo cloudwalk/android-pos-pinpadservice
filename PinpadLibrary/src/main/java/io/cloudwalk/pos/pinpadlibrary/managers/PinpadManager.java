@@ -129,23 +129,23 @@ public class PinpadManager {
 
                 Log.d(TAG, "request::recv [" + status + "]");
 
-                if (status < 0) {
+                if (status != 1) {
                     throw new RuntimeException("request::status [" + status + "]");
-                } else {
-                    switch (response[0]) {
-                        case ACK:
-                            /* Nothing to do */
-                            break;
+                }
 
-                        case EOT:
-                            throw new InterruptedException();
+                switch (response[0]) {
+                    case ACK:
+                        /* Nothing to do */
+                        break;
 
-                        default:
-                            if (--retry <= 0) {
-                                throw (status != 0) ? new RuntimeException() : new TimeoutException();
-                            }
-                            break;
-                    }
+                    case EOT:
+                        throw new InterruptedException();
+
+                    default:
+                        if (--retry <= 0) {
+                            throw (status != 0) ? new RuntimeException() : new TimeoutException();
+                        }
+                        break;
                 }
             } while (response[0] != ACK);
 

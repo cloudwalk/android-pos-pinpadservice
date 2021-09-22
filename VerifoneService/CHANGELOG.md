@@ -14,9 +14,6 @@
 ## Known issues
 - SETIS components don't notify PIN capture start and/or finish events, which
   prevents PIN keyboard customization _per_ package (defaults to InfinitePay).
-- `GPN` and `GOX` triggers the instantiation of a translucent activity, which
-  is vulnerable to user interactions between its own creation and PIN keyboard
-  exhibition.
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - EMV LED operation is disabled.
 - Local responses will always disregard `PP_DSPxxx` and `PP_TLRMEM`.

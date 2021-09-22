@@ -1,8 +1,10 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
@@ -26,11 +28,8 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static final String
             TAG = PinCaptureActivity.class.getSimpleName();
 
-    private static final Semaphore[]
-            sSemaphore = {
-                    new Semaphore(1, true), /* activity sync. control */
-                    new Semaphore(1, true)  /* public methods */
-            };
+    private static final Semaphore
+            sLifeCycleSemaphore = new Semaphore(1, true);
 
     private static AppCompatActivity
             sActivity = null;
@@ -44,10 +43,10 @@ public class PinCaptureActivity extends AppCompatActivity {
     private String buildJSONLayoutInfo() {
         Log.d(TAG, "buildJSONLayoutInfo");
 
-        int[] locationCAN = new int[2];
-        int[] locationNUM = new int[2];
-        int[] width       = new int[2];
-        int[] height      = new int[2];
+        int[] locationCAN   = new int[2];
+        int[] locationNUM   = new int[2];
+        int[] width         = new int[2];
+        int[] height        = new int[2];
 
         do {
             View btnC = findViewById(sExtras.getInt("keyboard_custom_pos00"));
@@ -134,6 +133,13 @@ public class PinCaptureActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent");
+
+        return super.onTouchEvent(event);
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
 
@@ -162,7 +168,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
                                 PINplug.setPinpadType(1, JSONLayoutInfo);
 
-                                sSemaphore[0].release();
+                                sLifeCycleSemaphore.release();
                             }
                         } .start();
                     }
@@ -172,6 +178,15 @@ public class PinCaptureActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
+
+        int availablePermits = sLifeCycleSemaphore.availablePermits();
+
+        Log.d(TAG, "onPause::availablePermits [" + availablePermits + "]");
+
+        if (availablePermits <= 0) {
+            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                    .moveTaskToFront(getTaskId(), 0);
+        }
 
         super.onPause();
 
@@ -187,6 +202,20 @@ public class PinCaptureActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
+    public static void finishActivity() {
+        Log.d(TAG, "finishActivity");
+
+        if (sActivity != null) {
+            sActivity.finishAndRemoveTask();
+
+            sActivity = null;
+            sApplication = null;
+            sExtras = null;
+
+            sLifeCycleSemaphore.release();
+        }
+    }
+
     public static Bundle getKeyboardResID(String application) {
         Log.d(TAG, "getKeyboardResID::application [" + application + "]");
 
@@ -194,14 +223,10 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
            & application.startsWith("io.cloudwalk.")) {
-            Log.d(TAG, "intercept::infinitepay [" + application + "]");
-
             bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
             bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
             bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
         } else {
-            Log.d(TAG, "intercept::default [" + application + "]");
-
             bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
             bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
             bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
@@ -213,41 +238,33 @@ public class PinCaptureActivity extends AppCompatActivity {
     public static void setVisibility(boolean status) {
         Log.d(TAG, "setVisibility::status [" + status + "]");
 
-        sSemaphore[1].acquireUninterruptibly();
-
-        Semaphore sync = new Semaphore(0, true);
-
         if (sActivity != null && sExtras != null) {
+            Semaphore semaphore = new Semaphore(0, true);
+
             sActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    sActivity.findViewById(sExtras.getInt("rl_pin_capture")).setVisibility((status) ? View.VISIBLE : View.INVISIBLE);
+                    if (status) {
+                        sActivity.findViewById(sExtras.getInt("rl_pin_capture")).setVisibility(View.VISIBLE);
 
-                    if (!status) {
-                        sActivity.finishAndRemoveTask();
-
-                        sActivity = null;
-                        sApplication = null;
-                        sExtras = null;
-
-                        sSemaphore[0].release();
+                        ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                                .moveTaskToFront(sActivity.getTaskId(), 0);
+                    } else {
+                        finishActivity();
                     }
 
-                    sync.release();
+                    semaphore.release();
                 }
             });
 
-            sync.acquireUninterruptibly();
+            semaphore.acquireUninterruptibly();
         }
-
-        sSemaphore[1].release();
     }
 
     public static void startActivity(@NotNull String application) {
-        Log.d(TAG, "startActivity::application [" + application + "]");
+        Log.d(TAG, "startActivity");
 
-        sSemaphore[1].acquireUninterruptibly(); // TODO: improve sync!? share request ID w/ `setVisibility(boolean)`!?
-        sSemaphore[0].acquireUninterruptibly();
+        sLifeCycleSemaphore.acquireUninterruptibly();
 
         sApplication = application;
 
@@ -259,7 +276,6 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         context.startActivity(intent);
 
-        sSemaphore[0].acquireUninterruptibly();
-        sSemaphore[1].release();
+        sLifeCycleSemaphore.acquireUninterruptibly();
     }
 }
