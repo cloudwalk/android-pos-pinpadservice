@@ -15,9 +15,10 @@
 - BC 1.27
 
 ## Known issues
-- `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - EMV LED operation is disabled.
-- Local responses will always disregard `PP_DSPxxx` and `PP_TLRMEM`.
+- `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
+- `PP_DSPxxx` are out of scope and `PP_TLRMEM` is untreated. Its values should
+  be ignored.
 
 ## [1.0.0] - YYYY-MM-DD
 - Initial release.
