@@ -28,11 +28,8 @@ public class CallbackUtility {
     private static final String
             TAG = CallbackUtility.class.getSimpleName();
 
-    private static final Semaphore[]
-            sClbkSemaphore = {
-                    new Semaphore(1, true),
-                    new Semaphore(1, true)
-            };
+    private static final Semaphore
+            sClbkSemaphore = new Semaphore(1, true);
 
     private static IServiceCallback
             sServiceCallback = null;
@@ -44,11 +41,11 @@ public class CallbackUtility {
     private static void mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
         Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
-        boolean   sync = false;
         int visibility = 0;
 
         switch (tipoNotificacao) {
-            case NTF_PIN_START:   case NTF_PIN_ENTRY:
+            case NTF_PIN_START:
+            case NTF_PIN_ENTRY:
                 visibility = 1;
                 /* no break */
 
@@ -56,11 +53,6 @@ public class CallbackUtility {
                 visibility = (visibility != 0) ? visibility : 2;
 
                 PinCaptureActivity.setVisibility(visibility != 2);
-                /* no break */
-
-            case NTF_AID_INVALID: case NTF_PIN_INVALID:  case NTF_PIN_LAST_TRY:
-            case NTF_PIN_BLOCKED: case NTF_PIN_VERIFIED: case NTF_CARD_BLOCKED:
-                sync = true;
                 break;
 
             default:
@@ -68,45 +60,28 @@ public class CallbackUtility {
                 break;
         }
 
-        Semaphore semaphore = new Semaphore((sync) ? 0 : 1, true);
+        IServiceCallback callback = getServiceCallback();
 
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
+        if (callback != null) {
+            Bundle bundle     = new Bundle();
+            StringBuilder pin = new StringBuilder();
 
-                sClbkSemaphore[0].acquireUninterruptibly();
-
-                IServiceCallback callback = getServiceCallback();
-
-                if (callback != null) {
-                    Bundle bundle     = new Bundle();
-                    StringBuilder pin = new StringBuilder();
-
-                    for (int i = 0; i < count; i++) {
-                        pin.append("*");
-                    }
-
-                    bundle.putString(ABECS.NTF_MSG, (mensagem != null) ? mensagem : "");
-
-                    if (count >= 0) {
-                        bundle.putString(ABECS.NTF_PIN, pin.toString());
-                    }
-
-                    try {
-                        callback.onNotificationThrow(bundle, tipoNotificacao);
-                    } catch (Exception exception) {
-                        Log.e(TAG, Log.getStackTraceString(exception));
-                    }
-                }
-
-                sClbkSemaphore[0].release();
-
-                semaphore.release();
+            for (int i = 0; i < count; i++) {
+                pin.append("*");
             }
-        }.start();
 
-        semaphore.acquireUninterruptibly();
+            bundle.putString(ABECS.NTF_MSG, (mensagem != null) ? mensagem : "");
+
+            if (count >= 0) {
+                bundle.putString(ABECS.NTF_PIN, pin.toString());
+            }
+
+            try {
+                callback.onNotificationThrow(bundle, tipoNotificacao);
+            } catch (Exception exception) {
+                Log.e(TAG, Log.getStackTraceString(exception));
+            }
+        }
     }
 
     private static void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
@@ -178,7 +153,7 @@ public class CallbackUtility {
 
         IServiceCallback output;
 
-        sClbkSemaphore[1].acquireUninterruptibly();
+        sClbkSemaphore.acquireUninterruptibly();
 
         if (sServiceCallback == null) {
             Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
@@ -186,7 +161,7 @@ public class CallbackUtility {
 
         output = sServiceCallback;
 
-        sClbkSemaphore[1].release();
+        sClbkSemaphore.release();
 
         return output;
     }
@@ -194,11 +169,11 @@ public class CallbackUtility {
     public static void setServiceCallback(IServiceCallback callback) {
         Log.d(TAG, "setServiceCallback");
 
-        sClbkSemaphore[1].acquireUninterruptibly();
+        sClbkSemaphore.acquireUninterruptibly();
 
         sServiceCallback = callback;
 
-        sClbkSemaphore[1].release();
+        sClbkSemaphore.release();
     }
 
     public static InterfaceUsuarioPinpad getCallback() {

@@ -318,20 +318,20 @@ public class MainActivity extends AppCompatActivity {
                 // requestList.add(DEMO.CLX());
                    requestList.add(DEMO.GIX());
                 // requestList.add(DEMO.OPN());
-                   requestList.add(DEMO.TLI());
+                // requestList.add(DEMO.TLI());
 
-                for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
+                // for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
 
-                   requestList.add(DEMO.TLE());
-                   requestList.add(DEMO.CEX());
-                   requestList.add(DEMO.GTK());
-                   requestList.add(DEMO.RMC());
+                // requestList.add(DEMO.TLE());
+                // requestList.add(DEMO.CEX());
+                // requestList.add(DEMO.GTK());
+                // requestList.add(DEMO.RMC());
                 // requestList.add(DEMO.EBX());
                 // requestList.add(DEMO.GPN());
-                   requestList.add(DEMO.GCX());
+                // requestList.add(DEMO.GCX());
                 // requestList.add(DEMO.GED());
-                   requestList.add(DEMO.GOX());
-                   requestList.add(DEMO.FCX());
+                // requestList.add(DEMO.GOX());
+                // requestList.add(DEMO.FCX());
                 // requestList.add(DEMO.MNU());
                 // requestList.add(DEMO.GCD());
                 // requestList.add(DEMO.CHP());
