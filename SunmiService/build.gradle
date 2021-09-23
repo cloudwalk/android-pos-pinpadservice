@@ -39,11 +39,11 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation project(path: ':PinpadLibrary')
-    implementation project(path: ':UtilitiesLibrary')
-    implementation project(path: ':LogLibrary')
     implementation files('libs/PayLib-release-1.4.59.aar')
     implementation files('libs/PPCompp2-v1.27.aar')
     implementation 'org.jetbrains:annotations:15.0'
+    implementation 'io.cloudwalk.pos:loglibrary:0.0.1'
+    implementation 'io.cloudwalk.pos:utilitieslibrary:0.0.1'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
