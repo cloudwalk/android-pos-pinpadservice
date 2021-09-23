@@ -16,8 +16,9 @@
   prevents PIN keyboard customization _per_ package (defaults to InfinitePay).
 - EMV LED operation is disabled.
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
-- `PP_DSPxxx` are out of scope and `PP_TLRMEM` is untreated. Its values should
-  be ignored.
+- `PP_TLRMEM` is untreated and its values should be ignored.
+- `PP_DSPxxx` (as well as other multimedia related TAGs) are out of scope and
+  its values should be ignored.
 
 ## [1.0.0] - YYYY-MM-DD
 - Initial release.

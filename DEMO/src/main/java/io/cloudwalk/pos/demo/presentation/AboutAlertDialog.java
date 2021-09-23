@@ -52,7 +52,7 @@ public class AboutAlertDialog extends AlertDialog {
 
         setIcon(R.mipmap.ic_pinpadservice);
 
-        setTitle(R.string.app_name);
+        setTitle(R.string.app_name); // TODO: multiline custom view
 
         View view = getLayoutInflater().inflate(R.layout.alert_dialog_about, null);
 

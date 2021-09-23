@@ -24,7 +24,6 @@ import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.DEMO;
 import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
-import io.cloudwalk.pos.demo.PinpadServer;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
@@ -37,14 +36,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String
             TAG = MainActivity.class.getSimpleName();
 
-    private static final Semaphore[]
-            SEMAPHORE = {
-                    new Semaphore(1, true), /* mAutoScroll and mServerTraceOn */
-                    new Semaphore(1, true), /* mPinpadServer */
-            };
-
     private static final int
             MAIN_ADAPTER_CONTENT_LIMIT = 2000;
+
+    private static final Semaphore
+            sSemaphore = new Semaphore(1, true);
 
     private AlertDialog
             mAboutAlertDialog = null;
@@ -52,17 +48,11 @@ public class MainActivity extends AppCompatActivity {
     private MainAdapter
             mMainAdapter = null;
 
-    private PinpadServer
-            mPinpadServer = null;
-
     private RecyclerView
             mRecyclerView = null;
 
     private boolean
             mAutoScroll = true;
-
-    private boolean
-            mServerTraceOn = false;
 
     private SpannableString getBullet(@ColorInt int color) {
         Log.d(TAG, "getBullet::color [" + color + "]");
@@ -79,59 +69,37 @@ public class MainActivity extends AppCompatActivity {
 
         boolean autoScroll;
 
-        acquire(0);
+        acquire();
 
         autoScroll = mAutoScroll;
 
-        release(0);
+        release();
 
         return autoScroll;
     }
 
-    private boolean getServerTraceStatus() {
-        Log.d(TAG, "getServerTraceStatus");
+    private void acquire() {
+        Log.d(TAG, "acquire");
 
-        boolean serverTraceStatus;
-
-        acquire(0);
-
-        serverTraceStatus = mServerTraceOn;
-
-        release(0);
-
-        return serverTraceStatus;
+        sSemaphore.acquireUninterruptibly();
     }
 
-    private void acquire(int index) {
-        Log.d(TAG, "acquire::index [" + index + "]");
+    private void release() {
+        Log.d(TAG, "release");
 
-        SEMAPHORE[index].acquireUninterruptibly();
-    }
+        sSemaphore.release();
 
-    private void release(int index) {
-        Log.d(TAG, "release::index [" + index + "]");
-
-        SEMAPHORE[index].release();
+        Log.d(TAG, "release::semaphore.availablePermits() [" + sSemaphore.availablePermits() + "]");
     }
 
     private void setAutoScroll(boolean autoScroll) {
         Log.d(TAG, "setAutoScroll::autoScroll [" + autoScroll + "]");
 
-        acquire(0);
+        acquire();
 
         mAutoScroll = autoScroll;
 
-        release(0);
-    }
-
-    private void setServerTraceStatus(boolean serverTraceStatus) {
-        Log.d(TAG, "setServerTraceStatus::serverTraceStatus [" + serverTraceStatus + "]");
-
-        acquire(0);
-
-        mServerTraceOn = serverTraceStatus;
-
-        release(0);
+        release();
     }
 
     private void updateContentScrolling(String delim, String message) {
@@ -327,6 +295,16 @@ public class MainActivity extends AppCompatActivity {
                             Log.e(TAG, Log.getStackTraceString(exception));
                         }
 
+                        switch (type) {
+                            case NTF_UPDATING:
+                                /* 2021-09-23: disposable considering the purposes of this application */
+                                return;
+
+                            default:
+                                /* Nothing to do */
+                                break;
+                        }
+
                         // TODO: AlertDialog!?
                     }
                 };
@@ -340,20 +318,20 @@ public class MainActivity extends AppCompatActivity {
                 // requestList.add(DEMO.CLX());
                    requestList.add(DEMO.GIX());
                 // requestList.add(DEMO.OPN());
-                // requestList.add(DEMO.TLI());
+                   requestList.add(DEMO.TLI());
 
-                // for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
+                for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
 
-                // requestList.add(DEMO.TLE());
-                // requestList.add(DEMO.CEX());
-                // requestList.add(DEMO.GTK());
-                // requestList.add(DEMO.RMC());
+                   requestList.add(DEMO.TLE());
+                   requestList.add(DEMO.CEX());
+                   requestList.add(DEMO.GTK());
+                   requestList.add(DEMO.RMC());
                 // requestList.add(DEMO.EBX());
                 // requestList.add(DEMO.GPN());
-                // requestList.add(DEMO.GCX());
+                   requestList.add(DEMO.GCX());
                 // requestList.add(DEMO.GED());
-                // requestList.add(DEMO.GOX());
-                // requestList.add(DEMO.FCX());
+                   requestList.add(DEMO.GOX());
+                   requestList.add(DEMO.FCX());
                 // requestList.add(DEMO.MNU());
                 // requestList.add(DEMO.GCD());
                 // requestList.add(DEMO.CHP());
@@ -397,14 +375,6 @@ public class MainActivity extends AppCompatActivity {
                 super.run();
 
                 PinpadManager.abort();
-
-                acquire(1);
-
-                if (mPinpadServer != null) {
-                    mPinpadServer.close();
-                }
-
-                release(1);
             }
         }.start();
     }

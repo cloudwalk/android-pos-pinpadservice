@@ -1,25 +1,8 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_2x16;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_AID_INVALID;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_CARD_BLOCKED;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_INSERT_SWIPE_CARD;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_BLOCKED;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_ENTRY;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_FINISH;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_INVALID;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_LAST_TRY;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_START;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN_VERIFIED;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PROCESSING;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_REMOVE_CARD;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_RETAP_CARD;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECT;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECTED;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TAP_INSERT_SWIPE_CARD;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_UPDATING;
+
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
 import static io.cloudwalk.pos.pinpadservice.managers.PinpadManager.ACTION_VFSERVICE;
 import static io.cloudwalk.pos.pinpadservice.managers.PinpadManager.PACKAGE_VFSERVICE;
 
@@ -39,6 +22,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
@@ -106,8 +90,11 @@ public class CallbackUtility {
                         pin.append("*");
                     }
 
-                    bundle.putString("NTF_MSG", (mensagem != null) ? mensagem : "");
-                    bundle.putString("NTF_PIN", pin.toString());
+                    bundle.putString(ABECS.NTF_MSG, (mensagem != null) ? mensagem : "");
+
+                    if (count >= 0) {
+                        bundle.putString(ABECS.NTF_PIN, pin.toString());
+                    }
 
                     try {
                         callback.onNotificationThrow(bundle, tipoNotificacao);
@@ -142,10 +129,9 @@ public class CallbackUtility {
         if (callback != null) {
             Bundle bundle = new Bundle();
 
-            bundle.putString("NTF_TTL", menu.obtemTituloMenu());
-            bundle.putString("NTF_TOT", String.format(US, "%03d", menu.obtemTimeout()));
-
-            bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
+            bundle.putString(ABECS.NTF_TITLE,                               menu.obtemTituloMenu());
+            bundle.putStringArrayList(ABECS.NTF_OPTLST, (ArrayList<String>) menu.obtemOpcoesMenu());
+            bundle.putString(ABECS.NTF_TIMEOUT,         String.format(US, "%03d", menu.obtemTimeout()));
 
             try {
                 int option = callback.onSelectionRequired(bundle);

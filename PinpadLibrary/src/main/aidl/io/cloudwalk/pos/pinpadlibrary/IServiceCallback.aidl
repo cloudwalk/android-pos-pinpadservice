@@ -2,7 +2,7 @@ package io.cloudwalk.pos.pinpadlibrary;
 
 interface IServiceCallback {
     /**
-     * Notification types
+     * Notification types.
      */
     const int NTF                           =  0;
     const int NTF_2x16                      =  1;

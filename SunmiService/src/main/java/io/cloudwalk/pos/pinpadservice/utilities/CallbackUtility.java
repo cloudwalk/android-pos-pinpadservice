@@ -19,6 +19,7 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.Menu;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import sunmi.paylib.SunmiPayKernel;
@@ -86,8 +87,11 @@ public class CallbackUtility {
                         pin.append("*");
                     }
 
-                    bundle.putString("NTF_MSG", (mensagem != null) ? mensagem : "");
-                    bundle.putString("NTF_PIN", pin.toString());
+                    bundle.putString(ABECS.NTF_MSG, (mensagem != null) ? mensagem : "");
+
+                    if (count >= 0) {
+                        bundle.putString(ABECS.NTF_PIN, pin.toString());
+                    }
 
                     try {
                         callback.onNotificationThrow(bundle, tipoNotificacao);
@@ -122,10 +126,9 @@ public class CallbackUtility {
         if (callback != null) {
             Bundle bundle = new Bundle();
 
-            bundle.putString("NTF_TTL", menu.obtemTituloMenu());
-            bundle.putString("NTF_TOT", String.format(US, "%03d", menu.obtemTimeout()));
-
-            bundle.putStringArrayList("NTF_OPT", (ArrayList<String>) menu.obtemOpcoesMenu());
+            bundle.putString(ABECS.NTF_TITLE,                               menu.obtemTituloMenu());
+            bundle.putStringArrayList(ABECS.NTF_OPTLST, (ArrayList<String>) menu.obtemOpcoesMenu());
+            bundle.putString(ABECS.NTF_TIMEOUT,         String.format(US, "%03d", menu.obtemTimeout()));
 
             try {
                 int option = callback.onSelectionRequired(bundle);
