@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         Log.d(TAG, "onStop");
 
         super.onStop();

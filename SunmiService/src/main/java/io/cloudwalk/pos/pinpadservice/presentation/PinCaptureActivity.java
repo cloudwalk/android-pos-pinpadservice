@@ -175,6 +175,33 @@ public class PinCaptureActivity extends AppCompatActivity {
                 });
     }
 
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+
+        int availablePermits = sLifeCycleSemaphore.availablePermits();
+
+        Log.d(TAG, "onPause::availablePermits [" + availablePermits + "]");
+
+        if (availablePermits <= 0) {
+            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                    .moveTaskToFront(getTaskId(), 0);
+        }
+
+        super.onPause();
+
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+
+        super.onResume();
+
+        overridePendingTransition(0, 0);
+    }
+
     public static void finishActivity() {
         Log.d(TAG, "finishActivity");
 
@@ -250,32 +277,5 @@ public class PinCaptureActivity extends AppCompatActivity {
         context.startActivity(intent);
 
         sLifeCycleSemaphore.acquireUninterruptibly();
-    }
-
-    @Override
-    public void onPause() {
-        Log.d(TAG, "onPause");
-
-        int availablePermits = sLifeCycleSemaphore.availablePermits();
-
-        Log.d(TAG, "onPause::availablePermits [" + availablePermits + "]");
-
-        if (availablePermits <= 0) {
-            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
-                    .moveTaskToFront(getTaskId(), 0);
-        }
-
-        super.onPause();
-
-        overridePendingTransition(0, 0);
-    }
-
-    @Override
-    public void onResume() {
-        Log.d(TAG, "onResume");
-
-        super.onResume();
-
-        overridePendingTransition(0, 0);
     }
 }

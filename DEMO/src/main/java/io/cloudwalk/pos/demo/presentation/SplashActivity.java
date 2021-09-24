@@ -188,6 +188,15 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        Log.d(TAG, "onStop");
+
+        super.onStop();
+
+        mAboutAlertDialog.dismiss();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu");
 
@@ -218,14 +227,5 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onStop() {
-        Log.d(TAG, "onStop");
-
-        super.onStop();
-
-        mAboutAlertDialog.dismiss();
     }
 }
