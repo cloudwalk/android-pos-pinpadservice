@@ -22,30 +22,21 @@ binding the service, as well as handling AIDL restrictions. It serves as
 handler and it was designed to avoid direct connections.  
 
 Be sure to check the [DEMO application](#demo-application) for an example on
-how to consume the Pinpad Service using the associated Pinpad Library.  
-
-## Summary
-
-- [Local dependencies](#local-dependencies)
-  - [Step-by-step instructions](#step-by-step-instructions)
-- [Copyrighted dependencies](#copyrighted-dependencies)
-- [DEMO application](#demo-application)
+how to consume the Pinpad Service using the associated Pinpad Library.
 
 ## Local dependencies
 
 Local dependencies are those which are _private_, but within the scope of the
 Pinpad Service development team. They need to be made available locally before
-the Pinpad Service can be built.  
-To know which are the local dependencies, check the `build.gradle` file of each
-Pinpad Service module.  
+the Pinpad Service can be built:  
 
-### Step-by-step instructions
+1. Clone the repository [android-misc-loglibrary](https://github.com/mauriciospinardi-cloudwalk/android-misc-loglibrary)
+2. Rebuild the `release` variant based on a tag of your choice.
+3. Run task: `gradle publishToMavenLocal`
 
-- Clone the repository [android-misc-loglibrary](https://github.com/mauriciospinardi-cloudwalk/android-misc-loglibrary)
-- Rebuild the `release` variant based on a tag of your choice.
-- Run task: `gradle publishToMavenLocal`
-
-Repeat the above steps to all local dependencies and you're ready to go!
+Repeat the above steps to all required local dependencies and you're ready! To
+know which are the required ones, check the `build.gradle` file of each Pinpad
+Service module.
 
 ## Copyrighted dependencies
 
@@ -65,22 +56,17 @@ The Pinpad Service includes a DEMO module, covering the very basics:
   - _Check [DEMO.java](DEMO/src/main/java/io/cloudwalk/pos/demo/DEMO.java) for
     samples of requests made through the `Bundle` interface_.
 
-The Pinpad Service mirrors an ABECS PINPAD, natively exchanging `byte[]`
-streams. However, local requests can be made through the `Bundle` interface,
-for easier handling. The Pinpad Library is the one responsible for the
-conversion between the `Bundle` and `byte[]` interfaces.  
-In any case, if one decides to use the native `byte[]` interface, it can do so:  
+An ABECS PINPAD natively exchanges `byte[]` streams. However, the Pinpad
+Service allows local requests made through a `Bundle` interface, for easier
+handling. The Pinpad Library is the one responsible for the conversion between
+`Bundle` and `byte[]` interfaces. In any case, if one decides to use the native
+`byte[]` interface, it can do so:
 
-```java
-    // Bundle interface
-    // Samples can be found at DEMO.java
+- _Bundle_ API
+  - `PinpadManager#abort();`
+  - `PinpadManager#request(IServiceCallback, Bundle);`
+- _byte[]_ API
+  - `PinpadManager#send(IServiceCallback, byte[], int);`
+  - `PinpadManager#receive(byte[], long);`
 
-    PinpadManager#abort     ();
-    PinpadManager#request   (IServiceCallback, Bundle);
-
-    // byte[] interface
-    // Samples can be found in ABECS docs
-
-    PinpadManager#send      (IServiceCallback, byte[], int);
-    PinpadManager#receive   (byte[], long);
-```
+<!-- TODO: summary of the `Bundle` API characteristics -->
