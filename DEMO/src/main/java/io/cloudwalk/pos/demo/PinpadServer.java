@@ -16,10 +16,10 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteOrder;
 import java.util.concurrent.Semaphore;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
-import io.cloudwalk.pos.utilitieslibrary.Application;
+import io.cloudwalk.utilitieslibrary.Application;
 
 import static android.content.Context.WIFI_SERVICE;
 

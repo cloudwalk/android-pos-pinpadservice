@@ -10,7 +10,7 @@ import java.util.concurrent.Semaphore;
 
 import br.com.setis.sunmi.bibliotecapinpad.AcessoDiretoPinpad;
 import br.com.setis.sunmi.bibliotecapinpad.GestaoBibliotecaPinpad;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;

@@ -21,10 +21,10 @@ import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
 import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 
 public class CallbackUtility {

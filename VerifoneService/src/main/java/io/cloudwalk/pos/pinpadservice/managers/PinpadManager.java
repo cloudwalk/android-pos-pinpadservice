@@ -12,13 +12,13 @@ import java.util.concurrent.Semaphore;
 
 import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
 import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String

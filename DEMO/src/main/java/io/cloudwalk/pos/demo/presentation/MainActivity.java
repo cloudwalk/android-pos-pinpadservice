@@ -23,14 +23,14 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.DEMO;
-import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
+import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
-import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class MainActivity extends AppCompatActivity {
     private static final String
@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         Log.d(TAG, "onStop");
 
         super.onStop();

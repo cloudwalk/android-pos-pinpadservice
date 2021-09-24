@@ -5,7 +5,7 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class DEMO {

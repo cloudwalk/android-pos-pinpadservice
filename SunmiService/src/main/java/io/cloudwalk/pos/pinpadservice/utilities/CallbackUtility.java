@@ -18,7 +18,7 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.LedsContactless;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.Menu;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;

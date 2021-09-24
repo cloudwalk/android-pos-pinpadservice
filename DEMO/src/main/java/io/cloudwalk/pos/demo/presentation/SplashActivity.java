@@ -17,12 +17,12 @@ import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
 
-import io.cloudwalk.pos.utilitieslibrary.AppCompatActivity;
+import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
-import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 public class SplashActivity extends AppCompatActivity {
     private static final String
@@ -188,15 +188,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        Log.d(TAG, "onStop");
-
-        super.onStop();
-
-        mAboutAlertDialog.dismiss();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu");
 
@@ -227,5 +218,14 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG, "onStop");
+
+        super.onStop();
+
+        mAboutAlertDialog.dismiss();
     }
 }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.R;
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     private static final String

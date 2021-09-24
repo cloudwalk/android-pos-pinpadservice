@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.pos.utilitieslibrary.Application;
-import io.cloudwalk.pos.utilitieslibrary.utilities.ServiceUtility;
+import io.cloudwalk.utilitieslibrary.Application;
+import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 import org.jetbrains.annotations.NotNull;
 

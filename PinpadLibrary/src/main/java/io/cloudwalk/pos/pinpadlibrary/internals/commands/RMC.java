@@ -7,9 +7,9 @@ import android.os.Bundle;
 
 import java.io.ByteArrayOutputStream;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class RMC {
     private static final String

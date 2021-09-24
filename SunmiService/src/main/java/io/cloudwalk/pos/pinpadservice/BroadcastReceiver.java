@@ -3,7 +3,7 @@ package io.cloudwalk.pos.pinpadservice;
 import android.content.Context;
 import android.content.Intent;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 
 public class BroadcastReceiver extends android.content.BroadcastReceiver {
     private static final String TAG = BroadcastReceiver.class.getSimpleName();

@@ -7,10 +7,10 @@ import android.os.Bundle;
 
 import java.io.ByteArrayOutputStream;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class GCD {
     private static final String

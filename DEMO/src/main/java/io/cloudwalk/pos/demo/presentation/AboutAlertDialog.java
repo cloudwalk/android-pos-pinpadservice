@@ -8,8 +8,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import io.cloudwalk.pos.demo.R;
-import io.cloudwalk.pos.loglibrary.Log;
-import io.cloudwalk.pos.utilitieslibrary.Application;
+import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.utilitieslibrary.Application;
 
 public class AboutAlertDialog extends AlertDialog {
     private static final String
@@ -71,7 +71,7 @@ public class AboutAlertDialog extends AlertDialog {
         }
 
         componentList += "\n\t\u2022 LogLibrary v"
-                + io.cloudwalk.pos.loglibrary.BuildConfig.VERSION_NAME;
+                + io.cloudwalk.loglibrary.BuildConfig.VERSION_NAME;
 
         componentList += "\n\t\u2022 PinpadLibrary v"
                 + io.cloudwalk.pos.pinpadlibrary.BuildConfig.VERSION_NAME;
@@ -86,7 +86,7 @@ public class AboutAlertDialog extends AlertDialog {
         }
 
         componentList += "\n\t\u2022 UtilitiesLibrary v"
-                + io.cloudwalk.pos.utilitieslibrary.BuildConfig.VERSION_NAME;
+                + io.cloudwalk.utilitieslibrary.BuildConfig.VERSION_NAME;
 
         String trade = context.getString(R.string.app_name).substring(4, 14);
 

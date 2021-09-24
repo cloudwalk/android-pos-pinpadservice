@@ -2,6 +2,11 @@ plugins {
     id 'com.android.library'
 }
 
+apply plugin: 'maven-publish'
+
+def groupId = 'io.cloudwalk.pos'
+def artifactId = 'loglibrary'
+
 android {
     compileSdkVersion 30
 
@@ -11,7 +16,7 @@ android {
         versionCode 1
         versionName "1.0.0"
 
-        buildConfigField 'String', 'PACKAGE_ID', "\"io.cloudwalk.pos.pinpadlibrary\""
+        buildConfigField 'String', 'PACKAGE_ID', "\"${groupId}.${artifactId}\""
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"
         buildConfigField 'String', 'VERSION_NAME', "\"${versionName}\""
 
@@ -23,10 +28,16 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // Enables code shrinking, obfuscation, and optimization.
+            minifyEnabled true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -34,13 +45,38 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'org.jetbrains:annotations:15.0'
-    implementation 'io.cloudwalk.pos:loglibrary:0.0.1'
-    implementation 'io.cloudwalk.pos:utilitieslibrary:0.0.1'
+    implementation 'io.cloudwalk:loglibrary:0.0.1'
+    implementation 'io.cloudwalk:utilitieslibrary:0.0.1'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                setGroupId groupId
+                setArtifactId artifactId
+                version android.defaultConfig.versionName
+
+                artifact bundleReleaseAar
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        if (dependency.name != 'unspecified') {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

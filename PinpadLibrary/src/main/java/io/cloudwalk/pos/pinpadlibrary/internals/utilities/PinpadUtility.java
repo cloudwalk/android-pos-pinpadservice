@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import io.cloudwalk.pos.loglibrary.Log;
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CHP;
@@ -28,7 +28,7 @@ import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLE;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLI;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLR;
-import io.cloudwalk.pos.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
