@@ -5,7 +5,7 @@ plugins {
 apply plugin: 'maven-publish'
 
 def groupId = 'io.cloudwalk.pos'
-def artifactId = 'loglibrary'
+def artifactId = 'pinpadlibrary'
 
 android {
     compileSdkVersion 30
