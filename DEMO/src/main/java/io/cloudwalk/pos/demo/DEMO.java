@@ -96,7 +96,7 @@ public class DEMO {
 
         request.putString(ABECS.CMD_ID, ABECS.EBX);
         request.putString(ABECS.SPE_DATAIN, "00010203040506070809101112131415");
-        request.putString(ABECS.SPE_MTHDDAT, "51");
+        request.putString(ABECS.SPE_MTHDDAT, "50");
         request.putString(ABECS.SPE_KEYIDX, "11");
 
         return request;
