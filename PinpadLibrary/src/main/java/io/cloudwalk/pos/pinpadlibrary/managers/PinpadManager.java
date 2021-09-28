@@ -129,7 +129,7 @@ public class PinpadManager {
 
                 Log.d(TAG, "request::recv [" + status + "]");
 
-                if (status != 1) {
+                if (status != 0 && status != 1) {
                     throw new RuntimeException("request::status [" + status + "]");
                 }
 
