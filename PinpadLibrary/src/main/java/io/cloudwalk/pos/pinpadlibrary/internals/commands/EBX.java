@@ -36,7 +36,7 @@ public class EBX {
         String SPE_IVCBC    = input.getString(ABECS.SPE_IVCBC);
 
         if (SPE_DATAIN  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "000F", SPE_DATAIN));
+            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "000F", SPE_DATAIN));
         }
 
         if (SPE_MTHDDAT != null) {
