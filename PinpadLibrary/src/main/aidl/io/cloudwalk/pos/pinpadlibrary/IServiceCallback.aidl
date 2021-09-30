@@ -22,7 +22,7 @@ interface IServiceCallback {
     const int NTF_CARD_BLOCKED              = 15;
     const int NTF_REMOVE_CARD               = 16;
     const int NTF_UPDATING                  = 17;
-    const int NTF_RETAP_CARD                = 18;
+    const int NTF_SECOND_TAP                = 18;
 
     /**
      *

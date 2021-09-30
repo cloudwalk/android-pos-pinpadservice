@@ -200,7 +200,7 @@ public class CallbackUtility {
                     case DSP_CARTAO_BLOQUEADO:              type = NTF_CARD_BLOCKED;            break;
                     case DSP_RETIRE_CARTAO:                 type = NTF_REMOVE_CARD;             break;
                     case DSP_ATUALIZANDO_TABELAS:           type = NTF_UPDATING;                break;
-                    case DSP_REAPRESENTE_CARTAO:            type = NTF_RETAP_CARD;              break;
+                    case DSP_REAPRESENTE_CARTAO:            type = NTF_SECOND_TAP;              break;
                     case DSP_INICIA_PIN:                    type = NTF_PIN_START;               break;
                     case DSP_ENCERRA_PIN:                   type = NTF_PIN_FINISH;              break;
                 }
