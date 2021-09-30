@@ -30,13 +30,11 @@ Local dependencies are those which are _private_, but within the scope of the
 Pinpad Service development team. They need to be made available locally before
 the Pinpad Service can be built:  
 
-1. Clone the repository [android-misc-loglibrary](https://github.com/mauriciospinardi-cloudwalk/android-misc-loglibrary)
-2. Rebuild the `release` variant based on a tag of your choice.
-3. Run task: `gradle publishToMavenLocal`
-
-Repeat the above steps to all required local dependencies and you're ready! To
-know which are the required ones, check the `build.gradle` file of each Pinpad
-Service module.
+1. Clone the repositories
+   [android-misc-loglibrary](https://github.com/mauriciospinardi-cloudwalk/android-misc-loglibrary)
+   and [android-misc-utilitieslibrary](https://github.com/mauriciospinardi-cloudwalk/android-misc-utilitieslibrary)
+2. Rebuild their `release` variants based on tags of your choice.
+3. Run tasks: `gradle publishToMavenLocal`
 
 ## Copyrighted dependencies
 
