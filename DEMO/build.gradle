@@ -46,8 +46,8 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.5'
     implementation project(path: ':PinpadLibrary')
     implementation 'org.jetbrains:annotations:15.0'
-    implementation 'io.cloudwalk:loglibrary:1.0.0'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.0'
+    implementation 'io.cloudwalk:loglibrary:1.0.1'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.1'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
