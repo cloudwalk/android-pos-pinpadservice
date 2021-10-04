@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+<merge xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
             android:columnCount="4"
             android:id="@+id/keyboard"
@@ -11,7 +10,7 @@
             android:visibility="invisible">
 
         <LinearLayout
-                android:layout_height="60dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toTopOf="@+id/ll_numeric_keyboard">
@@ -33,7 +32,7 @@
 
         <LinearLayout
                 android:id="@+id/ll_numeric_keyboard"
-                android:layout_height="205dp"
+                android:layout_height="256dp"
                 android:layout_width="match_parent"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent">

@@ -10,7 +10,7 @@
 
         <LinearLayout
                 android:background="#E5E5E5"
-                android:layout_height="60dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toTopOf="@+id/ll_numeric_keyboard_skin">
@@ -27,7 +27,7 @@
                     android:text="@string/infinitepay_cancel"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
             <TextView
@@ -43,7 +43,7 @@
                     android:text="@string/infinitepay_confirm"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
         </LinearLayout>
@@ -51,7 +51,7 @@
         <LinearLayout
                 android:background="#263238"
                 android:id="@+id/ll_numeric_keyboard_skin"
-                android:layout_height="205dp"
+                android:layout_height="256dp"
                 android:layout_width="match_parent"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent">
