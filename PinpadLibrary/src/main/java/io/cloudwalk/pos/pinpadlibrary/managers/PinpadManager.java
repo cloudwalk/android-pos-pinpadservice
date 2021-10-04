@@ -203,14 +203,16 @@ public class PinpadManager {
         try {
             acquire();
 
-            byte[] request  = new byte[] { CAN };
+            byte[] request = new byte[] { CAN };
 
-            int status = send(null, request, request.length);
+            for (int i = 0; i < 3; i++) {
+                int status = send(null, request, request.length);
 
-            Log.d(TAG, "abort::send [" + status + "]");
+                Log.d(TAG, "abort::send [" + status + "]");
 
-            if (status < 0) {
-                throw new RuntimeException("abort::status [" + status + "]");
+                if (status < 0) {
+                    throw new RuntimeException("abort::status [" + status + "]");
+                }
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
