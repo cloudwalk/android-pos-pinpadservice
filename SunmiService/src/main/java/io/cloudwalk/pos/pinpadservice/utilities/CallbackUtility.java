@@ -1,7 +1,5 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
-import static java.util.Locale.US;
-
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
 
 import android.os.Bundle;
@@ -19,7 +17,6 @@ import br.com.setis.sunmi.bibliotecapinpad.definicoes.Menu;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.setis.sunmi.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import sunmi.paylib.SunmiPayKernel;
@@ -124,7 +121,7 @@ public class CallbackUtility {
 
             int led = -1;
 
-            // try {
+            try {
                 switch (i) {
                     case 0: led = AidlConstants.LedLight.BLUE_LIGHT;   break;
                     case 1: led = AidlConstants.LedLight.YELLOW_LIGHT; break;
@@ -135,12 +132,12 @@ public class CallbackUtility {
                         continue;
                 }
 
-            //     SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
+                SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
 
                 SystemClock.sleep(50); /* 2021-09-10: user experience */
-            // } catch (RemoteException exception) {
-            //     Log.e(TAG, Log.getStackTraceString(exception));
-            // }
+            } catch (RemoteException exception) {
+                Log.e(TAG, Log.getStackTraceString(exception));
+            }
         }
     }
 

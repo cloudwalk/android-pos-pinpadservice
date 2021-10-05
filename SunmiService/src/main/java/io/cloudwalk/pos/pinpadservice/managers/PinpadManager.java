@@ -7,6 +7,11 @@ import android.os.RemoteException;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
@@ -19,11 +24,15 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
+import io.cloudwalk.utilitieslibrary.Application;
 import sunmi.paylib.SunmiPayKernel;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
             TAG = PinpadManager.class.getSimpleName();
+
+    private static final String
+            STORAGE_PATH = Application.getPackageContext().getFilesDir().getAbsolutePath() + "/";
 
     private static final PinpadManager
             sPinpadManager = new PinpadManager();
@@ -52,6 +61,36 @@ public class PinpadManager extends IPinpadManager.Stub {
                 super.run();
 
                 acquire(sMngrSemaphore);
+
+                File   keymap = new File(STORAGE_PATH + "keymap.dat");
+                byte[] stream = new byte[0];
+
+                try {
+                    Log.d(TAG, "PinpadManager::keymap [" + keymap.getAbsolutePath() + "] [" + keymap.exists() + "]");
+
+                    if (!keymap.exists()) {
+                        FileOutputStream     output = new FileOutputStream(keymap, false);
+                        BufferedOutputStream writer = new BufferedOutputStream(output);
+
+                         stream = new byte[] { 0x31, 0x30, 0x30, 0x33, 0x31, 0x30, 0x0D, 0x0A,
+                                               0x31, 0x31, 0x31, 0x33, 0x31, 0x31, 0x0D, 0x0A };
+
+                        writer.write(stream, 0, stream.length);
+                        writer.close();
+                    } else {
+                        FileInputStream      input  = new FileInputStream(keymap);
+                        BufferedInputStream  reader = new BufferedInputStream(input);
+
+                        stream = new byte[(int) keymap.length()];
+
+                        input.read(stream, 0, stream.length);
+                        input.close();
+                    }
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+                } finally {
+                    Log.h(TAG, stream, stream.length);
+                }
 
                 try {
                     sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
