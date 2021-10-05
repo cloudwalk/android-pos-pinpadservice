@@ -10,7 +10,7 @@ android {
         minSdk 25
         targetSdk 30
         versionCode 1
-        versionName "1.0.1"
+        versionName "1.0.2"
 
         setProperty("archivesBaseName", "sunmi-$applicationId-vn-$versionName-vc-$versionCode")
 
@@ -40,7 +40,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation project(path: ':PinpadLibrary')
     implementation files('libs/PayLib-release-1.4.59.aar')
-    implementation files('libs/PPCompp2-v1.27.aar')
+    implementation files('libs/PPCompp2-v1.28.aar')
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'io.cloudwalk:loglibrary:1.0.1'
     implementation 'io.cloudwalk:utilitieslibrary:1.0.2'
