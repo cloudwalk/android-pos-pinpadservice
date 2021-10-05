@@ -38,7 +38,7 @@ public class PinCaptureActivity extends AppCompatActivity {
             sExtras = null;
 
     private static String
-            sApplication = null;
+            sApplicationId = null;
 
     private String buildJSONLayoutInfo() {
         Log.d(TAG, "buildJSONLayoutInfo");
@@ -209,20 +209,20 @@ public class PinCaptureActivity extends AppCompatActivity {
             sActivity.finishAndRemoveTask();
 
             sActivity = null;
-            sApplication = null;
+            sApplicationId = null;
             sExtras = null;
 
             sLifeCycleSemaphore.release();
         }
     }
 
-    public static Bundle getKeyboardResID(String application) {
-        Log.d(TAG, "getKeyboardResID::application [" + application + "]");
+    public static Bundle getKeyboardResID(String applicationId) {
+        Log.d(TAG, "getKeyboardResID::applicationId [" + applicationId + "]");
 
         Bundle bundle = new Bundle();
 
-        if (!application.equals    ("io.cloudwalk.pos.poc2104301453.demo")
-           & application.startsWith("io.cloudwalk.")) {
+        if (!applicationId.equals    ("io.cloudwalk.pos.poc2104301453.demo")
+           & applicationId.startsWith("io.cloudwalk.")) {
             bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
             bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
             bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
@@ -261,14 +261,14 @@ public class PinCaptureActivity extends AppCompatActivity {
         }
     }
 
-    public static void startActivity(@NotNull String application) {
+    public static void startActivity(@NotNull String applicationId) {
         Log.d(TAG, "startActivity");
 
         sLifeCycleSemaphore.acquireUninterruptibly();
 
-        sApplication = application;
+        sApplicationId = applicationId;
 
-        Bundle keyboardResID = getKeyboardResID(sApplication);
+        Bundle keyboardResID = getKeyboardResID(sApplicationId);
 
         Context context = Application.getPackageContext();
 

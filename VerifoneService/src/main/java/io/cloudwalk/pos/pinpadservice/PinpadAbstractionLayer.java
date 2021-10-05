@@ -1,5 +1,7 @@
 package io.cloudwalk.pos.pinpadservice;
 
+import android.os.Bundle;
+
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
@@ -32,9 +34,17 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
      * @return {@link IPinpadManager}
      */
     @Override
-    public IPinpadManager getPinpadManager() {
+    public IPinpadManager getPinpadManager(Bundle bundle) {
         Log.d(TAG, "getPinpadManager");
 
-        return PinpadManager.getInstance();
+        String version = (bundle != null) ? bundle.getString("version", "") : "";
+
+        switch (version) {
+            // case...
+            // case...
+
+            default:
+                return PinpadManager.getInstance();
+        }
     }
 }

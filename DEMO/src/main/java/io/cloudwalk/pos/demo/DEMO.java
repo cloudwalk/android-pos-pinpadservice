@@ -71,7 +71,7 @@ public class DEMO {
 
         request.putString(ABECS.CMD_ID, ABECS.CEX);
         request.putString(ABECS.SPE_CEXOPT, "011000");
-        request.putString(ABECS.SPE_TIMEOUT, "3C");
+        request.putString(ABECS.SPE_TIMEOUT, "0F");
         request.putString(ABECS.SPE_PANMASK, "0404");
 
         return request;
@@ -416,7 +416,7 @@ public class DEMO {
         request.putString(ABECS.SPE_GCXOPT, "10000");
         request.putString(ABECS.SPE_PANMASK, "0404");
         request.putString(ABECS.SPE_TAGLIST, "5F285F24");
-        request.putString(ABECS.SPE_TIMEOUT, "3C");
+        request.putString(ABECS.SPE_TIMEOUT, "0F");
         request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG      ");
 
         return request;
@@ -450,7 +450,7 @@ public class DEMO {
         request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG      ");
         request.putString(ABECS.SPE_TRMPAR, "00000000250000000025");
         request.putString(ABECS.SPE_TAGLIST, "5F285F24");
-        request.putString(ABECS.SPE_TIMEOUT, "3C");
+        request.putString(ABECS.SPE_TIMEOUT, "0F");
 
         return request;
     }
@@ -464,7 +464,7 @@ public class DEMO {
         request.putString(ABECS.SPE_FCXOPT, "0000");
         request.putString(ABECS.SPE_ARC, "00");
         request.putString(ABECS.SPE_TAGLIST, "5F285F24");
-        request.putString(ABECS.SPE_TIMEOUT, "3C");
+        request.putString(ABECS.SPE_TIMEOUT, "0F");
 
         return request;
     }

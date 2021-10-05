@@ -267,45 +267,25 @@ public class MainActivity extends AppCompatActivity {
 
                 IServiceCallback serviceCallback = new IServiceCallback.Stub() {
                     @Override
-                    public int onSelectionRequired(Bundle output) {
-                        Log.d(TAG, "onSelectionRequired");
+                    public int onServiceCallback(Bundle bundle) {
+                        Log.d(TAG, "onServiceCallback");
 
                         try {
-                            String trace = DataUtility.getJSONObjectFromBundle(output, true).toString();
+                            String trace = DataUtility.getJSONObjectFromBundle(bundle, true).toString();
 
-                            Log.d(TAG, "onSelectionRequired::" + trace);
+                            Log.d(TAG, "onServiceCallback::" + trace);
                         } catch (Exception exception) {
                             Log.e(TAG, Log.getStackTraceString(exception));
                         }
 
                         // TODO: AlertDialog!?
 
-                        return 1;
-                    }
-
-                    @Override
-                    public void onNotificationThrow(Bundle output, int type) {
-                        Log.d(TAG, "onNotificationThrow");
-
-                        try {
-                            String trace = DataUtility.getJSONObjectFromBundle(output, true).toString();
-
-                            Log.d(TAG, "onNotificationThrow::type [" + type + "] trace " + trace + "");
-                        } catch (Exception exception) {
-                            Log.e(TAG, Log.getStackTraceString(exception));
+                        switch (bundle.getInt("NTF_TYPE", -1)) {
+                        //  case...
+                        //  case...
+                            case NTF_SELECT: return 1;
+                            default:         return 0;
                         }
-
-                        switch (type) {
-                            case NTF_UPDATING:
-                                /* 2021-09-23: disposable considering the purposes of this application */
-                                return;
-
-                            default:
-                                /* Nothing to do */
-                                break;
-                        }
-
-                        // TODO: AlertDialog!?
                     }
                 };
 
@@ -316,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
                 List<Bundle> requestList = new ArrayList<>(0);
 
                 // requestList.add(DEMO.CLX());
-                   requestList.add(DEMO.GIX());
+                requestList.add(DEMO.GIX());
                 // requestList.add(DEMO.OPN());
                 // requestList.add(DEMO.TLI());
 

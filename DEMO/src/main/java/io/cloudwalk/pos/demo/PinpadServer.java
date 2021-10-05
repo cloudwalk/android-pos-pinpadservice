@@ -120,7 +120,7 @@ public class PinpadServer { // TODO: improve and enable at MainActivity!?
                         while ((count = input.read(request)) > 0) {
                             onRecv(request, count);
 
-                            count = PinpadManager.send(mServiceCallback, request, count);
+                            count = PinpadManager.send(request, count, mServiceCallback);
 
                             if (count < 0) {
                                 Log.e(TAG, "accept::count [" + count + "]");

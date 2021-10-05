@@ -109,7 +109,7 @@ public class PinpadManager {
             acquire();
 
             byte[] request  = PinpadUtility.buildRequestDataPacket(input);
-            byte[] response = new byte[2048 + 4];
+            byte[] response;
 
             int retry  = 3;
             int status = 0;
@@ -117,13 +117,15 @@ public class PinpadManager {
             timestamp = SystemClock.elapsedRealtime();
 
             do {
-                status = send(callback, request, request.length);
+                status = send(request, request.length, callback);
 
                 Log.d(TAG, "request::send [" + status + "]");
 
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
                 }
+
+                response = new byte[2048 + 4];
 
                 status = recv(response, 2000);
 
@@ -152,6 +154,8 @@ public class PinpadManager {
             release();
 
             do {
+                response = new byte[2048 + 4];
+
                 status = recv(response, 10000);
 
                 Log.d(TAG, "request::recv [" + status + "]");
@@ -206,7 +210,7 @@ public class PinpadManager {
             byte[] request = new byte[] { CAN };
 
             for (int i = 0; i < 3; i++) {
-                int status = send(null, request, request.length);
+                int status = send(request, request.length, null);
 
                 Log.d(TAG, "abort::send [" + status + "]");
 
@@ -247,30 +251,35 @@ public class PinpadManager {
 
     /**
      * Waits for the processing result of a previously sent ABECS PINPAD request.<br>
-     * See {@link PinpadManager#send(IServiceCallback, byte[], int)}.
+     * See {@link PinpadManager#send(byte[], int, IServiceCallback)}.
      *
-     * @param output {@code byte[]} as specified by ABECS PINPAD protocol
+     * @param response {@code byte[]} as specified by ABECS PINPAD protocol
      * @param timeout self-describing (milliseconds)
      * @return {@code int} bigger than zero if the request was processed successfully, less than
      *         zero in the event of a failure and zero if timeout was reached
      */
-    public static int receive(byte[] output, long timeout) {
+    public static int receive(byte[] response, long timeout) {
         Log.d(TAG, "receive");
 
         long timestamp = SystemClock.elapsedRealtime();
 
-        int result = 0;
+        Bundle bundle = new Bundle();
+        int    result = 0;
 
         try {
-            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().recv(output, timeout);
+            bundle.putLong("timeout", timeout);
+
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager(null).recv(bundle);
+
+            if (result > 0) {
+                System.arraycopy(bundle.getByteArray("response"), 0, response, 0, result);
+            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
             result = -1;
         } finally {
-            Log.d(TAG, "receive::result [" + result + "]");
-
-            Log.h(TAG, output, result);
+            Log.h(TAG, response, result);
 
             Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
@@ -292,31 +301,37 @@ public class PinpadManager {
      * Performs an ABECS PINPAD request using the default public data format.<br>
      * Does not wait the processing result.
      *
-     * @param input {@code byte[]} as specified by ABECS PINPAD protocol
+     * @param request {@code byte[]} as specified by ABECS PINPAD protocol
      * @param length {@code input} length
      * @return {@code int} bigger than zero if the request was sent successfully, less than zero
      *         otherwise
      */
-    public static int send(IServiceCallback callback, byte[] input, int length) {
+    public static int send(byte[] request, int length, IServiceCallback callback) {
         Log.d(TAG, "send");
 
         long timestamp = SystemClock.elapsedRealtime();
 
-        int result = 0;
+        Bundle bundle = new Bundle();
+        int    result = 0;
 
         try {
-            Log.h(TAG, input, length);
+            Log.h(TAG, request, length);
 
-            String application = Application.getPackageContext().getPackageName();
+            String packageName = Application.getPackageContext().getPackageName();
 
-            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager().send(application, callback, input, length);
+            byte[] courrier = new byte[length];
+
+            System.arraycopy(request, 0, courrier, 0, length);
+
+            bundle.putString   ("application_id", packageName);
+            bundle.putByteArray("request", courrier);
+
+            result = IPinpadService.Stub.asInterface(retrieve()).getPinpadManager(null).send(bundle, callback);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
             result = -1;
         } finally {
-            Log.d(TAG, "send::result [" + result + "]");
-
             Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 

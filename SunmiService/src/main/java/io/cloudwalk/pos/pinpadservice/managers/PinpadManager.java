@@ -2,7 +2,10 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.Locale.US;
 
+import android.os.Bundle;
 import android.os.RemoteException;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -75,7 +78,7 @@ public class PinpadManager extends IPinpadManager.Stub {
         return pinpad;
     }
 
-    private static byte[] intercept(String application, boolean send, byte[] data, int length) {
+    private static byte[] intercept(String applicationId, boolean send, byte[] data, int length) {
         Log.d(TAG, "intercept::length [" + length + "] (" + ((send) ? "send" : "recv") + ")");
 
         try {
@@ -90,11 +93,13 @@ public class PinpadManager extends IPinpadManager.Stub {
                 case 1:
                     Log.d(TAG, "intercept::data[0] [" + String.format(US, "%02X", data[0]) + "]");
 
-                    if (data[0] != 0x04) {
-                        return data;
-                    }
+                    switch (data[0]) {
+                        case 0x04: CMD_ID = "EOT"; break;
+                        case 0x15: CMD_ID = "NAK"; break;
 
-                    CMD_ID = "EOT";
+                        default:
+                            return data;
+                    }
                     break;
 
                 default:
@@ -121,7 +126,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                     case ABECS.GPN:
                     case ABECS.GOX:
-                        PinCaptureActivity.startActivity(application);
+                        PinCaptureActivity.startActivity(applicationId);
                         break;
 
                     default:
@@ -132,6 +137,9 @@ public class PinpadManager extends IPinpadManager.Stub {
             } else {
                 switch (CMD_ID) {
                     case "EOT":
+                    case "NAK":
+                        /* no break */
+
                     case ABECS.GPN:
                     case ABECS.GOX:
                         PinCaptureActivity.finishActivity();
@@ -182,29 +190,38 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     @Override
-    public int recv(byte[] output, long timeout) {
-        Log.d(TAG, "recv::timeout [" + timeout + "]");
+    public int recv(@NotNull Bundle bundle) {
+        Log.d(TAG, "recv");
+
+        long   timeout  = bundle.getLong("timeout", 0);
+        int    result   = -1;
 
         acquire(sRecvSemaphore);
 
-        int result = -1;
+        byte[] response = sQueue.poll();
 
         try {
-            byte[] response = sQueue.poll();
-
             if (response != null) {
-                System.arraycopy(response, 0, output, 0, response.length);
+                Log.h(TAG, response, result);
 
                 result = response.length;
-
-                Log.h(TAG, output, result);
             } else {
-                result = getPinpad().recebeResposta(output, timeout);
+                response = new byte[2048];
 
-                output = intercept(null, false, output, result);
+                result = getPinpad().recebeResposta(response, timeout);
+
+                response = intercept(null, false, response, result);
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
+        } finally {
+            if (result > 0) {
+                byte[] courrier = new byte[result];
+
+                System.arraycopy(response, 0, courrier, 0, result);
+
+                bundle.putByteArray("response", courrier);
+            }
         }
 
         release(sRecvSemaphore);
@@ -213,24 +230,27 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     @Override
-    public int send(String application, IServiceCallback callback, byte[] input, int length) {
+    public int send(@NotNull Bundle bundle, IServiceCallback callback) {
         Log.d(TAG, "send");
 
         acquire(sSendSemaphore);
 
-        Log.d(TAG, "send::application [" + application + "]");
+        String applicationId = bundle.getString   ("application_id");
+        byte[] request       = bundle.getByteArray("request");
 
-        if (length > 1) { /* 2021-08-11: not a control byte */
+        Log.d(TAG, "send::applicationId [" + applicationId + "]");
+
+        if (request.length > 1) {
             CallbackUtility.setServiceCallback(callback);
         }
 
         int result = -1;
 
         try {
-            byte[] request = intercept(application, true, input, length);
+            request = intercept(applicationId, true, request, request.length);
 
             if (request[0] != 0x15) {
-                result = getPinpad().enviaComando(request, length);
+                result = getPinpad().enviaComando(request, request.length);
             } else {
                 result = (sQueue.add(request)) ? 0 : -1;
             }

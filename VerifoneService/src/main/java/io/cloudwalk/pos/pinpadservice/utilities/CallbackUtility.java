@@ -69,18 +69,19 @@ public class CallbackUtility {
             Bundle bundle     = new Bundle();
             StringBuilder pin = new StringBuilder();
 
+            bundle.putString(NTF_MSG, (mensagem != null) ? mensagem : "");
+            bundle.putInt   (NTF_TYPE, tipoNotificacao);
+
             for (int i = 0; i < count; i++) {
                 pin.append("*");
             }
 
-            bundle.putString(ABECS.NTF_MSG, (mensagem != null) ? mensagem : "");
-
             if (count >= 0) {
-                bundle.putString(ABECS.NTF_PIN, pin.toString());
+                bundle.putString(NTF_PIN, pin.toString());
             }
 
             try {
-                callback.onNotificationThrow(bundle, tipoNotificacao);
+                callback.onServiceCallback(bundle);
             } catch (Exception exception) {
                 Log.e(TAG, Log.getStackTraceString(exception));
             }
@@ -104,16 +105,12 @@ public class CallbackUtility {
         if (callback != null) {
             Bundle bundle = new Bundle();
 
-            bundle.putString(ABECS.NTF_TITLE,                               menu.obtemTituloMenu());
-            bundle.putStringArrayList(ABECS.NTF_OPTLST, (ArrayList<String>) menu.obtemOpcoesMenu());
-            bundle.putString(ABECS.NTF_TIMEOUT,         String.format(US, "%03d", menu.obtemTimeout()));
+            bundle.putInt            (NTF_TYPE,   NTF_SELECT);
+            bundle.putString         (NTF_TITLE,                      menu.obtemTituloMenu());
+            bundle.putStringArrayList(NTF_OPTLST, (ArrayList<String>) menu.obtemOpcoesMenu());
 
             try {
-                int option = callback.onSelectionRequired(bundle);
-
-                Log.d(TAG, "menu::option [" + option + "]");
-
-                menu.obtemMenuCallback().informaOpcaoSelecionada(option);
+                menu.obtemMenuCallback().informaOpcaoSelecionada(callback.onServiceCallback(bundle));
             } catch (RemoteException exception) {
                 Log.e(TAG, Log.getStackTraceString(exception));
             }

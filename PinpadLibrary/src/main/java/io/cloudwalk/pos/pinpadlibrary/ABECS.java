@@ -14,16 +14,6 @@ public class ABECS {
     public static final String RSP_STAT         = "RSP_STAT";
 
     /*
-     * "Unofficial" callback fields.
-     */
-
-    public static final String NTF_MSG          = "NTF_MSG";
-    public static final String NTF_OPTLST       = "NTF_OPTLST";
-    public static final String NTF_PIN          = "NTF_PIN";
-    public static final String NTF_TIMEOUT      = "NTF_TIMEOUT";
-    public static final String NTF_TITLE        = "NTF_TITLE";
-
-    /*
      * Supported requests.
      */
 
