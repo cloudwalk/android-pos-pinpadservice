@@ -21,5 +21,9 @@
 - `PP_DSPxxx` (as well as other multimedia related TAGs) are out of scope and
   its values should be ignored.
 
-## [1.0.0] - YYYY-MM-DD
+## [1.0.1] - YYYY-MM-DD
+- Update main API for easier polymorphism simulation (incompatible w/ previous
+  release).
+
+## [1.0.0] - 2021-09-30
 - Initial release.
