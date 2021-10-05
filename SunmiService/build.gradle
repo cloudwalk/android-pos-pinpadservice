@@ -10,7 +10,7 @@ android {
         minSdk 25
         targetSdk 30
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.1"
 
         setProperty("archivesBaseName", "sunmi-$applicationId-vn-$versionName-vc-$versionCode")
 
