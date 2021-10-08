@@ -20,9 +20,11 @@
 - `PP_DSPxxx` (as well as other multimedia related TAGs) are out of scope and
   its values should be ignored.
 
-## [1.0.1] - YYYY-MM-DD
-- Update main API for easier polymorphism simulation (incompatible w/ previous
-  release).
+## [1.0.2] - 2021-10-08
+- Update PIN keyboard layout.
+
+## [1.0.1] - 2021-10-05
+- Update main API for easier polymorphism simulation.
 
 ## [1.0.0] - 2021-10-04
 - Initial release.

@@ -12,7 +12,7 @@
 - Super Power 2.2.1
 - System State Manager 2.8.1
 - PayLib 1.4.59
-- BC 1.27
+- BC 1.28
 
 ## Known issues
 - EMV LED operation is disabled.
@@ -20,10 +20,13 @@
 - `PP_TLRMEM` is untreated and its values should be ignored.
 - `PP_DSPxxx` (as well as other multimedia related TAGs) are out of scope and
   its values should be ignored.
+  
+## [1.0.2] - 2021-10-08
+- Update PIN keyboard layout.
+- Update vendor dependencies.
 
-## [1.0.1] - YYYY-MM-DD
-- Update main API for easier polymorphism simulation (incompatible w/ previous
-  release).
+## [1.0.1] - 2021-10-05
+- Update main API for easier polymorphism simulation.
 
 ## [1.0.0] - 2021-09-30
 - Initial release.
