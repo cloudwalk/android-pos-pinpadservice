@@ -9,7 +9,7 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 25
         targetSdk 30
-        versionCode 1
+        versionCode 3
         versionName "1.0.2"
 
         setProperty("archivesBaseName", "sunmi-$applicationId-vn-$versionName-vc-$versionCode")

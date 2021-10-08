@@ -9,8 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdkVersion 22
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
 
         setProperty("archivesBaseName", "verifone-$applicationId-vn-$versionName-vc-$versionCode")
 
