@@ -16,10 +16,15 @@
 
 ## Known issues
 - EMV LED operation is disabled.
+- Callbacks are not interrupted by `ST_TIMEOUT`. Caller application has to
+  oversight time passing.
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - `PP_TLRMEM` is untreated and its values should be ignored.
 - `PP_DSPxxx` (as well as other multimedia related TAGs) are out of scope and
   its values should be ignored.
+  
+## [1.0.3] - 2021-10-11
+- Add `keymap.dat` creation support.
   
 ## [1.0.2] - 2021-10-08
 - Update PIN keyboard layout.

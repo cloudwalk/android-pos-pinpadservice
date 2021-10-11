@@ -294,7 +294,13 @@ public class PinpadManager {
     public static void register(@NotNull ServiceUtility.Callback callback) {
         Log.d(TAG, "register");
 
-        ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE, callback);
+        register(null, callback);
+    }
+
+    public static void register(Bundle extras, @NotNull ServiceUtility.Callback callback) {
+        Log.d(TAG, "register");
+
+        ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE, extras, callback);
     }
 
     /**

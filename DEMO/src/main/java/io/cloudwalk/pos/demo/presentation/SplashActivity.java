@@ -5,6 +5,7 @@ import androidx.annotation.ColorInt;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.SpannableString;
@@ -86,7 +87,31 @@ public class SplashActivity extends AppCompatActivity {
 
         long timestamp = SystemClock.elapsedRealtime();
 
-        PinpadManager.register(new ServiceUtility.Callback() {
+        PinpadManager.unregister();
+
+        Bundle extras = new Bundle();
+
+        switch (Build.BRAND) {
+            case "SUNMI":
+                byte[] keymap = new byte[] { 0x31, 0x30, 0x30, 0x33, 0x31, 0x30, 0x0D, 0x0A,
+                                             0x31, 0x31, 0x31, 0x33, 0x31, 0x31 };
+
+                extras.putByteArray("keymap.dat", keymap);
+                break;
+
+            case "Verifone":
+                byte[] duklink = new byte[] { 0x03, 0x0A, 0x03, 0x05, 0x0B, 0x04 };
+
+                extras.putByteArray("DUKLINK.dat", duklink);
+                break;
+
+            default:
+                extras = null;
+                break;
+        }
+
+
+        PinpadManager.register(extras, new ServiceUtility.Callback() {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "onSuccess");

@@ -8,9 +8,9 @@ android {
     defaultConfig {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdkVersion 22
-        targetSdkVersion 30
-        versionCode 3
-        versionName "1.0.2"
+        targetSdkVersion 22
+        versionCode 4
+        versionName "1.0.3"
 
         setProperty("archivesBaseName", "verifone-$applicationId-vn-$versionName-vc-$versionCode")
 
@@ -43,7 +43,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'io.cloudwalk:loglibrary:1.0.1'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.2'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.3'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
