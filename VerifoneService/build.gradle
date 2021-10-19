@@ -13,8 +13,6 @@ android {
         versionName "1.0.3"
 
         setProperty("archivesBaseName", "verifone-$applicationId-vn-$versionName-vc-$versionCode")
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -42,9 +40,7 @@ dependencies {
     implementation files('libs/PPCompX990-v001.19.aar')
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
     implementation 'io.cloudwalk:loglibrary:1.0.1'
     implementation 'io.cloudwalk:utilitieslibrary:1.0.3'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
