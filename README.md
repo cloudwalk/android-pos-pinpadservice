@@ -64,7 +64,7 @@ interface, it can do so:
   - `PinpadManager#abort();`
   - `PinpadManager#request(IServiceCallback, Bundle);`
 - _byte[]_ API
-  - `PinpadManager#send(IServiceCallback, byte[], int);`
+  - `PinpadManager#send(byte[], int, IServiceCallback);`
   - `PinpadManager#receive(byte[], long);`
 
 <!-- TODO: summary of the `Bundle` API characteristics -->
