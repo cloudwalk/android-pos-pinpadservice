@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
 
-                        Bundle RX = PinpadManager.request(serviceCallback, TX);
+                        Bundle RX = PinpadManager.request(TX, serviceCallback);
 
                         updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
 

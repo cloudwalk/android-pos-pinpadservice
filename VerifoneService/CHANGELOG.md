@@ -15,11 +15,12 @@
 - SETIS components don't notify PIN capture start and/or finish events, which
   prevents PIN keyboard customization _per_ package (defaults to InfinitePay).
 - EMV LED operation is disabled.
+- PIN keyboard external customization is disabled.
 - Callbacks are not interrupted by `ST_TIMEOUT`. Caller application has to
   oversight time passing.
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - `PP_TLRMEM` is untreated and its values should be ignored.
-- `PP_DSPxxx` (as well as other multimedia related TAGs) are out of scope and
+- `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
   its values should be ignored.
 
 ## [1.0.3] - 2021-10-11
@@ -28,8 +29,8 @@
 ## [1.0.2] - 2021-10-08
 - Update PIN keyboard layout.
 
-## [1.0.1] - 2021-10-05
-- Update main API for easier polymorphism simulation.
+## [1.0.1] - 2021-10-05 - WARNING: incompatible with previous release(s)
+- Update public API for easier polymorphism simulation.
 
 ## [1.0.0] - 2021-10-04
 - Initial release.

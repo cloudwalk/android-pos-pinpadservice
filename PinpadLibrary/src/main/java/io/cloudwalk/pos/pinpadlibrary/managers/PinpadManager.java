@@ -96,7 +96,7 @@ public class PinpadManager {
      * @param input {@link Bundle}
      * @return {@link Bundle}
      */
-    public static Bundle request(IServiceCallback callback, @NotNull Bundle input) {
+    public static Bundle request(@NotNull Bundle input, IServiceCallback callback) {
         Log.d(TAG, "request");
 
         long overhead  = SystemClock.elapsedRealtime();
