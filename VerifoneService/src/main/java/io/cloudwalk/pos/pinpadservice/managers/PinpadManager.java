@@ -3,9 +3,6 @@ package io.cloudwalk.pos.pinpadservice.managers;
 import static java.util.Locale.US;
 
 import android.os.Bundle;
-import android.os.IBinder;
-
-import com.vfi.smartpos.deviceservice.aidl.IDeviceService;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -170,17 +167,6 @@ public class PinpadManager extends IPinpadManager.Stub {
                     default:
                         /* Nothing to do */
                         break;
-                }
-
-                try {
-                    IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
-                    IDeviceService  device = IDeviceService.Stub.asInterface(service);
-
-                    for (int i = 0; i < 4; i++) {
-                        device.getLed().turnOff(i + 1);
-                    }
-                } catch (Exception exception) {
-                    Log.e(TAG, Log.getStackTraceString(exception));
                 }
             }
         } finally {

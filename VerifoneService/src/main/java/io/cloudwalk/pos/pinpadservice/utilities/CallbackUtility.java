@@ -120,7 +120,8 @@ public class CallbackUtility {
     private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
         Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-        int[] status = ledsContactless.checaLedsAcesos();
+        int[]   status = ledsContactless.checaLedsAcesos();
+        boolean reset  = status[0] == 0 && status[1] == 0 && status[2] == 0 && status[3] == 0;
 
         try {
             IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
@@ -135,7 +136,9 @@ public class CallbackUtility {
                     device.getLed().turnOff(i + 1);
                 }
 
-                SystemClock.sleep(50); /* 2021-09-10: user experience */
+                if (!reset) {
+                    SystemClock.sleep(50);
+                }
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
