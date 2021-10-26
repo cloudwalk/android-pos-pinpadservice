@@ -129,7 +129,7 @@ public class CallbackUtility {
         sLedStatus = status;
 
         for (int i = 0; i < sLedStatus.length; i++) {
-            Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "] sLedStatus[" + i + "] [" + sLedStatus[i] + "]");
+            Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
 
             int led = -1;
 
