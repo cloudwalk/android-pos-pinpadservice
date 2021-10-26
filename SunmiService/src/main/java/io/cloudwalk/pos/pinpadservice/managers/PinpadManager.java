@@ -4,6 +4,7 @@ import static java.util.Locale.US;
 
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.SystemClock;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +20,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
+import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 import sunmi.paylib.SunmiPayKernel;
 
 public class PinpadManager extends IPinpadManager.Stub {
@@ -103,7 +105,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     break;
 
                 default:
-                    if (length >= 3) {
+                    if (length >= 4) {
                         byte[] slice = new byte[3];
 
                         System.arraycopy(data, 1, slice, 0, 3);
@@ -150,13 +152,46 @@ public class PinpadManager extends IPinpadManager.Stub {
                         break;
                 }
 
-                for (int i = 0; i < 4; i++) {
-                    try {
-                        SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
-                    } catch (RemoteException exception) {
-                        Log.e(TAG, Log.getStackTraceString(exception));
+                new Thread() {
+                    @Override
+                    public void run() {
+                        super.run();
+
+                        ABECS.STAT RSP_STAT = ABECS.STAT.ST_OK;
+
+                        if (length >= 7) {
+                            byte[] slice = new byte[3];
+
+                            System.arraycopy(data, 4, slice, 0, 3);
+
+                            int status = DataUtility.getIntFromByteArray(slice, slice.length);
+
+                            RSP_STAT = ABECS.STAT.values()[status];
+                        }
+
+                        try {
+                            switch (RSP_STAT) {
+                                case ST_CTLSMULTIPLE:   case ST_CTLSCOMMERR:    case ST_CTLSINVALIDAT:
+                                case ST_CTLSPROBLEMS:   case ST_CTLSAPPNAV:     case ST_CTLSAPPNAUT:
+                                case ST_CTLSEXTCVM:     case ST_CTLSIFCHG:
+                                    SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(1, 0);
+
+                                    SystemClock.sleep(250);
+                                    break;
+
+                                default:
+                                    /* Nothing to do */
+                                    break;
+                            }
+
+                            for (int i = 0; i < 4; i++) {
+                                SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(i + 1, 1);
+                            }
+                        } catch (RemoteException exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+                        }
                     }
-                }
+                }.start();
             }
         } finally {
             release(sMngrSemaphore);

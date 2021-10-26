@@ -31,6 +31,9 @@ public class CallbackUtility {
     private static IServiceCallback
             sServiceCallback = null;
 
+    private static int[]
+            sLedStatus = new int[] { 0, 0, 0, 0 };
+
     private CallbackUtility() {
         /* Nothing to do */
     }
@@ -114,10 +117,16 @@ public class CallbackUtility {
     private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
         Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-        int[] status = ledsContactless.checaLedsAcesos();
+        int[]   status = ledsContactless.checaLedsAcesos();
+        boolean reset  = status[0] == 0 && status[1] == 0 && status[2] == 0 && status[3] == 0;
 
-        for (int i = 0; i < status.length; i++) {
-            Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
+        if (!reset || (sLedStatus[1] == 0 || sLedStatus[2] != 0)) {
+            sLedStatus = status;    /* [1]: CTLS tap in progress */
+                                    /* [2]: CTLS tap successful  */
+        }
+
+        for (int i = 0; i < sLedStatus.length; i++) {
+            Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "] sLedStatus[" + i + "] [" + sLedStatus[i] + "]");
 
             int led = -1;
 
@@ -132,9 +141,11 @@ public class CallbackUtility {
                         continue;
                 }
 
-                SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (status[i] != 0) ? 0 : 1);
+                SunmiPayKernel.getInstance().mBasicOptV2.ledStatusOnDevice(led, (sLedStatus[i] != 0) ? 0 : 1);
 
-                SystemClock.sleep(50); /* 2021-09-10: user experience */
+                if (!reset || (sLedStatus[1] == 0 || sLedStatus[2] != 0)) {
+                    SystemClock.sleep(50);
+                }
             } catch (RemoteException exception) {
                 Log.e(TAG, Log.getStackTraceString(exception));
             }

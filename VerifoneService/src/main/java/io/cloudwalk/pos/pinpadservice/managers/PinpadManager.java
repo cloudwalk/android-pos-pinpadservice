@@ -125,7 +125,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     break;
 
                 default:
-                    if (length >= 3) {
+                    if (length >= 4) {
                         byte[] slice = new byte[3];
 
                         System.arraycopy(data, 1, slice, 0, 3);
