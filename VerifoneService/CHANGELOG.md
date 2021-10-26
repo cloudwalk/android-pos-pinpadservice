@@ -6,15 +6,14 @@
 - Firmware V1.0.1.20200313
 - Linux Kernel 3.10.49
 - ROM V1.1.0.202003131201 BRA
-- Security Driver VA.182.S.040.201911211114
-- VFService 2.22.2
+- Security Driver VA.193.S.046.202006111742
+- VFService 3.10.3
 - VFSystemService 1.8.11
-- BC 001.19
+- BC 001.23
 
 ## Known issues
-- SETIS components don't notify PIN capture start and/or finish events, which
-  prevents PIN keyboard customization _per_ package (defaults to InfinitePay).
-- EMV LED operation is disabled.
+- SETIS components don't notify PIN capture start events, which prevents PIN
+  keyboard customization _per_ package (defaults to InfinitePay).
 - PIN keyboard external customization is disabled.
 - Callbacks are not interrupted by `ST_TIMEOUT`. Caller application has to
   oversight time passing.
@@ -22,6 +21,11 @@
 - `PP_TLRMEM` is untreated and its values should be ignored.
 - `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
   its values should be ignored.
+
+## [1.0.4] - YYYY-MM-DD
+- Update vendor components.
+- Update dependencies.
+- Enable EMV LED operation.
 
 ## [1.0.3] - 2021-10-11
 - Add `DUKLINK.dat` creation support.
