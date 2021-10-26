@@ -9,8 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 22
         targetSdk 22
-        versionCode 5
-        versionName "1.0.4"
+        versionCode 4
+        versionName "1.0.3"
 
         setProperty("archivesBaseName", "verifone-$applicationId-vn-$versionName-vc-$versionCode")
     }
@@ -37,7 +37,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation project(path: ':PinpadLibrary')
-    implementation files('libs/PPCompX990-v001.23.aar')
+    implementation files('libs/PPCompX990-v001.19.aar')
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
