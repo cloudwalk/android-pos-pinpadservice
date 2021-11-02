@@ -1,5 +1,7 @@
 package io.cloudwalk.pos.demo.presentation;
 
+import static java.util.Locale.US;
+
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.DEMO;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateContentScrolling(String delim, String message) {
-        Log.d(TAG, "updateContentScrolling:: delim [" + delim + "]");
+        Log.d(TAG, "updateContentScrolling::delim [" + delim + "]");
 
         String[] trace = null;
 
@@ -145,6 +148,25 @@ public class MainActivity extends AppCompatActivity {
 
             semaphore[0].acquireUninterruptibly();
         }
+    }
+
+    private void updatePinpadContent(String message) {
+        Log.d(TAG, "updatePinpadContent");
+
+        Semaphore[] semaphore = { new Semaphore(0, true) };
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ((TextView) findViewById(R.id.tv_pinpad_content)).setText(message);
+                } finally {
+                    semaphore[0].release();
+                }
+            }
+        });
+
+        semaphore[0].acquireUninterruptibly();
     }
 
     private void updateStatus(int status, String message) {
@@ -260,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
 
         mAboutAlertDialog = new AboutAlertDialog(this);
 
+        ((TextView) findViewById(R.id.tv_pinpad_content)).setText(getString(R.string.warning_wait).toUpperCase(US));
+
         new Thread() { // TODO: new method!?
             @Override
             public void run() {
@@ -278,9 +302,18 @@ public class MainActivity extends AppCompatActivity {
                             Log.e(TAG, Log.getStackTraceString(exception));
                         }
 
-                        // TODO: AlertDialog!?
+                        String pin  = "                ";
+                               pin += bundle.getString(NTF_PIN, "").trim();
 
-                        switch (bundle.getInt("NTF_TYPE", -1)) {
+                        String msg  = bundle.getString(NTF_MSG, "").trim();
+
+                        while (msg.charAt(0) == '\n') msg = msg.substring(1);
+
+                               msg += "\n\n" + pin.substring(pin.length() - 16);
+
+                        updatePinpadContent(msg);
+
+                        switch (bundle.getInt(NTF_TYPE, -99)) {
                         //  case...
                         //  case...
                             case NTF_SELECT: return 1;
@@ -328,6 +361,16 @@ public class MainActivity extends AppCompatActivity {
 
                         if (wasStopped()) {
                             return;
+                        }
+
+                        switch (TX.getString(ABECS.CMD_ID)) {
+                            case ABECS.TLI:
+                            case ABECS.TLR:
+                                break;
+
+                            default:
+                                updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
+                                break;
                         }
                     } catch (Exception exception) {
                         updateContentScrolling(null, Log.getStackTraceString(exception));
