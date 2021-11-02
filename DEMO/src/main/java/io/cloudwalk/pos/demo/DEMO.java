@@ -131,7 +131,7 @@ public class DEMO {
         request.putString(ABECS.GPN_ENTRIES, "1");
         request.putString(ABECS.GPN_MIN1, "04");
         request.putString(ABECS.GPN_MAX1, "08");
-        request.putString(ABECS.GPN_MSG1, "GPN_MSG1                        ");
+        request.putString(ABECS.GPN_MSG1, "GPN_MSG1       \n                ");
 
         return request;
     }
@@ -172,7 +172,7 @@ public class DEMO {
         Bundle request = new Bundle();
 
         request.putString(ABECS.CMD_ID, ABECS.RMC);
-        request.putString(ABECS.RMC_MSG, "RMC_MSG                         ");
+        request.putString(ABECS.RMC_MSG, "RMC_MSG        \n                ");
 
         return request;
     }
@@ -447,7 +447,7 @@ public class DEMO {
         request.putString(ABECS.SPE_GOXOPT, "11100");
         request.putString(ABECS.SPE_MTHDPIN, "3");
         request.putString(ABECS.SPE_KEYIDX, "10");
-        request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG      ");
+        request.putString(ABECS.SPE_DSPMSG, "SPE_DSPMSG     \n                ");
         request.putString(ABECS.SPE_TRMPAR, "00000000250000000025");
         request.putString(ABECS.SPE_TAGLIST, "5F285F24");
         request.putString(ABECS.SPE_TIMEOUT, "0F");

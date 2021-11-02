@@ -303,13 +303,13 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         String pin  = "                ";
-                               pin += bundle.getString(NTF_PIN, "").trim();
+                               pin += bundle.getString(NTF_PIN, "");
 
-                        String msg  = bundle.getString(NTF_MSG, "").trim();
+                        String msg  = bundle.getString(NTF_MSG, "");
 
                         while (msg.charAt(0) == '\n') msg = msg.substring(1);
 
-                               msg += "\n\n" + pin.substring(pin.length() - 16);
+                               msg += "\n" + pin.substring(pin.length() - 16);
 
                         updatePinpadContent(msg);
 
