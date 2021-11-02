@@ -58,13 +58,6 @@ public class PinpadManager {
     }
 
     /**
-     * See {@link PinpadManager#receive(byte[], long)}.
-     */
-    private static int recv(byte[] output, long timeout) {
-        return receive(output, timeout);
-    }
-
-    /**
      * Releases a permit if the number of available permits doesn't already surpasses zero.<br>
      * See {@link Semaphore#release()}.
      */
@@ -117,6 +110,8 @@ public class PinpadManager {
             timestamp = SystemClock.elapsedRealtime();
 
             do {
+                do { response = new byte[2048 + 4]; } while (receive(response, 0) != 0);
+
                 status = send(request, request.length, callback);
 
                 Log.d(TAG, "request::send [" + status + "]");
@@ -125,11 +120,9 @@ public class PinpadManager {
                     throw new RuntimeException("request::status [" + status + "]");
                 }
 
-                response = new byte[2048 + 4];
+                status = receive(response, 2000);
 
-                status = recv(response, 2000);
-
-                Log.d(TAG, "request::recv [" + status + "]");
+                Log.d(TAG, "request::receive [" + status + "]");
 
                 if (status != 0 && status != 1) {
                     throw new RuntimeException("request::status [" + status + "]");
@@ -155,10 +148,9 @@ public class PinpadManager {
 
             do {
                 response = new byte[2048 + 4];
+                status   = receive(response, 10000);
 
-                status = recv(response, 10000);
-
-                Log.d(TAG, "request::recv [" + status + "]");
+                Log.d(TAG, "request::receive [" + status + "]");
 
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
@@ -167,6 +159,8 @@ public class PinpadManager {
                         throw new InterruptedException();
                     }
                 }
+
+                // TODO: break loop for non-blocking instructions
             } while (status <= 0);
 
             if (timestamp >= overhead) {

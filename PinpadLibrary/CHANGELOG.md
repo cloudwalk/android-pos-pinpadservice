@@ -5,6 +5,9 @@
 
 ## Known issues
 - Callbacks for service connection won't stack up.
+
+## [1.0.5] - 2021-MM-DD
+- Explicitly clear the communication channel before each request.
   
 ## [1.0.4] - 2021-MM-DD
 - Add CHANGELOG.md.
