@@ -1,4 +1,4 @@
-package io.cloudwalk.pos.demo;
+package io.cloudwalk.pos.pinpadserver;
 
 import android.net.wifi.WifiManager;
 
