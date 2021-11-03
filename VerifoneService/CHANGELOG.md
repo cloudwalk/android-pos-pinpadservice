@@ -9,7 +9,7 @@
 - Security Driver VA.193.S.046.202006111742
 - VFService 3.10.3
 - VFSystemService 1.8.11
-- BC 001.23
+- BC 001.24
 
 ## Known issues
 - SETIS components don't notify PIN capture start events, which prevents PIN
@@ -22,7 +22,10 @@
 - `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
   its values should be ignored.
 
-## [1.0.4] - YYYY-MM-DD
+## [1.0.5] - 2021-11-03
+- Update vendor components.
+
+## [1.0.4] - 2021-10-27
 - Update vendor components.
 - Update dependencies.
 - Enable EMV LED operation.
