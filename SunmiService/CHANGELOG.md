@@ -23,7 +23,7 @@
 - `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
   its values should be ignored.
 
-## [1.0.4] - YYYY-MM-DD
+## [1.0.4] - 2021-10-26
 - Update vendor components.
 - Update dependencies.
 - Enable EMV LED operation.
