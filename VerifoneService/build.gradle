@@ -12,7 +12,7 @@ android {
         versionCode 6
         versionName "1.0.5"
 
-        setProperty("archivesBaseName", "verifone-$applicationId-vn-$versionName-vc-$versionCode")
+        setProperty("archivesBaseName", "verifone-$applicationId-$versionName-${getDate()}")
     }
 
     buildTypes {

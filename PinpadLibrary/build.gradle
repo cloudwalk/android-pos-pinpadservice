@@ -20,7 +20,7 @@ android {
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"
         buildConfigField 'String', 'VERSION_NAME', "\"${versionName}\""
 
-        setProperty("archivesBaseName", "${groupId}.${artifactId}-vn-$versionName-vc-$versionCode")
+        setProperty("archivesBaseName", "${groupId}.${artifactId}-$versionName-${getDate()}")
 
         consumerProguardFiles "consumer-rules.pro"
     }

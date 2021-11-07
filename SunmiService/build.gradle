@@ -12,7 +12,7 @@ android {
         versionCode 5
         versionName "1.0.4"
 
-        setProperty("archivesBaseName", "sunmi-$applicationId-vn-$versionName-vc-$versionCode")
+        setProperty("archivesBaseName", "sunmi-$applicationId-$versionName-${getDate()}")
     }
 
     buildTypes {
