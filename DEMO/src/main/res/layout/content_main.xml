@@ -12,17 +12,16 @@
             android:fontFamily="monospace"
             android:id="@+id/tv_pinpad_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
             android:layout_width="match_parent"
             android:maxLines="4"
             android:minLines="4"
             android:padding="14dp"
             android:textAlignment="center"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:visibility="gone" /> <!-- TODO: ensure visibility -->
 
     <HorizontalScrollView
             android:layout_height="match_parent"
-            android:layout_marginTop="14dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:overScrollMode="never"

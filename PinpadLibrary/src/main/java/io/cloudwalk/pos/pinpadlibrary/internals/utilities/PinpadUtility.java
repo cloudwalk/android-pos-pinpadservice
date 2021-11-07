@@ -178,7 +178,7 @@ public class PinpadUtility {
             }
         }
 
-        // TODO: validate CRC!?
+        // TODO: validate CRC
 
         byte[] output = new byte[j];
 

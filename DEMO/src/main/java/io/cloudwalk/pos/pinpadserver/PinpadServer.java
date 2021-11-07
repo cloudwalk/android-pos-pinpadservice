@@ -23,7 +23,7 @@ import io.cloudwalk.utilitieslibrary.Application;
 
 import static android.content.Context.WIFI_SERVICE;
 
-public class PinpadServer { // TODO: improve and enable at MainActivity!?
+public class PinpadServer { // TODO: review
     private static final String
             TAG = PinpadServer.class.getSimpleName();
 

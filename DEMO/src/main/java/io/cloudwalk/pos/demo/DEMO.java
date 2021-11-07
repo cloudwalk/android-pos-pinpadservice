@@ -45,11 +45,7 @@ public class DEMO {
 
         Bundle request = new Bundle();
 
-        String SPE_IDLIST = "8001800280038004800580068007800980108011801280138014801580168035803" +
-                            "6910A920B9300";
-
         request.putString(ABECS.CMD_ID, ABECS.GIX);
-        request.putString(ABECS.SPE_IDLIST, SPE_IDLIST);
 
         return request;
     }
