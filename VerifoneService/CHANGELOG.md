@@ -3,13 +3,13 @@
 ## Dependencies
 - Android 5.1.1
 - Baseband BP01.003(SC20AUSAR01A03_SX)
-- Firmware V1.0.1.20200313
+- Firmware V1.0.1.20210909
 - Linux Kernel 3.10.49
-- ROM V1.1.0.202003131201 BRA
-- Security Driver VA.193.S.046.202006111742
-- VFService 3.10.3
+- ROM V1.1.0.202109090928 BRA
+- Security Driver VA.213.S.068.202108241801
+- VFService 3.10.3.1
 - VFSystemService 1.8.11
-- BC 001.24
+- BC 001.25
 
 ## Known issues
 - SETIS components don't notify PIN capture start events, which prevents PIN
@@ -21,6 +21,9 @@
 - `PP_TLRMEM` is untreated and its values should be ignored.
 - `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
   its values should be ignored.
+  
+## [1.0.6] - 2011-11-10
+- Update vendor components.
 
 ## [1.0.5] - 2021-11-03
 - Update vendor components.
