@@ -168,18 +168,26 @@ public class PinpadManager {
             }
 
             output = PinpadUtility.parseResponseDataPacket(response, status);
+        } catch (InterruptedException exception) {
+            Log.d(TAG, Log.getStackTraceString(exception));
+
+            output = new Bundle();
+
+            output.putSerializable(ABECS.RSP_ID, CMD_ID);
+            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_CANCEL);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
             output = new Bundle();
 
-            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
             output.putSerializable(ABECS.RSP_EXCEPTION, exception);
-
+            output.putSerializable(ABECS.RSP_ID, CMD_ID);
+            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.ST_INTERR);
+        } finally {
             if (timestamp >= overhead) {
                 timestamp = SystemClock.elapsedRealtime() - timestamp;
             }
-        } finally {
+
             release();
 
             overhead = SystemClock.elapsedRealtime() - overhead;
@@ -203,14 +211,12 @@ public class PinpadManager {
 
             byte[] request = new byte[] { CAN };
 
-            for (int i = 0; i < 3; i++) {
-                int status = send(request, request.length, null);
+            int status = send(request, request.length, null);
 
-                Log.d(TAG, "abort::send [" + status + "]");
+            Log.d(TAG, "abort::send [" + status + "]");
 
-                if (status < 0) {
-                    throw new RuntimeException("abort::status [" + status + "]");
-                }
+            if (status < 0) {
+                throw new RuntimeException("abort::status [" + status + "]");
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
