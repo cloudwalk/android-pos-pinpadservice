@@ -273,7 +273,7 @@ public class PinpadManager {
 
             result = -1;
         } finally {
-            Log.h(TAG, response, result);
+            Log.h(IPinpadService.class.getSimpleName().substring(1), response, result);
 
             Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
@@ -315,7 +315,7 @@ public class PinpadManager {
         int    result = 0;
 
         try {
-            Log.h(TAG, request, length);
+            Log.h(IPinpadService.class.getSimpleName().substring(1), request, length);
 
             String packageName = Application.getPackageContext().getPackageName();
 
