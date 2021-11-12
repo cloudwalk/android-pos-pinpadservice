@@ -11,7 +11,7 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
-## [1.0.7] - YYYY-MM-DD
+## [1.0.7] - 2021-11-12
 - Greatly increases consistency when handling message exchanges from the
   `Bundle` interface.
 - Forcefully send a single `<<CAN>>` byte upon abort requests.
