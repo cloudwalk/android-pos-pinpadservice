@@ -11,6 +11,11 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
+## [1.0.7] - YYYY-MM-DD
+- Greatly increases consistency when handling message exchanges from the
+  `Bundle` interface.
+- Forcefully send a single `<<CAN>>` byte upon abort requests.
+
 ## [1.0.6] - 2021-11-12
 - Update logs.
 
@@ -29,7 +34,7 @@
 
 ## [1.0.1] - 2021-10-04
 - Update dependencies.
-- Forcefully send a triple <<CAN>> byte upon abort request.
+- Forcefully send a triple `<<CAN>>` byte upon abort requests.
 
 ## [1.0.0] - 2021-09-30
 - Initial release.
