@@ -92,7 +92,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             if (response != null) {
                 result = response.length;
             } else {
-                // TODO: retrieve processed response
+                // TODO: retrieve response
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
@@ -129,7 +129,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             }
 
             if (request[0] != 0x15) {
-                // TODO: send request for processing
+                // TODO: process request
             } else {
                 result = (sResponseQueue.offer(request)) ? 0 : -1;
             }
