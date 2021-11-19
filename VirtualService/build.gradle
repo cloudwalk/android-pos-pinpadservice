@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "io.cloudwalk.pos.pinpadservice"
+        minSdk 22
+        targetSdk 31
+        versionCode 1
+        versionName "0.0.1"
+
+        setProperty("archivesBaseName", "verifone-$applicationId-$versionName-${getDate()}")
+    }
+
+    buildTypes {
+        release {
+            // Enables code shrinking, obfuscation, and optimization.
+            minifyEnabled true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+
+    implementation 'io.cloudwalk:loglibrary:1.0.2'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.4'
+    implementation project(path: ':PinpadLibrary')
+}

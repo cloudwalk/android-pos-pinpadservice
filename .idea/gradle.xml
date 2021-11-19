@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/PinpadLibrary" />
             <option value="$PROJECT_DIR$/SunmiService" />
             <option value="$PROJECT_DIR$/VerifoneService" />
+            <option value="$PROJECT_DIR$/VirtualService" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
