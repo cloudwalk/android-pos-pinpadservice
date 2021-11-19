@@ -187,6 +187,34 @@ public class PinpadUtility {
         return output;
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        byte[] request = unwrapDataPacket(input, length);
+
+        String CMD_ID = String.format(US, "%c%c%c", request[0], request[1], request[2]);
+
+        switch (CMD_ID) {
+            case ABECS.OPN: return null; // TODO: OPN.parseRequestDataPacket(request, request.length);
+            case ABECS.CHP: return null; // TODO: CHP.parseRequestDataPacket(request, request.length);
+            case ABECS.GPN: return null; // TODO: GPN.parseRequestDataPacket(request, request.length);
+
+            case ABECS.GIX: case ABECS.CLX:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD:
+            case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+            case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                return null; // TODO: CMD.parseRequestDataPacket(request, request.length);
+
+            default:
+                /* Nothing to do */
+                break;
+        }
+
+        throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+    }
+
     public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");

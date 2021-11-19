@@ -4,13 +4,15 @@ import android.os.Bundle;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
@@ -20,17 +22,53 @@ public class PinpadManager extends IPinpadManager.Stub {
     private static final PinpadManager
             sPinpadManager = new PinpadManager();
 
-    private static final Queue<byte[]>
-            sQueue = new LinkedList<>();
-
     private static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
             sSendSemaphore = new Semaphore(1, true);
 
+    public static final BlockingQueue<byte[]>
+            sResponseQueue = new LinkedBlockingQueue<>();
+
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
+    }
+
+    private static byte[] intercept(Bundle bundle)
+            throws Exception {
+        Log.d(TAG, "interceptRequest");
+
+        String applicationId = bundle.getString   ("application_id");
+        byte[] dataPacket    = bundle.getByteArray("request");
+
+        Log.h(TAG, dataPacket, dataPacket.length);
+
+        if (dataPacket.length != 1) {
+            Bundle request = PinpadUtility.parseRequestDataPacket(dataPacket, dataPacket.length);
+                   request = (request != null) ? request : new Bundle();
+
+            switch (request.getString(ABECS.CMD_ID, "UNKNOWN")) {
+                case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
+                case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
+                case ABECS.GTK: case ABECS.MNU: case ABECS.GPN: case ABECS.RMC:
+                case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+                case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                    return dataPacket;
+
+                default:
+                    return new byte[] { 0x15 };
+            }
+        } else {
+            switch (dataPacket[0]) {
+                case 0x04: /* EOT */
+                case 0x15: /* NAK */
+                    return dataPacket;
+
+                default:
+                    return new byte[] { 0x15 };
+            }
+        }
     }
 
     public static PinpadManager getInstance() {
@@ -48,20 +86,13 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sRecvSemaphore.acquireUninterruptibly();
 
-        byte[] response = sQueue.poll();
+        byte[] response = sResponseQueue.poll();
 
         try {
             if (response != null) {
-                Log.h(TAG, response, result);
-
                 result = response.length;
             } else {
-                response = new byte[2048];
-
-                // TODO: handle external response
-
-                response[0] = 0x15;
-                result      = 1;
+                // TODO: retrieve processed response
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
@@ -73,6 +104,8 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                 bundle.putByteArray("response", courrier);
             }
+
+            Log.h(TAG, response, result);
         }
 
         sRecvSemaphore.release();
@@ -86,26 +119,19 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sSendSemaphore.acquireUninterruptibly();
 
-        String applicationId = bundle.getString   ("application_id");
-        byte[] request       = bundle.getByteArray("request");
-
-        Log.d(TAG, "send::applicationId [" + applicationId + "]");
-
-        if (request.length > 1) {
-            CallbackUtility.setServiceCallback(callback);
-        }
-
         int result = -1;
 
         try {
-            // TODO: parse request
+            byte[] request = intercept(bundle);
 
-            request = new byte[] { 0x15 };
+            if (request.length != 1) {
+                CallbackUtility.setServiceCallback(callback);
+            }
 
             if (request[0] != 0x15) {
-                // TODO: send request for external processing
+                // TODO: send request for processing
             } else {
-                result = (sQueue.add(request)) ? 0 : -1;
+                result = (sResponseQueue.offer(request)) ? 0 : -1;
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
