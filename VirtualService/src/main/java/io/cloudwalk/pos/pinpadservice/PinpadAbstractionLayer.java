@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
+import io.cloudwalk.pos.pinpadservice.managers.PinpadManager;
 
 public class PinpadAbstractionLayer extends IPinpadService.Stub {
     private static final String
@@ -59,8 +60,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
                 // case...
 
                 default:
-                    return null;
-                    // TODO: return PinpadManager.getInstance();
+                    return PinpadManager.getInstance();
             }
         } finally {
             sSemaphore.release();

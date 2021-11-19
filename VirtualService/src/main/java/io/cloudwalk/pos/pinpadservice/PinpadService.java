@@ -31,8 +31,6 @@ public class PinpadService extends Service {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        return null;
-
-        // TODO: return PinpadAbstractionLayer.getInstance();
+        return PinpadAbstractionLayer.getInstance();
     }
 }
