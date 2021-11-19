@@ -22,7 +22,11 @@
 - `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
   its values should be ignored.
   
-## [1.0.6] - 2011-11-10
+## [M.m.b] - YYYY-MM-DD
+- Update dependencies and compilation tools.
+- Ensure the proper components variants will be used in each build type.
+
+## [1.0.6] - 2021-11-10
 - Update vendor components.
 
 ## [1.0.5] - 2021-11-03
