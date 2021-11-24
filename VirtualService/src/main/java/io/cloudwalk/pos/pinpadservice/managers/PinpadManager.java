@@ -1,6 +1,9 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +15,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
+import io.cloudwalk.pos.pinpadservice.utilities.RouterUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -25,9 +29,6 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     private static final Semaphore
             sSendSemaphore = new Semaphore(1, true);
-
-    // public static final BlockingQueue<byte[]>
-    //         sResponseQueue = new LinkedBlockingQueue<>();
 
     private PinpadManager() {
         Log.d(TAG, "PinpadManager");
@@ -43,20 +44,35 @@ public class PinpadManager extends IPinpadManager.Stub {
     public int recv(@NotNull Bundle bundle) {
         Log.d(TAG, "recv");
 
-        long   timeout  = bundle.getLong("timeout", 0);
-        int    result   = -1;
+        long timeout   = bundle.getLong("timeout", 0);
+             timeout   = (timeout < 0) ? 0 : timeout;
 
-        sRecvSemaphore.acquireUninterruptibly();
+        long timestamp = SystemClock.elapsedRealtime() + timeout;
+        int  result    = 0;
 
         try {
-            // TODO: CMD
+            if (!sRecvSemaphore.tryAcquire(timeout, MILLISECONDS)) {
+                return result;
+            }
 
-            // TODO: bundle.putByteArray("response", response);
+            try {
+                while (SystemClock.elapsedRealtime() < timestamp) {
+                    Bundle response = RouterUtility.sResponseQueue.poll();
+
+                    if (response != null) {
+                        bundle.putAll(response);
+
+                        return bundle.getByteArray("response").length;
+                    }
+                }
+            } finally {
+                sRecvSemaphore.release();
+            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
-        }
 
-        sRecvSemaphore.release();
+            result = -1;
+        }
 
         return result;
     }
@@ -67,21 +83,26 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sSendSemaphore.acquireUninterruptibly();
 
-        int result = -1;
+        int result = 0;
+
+        String applicationId = bundle.getString   ("application_id");
+        byte[] request       = bundle.getByteArray("request");
+        Bundle requestBundle = bundle.getBundle   ("request_bundle");
 
         try {
-            String applicationId = bundle.getString   ("application_id");
-            byte[] request       = bundle.getByteArray("request");
-            Bundle requestBundle = bundle.getBundle   ("request_bundle");
-
             switch (request[0]) {
-                case 0x18: /* CAN */
-                    // TODO: CAN
-                    break;
+                case 0x18:
+                    if (request.length == 1) {
+                        RouterUtility.abort();
+                        break;
+                    }
+                    /* no break; */
 
                 default:
                     if (requestBundle == null) {
                         requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
+
+                        bundle.putBundle("request_bundle", requestBundle);
                     }
 
                     CallbackUtility.setServiceCallback(callback);
@@ -92,7 +113,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GTK: case ABECS.MNU: case ABECS.GPN: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            // TODO: CMD
+                            RouterUtility.process(bundle);
                             break;
 
                         default:
@@ -102,7 +123,14 @@ public class PinpadManager extends IPinpadManager.Stub {
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
-            // TODO: NAK
+            Bundle response = new Bundle();
+
+            response.putString   ("application_id", applicationId);
+            response.putByteArray("response",       new byte[] { 0x15 });
+
+            RouterUtility.process(response);
+
+            result = -1;
         }
 
         sSendSemaphore.release();

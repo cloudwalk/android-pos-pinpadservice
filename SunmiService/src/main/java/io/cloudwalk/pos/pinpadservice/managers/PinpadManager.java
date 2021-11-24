@@ -206,11 +206,11 @@ public class PinpadManager extends IPinpadManager.Stub {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
             if (result > 0) {
-                byte[] courrier = new byte[result];
+                byte[] trimmedResponse = new byte[result];
 
-                System.arraycopy(response, 0, courrier, 0, result);
+                System.arraycopy(response, 0, trimmedResponse, 0, result);
 
-                bundle.putByteArray("response", courrier);
+                bundle.putByteArray("response", trimmedResponse);
             }
         }
 
