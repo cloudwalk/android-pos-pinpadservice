@@ -324,6 +324,9 @@ public class PinpadManager {
                 return result;
             }
 
+            timeout = (SystemClock.elapsedRealtime() - timestamp);
+            timeout = (timeout < 0) ? 0 : timeout;
+
             try {
                 Bundle bundle  = new Bundle();
 
