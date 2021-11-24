@@ -15,7 +15,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.pinpadservice.utilities.RouterUtility;
+import io.cloudwalk.pos.pinpadservice.utilities.VendorUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -59,7 +59,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 timeout = (timestamp - SystemClock.elapsedRealtime());
                 timeout = (timeout < 0) ? 0 : timeout;
 
-                Bundle response = RouterUtility.sResponseQueue.poll(timeout, MILLISECONDS);
+                Bundle response = VendorUtility.sResponseQueue.poll(timeout, MILLISECONDS);
 
                 if (response != null) {
                     bundle.putAll(response);
@@ -94,7 +94,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             switch (request[0]) {
                 case 0x18:
                     if (request.length == 1) {
-                        RouterUtility.abort();
+                        VendorUtility.abort();
                         break;
                     }
                     /* no break; */
@@ -114,7 +114,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GTK: case ABECS.MNU: case ABECS.GPN: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            RouterUtility.process(bundle);
+                            VendorUtility.process(bundle);
                             break;
 
                         default:
@@ -129,7 +129,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             response.putString   ("application_id", applicationId);
             response.putByteArray("response",       new byte[] { 0x15 });
 
-            RouterUtility.process(response);
+            VendorUtility.process(response);
 
             result = -1;
         }

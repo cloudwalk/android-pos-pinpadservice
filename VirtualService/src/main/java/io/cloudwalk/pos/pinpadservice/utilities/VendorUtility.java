@@ -9,9 +9,9 @@ import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.loglibrary.Log;
 
-public class RouterUtility {
+public class VendorUtility {
     private static final String
-            TAG = RouterUtility.class.getSimpleName();
+            TAG = VendorUtility.class.getSimpleName();
 
     private static final Semaphore
             sProcessSemaphore = new Semaphore(1, true);
@@ -24,8 +24,8 @@ public class RouterUtility {
 
     // TODO: private static class Virtual
 
-    private RouterUtility() {
-        Log.d(TAG, "RouterUtility");
+    private VendorUtility() {
+        Log.d(TAG, "VendorUtility");
     }
 
     public static void abort() {
