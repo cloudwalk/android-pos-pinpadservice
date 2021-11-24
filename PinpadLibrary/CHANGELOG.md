@@ -11,6 +11,9 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
+## [1.0.9] - YYYY-MM-DD
+- Ceases automatic request retries.
+
 ## [1.0.8] - 2021-11-16
 - Update logs.
 
