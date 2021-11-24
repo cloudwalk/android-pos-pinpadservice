@@ -42,10 +42,10 @@ public class PinpadManager {
     private static int receive(Bundle bundle, long timeout) {
         Log.d(TAG, "receive");
 
-        long timestamp = SystemClock.elapsedRealtime();
+        long   timestamp = SystemClock.elapsedRealtime();
 
-        byte[] response = new byte[2048];
-        int    result  = -2;
+        byte[] response  = new byte[2048];
+        int    result    = -2;
 
         try {
             if (!sReceiveSemaphore.tryAcquire(0, TimeUnit.SECONDS)) {
@@ -80,14 +80,14 @@ public class PinpadManager {
     private static int send(Bundle bundle, IServiceCallback callback) {
         Log.d(TAG, "send");
 
-        long timestamp = SystemClock.elapsedRealtime();
-        int  result    = 0;
+        long   timestamp = SystemClock.elapsedRealtime();
 
-        byte[] request = bundle.getByteArray("request");
-
-        Log.h(TAG, request, request.length);
+        byte[] request   = bundle.getByteArray("request");
+        int    result    = 0;
 
         try {
+            Log.h(TAG, request, request.length);
+
             bundle.putString("application_id", Application.getPackageContext().getPackageName());
 
             IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
@@ -124,10 +124,8 @@ public class PinpadManager {
     public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
         Log.d(TAG, "request");
 
-        long timestamp = SystemClock.elapsedRealtime();
-
-        Bundle output;
-        String CMD_ID  = bundle.getString(ABECS.CMD_ID, "UNKNOWN");
+        long   timestamp = SystemClock.elapsedRealtime();
+        Bundle output    = null;
 
         try {
             sRequestSemaphore.acquireUninterruptibly();
@@ -227,13 +225,15 @@ public class PinpadManager {
 
             output = new Bundle();
 
+            String CMD_ID = bundle.getString(ABECS.CMD_ID, "UNKNOWN");
+
             output.putSerializable(ABECS.RSP_EXCEPTION, exception);
-            output.putSerializable(ABECS.RSP_ID, CMD_ID);
+            output.putString      (ABECS.RSP_ID, CMD_ID);
             output.putSerializable(ABECS.RSP_STAT, RSP_STAT);
         } finally {
             sRequestSemaphore.release();
 
-            Log.d(TAG, "request::timestamp " + ((!CMD_ID.equals("UNKNOWN")) ? "(" + CMD_ID + ") " : "") + "[" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+            Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 
         return output;
@@ -317,20 +317,19 @@ public class PinpadManager {
         Log.d(TAG, "receive");
 
         long timestamp = SystemClock.elapsedRealtime();
-        int    result  = 0;
+        int  result    = 0;
 
         try {
             if (!sReceiveSemaphore.tryAcquire(timeout, MILLISECONDS)) {
                 return result;
             }
 
-            timeout = (SystemClock.elapsedRealtime() - timestamp);
-            timeout = (timeout < 0) ? 0 : timeout;
-
             try {
                 Bundle bundle  = new Bundle();
 
-                bundle.putLong("timeout", timeout);
+                timeout = (SystemClock.elapsedRealtime() - timestamp);
+
+                bundle.putLong("timeout", (timeout < 0) ? 0 : timeout);
 
                 IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
 
@@ -385,11 +384,11 @@ public class PinpadManager {
         Log.d(TAG, "send");
 
         long timestamp = SystemClock.elapsedRealtime();
-        int    result  = 0;
-
-        Log.h(TAG, request, length);
+        int  result    = 0;
 
         try {
+            Log.h(TAG, request, length);
+
             byte[] courier = new byte[length];
 
             System.arraycopy(request, 0, courier, 0, length);
