@@ -11,6 +11,9 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
+## [1.0.10] - YYYY-MM-DD
+- Ensure single reading channel when using the `Bundle` API.
+
 ## [1.0.9] - 2021-11-24
 - Ceases automatic request retries.
 - Ensure consistency when mixing APIs in a threaded environment.

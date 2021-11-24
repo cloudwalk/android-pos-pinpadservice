@@ -1,6 +1,7 @@
 package io.cloudwalk.pos.pinpadlibrary.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,7 +18,6 @@ import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class PinpadManager {
@@ -39,72 +39,6 @@ public class PinpadManager {
     private static final String
             PACKAGE_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice";
 
-    private static int receive(Bundle bundle, long timeout) {
-        Log.d(TAG, "receive");
-
-        long   timestamp = SystemClock.elapsedRealtime();
-
-        byte[] response  = new byte[2048];
-        int    result    = -2;
-
-        try {
-            if (!sReceiveSemaphore.tryAcquire(0, TimeUnit.SECONDS)) {
-                return result;
-            }
-
-            try {
-                bundle.putLong("timeout", timeout);
-
-                IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
-
-                result = IPinpadService.Stub.asInterface(binder)
-                                .getPinpadManager(null).recv(bundle);
-
-                response = bundle.getByteArray("response");
-            } finally {
-                sReceiveSemaphore.release();
-            }
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            result = -1;
-        } finally {
-            Log.h(TAG, response, result);
-
-            Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
-        }
-
-        return result;
-    }
-
-    private static int send(Bundle bundle, IServiceCallback callback) {
-        Log.d(TAG, "send");
-
-        long   timestamp = SystemClock.elapsedRealtime();
-
-        byte[] request   = bundle.getByteArray("request");
-        int    result    = 0;
-
-        try {
-            Log.h(TAG, request, request.length);
-
-            bundle.putString("application_id", Application.getPackageContext().getPackageName());
-
-            IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
-
-            result = IPinpadService.Stub.asInterface(binder)
-                    .getPinpadManager(null).send(bundle, callback);
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            result = -1;
-        } finally {
-            Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
-        }
-
-        return result;
-    }
-
     /**
      * Constructor.
      */
@@ -125,48 +59,39 @@ public class PinpadManager {
         Log.d(TAG, "request");
 
         long   timestamp = SystemClock.elapsedRealtime();
-        Bundle output    = null;
+
+        Bundle output;
 
         try {
             sRequestSemaphore.acquireUninterruptibly();
 
-            Bundle request  = new Bundle();
-            Bundle response = new Bundle();
-
-            int status = 0;
-
-            request.putByteArray("request", PinpadUtility.buildRequestDataPacket(bundle));
-            request.putBundle   ("request_bundle", bundle);
+            byte[] request  = PinpadUtility.buildRequestDataPacket(bundle);
+            byte[] response = new byte[2048];
+            int    status   = 0;
 
             try {
                 sExchangeSemaphore.acquireUninterruptibly();
 
-                status = send   (request, callback);
+                status = send(request, request.length, callback);
 
-                if (status < 0) {
+                if (status  < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
                 }
 
                 status = receive(response, 2000);
 
-                switch (status) {
-                    case -2:
-                        response.putByteArray("response", new byte[] { 0x04 });
-                        break;
+                if (status  < 0) {
+                    throw new RuntimeException("request::status [" + status + "]");
+                }
 
-                    case  0:
-                        throw new TimeoutException();
-
-                    default:
-                        if (status > 0) { break; }
-
-                        throw new RuntimeException("request::status [" + status + "]");
+                if (status == 0) {
+                    throw new TimeoutException();
                 }
             } finally {
                 sExchangeSemaphore.release();
             }
 
-            switch (response.getByteArray("response")[0]) {
+            switch (response[0]) {
                 case 0x06:
                     /* Nothing to do */
                     break;
@@ -175,43 +100,28 @@ public class PinpadManager {
                     throw new InterruptedException();
 
                 default:
-                    String message = String.format("request::response[0] [%02X]", response.getByteArray("response")[0]);
+                    String message = String.format("request::response[0] [%02X]", response[0]);
 
                     throw new RuntimeException(message);
             }
 
             do {
-                // TODO: break loop for non-blocking instructions
+                response = new byte[2048];
 
-                response = new Bundle();
+                if (!sExchangeSemaphore.tryAcquire(0, SECONDS)) { throw new InterruptedException(); }
 
-                status   = receive(response, 10000);
+                try {
+                    status = receive(response, 0);
 
-                switch (status) {
-                    case -2:
-                        response.putByteArray("response", new byte[] { 0x04 });
-                        break;
-
-                    case  0:
-                        /* Nothing to do */
-                        break;
-
-                    default:
-                        if (status > 0) { break; }
-
+                    if (status  < 0) {
                         throw new RuntimeException("request::status [" + status + "]");
+                    }
+                } finally {
+                    sExchangeSemaphore.release();
                 }
             } while (status <= 0);
 
-            if (response.getByteArray("response")[0] != 0x04) {
-                output = response.getBundle("response_bundle");
-
-                if (output == null) {
-                    output = PinpadUtility.parseResponseDataPacket(response.getByteArray("response"), status);
-                }
-            } else {
-                throw new InterruptedException();
-            }
+            output = PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
@@ -256,23 +166,25 @@ public class PinpadManager {
                 throw new RuntimeException("abort::status [" + status + "]");
             }
 
-            Bundle response = new Bundle();
+            long[] timeout = { 2000, SystemClock.elapsedRealtime() + 2000 };
 
-            status = receive(response, 2000);
+            byte[] response;
 
-            switch (status) {
-                case -2:
-                    response.putByteArray("response", new byte[] { 0x04 });
-                    break;
+            do {
+                response = new byte[2048];
 
-                case  0:
-                    throw new TimeoutException();
+                status = receive(response, (timeout[0] < 0) ? 0 : timeout[0]);
 
-                default:
-                    if (status > 0) { break; }
-
+                if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
-            }
+                }
+
+                if (status == 0) {
+                    throw new TimeoutException();
+                }
+
+                timeout[0] = timeout[1] - SystemClock.elapsedRealtime();
+            } while (response[0] != 0x04);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
@@ -327,7 +239,7 @@ public class PinpadManager {
             try {
                 Bundle bundle  = new Bundle();
 
-                timeout = (SystemClock.elapsedRealtime() - timestamp);
+                timeout -= (SystemClock.elapsedRealtime() - timestamp);
 
                 bundle.putLong("timeout", (timeout < 0) ? 0 : timeout);
 
