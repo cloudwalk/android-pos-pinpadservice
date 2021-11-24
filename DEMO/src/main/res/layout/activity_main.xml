@@ -28,7 +28,9 @@
                 android:id="@+id/hsv_app_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="14dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp"
+                android:layout_marginTop="14dp"
                 android:scrollbars="none"
                 android:overScrollMode="never">
             <TextView

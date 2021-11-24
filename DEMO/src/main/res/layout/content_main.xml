@@ -17,11 +17,11 @@
             android:minLines="4"
             android:padding="14dp"
             android:textAlignment="center"
-            android:textColor="@color/black"
-            android:visibility="gone" /> <!-- TODO: ensure visibility -->
+            android:textColor="@color/black" />
 
     <HorizontalScrollView
             android:layout_height="match_parent"
+            android:layout_marginTop="14dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:overScrollMode="never"
