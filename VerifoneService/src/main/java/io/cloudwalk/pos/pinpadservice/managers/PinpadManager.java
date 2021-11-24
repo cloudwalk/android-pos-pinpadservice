@@ -227,11 +227,11 @@ public class PinpadManager extends IPinpadManager.Stub {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
             if (result > 0) {
-                byte[] trimmmedResponse = new byte[result];
+                byte[] courier = new byte[result];
 
-                System.arraycopy(response, 0, trimmmedResponse, 0, result);
+                System.arraycopy(response, 0, courier, 0, result);
 
-                bundle.putByteArray("response", trimmmedResponse);
+                bundle.putByteArray("response", courier);
             }
         }
 
