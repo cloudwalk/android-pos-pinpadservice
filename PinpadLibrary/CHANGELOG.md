@@ -13,13 +13,15 @@
 
 ## [1.0.9] - YYYY-MM-DD
 - Ceases automatic request retries.
+- Ensure consistency when mixing APIs in a threaded environment.
+- Update logs.
 
 ## [1.0.8] - 2021-11-16
 - Update logs.
 
 ## [1.0.7] - 2021-11-12
 - Greatly increases consistency when handling message exchanges from the
-  `Bundle` interface.
+  `Bundle` API.
 - Forcefully send a single `<<CAN>>` byte upon abort requests.
 
 ## [1.0.6] - 2021-11-12

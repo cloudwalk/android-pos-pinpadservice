@@ -56,14 +56,15 @@ public class PinpadManager extends IPinpadManager.Stub {
             }
 
             try {
-                while (SystemClock.elapsedRealtime() < timestamp) {
-                    Bundle response = RouterUtility.sResponseQueue.poll();
+                timeout = (timestamp - SystemClock.elapsedRealtime());
+                timeout = (timeout < 0) ? 0 : timeout;
 
-                    if (response != null) {
-                        bundle.putAll(response);
+                Bundle response = RouterUtility.sResponseQueue.poll(timeout, MILLISECONDS);
 
-                        return bundle.getByteArray("response").length;
-                    }
+                if (response != null) {
+                    bundle.putAll(response);
+
+                    return bundle.getByteArray("response").length;
                 }
             } finally {
                 sRecvSemaphore.release();
