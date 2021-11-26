@@ -11,6 +11,9 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
+## [1.0.11] - 2021-11-26
+- Update logs.
+
 ## [1.0.10] - 2021-11-24
 - Ensure single reading channel when using the `Bundle` API.
 

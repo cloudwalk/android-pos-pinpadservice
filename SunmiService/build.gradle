@@ -44,5 +44,5 @@ dependencies {
     implementation files('libs/PPCompp2-v1.29.aar')
 
     implementation 'io.cloudwalk:loglibrary:1.0.2'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.4'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.5'
 }

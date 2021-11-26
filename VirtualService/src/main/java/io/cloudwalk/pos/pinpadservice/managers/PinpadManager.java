@@ -62,7 +62,8 @@ public class PinpadManager extends IPinpadManager.Stub {
                 Bundle response = VendorUtility.sResponseQueue.poll(timeout, MILLISECONDS);
 
                 if (response != null) {
-                    bundle.putAll(response);
+                    bundle.putString   ("application_id", response.getString   ("application_id"));
+                    bundle.putByteArray("response",       response.getByteArray("response"));
 
                     return bundle.getByteArray("response").length;
                 }
