@@ -36,8 +36,8 @@ public class VendorUtility {
         // TODO: platform specific code
     }
 
-    public static void process(Bundle bundle) {
-        Log.d(TAG, "process");
+    public static void request(Bundle bundle) {
+        Log.d(TAG, "request");
 
         sRequestQueue.offer(bundle);
 

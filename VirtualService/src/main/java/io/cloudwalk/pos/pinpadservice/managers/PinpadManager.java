@@ -115,7 +115,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GTK: case ABECS.MNU: case ABECS.GPN: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            VendorUtility.process(bundle);
+                            VendorUtility.request(bundle);
                             break;
 
                         default:
@@ -130,7 +130,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             response.putString   ("application_id", applicationId);
             response.putByteArray("response",       new byte[] { 0x15 });
 
-            VendorUtility.process(response);
+            VendorUtility.request(response);
 
             result = -1;
         }
