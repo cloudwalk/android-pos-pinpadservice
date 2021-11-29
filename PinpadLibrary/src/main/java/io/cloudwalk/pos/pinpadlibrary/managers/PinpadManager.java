@@ -123,8 +123,6 @@ public class PinpadManager {
 
             output = PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
             ABECS.STAT RSP_STAT;
 
             if (exception instanceof InterruptedException) {
