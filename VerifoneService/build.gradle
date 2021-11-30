@@ -44,6 +44,6 @@ dependencies {
     debugImplementation files('libs/PPCompX990-v001.25_debug.aar')
     releaseImplementation files('libs/PPCompX990-v001.25.aar')
 
-    implementation 'io.cloudwalk:loglibrary:1.1.0'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.6'
+    implementation 'io.cloudwalk:loglibrary:1.1.1'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.7'
 }

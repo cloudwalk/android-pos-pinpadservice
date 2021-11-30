@@ -11,6 +11,9 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
+## [1.0.13] - 2021-11-29
+- Update internal dependencies.
+
 ## [1.0.12] - 2021-11-29
 - Update internal dependencies.
 
