@@ -19,9 +19,8 @@
 - Callbacks are not interrupted by `ST_TIMEOUT`. Caller application has to
   oversight time passing.
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
-- `PP_TLRMEM` is untreated and its values should be ignored.
-- `PP_DSPxxx` - as well as other multimedia related TAGs - are out of scope and
-  its values should be ignored.
+- `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
+  out of scope and its values should be ignored.
 
 ## [M.m.b] - YYYY-MM-DD
 - Update dependencies and compilation tools.

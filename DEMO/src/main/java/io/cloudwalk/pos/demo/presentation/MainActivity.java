@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             mAutoScroll = true;
 
     private SpannableString getBullet(@ColorInt int color) {
-        Log.d(TAG, "getBullet::color [" + color + "]");
+        // Log.d(TAG, "getBullet::color [" + color + "]");
 
         SpannableString output = new SpannableString("  ");
 
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean getAutoScroll() {
-        Log.d(TAG, "getAutoScroll");
+        // Log.d(TAG, "getAutoScroll");
 
         boolean autoScroll;
 
@@ -82,21 +82,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void acquire() {
-        Log.d(TAG, "acquire");
+        // Log.d(TAG, "acquire");
 
         sSemaphore.acquireUninterruptibly();
     }
 
     private void release() {
-        Log.d(TAG, "release");
+        // Log.d(TAG, "release");
 
         sSemaphore.release();
-
-        Log.d(TAG, "release::semaphore.availablePermits() [" + sSemaphore.availablePermits() + "]");
     }
 
     private void setAutoScroll(boolean autoScroll) {
-        Log.d(TAG, "setAutoScroll::autoScroll [" + autoScroll + "]");
+        // Log.d(TAG, "setAutoScroll::autoScroll [" + autoScroll + "]");
 
         acquire();
 
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateContentScrolling(String delim, String message) {
-        Log.d(TAG, "updateContentScrolling::delim [" + delim + "]");
+        // Log.d(TAG, "updateContentScrolling::delim [" + delim + "]");
 
         String[] trace = null;
 
@@ -151,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updatePinpadContent(String message) {
-        Log.d(TAG, "updatePinpadContent");
+        // Log.d(TAG, "updatePinpadContent");
 
         Semaphore[] semaphore = { new Semaphore(0, true) };
 
@@ -170,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateStatus(int status, String message) {
-        Log.d(TAG, "updateStatus::status [" + status + "]");
+        // Log.d(TAG, "updateStatus::status [" + status + "]");
 
         SpannableStringBuilder[] content = { new SpannableStringBuilder() };
 
