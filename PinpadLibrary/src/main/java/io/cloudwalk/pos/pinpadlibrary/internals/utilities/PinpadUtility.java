@@ -413,7 +413,7 @@ public class PinpadUtility {
                         continue;
                     }
 
-                    /* Nothing to do */
+                    // TODO: add unknown TAG to bundle: e.g. output.putString("0x1234", "0123...ABCDEF");
                     break;
             }
         }
