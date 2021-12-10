@@ -44,6 +44,36 @@ public class PinpadUtility {
             /* Nothing to do */
         }
 
+        public static Bundle parseRequestDataPacket(byte[] input, int length)
+                throws Exception {
+            Log.d(TAG, "parseRequestDataPacket::length [" + length + "]");
+
+            byte[] CMD_ID   = new byte[3];
+            byte[] CMD_LEN1 = new byte[3];
+            byte[] CMD_DATA = null;
+
+            System.arraycopy(input, 0, CMD_ID,   0, 3);
+            System.arraycopy(input, 3, CMD_LEN1, 0, 3);
+
+            Bundle output = new Bundle();
+
+            output.putString(ABECS.CMD_ID, new String(CMD_ID));
+
+            if (length < 7) {
+                return output;
+            }
+
+            int len1 = DataUtility.getIntFromByteArray(CMD_LEN1, CMD_LEN1.length);
+
+            CMD_DATA = new byte[len1];
+
+            System.arraycopy(input, 6, CMD_DATA, 0, CMD_DATA.length);
+
+            output.putAll(PinpadUtility.parseTLV(CMD_DATA, CMD_DATA.length));
+
+            return output;
+        }
+
         public static Bundle parseResponseDataPacket(byte[] input, int length)
                 throws Exception {
             Log.d(TAG, "parseResponseDataPacket::length [" + length + "]");
@@ -53,23 +83,26 @@ public class PinpadUtility {
             byte[] RSP_LEN1 = new byte[3];
             byte[] RSP_DATA = null;
 
-            System.arraycopy(input, 0, RSP_ID, 0, 3);
+            System.arraycopy(input, 0, RSP_ID,   0, 3);
             System.arraycopy(input, 3, RSP_STAT, 0, 3);
+            System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
             Bundle output = new Bundle();
 
-            output.putString(ABECS.RSP_ID, new String(RSP_ID));
+            output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
             output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
-            if (length > 9) {
-                System.arraycopy(input, 6, RSP_LEN1, 0, 3);
-
-                RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
-
-                System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
-
-                output.putAll(PinpadUtility.parseResponseTLV(RSP_DATA, RSP_DATA.length));
+            if (length < 10) {
+                return output;
             }
+
+            int len1 = DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length);
+
+            RSP_DATA = new byte[len1];
+
+            System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
+
+            output.putAll(PinpadUtility.parseTLV(RSP_DATA, RSP_DATA.length));
 
             return output;
         }
@@ -205,7 +238,7 @@ public class PinpadUtility {
             case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
             case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
             case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                return null; // TODO: CMD.parseRequestDataPacket(request, request.length);
+                return CMD.parseRequestDataPacket(request, request.length);
 
             default:
                 /* Nothing to do */
@@ -243,7 +276,7 @@ public class PinpadUtility {
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    public static Bundle parseResponseTLV(byte[] stream, int length) {
+    public static Bundle parseTLV(byte[] stream, int length) {
         Bundle output = new Bundle();
 
         int cursor    = 0;
@@ -270,6 +303,14 @@ public class PinpadUtility {
             System.arraycopy(stream, cursor, V, 0, threshold);
 
             switch (tag) {
+                case 0x0006: output.putString(ABECS.SPE_CEXOPT,     new String(V)); break;
+                case 0x0023: output.putString(ABECS.SPE_PANMASK,    new String(V)); break;
+                case 0x001B: output.putString(ABECS.SPE_DSPMSG,     new String(V)); break;
+                case 0x001E: output.putString(ABECS.SPE_MFNAME,     new String(V)); break;
+
+                case 0x0001: output.putString(ABECS.SPE_TAGLIST,    DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x000C: output.putString(ABECS.SPE_TIMEOUT,    DataUtility.getHexStringFromByteArray(V)); break;
+
                 case 0x8001: output.putString(ABECS.PP_SERNUM,      new String(V)); break;
                 case 0x8002: output.putString(ABECS.PP_PARTNBR,     new String(V)); break;
                 case 0x8003: output.putString(ABECS.PP_MODEL,       new String(V)); break;
@@ -318,9 +359,7 @@ public class PinpadUtility {
                         }
                     }
 
-                    String PP_TRACK1 = (i < V.length) ? DataUtility.getHexStringFromByteArray(V) : new String(V);
-
-                    output.putString(ABECS.PP_TRACK1, PP_TRACK1);
+                    output.putString(ABECS.PP_TRACK1, (i < V.length) ? DataUtility.getHexStringFromByteArray(V) : new String(V));
                     break;
 
                 case 0x8020:
