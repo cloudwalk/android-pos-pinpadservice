@@ -112,7 +112,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                     switch (requestBundle.getString(ABECS.CMD_ID, "UNKNOWN")) {
                         case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
                         case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
-                        case ABECS.GTK: case ABECS.MNU: case ABECS.GPN: case ABECS.RMC:
+                        case ABECS.GPN: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                             VendorUtility.request(bundle);

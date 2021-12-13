@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import io.cloudwalk.loglibrary.Log;
@@ -303,13 +304,38 @@ public class PinpadUtility {
             System.arraycopy(stream, cursor, V, 0, threshold);
 
             switch (tag) {
+                case 0x0003: output.putString(ABECS.SPE_MTHDDAT,    new String(V)); break;
                 case 0x0006: output.putString(ABECS.SPE_CEXOPT,     new String(V)); break;
-                case 0x0023: output.putString(ABECS.SPE_PANMASK,    new String(V)); break;
+                case 0x0007: output.putString(ABECS.SPE_TRACKS,     new String(V)); break;
+                case 0x0008: output.putString(ABECS.SPE_OPNDIG,     new String(V)); break;
+                case 0x0009: output.putString(ABECS.SPE_KEYIDX,     new String(V)); break;
                 case 0x001B: output.putString(ABECS.SPE_DSPMSG,     new String(V)); break;
                 case 0x001E: output.putString(ABECS.SPE_MFNAME,     new String(V)); break;
 
+                case 0x0020:
+                    ArrayList<String> list = output.getStringArrayList(ABECS.SPE_MNUOPT);
+
+                    if (list == null) {
+                        list = new ArrayList<>(0);
+                    }
+
+                    list.add(new String(V));
+
+                    output.putStringArrayList(ABECS.SPE_MNUOPT, list);
+                    break;
+
+                case 0x0023: output.putString(ABECS.SPE_PANMASK,    new String(V)); break;
+
                 case 0x0001: output.putString(ABECS.SPE_TAGLIST,    DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x000A: output.putString(ABECS.SPE_WKENC,      DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x000B: output.putString(ABECS.SPE_MSGIDX,     DataUtility.getHexStringFromByteArray(V)); break;
                 case 0x000C: output.putString(ABECS.SPE_TIMEOUT,    DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x000D: output.putString(ABECS.SPE_MINDIG,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x000E: output.putString(ABECS.SPE_MAXDIG,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x000F: output.putString(ABECS.SPE_DATAIN,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x001D: output.putString(ABECS.SPE_IVCBC,      DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x0024: output.putString(ABECS.SPE_PBKMOD,     DataUtility.getHexStringFromByteArray(V)); break;
+                case 0x0025: output.putString(ABECS.SPE_PBKEXP,     DataUtility.getHexStringFromByteArray(V)); break;
 
                 case 0x8001: output.putString(ABECS.PP_SERNUM,      new String(V)); break;
                 case 0x8002: output.putString(ABECS.PP_PARTNBR,     new String(V)); break;
@@ -360,17 +386,6 @@ public class PinpadUtility {
                     }
 
                     output.putString(ABECS.PP_TRACK1, (i < V.length) ? DataUtility.getHexStringFromByteArray(V) : new String(V));
-                    break;
-
-                case 0x8020:
-                    // TODO: intercept response @PinpadService!?
-                    // TODO: output.putString(ABECS.PP_DSPTXTSZ, "0000");
-                    break;
-
-                case 0x8021:
-                case 0x8062:
-                    // TODO: 0x8020, 0x8021 and 0x8062 are all coming back as { 0x00, 0x00 ... }
-                    // TODO: output.putString((tag != 0x8062) ? ABECS.PP_DSPGRSZ : ABECS.PP_TLRMEM, "00000000");
                     break;
 
                 case 0x8045: output.putString(ABECS.PP_TRACK2,      DataUtility.getHexStringFromByteArray(V)); break;
