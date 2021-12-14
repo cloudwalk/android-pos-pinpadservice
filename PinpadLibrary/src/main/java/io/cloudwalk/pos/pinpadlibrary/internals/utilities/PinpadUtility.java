@@ -230,7 +230,7 @@ public class PinpadUtility {
         String CMD_ID = String.format(US, "%c%c%c", request[0], request[1], request[2]);
 
         switch (CMD_ID) {
-            case ABECS.OPN: return null; // TODO: OPN.parseRequestDataPacket(request, request.length);
+            case ABECS.OPN: return OPN.parseRequestDataPacket(request, request.length);
 
             case ABECS.CHP: return null; // TODO: CHP.parseRequestDataPacket(request, request.length);
             case ABECS.GPN: return null; // TODO: GPN.parseRequestDataPacket(request, request.length);

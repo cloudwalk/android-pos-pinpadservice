@@ -21,6 +21,47 @@ public class OPN {
         /* Nothing to do */
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        byte[] CMD_ID       = new byte[3];
+        byte[] OPN_OPMODE   = new byte[1];
+        byte[] OPN_MODLEN   = new byte[3];
+        byte[] OPN_MOD      = null;
+        byte[] OPN_EXPLEN   = new byte[1];
+        byte[] OPN_EXP      = null;
+
+        System.arraycopy(input, 0, CMD_ID, 0, 3);
+
+        output.putString(ABECS.CMD_ID, new String(CMD_ID));
+
+        if (length < 7) {
+            return output;
+        }
+
+        System.arraycopy(input, 6, OPN_OPMODE, 0, 1);
+        System.arraycopy(input, 7, OPN_MODLEN, 0, 3);
+
+        OPN_MOD = new byte[DataUtility.getIntFromByteArray(OPN_MODLEN, OPN_MODLEN.length) * 2];
+
+        System.arraycopy(input,                  10, OPN_MOD,    0, OPN_MOD.length);
+        System.arraycopy(input, OPN_MOD.length + 10, OPN_EXPLEN, 0, 1);
+
+        output.putString(ABECS.OPN_OPMODE, new String(OPN_OPMODE));
+        output.putString(ABECS.OPN_MOD,    new String(OPN_MOD));
+
+        OPN_EXP = new byte[DataUtility.getIntFromByteArray(OPN_EXPLEN, OPN_EXPLEN.length) * 2];
+
+        System.arraycopy(input, OPN_MOD.length + 11, OPN_EXP,    0, OPN_EXP.length);
+
+        output.putString(ABECS.OPN_EXP,    new String(OPN_EXP));
+
+        return output;
+    }
+
     public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
@@ -35,15 +76,17 @@ public class OPN {
 
         Bundle output = new Bundle();
 
-        output.putString(ABECS.RSP_ID, new String(RSP_ID));
+        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
         output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
 
-        if (length > 6) {
-            System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
-            System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
-
-            output.putString(ABECS.OPN_CRKSEC,  new String(OPN_CRKSEC));
+        if (length < 7) {
+            return output;
         }
+
+        System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
+        System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
+
+        output.putString(ABECS.OPN_CRKSEC,  new String(OPN_CRKSEC));
 
         return output;
     }
