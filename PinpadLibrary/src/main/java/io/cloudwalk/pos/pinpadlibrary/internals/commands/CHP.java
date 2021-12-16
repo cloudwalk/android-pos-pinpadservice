@@ -21,6 +21,52 @@ public class CHP {
         /* Nothing to do */
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        byte[] CMD_ID       = new byte[3];
+        byte[] CHP_SLOT     = new byte[1];
+        byte[] CHP_OPER     = new byte[1];
+        byte[] CHP_CMDLEN   = new byte[3];
+        byte[] CHP_CMD      = null;
+        byte[] CHP_PINFMT   = new byte[1];
+        byte[] CHP_PINMSG   = new byte[32];
+
+        System.arraycopy(input, 0, CMD_ID,     0, 3);
+
+        output.putString(ABECS.CMD_ID,   new String(CMD_ID));
+
+        System.arraycopy(input, 6, CHP_SLOT,   0, 1);
+        System.arraycopy(input, 7, CHP_OPER,   0, 1);
+        System.arraycopy(input, 8, CHP_CMDLEN, 0, 3);
+
+        CHP_CMD = new byte[DataUtility.getIntFromByteArray(CHP_CMDLEN, CHP_CMDLEN.length)];
+
+        output.putString(ABECS.CHP_SLOT, new String(CHP_SLOT));
+        output.putString(ABECS.CHP_OPER, new String(CHP_OPER));
+
+        if (CHP_CMD.length < 1) {
+            return output;
+        }
+
+        System.arraycopy(input, 11, CHP_CMD, 0, CHP_CMD.length);
+
+        output.putString(ABECS.CHP_CMD,  new String(CHP_CMD));
+
+        if (output.getString(ABECS.CHP_OPER).equals("3")) {
+            System.arraycopy(input, CHP_CMD.length + 11, CHP_PINFMT, 0, 1);
+            System.arraycopy(input, CHP_CMD.length + 12, CHP_PINMSG, 0, 32);
+
+            output.putString(ABECS.CHP_PINFMT, new String(CHP_PINFMT));
+            output.putString(ABECS.CHP_PINMSG, new String(CHP_PINMSG));
+        }
+
+        return output;
+    }
+
     public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");

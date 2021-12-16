@@ -232,7 +232,7 @@ public class PinpadUtility {
         switch (CMD_ID) {
             case ABECS.OPN: return OPN.parseRequestDataPacket(request, request.length);
 
-            case ABECS.CHP: return null; // TODO: CHP.parseRequestDataPacket(request, request.length);
+            case ABECS.CHP: return CHP.parseRequestDataPacket(request, request.length);
             case ABECS.GPN: return null; // TODO: GPN.parseRequestDataPacket(request, request.length);
             case ABECS.RMC: return null; // TODO: RMC.parseRequestDataPacket(request, request.length);
 
