@@ -21,6 +21,24 @@ public class RMC {
         /* Nothing to do */
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        byte[] CMD_ID       = new byte[3];
+        byte[] RMC_MSG      = new byte[32];
+
+        System.arraycopy(input, 0, CMD_ID,  0,  3);
+        System.arraycopy(input, 6, RMC_MSG, 0, 32);
+
+        output.putString(ABECS.CMD_ID,  new String(CMD_ID));
+        output.putString(ABECS.RMC_MSG, new String(RMC_MSG));
+
+        return output;
+    }
+
     public static byte[] buildRequestDataPacket(Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
