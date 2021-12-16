@@ -52,9 +52,7 @@ public class GPN {
         output.putString(ABECS.CMD_ID,          new String(CMD_ID));
         output.putString(ABECS.GPN_METHOD,      new String(GPN_METHOD));
         output.putString(ABECS.GPN_KEYIDX,      new String(GPN_KEYIDX));
-
-        output.putString(ABECS.GPN_WKENC,       DataUtility.getHexStringFromByteArray(GPN_WKENC));
-
+        output.putString(ABECS.GPN_WKENC,       new String(GPN_WKENC));
         output.putString(ABECS.GPN_PAN,         new String(GPN_PAN));
         output.putString(ABECS.GPN_ENTRIES,     new String(GPN_ENTRIES));
         output.putString(ABECS.GPN_MIN1,        new String(GPN_MIN1));
@@ -115,9 +113,7 @@ public class GPN {
 
         stream[1].write(GPN_METHOD .getBytes(UTF_8));
         stream[1].write(GPN_KEYIDX .getBytes(UTF_8));
-
-        stream[1].write(DataUtility.getByteArrayFromHexString(GPN_WKENC));
-
+        stream[1].write(GPN_WKENC  .getBytes(UTF_8));
         stream[1].write(GPN_PANLEN);
         stream[1].write(GPN_PAN    .getBytes(UTF_8));
         stream[1].write(GPN_ENTRIES.getBytes(UTF_8));

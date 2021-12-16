@@ -43,7 +43,7 @@ public class CHP {
         System.arraycopy(input, 7, CHP_OPER,   0, 1);
         System.arraycopy(input, 8, CHP_CMDLEN, 0, 3);
 
-        CHP_CMD = new byte[DataUtility.getIntFromByteArray(CHP_CMDLEN, CHP_CMDLEN.length)];
+        CHP_CMD = new byte[DataUtility.getIntFromByteArray(CHP_CMDLEN, CHP_CMDLEN.length) * 2];
 
         output.putString(ABECS.CHP_SLOT, new String(CHP_SLOT));
         output.putString(ABECS.CHP_OPER, new String(CHP_OPER));
@@ -54,7 +54,7 @@ public class CHP {
 
         System.arraycopy(input, 11, CHP_CMD, 0, CHP_CMD.length);
 
-        output.putString(ABECS.CHP_CMD,  DataUtility.getHexStringFromByteArray(CHP_CMD));
+        output.putString(ABECS.CHP_CMD,  new String(CHP_CMD));
 
         if (output.getString(ABECS.CHP_OPER).equals("3")) {
             System.arraycopy(input, CHP_CMD.length + 11, CHP_PINFMT, 0, 1);
@@ -119,7 +119,7 @@ public class CHP {
         stream[1].write(CHP_CMDLEN);
 
         if (CHP_CMD    != null) {
-            stream[1].write(DataUtility.getByteArrayFromHexString(CHP_CMD));
+            stream[1].write(CHP_CMD   .getBytes(UTF_8));
         }
 
         if (CHP_PINFMT != null) {

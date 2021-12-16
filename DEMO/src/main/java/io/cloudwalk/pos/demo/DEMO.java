@@ -117,7 +117,7 @@ public class DEMO {
 
         Bundle request = new Bundle();
 
-        String GPN_WKENC = "0000000000000000000000000000000000000000000000000000000000000000";
+        String GPN_WKENC = "00000000000000000000000000000000";
 
         request.putString(ABECS.CMD_ID, ABECS.GPN);
         request.putString(ABECS.GPN_METHOD, "3");
