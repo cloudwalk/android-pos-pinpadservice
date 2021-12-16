@@ -236,7 +236,7 @@ public class PinpadUtility {
             case ABECS.GPN: return GPN.parseRequestDataPacket(request, request.length);
             case ABECS.RMC: return RMC.parseRequestDataPacket(request, request.length);
 
-            case ABECS.TLI: return null; // TODO: TLI.parseRequestDataPacket(request, request.length);
+            case ABECS.TLI: return TLI.parseRequestDataPacket(request, request.length);
             case ABECS.TLR: return null; // TODO: TLR.parseRequestDataPacket(request, request.length);
             case ABECS.TLE: return null; // TODO: TLE.parseRequestDataPacket(request, request.length);
 

@@ -21,6 +21,27 @@ public class TLI {
         /* Nothing to do */
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        byte[] CMD_ID       = new byte[3];
+        byte[] TLI_ACQIDX   = new byte[2];
+        byte[] TLI_TABVER   = new byte[10];
+
+        System.arraycopy(input, 0, CMD_ID,     0,  3);
+        System.arraycopy(input, 6, TLI_ACQIDX, 0,  2);
+        System.arraycopy(input, 8, TLI_TABVER, 0, 10);
+
+        output.putString(ABECS.CMD_ID,      new String(CMD_ID));
+        output.putString(ABECS.TLI_ACQIDX,  new String(TLI_ACQIDX));
+        output.putString(ABECS.TLI_TABVER,  new String(TLI_TABVER));
+
+        return output;
+    }
+
     public static byte[] buildRequestDataPacket(Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
