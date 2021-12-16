@@ -21,6 +21,49 @@ public class GPN {
         /* Nothing to do */
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        byte[] CMD_ID       = new byte[3];
+        byte[] GPN_METHOD   = new byte[1];
+        byte[] GPN_KEYIDX   = new byte[2];
+        byte[] GPN_WKENC    = new byte[32];
+        byte[] GPN_PANLEN   = new byte[2];
+        byte[] GPN_PAN      = new byte[19];
+        byte[] GPN_ENTRIES  = new byte[1];
+        byte[] GPN_MIN1     = new byte[2];
+        byte[] GPN_MAX1     = new byte[2];
+        byte[] GPN_MSG1     = new byte[32];
+
+        System.arraycopy(input,  0, CMD_ID,      0,  3);
+        System.arraycopy(input,  6, GPN_METHOD,  0,  1);
+        System.arraycopy(input,  7, GPN_KEYIDX,  0,  2);
+        System.arraycopy(input,  9, GPN_WKENC,   0, 32);
+        System.arraycopy(input, 41, GPN_PANLEN,  0,  2);
+        System.arraycopy(input, 43, GPN_PAN,     0, 19);
+        System.arraycopy(input, 62, GPN_ENTRIES, 0,  1);
+        System.arraycopy(input, 63, GPN_MIN1,    0,  2);
+        System.arraycopy(input, 65, GPN_MAX1,    0,  2);
+        System.arraycopy(input, 67, GPN_MSG1,    0, 32);
+
+        output.putString(ABECS.CMD_ID,          new String(CMD_ID));
+        output.putString(ABECS.GPN_METHOD,      new String(GPN_METHOD));
+        output.putString(ABECS.GPN_KEYIDX,      new String(GPN_KEYIDX));
+
+        output.putString(ABECS.GPN_WKENC,       DataUtility.getHexStringFromByteArray(GPN_WKENC));
+
+        output.putString(ABECS.GPN_PAN,         new String(GPN_PAN));
+        output.putString(ABECS.GPN_ENTRIES,     new String(GPN_ENTRIES));
+        output.putString(ABECS.GPN_MIN1,        new String(GPN_MIN1));
+        output.putString(ABECS.GPN_MAX1,        new String(GPN_MAX1));
+        output.putString(ABECS.GPN_MSG1,        new String(GPN_MSG1));
+
+        return output;
+    }
+
     public static Bundle parseResponseDataPacket(byte[] input, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");

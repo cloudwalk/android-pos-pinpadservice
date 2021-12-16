@@ -45,19 +45,19 @@ public class OPN {
         System.arraycopy(input, 6, OPN_OPMODE, 0, 1);
         System.arraycopy(input, 7, OPN_MODLEN, 0, 3);
 
-        OPN_MOD = new byte[DataUtility.getIntFromByteArray(OPN_MODLEN, OPN_MODLEN.length) * 2];
+        OPN_MOD = new byte[DataUtility.getIntFromByteArray(OPN_MODLEN, OPN_MODLEN.length)];
 
         System.arraycopy(input,                  10, OPN_MOD,    0, OPN_MOD.length);
         System.arraycopy(input, OPN_MOD.length + 10, OPN_EXPLEN, 0, 1);
 
         output.putString(ABECS.OPN_OPMODE, new String(OPN_OPMODE));
-        output.putString(ABECS.OPN_MOD,    new String(OPN_MOD));
+        output.putString(ABECS.OPN_MOD,    DataUtility.getHexStringFromByteArray(OPN_MOD));
 
-        OPN_EXP = new byte[DataUtility.getIntFromByteArray(OPN_EXPLEN, OPN_EXPLEN.length) * 2];
+        OPN_EXP = new byte[DataUtility.getIntFromByteArray(OPN_EXPLEN, OPN_EXPLEN.length)];
 
         System.arraycopy(input, OPN_MOD.length + 11, OPN_EXP,    0, OPN_EXP.length);
 
-        output.putString(ABECS.OPN_EXP,    new String(OPN_EXP));
+        output.putString(ABECS.OPN_EXP,    DataUtility.getHexStringFromByteArray(OPN_EXP));
 
         return output;
     }
@@ -108,12 +108,12 @@ public class OPN {
             byte[] OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes(UTF_8);
 
             stream[1].write(OPN_MODLEN);
-            stream[1].write(OPN_MOD.getBytes(UTF_8));
+            stream[1].write(DataUtility.getByteArrayFromHexString(OPN_MOD));
 
             byte[] OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length() / 2)).getBytes(UTF_8);
 
             stream[1].write(OPN_EXPLEN);
-            stream[1].write(OPN_EXP.getBytes(UTF_8));
+            stream[1].write(DataUtility.getByteArrayFromHexString(OPN_EXP));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

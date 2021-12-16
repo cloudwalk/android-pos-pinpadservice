@@ -54,7 +54,7 @@ public class CHP {
 
         System.arraycopy(input, 11, CHP_CMD, 0, CHP_CMD.length);
 
-        output.putString(ABECS.CHP_CMD,  new String(CHP_CMD));
+        output.putString(ABECS.CHP_CMD,  DataUtility.getHexStringFromByteArray(CHP_CMD));
 
         if (output.getString(ABECS.CHP_OPER).equals("3")) {
             System.arraycopy(input, CHP_CMD.length + 11, CHP_PINFMT, 0, 1);
