@@ -237,8 +237,8 @@ public class PinpadUtility {
             case ABECS.RMC: return RMC.parseRequestDataPacket(request, request.length);
 
             case ABECS.TLI: return TLI.parseRequestDataPacket(request, request.length);
-            case ABECS.TLR: return null; // TODO: TLR.parseRequestDataPacket(request, request.length);
-            case ABECS.TLE: return null; // TODO: TLE.parseRequestDataPacket(request, request.length);
+            case ABECS.TLR: return TLR.parseRequestDataPacket(request, request.length);
+            case ABECS.TLE: return TLE.parseRequestDataPacket(request, request.length);
 
             case ABECS.GIX: case ABECS.CLX:
             case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:

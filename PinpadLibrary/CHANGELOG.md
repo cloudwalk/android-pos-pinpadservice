@@ -11,6 +11,9 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
+## [V.v.b] - YYYY-MM-DD
+- Fix data conversion from the `Bundle` interface for `OPN`, `CHP` and `GPN`.
+
 ## [1.0.13] - 2021-11-29
 - Update internal dependencies.
 

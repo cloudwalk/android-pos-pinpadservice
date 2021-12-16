@@ -1,6 +1,7 @@
 package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
 
 import android.os.Bundle;
 
@@ -16,6 +17,17 @@ public class TLE {
         Log.d(TAG, "TLE");
 
         /* Nothing to do */
+    }
+
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        output.putString(ABECS.CMD_ID, String.format(US, "%c%c%c", input[0], input[1], input[2]));
+
+        return output;
     }
 
     public static byte[] buildRequestDataPacket(Bundle input)

@@ -21,6 +21,32 @@ public class TLR {
         /* Nothing to do */
     }
 
+    public static Bundle parseRequestDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        Bundle output = new Bundle();
+
+        byte[] CMD_ID       = new byte[3];
+        byte[] CMD_LEN1     = new byte[3];
+        byte[] TLR_NREC     = new byte[2];
+        byte[] TLR_DATA     = null;
+
+        System.arraycopy(input, 0, CMD_ID,   0, 3);
+        System.arraycopy(input, 3, CMD_LEN1, 0, 3);
+        System.arraycopy(input, 6, TLR_NREC, 0, 2);
+
+        TLR_DATA = new byte[DataUtility.getIntFromByteArray(CMD_LEN1, CMD_LEN1.length) - 2];
+
+        System.arraycopy(input, 8, TLR_DATA, 0, TLR_DATA.length);
+
+        output.putString(ABECS.CMD_ID,   new String(CMD_ID));
+        output.putString(ABECS.TLR_NREC, new String(TLR_NREC));
+        output.putString(ABECS.TLR_DATA, new String(TLR_DATA));
+
+        return output;
+    }
+
     public static byte[] buildRequestDataPacket(Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
