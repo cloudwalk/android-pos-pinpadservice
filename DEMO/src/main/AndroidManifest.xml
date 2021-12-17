@@ -19,7 +19,9 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.POC2104301453.NoActionBar">
 
-        <activity android:name=".presentation.SplashActivity"
+        <activity
+                android:exported="true"
+                android:name=".presentation.SplashActivity"
                 android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -64,9 +64,7 @@ public class PinpadUtility {
                 return output;
             }
 
-            int len1 = DataUtility.getIntFromByteArray(CMD_LEN1, CMD_LEN1.length);
-
-            CMD_DATA = new byte[len1];
+            CMD_DATA = new byte[DataUtility.getIntFromByteArray(CMD_LEN1, CMD_LEN1.length)];
 
             System.arraycopy(input, 6, CMD_DATA, 0, CMD_DATA.length);
 
@@ -86,7 +84,6 @@ public class PinpadUtility {
 
             System.arraycopy(input, 0, RSP_ID,   0, 3);
             System.arraycopy(input, 3, RSP_STAT, 0, 3);
-            System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
             Bundle output = new Bundle();
 
@@ -97,9 +94,9 @@ public class PinpadUtility {
                 return output;
             }
 
-            int len1 = DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length);
+            System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
-            RSP_DATA = new byte[len1];
+            RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
 
             System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
 

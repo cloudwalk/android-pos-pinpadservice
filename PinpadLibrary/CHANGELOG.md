@@ -1,6 +1,11 @@
 # CHANGELOG
 
 ## Dependencies
+```
+implementation 'androidx.appcompat:appcompat:1.3.0'
+implementation 'io.cloudwalk:loglibrary:1.1.1'
+implementation 'io.cloudwalk:utilitieslibrary:1.0.8'
+```
 
 ### Sunmi
 - Pinpad Service 1.0.4
@@ -11,8 +16,9 @@
 ## Known issues
 - Callbacks for service connection won't stack up.
 
-## [V.v.b] - YYYY-MM-DD
-- Fix data conversion from the `Bundle` interface for `OPN`, `CHP` and `GPN`.
+## [1.0.14] - 2021-12-17
+- Update data conversion from `Bundle` interface for `OPN`, `CHP` and `GPN`.
+- Update build tools.
 
 ## [1.0.13] - 2021-11-29
 - Update internal dependencies.
