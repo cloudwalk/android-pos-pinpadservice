@@ -1,7 +1,5 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
-import static java.util.Locale.US;
-
 import android.os.Bundle;
 
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +82,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static AcessoDiretoPinpad getPinpad() {
-        Log.d(TAG, "getPinpad");
+        // Log.d(TAG, "getPinpad");
 
         AcessoDiretoPinpad pinpad;
 
@@ -98,7 +96,7 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static byte[] intercept(String applicationId, boolean send, byte[] data, int length) {
-        Log.d(TAG, "intercept::length [" + length + "] (" + ((send) ? "send" : "recv") + ")");
+        // Log.d(TAG, "intercept::length [" + length + "] (" + ((send) ? "send" : "recv") + ")");
 
         try {
             acquire(sMngrSemaphore);
@@ -110,8 +108,6 @@ public class PinpadManager extends IPinpadManager.Stub {
                     return data;
 
                 case 1:
-                    Log.d(TAG, "intercept::data[0] [" + String.format(US, "%02X", data[0]) + "]");
-
                     switch (data[0]) {
                         case 0x04: CMD_ID = "EOT"; break;
                         case 0x15: CMD_ID = "NAK"; break;
@@ -131,8 +127,6 @@ public class PinpadManager extends IPinpadManager.Stub {
                     }
             }
 
-            Log.d(TAG, "intercept::CMD_ID [" + CMD_ID + "]");
-
             if (send) {
                 switch (CMD_ID) {
                     case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
@@ -149,7 +143,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         break;
 
                     default:
-                        Log.w(TAG, "intercept::NAK registered");
+                        // Log.d(TAG, "intercept::NAK registered");
 
                         return new byte[] { 0x15 }; // TODO: NAK if CRC fails, .ERR010......... otherwise!?
                 }
@@ -179,19 +173,17 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     private static void acquire(Semaphore semaphore) {
-        Log.d(TAG, "acquire::semaphore [" + semaphore + "]");
+        // Log.d(TAG, "acquire::semaphore [" + semaphore + "]");
 
         semaphore.acquireUninterruptibly();
     }
 
     private static void release(Semaphore semaphore) {
-        Log.d(TAG, "release");
+        // Log.d(TAG, "release");
 
         if (semaphore.availablePermits() <= 0) {
             semaphore.release();
         }
-
-        Log.d(TAG, "release::semaphore.availablePermits() [" + semaphore.availablePermits() + "]");
     }
 
     public static PinpadManager getInstance() {

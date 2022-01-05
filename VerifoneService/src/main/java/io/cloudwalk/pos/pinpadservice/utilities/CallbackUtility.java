@@ -1,17 +1,9 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
-import static java.util.Locale.US;
-
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.*;
-import static io.cloudwalk.pos.pinpadservice.managers.PinpadManager.ACTION_VFSERVICE;
-import static io.cloudwalk.pos.pinpadservice.managers.PinpadManager.PACKAGE_VFSERVICE;
 
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.SystemClock;
-
-import com.vfi.smartpos.deviceservice.aidl.IDeviceService;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -22,9 +14,7 @@ import br.com.verifone.bibliotecapinpad.definicoes.Menu;
 import br.com.verifone.bibliotecapinpad.definicoes.NotificacaoCapturaPin;
 import br.com.verifone.bibliotecapinpad.definicoes.TipoNotificacao;
 import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
-import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 
 public class CallbackUtility {
@@ -38,11 +28,13 @@ public class CallbackUtility {
             sServiceCallback = null;
 
     private CallbackUtility() {
+        Log.d(TAG, "CallbackUtility");
+
         /* Nothing to do */
     }
 
     private static void mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
-        Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
+        // Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
         int visibility = 0;
 
@@ -89,7 +81,7 @@ public class CallbackUtility {
     }
 
     private static void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
-        Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
+        // Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
         String msg   = notificacaoCapturaPin.obtemMensagemCapturaPin();
            int count = notificacaoCapturaPin.obtemQuantidadeDigitosPin();
@@ -98,7 +90,7 @@ public class CallbackUtility {
     }
 
     private static void menu(Menu menu) {
-        Log.d(TAG, "menu::menu [" + menu + "]");
+        // Log.d(TAG, "menu::menu [" + menu + "]");
 
         IServiceCallback callback = getServiceCallback();
 
@@ -118,31 +110,9 @@ public class CallbackUtility {
     }
 
     private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
-        Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
+        // Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-        int[]   status = ledsContactless.checaLedsAcesos();
-        boolean reset  = status[0] == 0 && status[1] == 0 && status[2] == 0 && status[3] == 0;
-
-        try {
-            IBinder        service = ServiceUtility.retrieve(PACKAGE_VFSERVICE, ACTION_VFSERVICE);
-            IDeviceService  device = IDeviceService.Stub.asInterface(service);
-
-            for (int i = 0; i < status.length; i++) {
-                Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
-
-                if (status[i] != 0) {
-                    device.getLed().turnOn(i + 1);
-                } else {
-                    device.getLed().turnOff(i + 1);
-                }
-
-                if (!reset) {
-                    SystemClock.sleep(50);
-                }
-            }
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-        }
+        /* Nothing to do */
     }
 
     public static IServiceCallback getServiceCallback() {

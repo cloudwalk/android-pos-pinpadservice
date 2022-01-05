@@ -35,11 +35,13 @@ public class CallbackUtility {
             sLedStatus = new int[] { 0, 0, 0, 0 };
 
     private CallbackUtility() {
+        Log.d(TAG, "CallbackUtility");
+
         /* Nothing to do */
     }
 
     private static void mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
-        Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
+        // Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
         int visibility = 0;
 
@@ -86,7 +88,7 @@ public class CallbackUtility {
     }
 
     private static void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
-        Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
+        // Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
         String msg   = notificacaoCapturaPin.obtemMensagemCapturaPin();
            int count = notificacaoCapturaPin.obtemQuantidadeDigitosPin();
@@ -95,7 +97,7 @@ public class CallbackUtility {
     }
 
     private static void menu(Menu menu) {
-        Log.d(TAG, "menu::menu [" + menu + "]");
+        // Log.d(TAG, "menu::menu [" + menu + "]");
 
         IServiceCallback callback = getServiceCallback();
 
@@ -115,7 +117,7 @@ public class CallbackUtility {
     }
 
     private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
-        Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
+        // Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
         int[]   status = ledsContactless.checaLedsAcesos();
         boolean reset  = status[0] == 0 && status[1] == 0 && status[2] == 0 && status[3] == 0;
@@ -129,7 +131,7 @@ public class CallbackUtility {
         sLedStatus = status;
 
         for (int i = 0; i < sLedStatus.length; i++) {
-            Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
+            // Log.d(TAG, "ledsProcessamentoContactless::status[" + i + "] [" + status[i] + "]");
 
             int led = -1;
 
