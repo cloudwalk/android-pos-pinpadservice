@@ -41,7 +41,7 @@ public class PinCaptureActivity extends AppCompatActivity {
             sApplicationId = null;
 
     private String buildJSONLayoutInfo() {
-        Log.d(TAG, "buildJSONLayoutInfo");
+        // Log.d(TAG, "buildJSONLayoutInfo");
 
         int[] locationCAN   = new int[2];
         int[] locationNUM   = new int[2];
@@ -107,7 +107,7 @@ public class PinCaptureActivity extends AppCompatActivity {
     }
 
     private byte[] buildKeyMap(int rows, int cols) {
-        Log.d(TAG, "buildKeyMap");
+        // Log.d(TAG, "buildKeyMap");
 
         String keyList  = "123456789";
         byte[] keyMap   = new byte[rows * cols];
@@ -130,13 +130,6 @@ public class PinCaptureActivity extends AppCompatActivity {
         }
 
         return keyMap;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent");
-
-        return super.onTouchEvent(event);
     }
 
     @Override
@@ -277,5 +270,12 @@ public class PinCaptureActivity extends AppCompatActivity {
         context.startActivity(intent);
 
         sLifeCycleSemaphore.acquireUninterruptibly();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent");
+
+        return super.onTouchEvent(event);
     }
 }

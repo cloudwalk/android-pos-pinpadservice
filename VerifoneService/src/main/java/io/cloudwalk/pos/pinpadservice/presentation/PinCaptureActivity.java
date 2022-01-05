@@ -32,13 +32,6 @@ public class PinCaptureActivity extends AppCompatActivity {
             sActivity = null;
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent");
-
-        return super.onTouchEvent(event);
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
 
@@ -127,5 +120,12 @@ public class PinCaptureActivity extends AppCompatActivity {
         context.startActivity(intent.addFlags(FLAG_ACTIVITY_NEW_TASK));
 
         sLifeCycleSemaphore.acquireUninterruptibly();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent");
+
+        return super.onTouchEvent(event);
     }
 }
