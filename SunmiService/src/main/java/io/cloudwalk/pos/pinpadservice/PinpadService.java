@@ -21,11 +21,13 @@ public class PinpadService extends Service {
         Bundle extras = intent.getExtras();
 
         try {
-            boolean overwrite = extras.getBoolean  ("overwrite", false);
-            byte[]  keymap    = extras.getByteArray("keymap.dat");
+            if (extras != null) {
+                boolean overwrite = extras.getBoolean  ("overwrite", false);
+                byte[]  keymap    = extras.getByteArray("keymap.dat");
 
-            if (keymap != null) {
-                PinpadAbstractionLayer.setConfig(keymap, overwrite);
+                if (keymap != null) {
+                    PinpadAbstractionLayer.setConfig(keymap, overwrite);
+                }
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));

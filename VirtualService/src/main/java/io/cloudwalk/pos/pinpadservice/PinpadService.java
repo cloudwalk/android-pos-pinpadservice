@@ -18,19 +18,6 @@ public class PinpadService extends Service {
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
 
-        Bundle extras = intent.getExtras();
-
-        try {
-            boolean overwrite = extras.getBoolean  ("overwrite", false);
-            byte[]  keymap    = extras.getByteArray("DUKLINK.dat");
-
-            if (keymap != null) {
-                PinpadAbstractionLayer.setConfig(keymap, overwrite);
-            }
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-        }
-
         return PinpadAbstractionLayer.getInstance();
     }
 }
