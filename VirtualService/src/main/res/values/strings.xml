@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Pinpad Service</string>
+
+    <string name="content_about">CloudWalk, Inc.\nEngineering &amp; Projects\n\nReleased under the MIT license.\n\nMaurício Spinardi\nGitHub @mauriciospinardi-cloudwalk\nLinkedIn @mauriciospinardi</string>
+    <string name="placeholder_id_tv_trace" translatable="false">\@id+/tv_trace</string>
+    <string name="warning_wait">Wait…</string>
 </resources>
