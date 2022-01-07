@@ -49,7 +49,7 @@ public class MainAlertDialog extends AlertDialog {
 
         Log.d(TAG, "AboutAlertDialog");
 
-        setIcon(R.mipmap.ic_launcher);
+        setIcon(R.mipmap.ic_pinpadservice);
 
         setTitle(R.string.app_name);
 
