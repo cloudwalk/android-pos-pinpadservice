@@ -37,12 +37,6 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
         return sPinpadAbstractionLayer;
     }
 
-    public static void setConfig(byte[] keymap, boolean overwrite) {
-        Log.d(TAG, "setConfig::overwrite [" + overwrite + "]");
-
-        /* 2021-11-19: no virtual usage */
-    }
-
     /**
      * @return {@link IPinpadManager}
      */
