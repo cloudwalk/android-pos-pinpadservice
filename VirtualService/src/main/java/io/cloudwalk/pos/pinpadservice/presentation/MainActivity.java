@@ -23,8 +23,18 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog alertDialog = new MainAlertDialog(MainActivity.this);
 
-        alertDialog.setOnDismissListener(dialog -> finish());
+        alertDialog.setOnDismissListener(dialog -> onPause());
 
         alertDialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+
+        super.onPause();
+
+        finishAndRemoveTask(); // 2022-01-07: ensure it won't appear in the 'recently opened' list
+                               // even by pressing the 'task' button when in foreground
     }
 }
