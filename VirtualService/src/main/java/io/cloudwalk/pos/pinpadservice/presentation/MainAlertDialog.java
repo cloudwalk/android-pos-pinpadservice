@@ -85,6 +85,6 @@ public class MainAlertDialog extends AlertDialog {
 
         ((TextView) view.findViewById(R.id.tv_about)).setText(contentView);
 
-        setCanceledOnTouchOutside(false);
+        // setCanceledOnTouchOutside(false);
     }
 }

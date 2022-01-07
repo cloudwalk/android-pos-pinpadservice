@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog alertDialog = new MainAlertDialog(MainActivity.this);
 
-        alertDialog.setOnDismissListener(dialog -> { Log.d(TAG, "onDismiss"); finish(); });
+        alertDialog.setOnDismissListener(dialog -> finish());
 
         alertDialog.show();
     }
