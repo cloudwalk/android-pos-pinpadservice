@@ -51,7 +51,7 @@ public class MainAlertDialog extends AlertDialog {
 
         setIcon(R.mipmap.ic_pinpadservice);
 
-        setTitle(R.string.app_name);
+        setTitle("Virtual " + activity.getString(R.string.app_name));
 
         View view = getLayoutInflater().inflate(R.layout.alert_dialog_main, null);
 
@@ -78,13 +78,11 @@ public class MainAlertDialog extends AlertDialog {
         componentList += "\n\t\u2022 UtilitiesLibrary v"
                 + io.cloudwalk.utilitieslibrary.BuildConfig.VERSION_NAME;
 
-        String contentView = "Virtual Pinpad Service v" + versionName
+        String contentView = "(P)roof (O)f (C)oncept v" + versionName
                 + componentList
                 + "\n\n"
                 + context.getString(R.string.content_about);
 
         ((TextView) view.findViewById(R.id.tv_about)).setText(contentView);
-
-        // setCanceledOnTouchOutside(false);
     }
 }
