@@ -32,7 +32,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
      * @return {@link PinpadAbstractionLayer}
      */
     public static PinpadAbstractionLayer getInstance() {
-        Log.d(TAG, "getInstance");
+        // Log.d(TAG, "getInstance");
 
         return sPinpadAbstractionLayer;
     }
@@ -42,7 +42,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
      */
     @Override
     public IPinpadManager getPinpadManager(Bundle bundle) {
-        Log.d(TAG, "getPinpadManager");
+        // Log.d(TAG, "getPinpadManager");
 
         try {
             sSemaphore.acquireUninterruptibly();

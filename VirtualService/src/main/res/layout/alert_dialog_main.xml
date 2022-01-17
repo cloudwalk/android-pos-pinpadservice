@@ -9,11 +9,23 @@
             android:orientation="vertical"
             android:padding="?attr/dialogPreferredPadding">
         <TextView
-                android:id="@+id/tv_about"
+                android:id="@+id/tv_alert_dialog"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:text="@string/warning_wait"
                 android:textColor="@android:color/black"
                 android:textSize="14sp" />
+        <EditText
+                android:id="@+id/et_alert_dialog"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:paddingBottom="24dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="18dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
