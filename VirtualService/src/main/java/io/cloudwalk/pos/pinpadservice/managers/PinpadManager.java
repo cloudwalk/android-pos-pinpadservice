@@ -35,14 +35,14 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     public static PinpadManager getInstance() {
-        Log.d(TAG, "getInstance");
+        // Log.d(TAG, "getInstance");
 
         return sPinpadManager;
     }
 
     @Override
     public int recv(@NotNull Bundle bundle) {
-        Log.d(TAG, "recv");
+        // Log.d(TAG, "recv");
 
         long timeout   = bundle.getLong("timeout", 0);
              timeout   = (timeout < 0) ? 0 : timeout;
@@ -81,7 +81,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     @Override
     public int send(@NotNull Bundle bundle, IServiceCallback callback) {
-        Log.d(TAG, "send");
+        // Log.d(TAG, "send");
 
         sSendSemaphore.acquireUninterruptibly();
 

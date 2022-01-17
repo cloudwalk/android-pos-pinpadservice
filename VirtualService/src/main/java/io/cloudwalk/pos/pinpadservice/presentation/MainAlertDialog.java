@@ -3,16 +3,37 @@ package io.cloudwalk.pos.pinpadservice.presentation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.method.DigitsKeyListener;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
+import io.cloudwalk.pos.pinpadservice.utilities.SharedPreferencesUtility;
 import io.cloudwalk.utilitieslibrary.Application;
 
 public class MainAlertDialog extends AlertDialog {
     private static final String
             TAG = MainAlertDialog.class.getSimpleName();
+
+    private CharSequence onFilterBlock(EditText editText) {
+        Log.d(TAG, "onFilterBlock");
+
+        editText.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+
+        return "";
+    }
+
+    private void onFilterEntry(EditText editText) {
+        Log.d(TAG, "onFilterEntry");
+
+        editText.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+    }
 
     /**
      * Constructor.
@@ -83,6 +104,59 @@ public class MainAlertDialog extends AlertDialog {
                 + "\n\n"
                 + context.getString(R.string.content_about);
 
-        ((TextView) view.findViewById(R.id.tv_about)).setText(contentView);
+        ((TextView) view.findViewById(R.id.tv_alert_dialog)).setText(contentView);
+
+        EditText editText = view.findViewById(R.id.et_alert_dialog);
+
+        editText.setText(SharedPreferencesUtility.readIPv4());
+
+        editText.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+
+        editText.setKeyListener(DigitsKeyListener.getInstance("0123456789.:"));
+
+        InputFilter filter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                onFilterEntry(editText);
+
+                if (end <= start) {
+                    return null;
+                }
+
+                String s  = dest.toString().substring(0, dstart);
+                       s += source.subSequence(start, end);
+                       s += dest.toString().substring(dend);
+
+                String p = "^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(:(\\d{1,5})?)?)?)?)?)?)?)?";
+
+                if (!s.matches(p)) {
+                    return onFilterBlock(editText);
+                }
+
+                String[] splits = s.split("[.:]");
+
+                for (int i = 0; i < splits.length && i < 4; i++) {
+                    if (Integer.parseInt(splits[i]) > 255) {
+                        return onFilterBlock(editText);
+                    }
+                }
+
+                return null;
+            }
+        };
+
+        editText.setFilters(new InputFilter[] { filter });
+
+        setButton(BUTTON_POSITIVE, activity.getString(R.string.action_save_settings),
+                (OnClickListener) (dialog, which) -> {
+            SharedPreferencesUtility.writeIPv4(editText.getText().toString());
+
+            dialog.dismiss();
+        });
+
+        setButton(BUTTON_NEGATIVE, activity.getString(R.string.action_back),
+                (OnClickListener) (dialog, which) -> {
+            dialog.dismiss();
+        });
     }
 }
