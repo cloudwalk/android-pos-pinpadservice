@@ -9,7 +9,7 @@
 - Security Driver VA.213.S.068.202108241801
 - VFService 3.11.0
 - VFSystemService 1.8.11
-- BC 001.26
+- BC 001.27
 
 ## Known issues
 - PIN keyboard external customization is disabled.
@@ -18,6 +18,9 @@
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.
+
+## [1.0.8] - 2022-01-17
+- Update vendor components.
   
 ## [1.0.7] - 2021-12-07
 - Update dependencies and compilation tools.
