@@ -165,8 +165,6 @@ public class PinpadManager extends IPinpadManager.Stub {
             }
         } finally {
             release(sMngrSemaphore);
-
-            Log.h(TAG, data, length);
         }
 
         return data;
@@ -187,14 +185,14 @@ public class PinpadManager extends IPinpadManager.Stub {
     }
 
     public static PinpadManager getInstance() {
-        Log.d(TAG, "getInstance");
+        // Log.d(TAG, "getInstance");
 
         return sPinpadManager;
     }
 
     @Override
     public int recv(@NotNull Bundle bundle) {
-        Log.d(TAG, "recv");
+        // Log.d(TAG, "recv");
 
         long   timeout  = bundle.getLong("timeout", 0);
         int    result   = -1;
@@ -205,8 +203,6 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         try {
             if (response != null) {
-                Log.h(TAG, response, result);
-
                 result = response.length;
             } else {
                 response = new byte[2048];
@@ -234,14 +230,14 @@ public class PinpadManager extends IPinpadManager.Stub {
 
     @Override
     public int send(@NotNull Bundle bundle, IServiceCallback callback) {
-        Log.d(TAG, "send");
+        // Log.d(TAG, "send");
 
         acquire(sSendSemaphore);
 
         String applicationId = bundle.getString   ("application_id");
         byte[] request       = bundle.getByteArray("request");
 
-        Log.d(TAG, "send::applicationId [" + applicationId + "]");
+        // Log.d(TAG, "send::applicationId [" + applicationId + "]");
 
         if (request.length > 1) {
             CallbackUtility.setServiceCallback(callback);

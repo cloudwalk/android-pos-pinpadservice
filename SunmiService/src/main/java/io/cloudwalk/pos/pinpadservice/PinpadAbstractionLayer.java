@@ -39,13 +39,13 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
      * @return {@link PinpadAbstractionLayer}
      */
     public static PinpadAbstractionLayer getInstance() {
-        Log.d(TAG, "getInstance");
+        // Log.d(TAG, "getInstance");
 
         return sPinpadAbstractionLayer;
     }
 
     public static void setConfig(byte[] keymap, boolean overwrite) {
-        Log.d(TAG, "setConfig::overwrite [" + overwrite + "]");
+        // Log.d(TAG, "setConfig::overwrite [" + overwrite + "]");
 
         new Thread() {
             @Override
@@ -71,7 +71,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
                         writer.close();
                     }
 
-                    Log.d(TAG, "setConfig::file [" + file.getAbsolutePath() + "] [" + length + "] [" + file.length() + "]");
+                    // Log.d(TAG, "setConfig::file [" + file.getAbsolutePath() + "] [" + length + "] [" + file.length() + "]");
 
                     content = new byte[(int) file.length()];
 
@@ -95,7 +95,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
      */
     @Override
     public IPinpadManager getPinpadManager(Bundle bundle) {
-        Log.d(TAG, "getPinpadManager");
+        // Log.d(TAG, "getPinpadManager");
 
         try {
             sSemaphore.acquireUninterruptibly();
