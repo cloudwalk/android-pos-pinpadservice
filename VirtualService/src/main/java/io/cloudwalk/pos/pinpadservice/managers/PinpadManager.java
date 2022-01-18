@@ -2,6 +2,9 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import static io.cloudwalk.pos.pinpadservice.utilities.VendorUtility.sResponseQueue;
+import static io.cloudwalk.pos.pinpadservice.utilities.VendorUtility.sVendorSemaphore;
+
 import android.os.Bundle;
 import android.os.SystemClock;
 
@@ -59,7 +62,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                 timeout = (timestamp - SystemClock.elapsedRealtime());
                 timeout = (timeout < 0) ? 0 : timeout;
 
-                Bundle response = VendorUtility.sResponseQueue.poll(timeout, MILLISECONDS);
+                Bundle response = sResponseQueue.poll(timeout, MILLISECONDS);
 
                 if (response != null) {
                     bundle.putString   ("application_id", response.getString   ("application_id"));
@@ -95,7 +98,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             switch (request[0]) {
                 case 0x18:
                     if (request.length == 1) {
-                        VendorUtility.abort();
+                        result = VendorUtility.abort(bundle);
                         break;
                     }
                     /* no break; */
@@ -115,7 +118,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GPN: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            VendorUtility.request(bundle);
+                            result = VendorUtility.send(bundle);
                             break;
 
                         default:
@@ -130,7 +133,20 @@ public class PinpadManager extends IPinpadManager.Stub {
             response.putString   ("application_id", applicationId);
             response.putByteArray("response",       new byte[] { 0x15 });
 
-            VendorUtility.request(response);
+            try {
+                sVendorSemaphore.acquireUninterruptibly();
+
+                while (true) {
+                    if (sResponseQueue.poll() != null) {
+                        continue;
+                    }
+
+                    sResponseQueue.add(response); break;
+
+                }
+            } finally {
+                sVendorSemaphore.release();
+            }
 
             result = -1;
         }
