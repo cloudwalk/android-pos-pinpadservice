@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.pos.pinpadservice.BuildConfig;
 import io.cloudwalk.pos.pinpadservice.R;
 import io.cloudwalk.pos.pinpadservice.utilities.SharedPreferencesUtility;
 import io.cloudwalk.utilitieslibrary.Application;
@@ -85,7 +86,7 @@ public class MainAlertDialog extends AlertDialog {
 
         Context context = Application.getPackageContext();
 
-        String componentList = "\n";
+        String componentList = "";
         String versionName   = "";
 
         try {
@@ -104,9 +105,8 @@ public class MainAlertDialog extends AlertDialog {
         componentList += "\n\t\u2022 UtilitiesLibrary v"
                 + io.cloudwalk.utilitieslibrary.BuildConfig.VERSION_NAME;
 
-        String contentView = "(P)roof (O)f (C)oncept v" + versionName
-                + componentList
-                + "\n\n"
+        String contentView = "(P)roof (O)f (C)oncept v" + versionName + " " + BuildConfig.BUILD_DATE + "\n"
+                + componentList + "\n\n"
                 + context.getString(R.string.content_about);
 
         ((TextView) view.findViewById(R.id.tv_alert_dialog)).setText(contentView);
