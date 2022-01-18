@@ -21,6 +21,9 @@ public class MainAlertDialog extends AlertDialog {
     private static final String
             TAG = MainAlertDialog.class.getSimpleName();
 
+    private static final String
+            IPV4_PATTERN = "^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(:(\\d{1,5})?)?)?)?)?)?)?)?";
+
     private CharSequence onFilterBlock(EditText editText) {
         Log.d(TAG, "onFilterBlock");
 
@@ -31,6 +34,8 @@ public class MainAlertDialog extends AlertDialog {
 
     private void onFilterEntry(EditText editText) {
         Log.d(TAG, "onFilterEntry");
+
+        getButton(BUTTON_POSITIVE).setEnabled(false);
 
         editText.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
     }
@@ -119,15 +124,11 @@ public class MainAlertDialog extends AlertDialog {
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
                 onFilterEntry(editText);
 
-                if (end <= start) {
-                    return null;
-                }
-
-                String s  = dest.toString().substring(0, dstart);
+                String s  = dest  .subSequence(0, dstart).toString();
                        s += source.subSequence(start, end);
-                       s += dest.toString().substring(dend);
+                       s += dest  .subSequence(dend, dest.length()).toString();
 
-                String p = "^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(:(\\d{1,5})?)?)?)?)?)?)?)?";
+                String p = IPV4_PATTERN;
 
                 if (!s.matches(p)) {
                     return onFilterBlock(editText);
@@ -141,13 +142,15 @@ public class MainAlertDialog extends AlertDialog {
                     }
                 }
 
+                getButton(BUTTON_POSITIVE).setEnabled(!(splits.length != 5));
+
                 return null;
             }
         };
 
         editText.setFilters(new InputFilter[] { filter });
 
-        setButton(BUTTON_POSITIVE, activity.getString(R.string.action_save_settings),
+        setButton(BUTTON_POSITIVE, activity.getString(R.string.action_save),
                 (OnClickListener) (dialog, which) -> {
             SharedPreferencesUtility.writeIPv4(editText.getText().toString());
 

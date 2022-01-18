@@ -31,7 +31,7 @@ public class SharedPreferencesUtility {
     public static boolean writeIPv4(String address) {
         Log.d(TAG, "writeIPv4");
 
-        sEditor.putString("address", address);sEditor = null;
+        sEditor.putString("address", address);
 
         return sEditor.commit();
     }

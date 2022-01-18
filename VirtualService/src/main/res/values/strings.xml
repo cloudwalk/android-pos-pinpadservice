@@ -2,7 +2,7 @@
     <string name="app_name">Pinpad Service</string>
 
     <string name="action_back">Back</string>
-    <string name="action_save_settings">Save settings</string>
+    <string name="action_save">Save</string>
     <string name="content_about">CloudWalk, Inc.\nEngineering &amp; Projects\n\nOriginally conceived by Maurício Spinardi and released under the MIT license.\n\nCurrent IPv4 address: &lt;IP&gt;:&lt;port&gt;</string>
     <string name="placeholder_id_tv_trace" translatable="false">\@id+/tv_trace</string>
     <string name="warning_wait">Wait…</string>
