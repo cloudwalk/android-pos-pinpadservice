@@ -2,8 +2,13 @@ package io.cloudwalk.pos.pinpadservice.utilities;
 
 import android.os.Bundle;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.loglibrary.Log;
 
@@ -11,22 +16,106 @@ public class VendorUtility {
     private static final String
             TAG = VendorUtility.class.getSimpleName();
 
+    private static Socket
+            sClient = null;
+
     public static final BlockingQueue<Bundle>
             sResponseQueue = new LinkedBlockingQueue<>();
+
+    public static final Semaphore
+            sVendorSemaphore = new Semaphore(1, true);
 
     private VendorUtility() {
         Log.d(TAG, "VendorUtility");
     }
 
-    public static void abort() {
-        Log.d(TAG, "abort");
+    public static int abort(Bundle bundle) { return send(bundle); }
 
-        // TODO: platform specific code
-    }
+    public static int send(Bundle bundle) {
+        Log.d(TAG, "send");
 
-    public static void request(Bundle bundle) {
-        Log.d(TAG, "request");
+        try {
+            String address  = SharedPreferencesUtility.readIPv4();
+            int    delim    = address.indexOf(":");
 
-        // TODO: platform specific code
+            String host     = address.substring(0, delim);
+            int    port     = Integer.parseInt(address.substring(delim + 1));
+
+            byte[] request  = bundle.getByteArray("request");
+
+            if (sClient != null) {
+                // TODO: interrupt previously triggered reading process without closing the socket
+
+                sClient.close();
+            }
+
+            if (sClient == null || !sClient.isConnected() || sClient.isClosed()) {
+                sClient = new Socket(host, port);
+
+                sClient.setPerformancePreferences(2, 1, 0);
+            }
+
+            OutputStream output = sClient.getOutputStream();
+
+            output.write(request);
+            output.flush();
+
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+                    try {
+                        int i = 0;
+
+                        sVendorSemaphore.acquireUninterruptibly();
+
+                        while (true) {
+                            if (sResponseQueue.poll() == null) { break; }
+                        }
+
+                        InputStream input = sClient.getInputStream();
+
+                        do {
+                            sClient.setSoTimeout((i != 0) ? 0 : 2000);
+
+                            byte[] buffer = new byte[2048];
+                            int    count  = 0;
+
+                            while ((count = input.read(buffer, 0, buffer.length)) != -1) {
+                                stream.write(buffer, 0, count);
+                            }
+
+                            if (stream.size() > 0) {
+                                Bundle response = new Bundle();
+
+                                String applicationId = bundle.getString("application_id");
+
+                                buffer = stream.toByteArray();
+
+                                response.putString   ("application_id", applicationId);
+                                response.putByteArray("response",       buffer);
+
+                                sResponseQueue.add(response);
+
+                                if (buffer[0] == 0x04 || buffer[0] == 0x15) { return; }
+                            }
+                        } while (i++ == 0);
+                    } catch (Exception exception) {
+                        Log.e(TAG, Log.getStackTraceString(exception));
+                    } finally {
+                        sVendorSemaphore.release();
+                    }
+                }
+            }.start();
+
+            return request.length;
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            return -1;
+        }
     }
 }
