@@ -31,8 +31,8 @@ Pinpad Service development team. They need to be made available locally before
 the Pinpad Service can be built:  
 
 1. Clone the repositories
-   [android-misc-loglibrary](https://github.com/cloudwalk/android-misc-loglibrary)
-   and [android-misc-utilitieslibrary](https://github.com/cloudwalk/android-misc-utilitieslibrary)
+   [android-misc-loglibrary](https://github.com/mauriciospinardi/android-misc-loglibrary)
+   and [android-misc-utilitieslibrary](https://github.com/mauriciospinardi/android-misc-utilitieslibrary)-
 2. Rebuild their `release` variants based on tags of your choice.
 3. Run tasks: `gradle publishToMavenLocal`
 
