@@ -4,6 +4,7 @@ import static java.util.Locale.US;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -26,6 +27,8 @@ import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.DEMO;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
+import io.cloudwalk.pos.pinpadserver.PinpadServer;
 import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
@@ -50,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
     private MainAdapter
             mMainAdapter = null;
+
+    private PinpadServer
+            mPinpadServer = null;
 
     private RecyclerView
             mRecyclerView = null;
@@ -376,6 +382,68 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 updateStatus(0, "Finished processing local requests");
+
+                switch (Build.BRAND) {
+                    case "Verifone":    case "SUNMI":
+                        /* Nothing to do */
+                        break;
+
+                    default:
+                        Log.e(TAG, "Device currently blocked as pass-trough Pinpad Server");
+                        return;
+                }
+
+                PinpadServer.Callback serverCallback = new PinpadServer.Callback() {
+                    @Override
+                    public int onPinpadCallback(Bundle bundle) {
+                        try {
+                            return serviceCallback.onServiceCallback(bundle);
+                        } catch (Exception exception) { return -1; }
+                    }
+
+                    @Override
+                    public void onClientConnection(String address) {
+                        // TODO: UX
+                    }
+
+                    @Override
+                    public void onServerFailure(Exception exception) {
+                        updateStatus(1, "Server failure: " + exception.getMessage());
+                    }
+
+                    @Override
+                    public void onServerReceive(byte[] trace, int length) {
+                        try {
+                            Bundle TX = PinpadUtility.parseRequestDataPacket(trace, length);
+
+                            updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
+                        } catch (Exception exception) {
+                            updateContentScrolling("\n", Log.getByteTraceString(trace, length));
+                        }
+                    }
+
+                    @Override
+                    public void onServerSend(byte[] trace, int length) {
+                        try {
+                            Bundle RX = PinpadUtility.parseResponseDataPacket(trace, length);
+
+                            updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
+                        } catch (Exception exception) {
+                            updateContentScrolling("\n", Log.getByteTraceString(trace, length));
+                        }
+                    }
+
+                    @Override
+                    public void onServerSuccess(String address) {
+                        updateStatus(0, "Server up an running @" + address);
+                    }
+                };
+
+                updateStatus(2, "Raising server...");
+
+                mPinpadServer = new PinpadServer(serverCallback);
+
+                try { mPinpadServer.raise(); } catch (Exception exception) { serverCallback.onServerFailure(exception); }
             }
         }.start();
     }
@@ -396,6 +464,8 @@ public class MainActivity extends AppCompatActivity {
                 super.run();
 
                 PinpadManager.abort();
+
+                mPinpadServer.close();
             }
         }.start();
     }
