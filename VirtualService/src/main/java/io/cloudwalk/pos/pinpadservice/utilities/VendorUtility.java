@@ -1,5 +1,8 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
+import static java.util.Locale.US;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
+
 import android.os.Bundle;
 
 import java.io.ByteArrayOutputStream;
@@ -12,6 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
 
 public class VendorUtility {
     private static final String
@@ -74,6 +78,14 @@ public class VendorUtility {
                         while (true) {
                             if (sResponseQueue.poll() == null) { break; }
                         }
+
+                        String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
+
+                        Bundle callback = new Bundle();
+
+                        callback.putString(NTF_MSG, String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, sClient.getInetAddress().getHostAddress()));
+
+                        CallbackUtility.getServiceCallback().onServiceCallback(callback);
 
                         InputStream input = sClient.getInputStream();
 

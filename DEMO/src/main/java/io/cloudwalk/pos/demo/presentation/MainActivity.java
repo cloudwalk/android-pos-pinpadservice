@@ -381,6 +381,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                // TODO: replace hardcoded strings by values @string.xml
+
                 updateStatus(0, "Finished processing local requests");
 
                 switch (Build.BRAND) {
@@ -409,6 +411,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onServerFailure(Exception exception) {
                         updateStatus(1, "Server failure: " + exception.getMessage());
+
+                        updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
                     }
 
                     @Override
@@ -428,6 +432,8 @@ public class MainActivity extends AppCompatActivity {
                             Bundle RX = PinpadUtility.parseResponseDataPacket(trace, length);
 
                             updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
+
+                            updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
                         } catch (Exception exception) {
                             updateContentScrolling("\n", Log.getByteTraceString(trace, length));
                         }
@@ -435,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onServerSuccess(String address) {
-                        updateStatus(0, "Server up an running @" + address);
+                        updateStatus(0, "Server up an running " + address);
                     }
                 };
 
