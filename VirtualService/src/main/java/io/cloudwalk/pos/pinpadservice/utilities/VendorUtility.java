@@ -1,7 +1,9 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TYPE;
 
 import android.os.Bundle;
 import android.os.NetworkOnMainThreadException;
@@ -81,7 +83,8 @@ public class VendorUtility {
 
                             Bundle callback = new Bundle();
 
-                            callback.putString(NTF_MSG, String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
+                            callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
+                            callback.putInt   (NTF_TYPE, NTF);
 
                             // TODO: vibration and display wake up - e.g. GPN, GCD, MNU and GOX
 
