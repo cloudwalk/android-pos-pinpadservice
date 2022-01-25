@@ -117,7 +117,7 @@ public class MainAlertDialog extends AlertDialog {
 
         editText.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
-        editText.setKeyListener(DigitsKeyListener.getInstance("0123456789.:"));
+        // editText.setKeyListener(DigitsKeyListener.getInstance("0123456789.:"));
 
         InputFilter filter = new InputFilter() {
             @Override
