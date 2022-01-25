@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.view.View;
 import android.widget.TextView;
 
+import io.cloudwalk.pos.demo.BuildConfig;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.utilitieslibrary.Application;
@@ -88,9 +89,7 @@ public class AboutAlertDialog extends AlertDialog {
         componentList += "\n\t\u2022 UtilitiesLibrary v"
                 + io.cloudwalk.utilitieslibrary.BuildConfig.VERSION_NAME;
 
-        String trade = context.getString(R.string.app_name).substring(4, 14);
-
-        String contentView = "Proof Of Concept " + trade + ((!versionName.isEmpty()) ? (" v" + versionName) : versionName)
+        String contentView = "(P)roof (O)f (C)oncept " + ((!versionName.isEmpty()) ? (" v" + versionName) : versionName) + " " + BuildConfig.BUILD_DATE
                 + componentList
                 + "\n\n"
                 + context.getString(R.string.content_about);

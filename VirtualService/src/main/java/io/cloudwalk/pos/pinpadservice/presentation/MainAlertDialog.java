@@ -157,9 +157,11 @@ public class MainAlertDialog extends AlertDialog {
             dialog.dismiss();
         });
 
-        setButton(BUTTON_NEGATIVE, activity.getString(R.string.action_back),
+        setButton(BUTTON_NEGATIVE, activity.getString(R.string.action_exit),
                 (OnClickListener) (dialog, which) -> {
             dialog.dismiss();
         });
+
+        setCanceledOnTouchOutside(false);
     }
 }
