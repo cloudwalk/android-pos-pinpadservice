@@ -51,13 +51,13 @@ public class PinpadServer {
             mWifiLock = null;
 
     public static interface Callback {
+        void onClientConnection(String address);
+
         int  onPinpadCallback (Bundle bundle);
 
         // TODO: void onPinpadReceive(byte[] trace, int length);
 
         // TODO: void onPinpadSend(byte[] trace, int length);
-
-        void onClientConnection(String address);
 
         void onServerFailure(Exception exception);
 
