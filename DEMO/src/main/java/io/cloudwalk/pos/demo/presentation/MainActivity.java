@@ -367,9 +367,10 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
 
-                        switch (TX.getString(ABECS.CMD_ID)) {
+                        switch (RX.getString(ABECS.RSP_ID)) {
                             case ABECS.TLI:
                             case ABECS.TLR:
+                                /* Nothing to do */
                                 break;
 
                             default:
@@ -435,7 +436,16 @@ public class MainActivity extends AppCompatActivity {
 
                             updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
 
-                            updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
+                            switch (RX.getString(ABECS.RSP_ID)) {
+                                case ABECS.TLI:
+                                case ABECS.TLR:
+                                    /* Nothing to do */
+                                    break;
+
+                                default:
+                                    updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
+                                    break;
+                            }
                         } catch (Exception exception) {
                             if (length <= 0) { return; }
 
