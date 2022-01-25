@@ -199,7 +199,6 @@ public class PinpadServer {
                             mServerCallback.onClientConnection(mClientSocket.getInetAddress().getHostAddress());
 
                             byte[] stream = new byte[2048];
-
                             int    count;
 
                             while ((count = mClientSocket.getInputStream().read(stream)) >= 0) {
@@ -209,26 +208,40 @@ public class PinpadServer {
 
                                 count = PinpadManager.send(stream, count, mServiceCallback);
 
-                                if (count < 0) { continue; }
+                                if (count < 0)  { continue; }
 
                                 count = PinpadManager.receive(stream, 2000);
 
+                                mClientSocket.getOutputStream().write(stream, 0, count);
+                                mClientSocket.getOutputStream().flush();
+
                                 onServerSend(stream, count);
 
-                                OutputStream output = mClientSocket.getOutputStream();
+                                if (count > 0 && stream[0] == 0x06) {
+                                    new Thread() {
+                                        @Override
+                                        public void run() {
+                                            super.run();
 
-                                output.write(stream, 0, count);
-                                output.flush();
+                                            try {
+                                                Socket socket = mClientSocket;
 
-                                if (stream[0] == 0x06) {
-                                    do { count = PinpadManager.receive(stream, 10000); } while (count == 0);
+                                                byte[] stream = new byte[2048];
+                                                int    count;
 
-                                    if (count < 0) { continue; }
+                                                do { count = PinpadManager.receive(stream, 10000); } while (count == 0);
 
-                                    onServerSend(stream, count);
+                                                if (count < 0) { return; }
 
-                                    output.write(stream, 0, count);
-                                    output.flush();
+                                                onServerSend(stream, count);
+
+                                                socket.getOutputStream().write(stream, 0, count);
+                                                socket.getOutputStream().flush();
+                                            } catch (Exception exception) {
+                                                Log.e(TAG, Log.getStackTraceString(exception));
+                                            }
+                                        }
+                                    }.start();
                                 }
                             }
                         }

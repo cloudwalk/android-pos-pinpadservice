@@ -422,6 +422,8 @@ public class MainActivity extends AppCompatActivity {
 
                             updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
                         } catch (Exception exception) {
+                            if (length <= 0) { return; }
+
                             updateContentScrolling("\n", Log.getByteTraceString(trace, length));
                         }
                     }
@@ -435,6 +437,8 @@ public class MainActivity extends AppCompatActivity {
 
                             updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
                         } catch (Exception exception) {
+                            if (length <= 0) { return; }
+
                             updateContentScrolling("\n", Log.getByteTraceString(trace, length));
                         }
                     }
