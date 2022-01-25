@@ -411,6 +411,8 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onServerFailure(Exception exception) {
+                        // TODO: triple vibration and beep
+
                         updateStatus(1, "Server failure: " + exception.getMessage());
 
                         updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
@@ -455,6 +457,8 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onServerSuccess(String address) {
+                        // TODO: vibration and beep
+
                         updateStatus(0, "Server up an running " + address);
                     }
                 };
