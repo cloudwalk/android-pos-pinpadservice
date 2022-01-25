@@ -111,6 +111,8 @@ public class VendorUtility {
                             response.putString   ("application_id", applicationId);
                             response.putByteArray("response",       stream.toByteArray());
 
+                            stream.reset();
+
                             sResponseQueue.add(response);
 
                             if (buffer[0] == 0x04 || buffer[0] == 0x15) { return; }
