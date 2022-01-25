@@ -4,10 +4,9 @@ import static java.util.Locale.US;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
 
 import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
@@ -22,7 +21,7 @@ public class VendorUtility {
             TAG = VendorUtility.class.getSimpleName();
 
     private static Socket
-            sClient = null;
+            sServerSocket = null;
 
     public static final BlockingQueue<Bundle>
             sResponseQueue = new LinkedBlockingQueue<>();
@@ -34,10 +33,8 @@ public class VendorUtility {
         Log.d(TAG, "VendorUtility");
     }
 
-    public static int abort(Bundle bundle) { return send(bundle); }
-
-    public static int send(Bundle bundle) {
-        Log.d(TAG, "send");
+    private static int route(Bundle bundle) {
+        // Log.d(TAG, "route");
 
         try {
             String address  = SharedPreferencesUtility.readIPv4();
@@ -48,22 +45,21 @@ public class VendorUtility {
 
             byte[] request  = bundle.getByteArray("request");
 
-            if (sClient != null && sClient.isConnected() && !sClient.isClosed()) {
-                sClient.close();
+            if (sServerSocket != null
+                    && sServerSocket.isConnected() && !sServerSocket.isClosed()) {
+                sServerSocket.close();
 
-                Log.d(TAG, "send::" + sClient + " (close) (overlapping)");
+                Log.d(TAG, "route::" + sServerSocket + " (close) (overlapping)");
             }
 
-            sClient = new Socket();
+            sServerSocket = new Socket();
 
-            sClient.setPerformancePreferences(2, 1, 0);
+            sServerSocket.setPerformancePreferences(2, 1, 0);
 
-            sClient.connect(new InetSocketAddress(host, port), 2000);
+            sServerSocket.connect(new InetSocketAddress(host, port), 2000);
 
-            OutputStream output = sClient.getOutputStream();
-
-            output.write(request);
-            output.flush();
+            sServerSocket.getOutputStream().write(request);
+            sServerSocket.getOutputStream().flush();
 
             new Thread() {
                 @Override
@@ -71,6 +67,7 @@ public class VendorUtility {
                     super.run();
 
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Socket socket = sServerSocket;
 
                     try {
                         sVendorSemaphore.acquireUninterruptibly();
@@ -79,23 +76,25 @@ public class VendorUtility {
                             if (sResponseQueue.poll() == null) { break; }
                         }
 
-                        String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
+                        try {
+                            String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
 
-                        Bundle callback = new Bundle();
+                            Bundle callback = new Bundle();
 
-                        callback.putString(NTF_MSG, String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, sClient.getInetAddress().getHostAddress()));
+                            callback.putString(NTF_MSG, String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
 
-                        CallbackUtility.getServiceCallback().onServiceCallback(callback);
-
-                        InputStream input = sClient.getInputStream();
+                            CallbackUtility.getServiceCallback().onServiceCallback(callback);
+                        } catch (NullPointerException exception) {
+                            // 2022-01-25: nothing to do: probably a control byte
+                        }
 
                         byte[] buffer = new byte[2048];
                         int    count  = 0;
 
                         do {
-                            sClient.setSoTimeout((count != 0) ? 0 : 2000);
+                            socket.setSoTimeout((count != 0) ? 0 : 2000);
 
-                            count = input.read(buffer, 0, buffer.length);
+                            count = socket.getInputStream().read(buffer, 0, buffer.length);
 
                             if (count >= 0) {
                                 stream.write(buffer, 0, count);
@@ -115,7 +114,7 @@ public class VendorUtility {
                     } catch (Exception exception) {
                         Log.e(TAG, Log.getStackTraceString(exception));
                     } finally {
-                        try { sClient.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
+                        try { socket.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
 
                         sVendorSemaphore.release();
                     }
@@ -127,6 +126,44 @@ public class VendorUtility {
             Log.e(TAG, Log.getStackTraceString(exception));
 
             return -1;
+        }
+    }
+
+    public static int abort(Bundle bundle) {
+        Log.d(TAG, "abort");
+
+        return send(bundle);
+    }
+
+    public static int send(Bundle bundle) {
+        Log.d(TAG, "send");
+
+        int[] status = { -1 };
+
+        try {
+            return route(bundle);   // 2021-01-25: in theory, none should consume the service in
+                                    // the main thread
+        } catch (NetworkOnMainThreadException exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+
+            Semaphore semaphore = new Semaphore(0, true);
+
+            new Thread() {          // 2021-01-25: bypass `NetworkOnMainThreadException` for those
+                @Override           // consuming the service in the main thread
+                public void run() {
+                    super.run();
+
+                    try {
+                        status[0] = route(bundle);
+                    } finally {
+                        semaphore.release();
+                    }
+                }
+            }.start();
+
+            semaphore.acquireUninterruptibly();
+
+            return status[0];
         }
     }
 }
