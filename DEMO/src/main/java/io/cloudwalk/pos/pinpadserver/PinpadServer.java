@@ -4,7 +4,6 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -19,11 +18,16 @@ import io.cloudwalk.utilitieslibrary.Application;
 
 import static android.content.Context.WIFI_SERVICE;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import org.jetbrains.annotations.NotNull;
 
 public class PinpadServer {
     private static final String
             TAG = PinpadServer.class.getSimpleName();
+
+    private final Semaphore
+            mExchangeSemaphore = new Semaphore(1, true);
 
     private IServiceCallback
             mServiceCallback = null;
@@ -204,20 +208,28 @@ public class PinpadServer {
                             while ((count = mClientSocket.getInputStream().read(stream)) >= 0) {
                                 if (count == 0) { continue; }
 
-                                onServerReceive(stream, count);
+                                mExchangeSemaphore.acquireUninterruptibly();
 
-                                count = PinpadManager.send(stream, count, mServiceCallback);
+                                try {
+                                    onServerReceive(stream, count);
 
-                                if (count < 0)  { continue; }
+                                    count = PinpadManager.send(stream, count, mServiceCallback);
 
-                                count = PinpadManager.receive(stream, 2000);
+                                    if (count  < 0) { continue; }
 
-                                mClientSocket.getOutputStream().write(stream, 0, count);
-                                mClientSocket.getOutputStream().flush();
+                                    count = PinpadManager.receive(stream, 2000);
 
-                                onServerSend(stream, count);
+                                    if (count == 0) { continue; }
 
-                                if (count > 0 && stream[0] == 0x06) {
+                                    mClientSocket.getOutputStream().write(stream, 0, count);
+                                    mClientSocket.getOutputStream().flush();
+
+                                    onServerSend(stream, count);
+                                } finally {
+                                    mExchangeSemaphore.release();
+                                }
+
+                                if (stream[0] == 0x06) {
                                     new Thread() {
                                         @Override
                                         public void run() {
@@ -229,7 +241,15 @@ public class PinpadServer {
                                                 byte[] stream = new byte[2048];
                                                 int    count;
 
-                                                do { count = PinpadManager.receive(stream, 10000); } while (count == 0);
+                                                do {
+                                                    // TODO: only interrupt over a <<CAN>> control byte
+
+                                                    if (!mExchangeSemaphore.tryAcquire(0, SECONDS)) {
+                                                        count = -1;
+                                                    } else {
+                                                        try { count = PinpadManager.receive(stream, 0); } finally { mExchangeSemaphore.release(); }
+                                                    }
+                                                } while (count == 0);
 
                                                 if (count < 0) { return; }
 
