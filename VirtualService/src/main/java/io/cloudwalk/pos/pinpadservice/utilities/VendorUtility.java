@@ -1,7 +1,9 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TYPE;
 
 import android.os.Bundle;
 import android.os.NetworkOnMainThreadException;
@@ -33,100 +35,98 @@ public class VendorUtility {
         Log.d(TAG, "VendorUtility");
     }
 
-    private static int route(Bundle bundle) {
+    private static int route(Bundle bundle)
+            throws Exception {
         // Log.d(TAG, "route");
 
-        try {
-            String address  = SharedPreferencesUtility.readIPv4();
-            int    delim    = address.indexOf(":");
+        String address  = SharedPreferencesUtility.readIPv4();
+        int    delim    = address.indexOf(":");
 
-            String host     = address.substring(0, delim);
-            int    port     = Integer.parseInt(address.substring(delim + 1));
+        String host     = address.substring(0, delim);
+        int    port     = Integer.parseInt(address.substring(delim + 1));
 
-            byte[] request  = bundle.getByteArray("request");
+        byte[] request  = bundle.getByteArray("request");
 
-            if (sServerSocket != null
-                    && sServerSocket.isConnected() && !sServerSocket.isClosed()) {
-                sServerSocket.close();
+        if (sServerSocket != null
+                && sServerSocket.isConnected() && !sServerSocket.isClosed()) {
+            sServerSocket.close();
 
-                Log.d(TAG, "route::" + sServerSocket + " (close) (overlapping)");
-            }
+            Log.d(TAG, "route::" + sServerSocket + " (close) (overlapping)");
+        }
 
-            sServerSocket = new Socket();
+        sServerSocket = new Socket();
 
-            sServerSocket.setPerformancePreferences(2, 1, 0);
+        sServerSocket.setPerformancePreferences(2, 1, 0);
 
-            sServerSocket.connect(new InetSocketAddress(host, port), 2000);
+        sServerSocket.connect(new InetSocketAddress(host, port), 2000);
 
-            sServerSocket.getOutputStream().write(request);
-            sServerSocket.getOutputStream().flush();
+        sServerSocket.getOutputStream().write(request);
+        sServerSocket.getOutputStream().flush();
 
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
 
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    Socket socket = sServerSocket;
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                Socket socket = sServerSocket;
+
+                try {
+                    sVendorSemaphore.acquireUninterruptibly();
+
+                    while (true) {
+                        if (sResponseQueue.poll() == null) { break; }
+                    }
 
                     try {
-                        sVendorSemaphore.acquireUninterruptibly();
+                        String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
 
-                        while (true) {
-                            if (sResponseQueue.poll() == null) { break; }
-                        }
+                        Bundle callback = new Bundle();
 
-                        try {
-                            String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
+                        callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
+                        callback.putInt   (NTF_TYPE, NTF);
 
-                            Bundle callback = new Bundle();
+                        // TODO: vibration and display wake up - e.g. GPN, GCD, MNU and GOX
 
-                            callback.putString(NTF_MSG, String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
-
-                            CallbackUtility.getServiceCallback().onServiceCallback(callback);
-                        } catch (NullPointerException exception) {
-                            // 2022-01-25: nothing to do: probably a control byte
-                        }
-
-                        byte[] buffer = new byte[2048];
-                        int    count  = 0;
-
-                        do {
-                            socket.setSoTimeout((count != 0) ? 0 : 2000);
-
-                            count = socket.getInputStream().read(buffer, 0, buffer.length);
-
-                            if (count >= 0) {
-                                stream.write(buffer, 0, count);
-
-                                Bundle response = new Bundle();
-
-                                String applicationId = bundle.getString("application_id");
-
-                                response.putString   ("application_id", applicationId);
-                                response.putByteArray("response",       stream.toByteArray());
-
-                                sResponseQueue.add(response);
-
-                                if (buffer[0] == 0x04 || buffer[0] == 0x15) { return; }
-                            }
-                        } while (count <= 1);
-                    } catch (Exception exception) {
-                        Log.e(TAG, Log.getStackTraceString(exception));
-                    } finally {
-                        try { socket.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
-
-                        sVendorSemaphore.release();
+                        CallbackUtility.getServiceCallback().onServiceCallback(callback);
+                    } catch (NullPointerException exception) {
+                        // 2022-01-25: nothing to do: probably a control byte
                     }
+
+                    byte[] buffer = new byte[2048];
+                    int    count  = 0;
+
+                    do {
+                        socket.setSoTimeout((count != 0) ? 0 : 2000);
+
+                        count = socket.getInputStream().read(buffer, 0, buffer.length);
+
+                        if (count >= 0) {
+                            stream.write(buffer, 0, count);
+
+                            Bundle response = new Bundle();
+
+                            String applicationId = bundle.getString("application_id");
+
+                            response.putString   ("application_id", applicationId);
+                            response.putByteArray("response",       stream.toByteArray());
+
+                            sResponseQueue.add(response);
+
+                            if (buffer[0] == 0x04 || buffer[0] == 0x15) { return; }
+                        }
+                    } while (count <= 1);
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+                } finally {
+                    try { socket.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
+
+                    sVendorSemaphore.release();
                 }
-            }.start();
+            }
+        }.start();
 
-            return request.length;
-        } catch (Exception exception) {
-            Log.e(TAG, Log.getStackTraceString(exception));
-
-            return -1;
-        }
+        return request.length;
     }
 
     public static int abort(Bundle bundle) {
@@ -155,6 +155,8 @@ public class VendorUtility {
 
                     try {
                         status[0] = route(bundle);
+                    } catch (Exception exception) {
+                        Log.e(TAG, Log.getStackTraceString(exception));
                     } finally {
                         semaphore.release();
                     }
@@ -164,6 +166,10 @@ public class VendorUtility {
             semaphore.acquireUninterruptibly();
 
             return status[0];
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
+
+        return -1;
     }
 }
