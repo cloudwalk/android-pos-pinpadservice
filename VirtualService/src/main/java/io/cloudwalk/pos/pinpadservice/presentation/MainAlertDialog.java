@@ -117,7 +117,7 @@ public class MainAlertDialog extends AlertDialog {
 
         editText.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
-        editText.setKeyListener(DigitsKeyListener.getInstance("0123456789.:"));
+        // editText.setKeyListener(DigitsKeyListener.getInstance("0123456789.:"));
 
         InputFilter filter = new InputFilter() {
             @Override
@@ -157,9 +157,11 @@ public class MainAlertDialog extends AlertDialog {
             dialog.dismiss();
         });
 
-        setButton(BUTTON_NEGATIVE, activity.getString(R.string.action_back),
+        setButton(BUTTON_NEGATIVE, activity.getString(R.string.action_exit),
                 (OnClickListener) (dialog, which) -> {
             dialog.dismiss();
         });
+
+        setCanceledOnTouchOutside(false);
     }
 }

@@ -458,22 +458,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         Log.d(TAG, "onStop");
 
-        super.onStop();
-
-        mAboutAlertDialog.dismiss();
-
-        finish();
-
         new Thread() {
             @Override
             public void run() {
                 super.run();
 
-                PinpadManager.abort();
+                try {
+                    // TODO: ensure both `abort` and `close` will always run before finishing
 
-                mPinpadServer.close();
+                    PinpadManager.abort();
+
+                    mPinpadServer.close();
+                } catch (Exception exception) {
+                    /* Nothing to do */
+                }
             }
         }.start();
+
+        super.onStop();
+
+        mAboutAlertDialog.dismiss();
+
+        finish();
     }
 
     @Override
