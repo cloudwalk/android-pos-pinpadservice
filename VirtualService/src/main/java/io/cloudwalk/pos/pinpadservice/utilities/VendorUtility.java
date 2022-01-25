@@ -83,6 +83,8 @@ public class VendorUtility {
 
                             callback.putString(NTF_MSG, String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
 
+                            // TODO: vibration and display wake up - e.g. GPN, GCD, MNU and GOX
+
                             CallbackUtility.getServiceCallback().onServiceCallback(callback);
                         } catch (NullPointerException exception) {
                             // 2022-01-25: nothing to do: probably a control byte
