@@ -8,8 +8,8 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## Known issues
-- Callbacks for service connection won't stack up.
+## [M.m.b] - YYYY-MM-DD
+- ...
 
 ## [1.0.14] - 2021-12-17
 - Update data conversion from `Bundle` interface for `OPN`, `CHP` and `GPN`.

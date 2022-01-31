@@ -43,6 +43,6 @@ dependencies {
     implementation files('libs/PayLib-release-1.4.62.aar')
     implementation files('libs/PPCompp2-v1.29.aar')
 
-    implementation 'io.cloudwalk:loglibrary:1.1.1'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.7'
+    implementation 'io.cloudwalk:loglibrary:1.1.2'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.9'
 }

@@ -41,6 +41,6 @@ dependencies {
 
     implementation project(path: ':PinpadLibrary')
 
-    implementation 'io.cloudwalk:loglibrary:1.1.1'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.7'
+    implementation 'io.cloudwalk:loglibrary:1.1.2'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.9'
 }
