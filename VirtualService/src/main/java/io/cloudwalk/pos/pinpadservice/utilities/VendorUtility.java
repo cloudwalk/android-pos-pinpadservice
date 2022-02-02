@@ -119,21 +119,6 @@ public class VendorUtility {
                         if (sResponseQueue.poll() == null) { break; }
                     }
 
-                    try {
-                        String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
-
-                        Bundle callback = new Bundle();
-
-                        callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
-                        callback.putInt   (NTF_TYPE, NTF);
-
-                        // TODO: vibration and display wake up - e.g. GPN, GCD, MNU and GOX
-
-                        CallbackUtility.getServiceCallback().onServiceCallback(callback);
-                    } catch (NullPointerException exception) {
-                        // 2022-01-25: nothing to do: probably a control byte
-                    }
-
                     byte[] buffer = new byte[2048];
                     int    count  = 0;
 
@@ -156,7 +141,20 @@ public class VendorUtility {
 
                             sResponseQueue.add(response);
 
-                            if (buffer[0] == 0x04 || buffer[0] == 0x15) { return; }
+                            if (buffer[0] != 0x06) { return; }
+
+                            try {
+                                String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
+
+                                Bundle callback = new Bundle();
+
+                                callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
+                                callback.putInt   (NTF_TYPE, NTF);
+
+                                CallbackUtility.getServiceCallback().onServiceCallback(callback);
+                            } catch (NullPointerException exception) {
+                                // 2022-01-25: nothing to do: probably a control byte
+                            }
                         }
                     } while (count <= 1);
                 } catch (Exception exception) {
