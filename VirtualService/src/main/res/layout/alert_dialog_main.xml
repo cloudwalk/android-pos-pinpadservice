@@ -17,6 +17,7 @@
                 android:textSize="14sp" />
         <EditText
                 android:id="@+id/et_alert_dialog"
+                android:inputType="text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
