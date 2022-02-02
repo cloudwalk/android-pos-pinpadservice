@@ -88,6 +88,10 @@ public class VendorUtility {
 
         byte[] request  = bundle.getByteArray("request");
 
+        if (address.contains("127.0.0.1") || address.contains("0.0.0.0")) {
+            // TODO: return MockUtility.send(bundle);
+        }
+
         if (sServerSocket != null
                 && sServerSocket.isConnected() && !sServerSocket.isClosed()) {
             sServerSocket.close();
