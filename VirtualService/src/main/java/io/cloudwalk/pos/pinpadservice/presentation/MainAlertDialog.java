@@ -7,7 +7,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.text.method.DigitsKeyListener;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,7 +29,7 @@ public class MainAlertDialog extends AlertDialog {
 
         editText.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
-        return "";
+        return null;
     }
 
     private void onFilterEntry(EditText editText) {
@@ -130,21 +129,21 @@ public class MainAlertDialog extends AlertDialog {
 
                 String p = IPV4_PATTERN;
 
-                if (!s.matches(p)) {
+                if (s.matches(p)) {
+                    String[] splits = s.split("[.:]");
+
+                    for (int i = 0; i < splits.length && i < 4; i++) {
+                        if (Integer.parseInt(splits[i]) > 255) {
+                            return onFilterBlock(editText);
+                        }
+                    }
+
+                    getButton(BUTTON_POSITIVE).setEnabled(!(splits.length != 5));
+
+                    return null;
+                } else {
                     return onFilterBlock(editText);
                 }
-
-                String[] splits = s.split("[.:]");
-
-                for (int i = 0; i < splits.length && i < 4; i++) {
-                    if (Integer.parseInt(splits[i]) > 255) {
-                        return onFilterBlock(editText);
-                    }
-                }
-
-                getButton(BUTTON_POSITIVE).setEnabled(!(splits.length != 5));
-
-                return null;
             }
         };
 
