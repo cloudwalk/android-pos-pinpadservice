@@ -137,21 +137,18 @@ public class PinpadManager extends IPinpadManager.Stub {
                 sVendorSemaphore.acquireUninterruptibly();
 
                 while (true) {
-                    if (sResponseQueue.poll() != null) {
-                        continue;
-                    }
-
-                    sResponseQueue.add(response); break;
-
+                    if (sResponseQueue.poll() == null) { break; }
                 }
+
+                sResponseQueue.add(response); /* 2022-02-02: NAK */
             } finally {
                 sVendorSemaphore.release();
             }
 
             result = -1;
+        } finally {
+            sSendSemaphore.release();
         }
-
-        sSendSemaphore.release();
 
         return result;
     }
