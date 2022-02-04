@@ -2,8 +2,8 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import static io.cloudwalk.pos.pinpadservice.utilities.VendorUtility.sResponseQueue;
-import static io.cloudwalk.pos.pinpadservice.utilities.VendorUtility.sVendorSemaphore;
+import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sResponseQueue;
+import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sVirtualSemaphore;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -18,7 +18,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.pinpadservice.utilities.VendorUtility;
+import io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -98,7 +98,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             switch (request[0]) {
                 case 0x18:
                     if (request.length == 1) {
-                        result = VendorUtility.abort(bundle);
+                        result = VirtualUtility.abort(bundle);
                         break;
                     }
                     /* no break; */
@@ -118,7 +118,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GPN: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            result = VendorUtility.send(bundle);
+                            result = VirtualUtility.send(bundle);
                             break;
 
                         default:
@@ -134,7 +134,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             response.putByteArray("response",       new byte[] { 0x15 });
 
             try {
-                sVendorSemaphore.acquireUninterruptibly();
+                sVirtualSemaphore.acquireUninterruptibly();
 
                 while (true) {
                     if (sResponseQueue.poll() == null) { break; }
@@ -142,7 +142,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                 sResponseQueue.add(response); /* 2022-02-02: NAK */
             } finally {
-                sVendorSemaphore.release();
+                sVirtualSemaphore.release();
             }
 
             result = -1;

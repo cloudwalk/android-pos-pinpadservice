@@ -19,9 +19,9 @@ import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 
-public class VendorUtility {
+public class VirtualUtility {
     private static final String
-            TAG = VendorUtility.class.getSimpleName();
+            TAG = VirtualUtility.class.getSimpleName();
 
     private static Socket
             sServerSocket = null;
@@ -30,10 +30,10 @@ public class VendorUtility {
             sResponseQueue = new LinkedBlockingQueue<>();
 
     public static final Semaphore
-            sVendorSemaphore = new Semaphore(1, true);
+            sVirtualSemaphore = new Semaphore(1, true);
 
-    private VendorUtility() {
-        Log.d(TAG, "VendorUtility");
+    private VirtualUtility() {
+        Log.d(TAG, "VirtualUtility");
     }
 
     private static byte[] _intercept(String action, byte[] stream) {
@@ -117,7 +117,7 @@ public class VendorUtility {
                 Socket socket = sServerSocket;
 
                 try {
-                    sVendorSemaphore.acquireUninterruptibly();
+                    sVirtualSemaphore.acquireUninterruptibly();
 
                     while (true) {
                         if (sResponseQueue.poll() == null) { break; }
@@ -166,7 +166,7 @@ public class VendorUtility {
                 } finally {
                     try { socket.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
 
-                    sVendorSemaphore.release();
+                    sVirtualSemaphore.release();
                 }
             }
         }.start();
