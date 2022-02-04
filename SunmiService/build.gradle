@@ -15,6 +15,15 @@ android {
         setProperty("archivesBaseName", "sunmi-$applicationId-$versionName-${getDate()}")
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a"
+            universalApk false
+        }
+    }
+
     buildTypes {
         release {
             // Enables code shrinking, obfuscation, and optimization.
@@ -44,5 +53,5 @@ dependencies {
     implementation files('libs/PPCompp2-v1.29.aar')
 
     implementation 'io.cloudwalk:loglibrary:1.1.2'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.9'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.10'
 }
