@@ -15,6 +15,15 @@ android {
         setProperty("archivesBaseName", "sunmi-$applicationId-$versionName-${getDate()}")
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a"
+            universalApk false
+        }
+    }
+
     buildTypes {
         release {
             // Enables code shrinking, obfuscation, and optimization.
