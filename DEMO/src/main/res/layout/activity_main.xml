@@ -52,7 +52,7 @@
             android:layout_margin="@dimen/fab_margin"
             android:visibility="invisible"
             app:backgroundTint="@color/fab_bg_color_selector"
-            app:srcCompat="@drawable/baseline_play_arrow_24"
+            app:srcCompat="@drawable/baseline_playlist_play_24"
             app:tint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
