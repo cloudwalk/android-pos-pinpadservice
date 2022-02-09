@@ -8,7 +8,7 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [0.0.4] - 2022-02-09
+## [0.0.4] - 2022-02-08
 - Adjust minor UX aspects.
 
 ## [0.0.3] - 2022-02-04
