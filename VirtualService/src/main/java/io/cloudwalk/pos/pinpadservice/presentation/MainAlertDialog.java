@@ -85,7 +85,7 @@ public class MainAlertDialog extends AlertDialog {
 
         Context context = Application.getPackageContext();
 
-        String componentList = "";
+        String componentList = "\n";
         String versionName   = "";
 
         try {
@@ -104,7 +104,7 @@ public class MainAlertDialog extends AlertDialog {
         componentList += "\n\t\u2022 UtilitiesLibrary v"
                 + io.cloudwalk.utilitieslibrary.BuildConfig.VERSION_NAME;
 
-        String contentView = "(P)roof (O)f (C)oncept v" + versionName + " " + BuildConfig.BUILD_DATE + "\n"
+        String contentView = "(P)roof (O)f (C)oncept v" + versionName + " @" + BuildConfig.BUILD_DATE
                 + componentList + "\n\n"
                 + context.getString(R.string.content_about);
 
