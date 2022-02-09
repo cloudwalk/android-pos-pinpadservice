@@ -3,7 +3,7 @@
     <string name="app_name_alternative">Pinpad Service Server</string>
 
     <string name="action_about">About</string>
-    <string name="content_about">CloudWalk, Inc.\nEngineering &amp; Projects\n\nReleased under the MIT license.\n\nMaurício Spinardi\nGitHub @mauriciospinardi-cloudwalk\nLinkedIn @mauriciospinardi</string>
+    <string name="content_about">CloudWalk, Inc.\nEngineering &amp; Projects\n\nOriginally conceived by Maurício Spinardi and released under the MIT license.</string>
     <string name="placeholder_id_tv_trace" translatable="false">\@id+/tv_trace</string>
     <string name="warning_local_processing">Processing local request(s)…</string>
     <string name="warning_application_starting">Connecting local service(s)…</string>
