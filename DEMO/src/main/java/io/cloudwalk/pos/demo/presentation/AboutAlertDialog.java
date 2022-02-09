@@ -53,7 +53,7 @@ public class AboutAlertDialog extends AlertDialog {
 
         setIcon(R.mipmap.ic_pinpadservice);
 
-        setTitle(R.string.app_name); // TODO: multiline custom view
+        setTitle(R.string.app_name);
 
         View view = getLayoutInflater().inflate(R.layout.alert_dialog_about, null);
 
@@ -89,7 +89,7 @@ public class AboutAlertDialog extends AlertDialog {
         componentList += "\n\t\u2022 UtilitiesLibrary v"
                 + io.cloudwalk.utilitieslibrary.BuildConfig.VERSION_NAME;
 
-        String contentView = "(P)roof (O)f (C)oncept " + ((!versionName.isEmpty()) ? (" v" + versionName) : versionName) + " " + BuildConfig.BUILD_DATE
+        String contentView = context.getString(R.string.app_name_alternative) + ((!versionName.isEmpty()) ? (" v" + versionName) : versionName) + " @" + BuildConfig.BUILD_DATE
                 + componentList
                 + "\n\n"
                 + context.getString(R.string.content_about);

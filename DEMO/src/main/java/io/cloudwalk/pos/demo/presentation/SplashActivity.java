@@ -193,9 +193,12 @@ public class SplashActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate");
 
         super.onCreate(savedInstanceState);
+
         ActivitySplashBinding binding = ActivitySplashBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+
+        setContentView     (binding.getRoot());
         setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setTitle(getString(R.string.app_name));
 
         updateContentScrolling(2, getString(R.string.warning_application_starting));
 

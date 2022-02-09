@@ -4,7 +4,6 @@ import static java.util.Locale.US;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -219,8 +218,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+
+        setContentView     (binding.getRoot());
         setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setTitle(getString(R.string.app_name));
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -287,6 +288,8 @@ public class MainActivity extends AppCompatActivity {
         mAboutAlertDialog = new AboutAlertDialog(this);
 
         ((TextView) findViewById(R.id.tv_pinpad_content)).setText(getString(R.string.warning_wait).toUpperCase(US));
+
+        String label = getString(R.string.app_name_alternative).substring(0, 14).toUpperCase(US);
 
         new Thread() { // TODO: new method!?
             @Override
@@ -374,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
 
                             default:
-                                updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
+                                updatePinpadContent(label);
                                 break;
                         }
                     } catch (Exception exception) {
@@ -385,16 +388,6 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: replace hardcoded strings by values @string.xml
 
                 updateStatus(0, "Finished processing local requests");
-
-                switch (Build.BRAND) {
-                    case "Verifone":    case "SUNMI":
-                        /* Nothing to do */
-                        break;
-
-                    default:
-                        Log.e(TAG, "Device currently blocked as pass-trough Pinpad Server");
-                        return;
-                }
 
                 PinpadServer.Callback serverCallback = new PinpadServer.Callback() {
                     @Override
@@ -415,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
 
                         updateStatus(1, "Server failure: " + exception.getMessage());
 
-                        updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
+                        updatePinpadContent(label);
                     }
 
                     @Override
@@ -445,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
                                     break;
 
                                 default:
-                                    updatePinpadContent(getString(R.string.app_name).substring(16).toUpperCase(US));
+                                    updatePinpadContent(label);
                                     break;
                             }
                         } catch (Exception exception) {
