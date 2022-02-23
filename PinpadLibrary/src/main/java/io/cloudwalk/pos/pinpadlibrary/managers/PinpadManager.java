@@ -119,7 +119,7 @@ public class PinpadManager {
                 } finally {
                     sExchangeSemaphore.release();
                 }
-            } while (status <= 0);
+            } while (status <= 1); // 2022-02-23: `1` to workaround eventual ACK trash in vendor buffers
 
             output = PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
