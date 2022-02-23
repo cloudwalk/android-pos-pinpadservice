@@ -11,8 +11,8 @@
 - Sunmi SDK 1.2.0
 - Super Power 2.2.1
 - System State Manager 2.8.1
-- PayLib 1.4.62
-- BC 1.29
+- SunmiPaySDK 3.3.148
+- Sunmi BC 1.30
 
 ## Known issues
 - PIN keyboard external customization is disabled.

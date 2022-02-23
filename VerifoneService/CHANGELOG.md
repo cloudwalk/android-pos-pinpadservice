@@ -3,13 +3,13 @@
 ## Dependencies
 - Android 5.1.1
 - Baseband BP01.003(SC20AUSAR01A03_SX)
-- Firmware V1.0.1.20210909
+- Firmware V1.0.1.20210130
 - Linux Kernel 3.10.49
-- ROM V1.1.0.202109090928 BRA
-- Security Driver VA.213.S.068.202108241801
-- VFService 3.11.0
+- ROM V1.1.0.202101301407 BRA
+- Security Driver VA.215.S.076.202202101445
+- VFService 3.11.2.3
 - VFSystemService 1.8.11
-- BC 001.27
+- BC 001.29
 
 ## Known issues
 - PIN keyboard external customization is disabled.
@@ -18,6 +18,9 @@
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.
+
+## [M.m.b] - YYYY-MM-DD
+- Update dependencies and compilation tools.
 
 ## [1.0.8] - 2022-01-17
 - Update vendor components.
