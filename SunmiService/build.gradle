@@ -9,8 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 22
         targetSdk 31
-        versionCode 5
-        versionName "1.0.4.1"
+        versionCode 6
+        versionName "1.0.5"
 
         setProperty("archivesBaseName", "sunmi-$applicationId-$versionName-${getDate()}")
     }
@@ -50,7 +50,7 @@ dependencies {
     implementation project(path: ':PinpadLibrary')
 
     implementation files('libs/PayLib-release-1.4.62.aar')
-    implementation files('libs/PPCompp2-v1.29.aar')
+    implementation files('libs/PPCompp2-v1.30.aar')
 
     implementation 'io.cloudwalk:loglibrary:1.1.2'
     implementation 'io.cloudwalk:utilitieslibrary:1.0.10'
