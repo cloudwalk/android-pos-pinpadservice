@@ -8,8 +8,8 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [M.m.b] - YYYY-MM-DD
-- ...
+## [1.0.15] - 2022-02-23
+- Workaround eventual ACK trash in vendor buffers.
 
 ## [1.0.14] - 2021-12-17
 - Update data conversion from `Bundle` interface for `OPN`, `CHP` and `GPN`.

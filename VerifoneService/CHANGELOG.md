@@ -19,7 +19,7 @@
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.
 
-## [M.m.b] - YYYY-MM-DD
+## [1.0.9] - 2022-02-23
 - Update dependencies and compilation tools.
 
 ## [1.0.8] - 2022-01-17
