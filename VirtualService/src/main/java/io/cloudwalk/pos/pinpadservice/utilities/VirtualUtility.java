@@ -1,6 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
 import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TYPE;
@@ -11,6 +12,7 @@ import android.os.NetworkOnMainThreadException;
 import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -24,13 +26,16 @@ public class VirtualUtility {
             TAG = VirtualUtility.class.getSimpleName();
 
     private static Socket
-            sServerSocket = null;
+            sPinpadSocket = null;
+
+    private static final Semaphore
+            sAbortSemaphore = new Semaphore(1, true);
 
     public static final BlockingQueue<Bundle>
             sResponseQueue = new LinkedBlockingQueue<>();
 
     public static final Semaphore
-            sVirtualSemaphore = new Semaphore(1, true);
+            sRecvSemaphore = new Semaphore(1, true);
 
     private VirtualUtility() {
         Log.d(TAG, "VirtualUtility");
@@ -92,81 +97,100 @@ public class VirtualUtility {
             // TODO: return MockUtility.send(bundle);
         }
 
-        if (sServerSocket != null
-                && sServerSocket.isConnected() && !sServerSocket.isClosed()) {
-            sServerSocket.close();
+        if (sPinpadSocket != null
+                && sPinpadSocket.isConnected() && !sPinpadSocket.isClosed()) {
+            sPinpadSocket.close();
 
-            Log.d(TAG, "_route::" + sServerSocket + " (close) (overlapping)");
+            Log.d(TAG, "_route::" + sPinpadSocket + " (close) (overlapping)");
         }
 
-        sServerSocket = new Socket();
+        sPinpadSocket = new Socket();
 
-        sServerSocket.setPerformancePreferences(2, 1, 0);
+        sPinpadSocket.setPerformancePreferences(2, 1, 0);
+        sPinpadSocket.setKeepAlive(true);
 
-        sServerSocket.connect(new InetSocketAddress(host, port), 2000);
+        sPinpadSocket.connect(new InetSocketAddress(host, port), 2000);
 
-        sServerSocket.getOutputStream().write(request);
-        sServerSocket.getOutputStream().flush();
+        sPinpadSocket.getOutputStream().write(request);
+        sPinpadSocket.getOutputStream().flush();
 
         new Thread() {
             @Override
             public void run() {
                 super.run();
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                Socket socket = sServerSocket;
+                Socket pinpadSocket = sPinpadSocket;
 
                 try {
-                    sVirtualSemaphore.acquireUninterruptibly();
+                    sRecvSemaphore.acquireUninterruptibly();
 
-                    while (true) {
-                        if (sResponseQueue.poll() == null) { break; }
-                    }
+                    String applicationId = bundle.getString   ("application_id");
+                    byte[] request       = bundle.getByteArray("request");
+                    Bundle requestBundle = bundle.getBundle   ("request_bundle");
+
+                    while (sResponseQueue.poll() != null);
 
                     byte[] buffer = new byte[2048];
                     int    count  = 0;
 
                     do {
-                        socket.setSoTimeout((count != 0) ? 0 : 2000);
+                        if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
+                            break;
+                        }
 
-                        count = socket.getInputStream().read(buffer, 0, buffer.length);
+                        try {
+                            int timeout = (count != 0) ? 200 : 2000; // 2022-02-24: Java socket implementations take
+                                                                     // `0` as no timeout whatsoever
 
-                        if (count >= 0) {
-                            stream.write(buffer, 0, count);
-
-                            Bundle response = new Bundle();
-
-                            String applicationId = bundle.getString("application_id");
-
-                            response.putString   ("application_id", applicationId);
-                            response.putByteArray("response",       _intercept("recv", stream.toByteArray()));
-
-                            stream.reset();
-
-                            sResponseQueue.add(response);
-
-                            if (buffer[0] != 0x06) { return; }
+                            pinpadSocket.setSoTimeout(timeout);
 
                             try {
-                                String CMD_ID = bundle.getBundle("request_bundle").getString(ABECS.CMD_ID);
+                                count = pinpadSocket.getInputStream().read(buffer, 0, buffer.length);
+                            } catch (SocketTimeoutException exception) {
+                                count = 0;
 
-                                Bundle callback = new Bundle();
-
-                                callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, socket.getInetAddress().getHostAddress()));
-                                callback.putInt   (NTF_TYPE, NTF);
-
-                                CallbackUtility.getServiceCallback().onServiceCallback(callback);
-                            } catch (NullPointerException exception) {
-                                // 2022-01-25: nothing to do: probably a control byte
+                                if (timeout != 200) { throw exception; }
                             }
+
+                            if (count > 0) {
+                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+                                stream.write(buffer, 0, count);
+
+                                Bundle response = new Bundle();
+
+                                response.putString   ("application_id", applicationId);
+                                response.putByteArray("response",       _intercept("recv", stream.toByteArray()));
+
+                                if (timeout != 200 || count != 1) {
+                                    sResponseQueue.add(response);
+                                }
+
+                                if (buffer[0] != 0x06) { break; }
+
+                                try {
+                                    String CMD_ID = requestBundle.getString(ABECS.CMD_ID);
+
+                                    Bundle callback = new Bundle();
+
+                                    callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, pinpadSocket.getInetAddress().getHostAddress()));
+                                    callback.putInt   (NTF_TYPE, NTF);
+
+                                    CallbackUtility.getServiceCallback().onServiceCallback(callback);
+                                } catch (NullPointerException exception) {
+                                    /* Nothing to do */
+                                }
+                            }
+                        } finally {
+                            sAbortSemaphore.release();
                         }
-                    } while (count <= 1);
+                    } while (count++ <= 1);
                 } catch (Exception exception) {
                     Log.e(TAG, Log.getStackTraceString(exception));
                 } finally {
-                    try { socket.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
+                    try { pinpadSocket.close(); } catch (Exception exception) { Log.e(TAG, Log.getStackTraceString(exception)); }
 
-                    sVirtualSemaphore.release();
+                    sRecvSemaphore.release();
                 }
             }
         }.start();
@@ -176,6 +200,11 @@ public class VirtualUtility {
 
     public static int abort(Bundle bundle) {
         Log.d(TAG, "abort");
+
+        sAbortSemaphore.acquireUninterruptibly();
+        sRecvSemaphore .acquireUninterruptibly();
+        sAbortSemaphore.release();
+        sRecvSemaphore .release();
 
         return send(bundle);
     }

@@ -3,7 +3,6 @@ package io.cloudwalk.pos.pinpadservice.managers;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sResponseQueue;
-import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sVirtualSemaphore;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -105,9 +104,15 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                 default:
                     if (requestBundle == null) {
-                        requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
+                        try {
+                            requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
 
-                        bundle.putBundle("request_bundle", requestBundle);
+                            bundle.putBundle("request_bundle", requestBundle);
+                        } catch (Exception exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+
+                            requestBundle = new Bundle();
+                        }
                     }
 
                     CallbackUtility.setServiceCallback(callback);
@@ -122,7 +127,28 @@ public class PinpadManager extends IPinpadManager.Stub {
                             break;
 
                         default:
-                            throw new IllegalArgumentException();
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    super.run();
+
+                                    VirtualUtility.sRecvSemaphore.acquireUninterruptibly();
+
+                                    Bundle response = new Bundle();
+
+                                    response.putString   ("application_id", applicationId);
+                                    response.putByteArray("response",       new byte[] { 0x15 });
+
+                                    while (sResponseQueue.poll() != null);
+
+                                    sResponseQueue.add(response);
+
+                                    VirtualUtility.sRecvSemaphore.release();
+                                }
+                            }.start();
+
+                            result = 0;
+                            break;
                     }
             }
         } catch (Exception exception) {
