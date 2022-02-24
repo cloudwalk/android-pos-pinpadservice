@@ -160,10 +160,6 @@ public class CallbackUtility {
 
         sClbkSemaphore.acquireUninterruptibly();
 
-        if (sServiceCallback == null) {
-            Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
-        }
-
         output = sServiceCallback;
 
         sClbkSemaphore.release();
@@ -187,6 +183,8 @@ public class CallbackUtility {
         return new InterfaceUsuarioPinpad() {
             @Override
             public void mensagemNotificacao(String mensagem, TipoNotificacao tipoNotificacao) {
+                Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] tipoNotificacao [" + tipoNotificacao + "]");
+
                 int type = -1;
 
                 switch (tipoNotificacao) {
@@ -215,16 +213,22 @@ public class CallbackUtility {
 
             @Override
             public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
+                Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
+
                 CallbackUtility.notificacaoCapturaPin(notificacaoCapturaPin);
             }
 
             @Override
             public void menu(Menu menu) {
+                Log.d(TAG, "menu::menu [" + menu + "]");
+
                 CallbackUtility.menu(menu);
             }
 
             @Override
             public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
+                Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
+
                 CallbackUtility.ledsProcessamentoContactless(ledsContactless);
             }
         };

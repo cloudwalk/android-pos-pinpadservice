@@ -12,7 +12,7 @@
 - Super Power 2.2.1
 - System State Manager 2.8.1
 - SunmiPaySDK 3.3.148
-- Sunmi BC 1.30
+- BC 1.30
 
 ## Known issues
 - PIN keyboard external customization is disabled.
@@ -21,6 +21,9 @@
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.
+
+## [1.1.0] - 2022-02-24
+- Completely rewrite internal byte stream handling routines.
 
 ## [1.0.5] - 2022-02-23
 - Update dependencies and compilation tools.

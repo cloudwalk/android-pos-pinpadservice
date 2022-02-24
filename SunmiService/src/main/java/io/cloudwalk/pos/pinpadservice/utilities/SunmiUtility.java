@@ -9,16 +9,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
-import br.com.verifone.bibliotecapinpad.AcessoDiretoPinpad;
-import br.com.verifone.bibliotecapinpad.GestaoBibliotecaPinpad;
+import br.com.setis.sunmi.bibliotecapinpad.AcessoDiretoPinpad;
+import br.com.setis.sunmi.bibliotecapinpad.GestaoBibliotecaPinpad;
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
-import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
-public class VerifoneUtility {
+public class SunmiUtility {
     private static final String
-            TAG = VerifoneUtility.class.getSimpleName();
+            TAG = SunmiUtility.class.getSimpleName();
 
     private static AcessoDiretoPinpad
             sAcessoDiretoPinpad = null;
@@ -26,22 +25,14 @@ public class VerifoneUtility {
     private static final Semaphore
             sAbortSemaphore = new Semaphore(1, true);
 
-    private static final String[]
-            sVerifoneService = {
-                    "com.vfi.smartpos.deviceservice",
-                    "com.verifone.smartpos.service.VerifoneDeviceService",
-                    "com.vfi.smartpos.system_service",
-                    "com.vfi.smartpos.system_service.SystemService"
-            };
-
     public static final BlockingQueue<Bundle>
             sResponseQueue = new LinkedBlockingQueue<>();
 
     public static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
 
-    private VerifoneUtility() {
-        Log.d(TAG, "VerifoneUtility");
+    private SunmiUtility() {
+        Log.d(TAG, "SunmiUtility");
 
         /* Nothing to do */
     }
@@ -51,30 +42,12 @@ public class VerifoneUtility {
 
         AcessoDiretoPinpad pinpad;
 
-        Semaphore semaphore = new Semaphore(0, true);
-
         if (sAcessoDiretoPinpad == null) {
-            ServiceUtility.register(sVerifoneService[0], sVerifoneService[1], new ServiceUtility.Callback() {
-                @Override
-                public void onSuccess() {
-                    try {
-                        sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
-                    } catch (Exception exception) {
-                        Log.e(TAG, Log.getStackTraceString(exception));
-                    }
-
-                    semaphore.release();
-                }
-
-                @Override
-                public void onFailure() {
-                    Log.d(TAG, "onFailure");
-
-                    this.onSuccess();
-                }
-            });
-
-            semaphore.acquireUninterruptibly();
+            try {
+                sAcessoDiretoPinpad = GestaoBibliotecaPinpad.obtemInstanciaAcessoDiretoPinpad(CallbackUtility.getCallback());
+            } catch (Exception exception) {
+                Log.e(TAG, Log.getStackTraceString(exception));
+            }
         }
 
         pinpad = sAcessoDiretoPinpad;
