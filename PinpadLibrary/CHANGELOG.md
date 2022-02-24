@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Current dependencies
+## Dependencies
 
 ### Sunmi
 - Pinpad Service 1.0.4
