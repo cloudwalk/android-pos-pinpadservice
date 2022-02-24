@@ -17,6 +17,7 @@ import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 
@@ -119,7 +120,7 @@ public class PinpadManager {
                 } finally {
                     sExchangeSemaphore.release();
                 }
-            } while (status <= 1); // 2022-02-23: `1` to workaround eventual ACK trash in vendor buffers
+            } while (status <= 1);
 
             output = PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
@@ -299,14 +300,14 @@ public class PinpadManager {
         try {
             Log.h(TAG, request, length);
 
-            byte[] courier = new byte[length];
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-            System.arraycopy(request, 0, courier, 0, length);
+            stream.write(request, 0, length);
 
             Bundle bundle = new Bundle();
 
             bundle.putString   ("application_id", Application.getPackageContext().getPackageName());
-            bundle.putByteArray("request", courier);
+            bundle.putByteArray("request", stream.toByteArray());
 
             IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
 

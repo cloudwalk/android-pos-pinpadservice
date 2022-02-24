@@ -88,7 +88,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sSendSemaphore.acquireUninterruptibly();
 
-        int result = 0;
+        int result = -1;
 
         String applicationId = bundle.getString   ("application_id");
         byte[] request       = bundle.getByteArray("request");
@@ -127,25 +127,6 @@ public class PinpadManager extends IPinpadManager.Stub {
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
-
-            Bundle response = new Bundle();
-
-            response.putString   ("application_id", applicationId);
-            response.putByteArray("response",       new byte[] { 0x15 });
-
-            try {
-                sVirtualSemaphore.acquireUninterruptibly();
-
-                while (true) {
-                    if (sResponseQueue.poll() == null) { break; }
-                }
-
-                sResponseQueue.add(response); /* 2022-02-02: NAK */
-            } finally {
-                sVirtualSemaphore.release();
-            }
-
-            result = -1;
         } finally {
             sSendSemaphore.release();
         }
