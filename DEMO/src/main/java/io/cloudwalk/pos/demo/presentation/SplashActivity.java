@@ -36,7 +36,10 @@ public class SplashActivity extends AppCompatActivity {
             mMenu = null;
 
     private Semaphore[]
-            mSemaphore = { new Semaphore(-1, true), new Semaphore(0, true) };
+            mSemaphore = {
+                    new Semaphore(-1, true),
+                    new Semaphore( 0, true)
+            };
 
     private Menu getMenu() {
         Log.d(TAG, "getMenu");

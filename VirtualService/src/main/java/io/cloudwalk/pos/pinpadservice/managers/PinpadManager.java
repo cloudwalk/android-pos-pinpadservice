@@ -3,7 +3,6 @@ package io.cloudwalk.pos.pinpadservice.managers;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sResponseQueue;
-import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sVirtualSemaphore;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -88,7 +87,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
         sSendSemaphore.acquireUninterruptibly();
 
-        int result = 0;
+        int result = -1;
 
         String applicationId = bundle.getString   ("application_id");
         byte[] request       = bundle.getByteArray("request");
@@ -105,9 +104,15 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                 default:
                     if (requestBundle == null) {
-                        requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
+                        try {
+                            requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
 
-                        bundle.putBundle("request_bundle", requestBundle);
+                            bundle.putBundle("request_bundle", requestBundle);
+                        } catch (Exception exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+
+                            requestBundle = new Bundle();
+                        }
                     }
 
                     CallbackUtility.setServiceCallback(callback);
@@ -122,30 +127,32 @@ public class PinpadManager extends IPinpadManager.Stub {
                             break;
 
                         default:
-                            throw new IllegalArgumentException();
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    super.run();
+
+                                    VirtualUtility.sRecvSemaphore.acquireUninterruptibly();
+
+                                    Bundle response = new Bundle();
+
+                                    response.putString   ("application_id", applicationId);
+                                    response.putByteArray("response",       new byte[] { 0x15 });
+
+                                    while (sResponseQueue.poll() != null);
+
+                                    sResponseQueue.add(response);
+
+                                    VirtualUtility.sRecvSemaphore.release();
+                                }
+                            }.start();
+
+                            result = 0;
+                            break;
                     }
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
-
-            Bundle response = new Bundle();
-
-            response.putString   ("application_id", applicationId);
-            response.putByteArray("response",       new byte[] { 0x15 });
-
-            try {
-                sVirtualSemaphore.acquireUninterruptibly();
-
-                while (true) {
-                    if (sResponseQueue.poll() == null) { break; }
-                }
-
-                sResponseQueue.add(response); /* 2022-02-02: NAK */
-            } finally {
-                sVirtualSemaphore.release();
-            }
-
-            result = -1;
         } finally {
             sSendSemaphore.release();
         }

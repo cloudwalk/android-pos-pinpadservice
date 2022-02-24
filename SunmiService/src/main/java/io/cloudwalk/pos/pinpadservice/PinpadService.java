@@ -22,11 +22,12 @@ public class PinpadService extends Service {
 
         try {
             if (extras != null) {
-                boolean overwrite = extras.getBoolean  ("overwrite", false);
-                byte[]  keymap    = extras.getByteArray("keymap.dat");
+                byte[] keymap = extras.getByteArray("keymap.dat");
+
+                // TODO: PIN layout customization
 
                 if (keymap != null) {
-                    PinpadAbstractionLayer.setConfig(keymap, overwrite);
+                    PinpadAbstractionLayer.setConfig(keymap, false);
                 }
             }
         } catch (Exception exception) {

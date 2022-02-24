@@ -26,10 +26,6 @@ public class CallbackUtility {
 
         sClbkSemaphore.acquireUninterruptibly();
 
-        if (sServiceCallback == null) {
-            Log.d(TAG, "getServiceCallback::sServiceCallback [null]");
-        }
-
         output = sServiceCallback;
 
         sClbkSemaphore.release();

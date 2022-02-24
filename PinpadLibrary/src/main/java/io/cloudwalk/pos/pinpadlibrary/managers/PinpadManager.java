@@ -17,6 +17,7 @@ import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 
@@ -25,13 +26,13 @@ public class PinpadManager {
             TAG = IPinpadService.class.getSimpleName().substring(1);
 
     private static final Semaphore
-            sExchangeSemaphore = new Semaphore(1, true);
+            sAbortSemaphore   = new Semaphore(1, true);
 
     private static final Semaphore
-            sReceiveSemaphore  = new Semaphore(1, true);
+            sReceiveSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
-            sRequestSemaphore  = new Semaphore(1, true);
+            sRequestSemaphore = new Semaphore(1, true);
 
     private static final String
             ACTION_PINPAD_SERVICE  = "io.cloudwalk.pos.pinpadservice.PinpadService";
@@ -48,19 +49,10 @@ public class PinpadManager {
         /* Nothing to do */
     }
 
-    /**
-     * Performs an ABECS PINPAD request using the key/value format, heavily based on the default
-     * public data format, as specified by the ABECS PINPAD protocol.
-     *
-     * @param bundle {@link Bundle}
-     * @return {@link Bundle}
-     */
-    public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
-        Log.d(TAG, "request");
+    private static Bundle _request(Bundle bundle, IServiceCallback callback) {
+        // Log.d(TAG, "_request");
 
-        long   timestamp = SystemClock.elapsedRealtime();
-
-        Bundle output;
+        long timestamp = SystemClock.elapsedRealtime();
 
         try {
             sRequestSemaphore.acquireUninterruptibly();
@@ -70,7 +62,7 @@ public class PinpadManager {
             int    status   = 0;
 
             try {
-                sExchangeSemaphore.acquireUninterruptibly();
+                sAbortSemaphore.acquireUninterruptibly();
 
                 status = send   (request, request.length, callback);
 
@@ -88,10 +80,10 @@ public class PinpadManager {
                     throw new TimeoutException();
                 }
             } finally {
-                sExchangeSemaphore.release();
+                sAbortSemaphore.release();
             }
 
-            switch (response[0]) {
+            switch (response[0]) { /* 2022-02-24: <<ACK>> or <<EOT>> only */
                 case 0x06:
                     /* Nothing to do */
                     break;
@@ -108,7 +100,9 @@ public class PinpadManager {
             do {
                 response = new byte[2048];
 
-                if (!sExchangeSemaphore.tryAcquire(0, SECONDS)) { throw new InterruptedException(); }
+                if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
+                    throw new InterruptedException();
+                }
 
                 try {
                     status = receive(response, 0);
@@ -117,11 +111,11 @@ public class PinpadManager {
                         throw new RuntimeException("request::status [" + status + "]");
                     }
                 } finally {
-                    sExchangeSemaphore.release();
+                    sAbortSemaphore.release();
                 }
-            } while (status <= 1); // 2022-02-23: `1` to workaround eventual ACK trash in vendor buffers
+            } while (status <= 1);
 
-            output = PinpadUtility.parseResponseDataPacket(response, status);
+            return PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
             ABECS.STAT RSP_STAT;
 
@@ -131,32 +125,29 @@ public class PinpadManager {
                 RSP_STAT = ABECS.STAT.ST_INTERR;
             }
 
-            output = new Bundle();
+            Bundle response = new Bundle();
 
             String CMD_ID = bundle.getString(ABECS.CMD_ID, "UNKNOWN");
 
-            output.putSerializable(ABECS.RSP_EXCEPTION, exception);
-            output.putString      (ABECS.RSP_ID, CMD_ID);
-            output.putSerializable(ABECS.RSP_STAT, RSP_STAT);
+            response.putSerializable(ABECS.RSP_EXCEPTION, exception);
+            response.putString      (ABECS.RSP_ID, CMD_ID);
+            response.putSerializable(ABECS.RSP_STAT, RSP_STAT);
+
+            return response;
         } finally {
             sRequestSemaphore.release();
 
             Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
-
-        return output;
     }
 
-    /**
-     * Performs an ABECS PINPAD abort request, interrupting blocking or sequential commands.
-     */
-    public static void abort() {
-        Log.d(TAG, "abort");
+    private static void _abort() {
+        // Log.d(TAG, "_abort");
 
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
-            sExchangeSemaphore.acquireUninterruptibly();
+            sAbortSemaphore.acquireUninterruptibly();
 
             int status = send   (new byte[] { 0x18 }, 1, null);
 
@@ -164,14 +155,12 @@ public class PinpadManager {
                 throw new RuntimeException("abort::status [" + status + "]");
             }
 
-            long[] timeout = { 2000, SystemClock.elapsedRealtime() + 2000 };
-
-            byte[] response;
+            long[] timeout = { 2000, timestamp + 2000 };
 
             do {
-                response = new byte[2048];
+                byte[] response = new byte[2048];
 
-                status = receive(response, (timeout[0] < 0) ? 0 : timeout[0]);
+                status = receive(response, timeout[0]);
 
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
@@ -182,14 +171,61 @@ public class PinpadManager {
                 }
 
                 timeout[0] = timeout[1] - SystemClock.elapsedRealtime();
-            } while (response[0] != 0x04);
+
+                if (response[0] == 0x04) { break; }
+            } while (true);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
-            sExchangeSemaphore.release();
+            sAbortSemaphore.release();
 
             Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
+    }
+
+    /**
+     * Performs an ABECS PINPAD request using the key/value format, heavily based on the default
+     * public data format, as specified by the ABECS PINPAD protocol.
+     *
+     * @param bundle {@link Bundle}
+     * @return {@link Bundle}
+     */
+    public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
+        Log.d(TAG, "request");
+
+        Bundle[]  response  = { null };
+        Semaphore semaphore = new Semaphore(0, true);
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                response[0] = _request(bundle, callback);
+
+                semaphore.release();
+            }
+        }.start();
+
+        semaphore.acquireUninterruptibly();
+
+        return response[0];
+    }
+
+    /**
+     * Performs an ABECS PINPAD abort request, interrupting blocking or sequential commands.
+     */
+    public static void abort() {
+        Log.d(TAG, "abort");
+
+        Semaphore semaphore = new Semaphore(0, true);
+
+        new Thread() {
+            @Override
+            public void run() { super.run(); _abort(); semaphore.release(); }
+        }.start();
+
+        semaphore.acquireUninterruptibly();
     }
 
     /**
@@ -244,7 +280,7 @@ public class PinpadManager {
                 IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
 
                 result = IPinpadService.Stub.asInterface(binder)
-                        .getPinpadManager(null).recv(bundle);
+                                .getPinpadManager(null).recv(bundle);
 
                 if (result > 0) {
                     System.arraycopy(bundle.getByteArray("response"), 0, response, 0, result);
@@ -299,19 +335,19 @@ public class PinpadManager {
         try {
             Log.h(TAG, request, length);
 
-            byte[] courier = new byte[length];
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-            System.arraycopy(request, 0, courier, 0, length);
+            stream.write(request, 0, length);
 
             Bundle bundle = new Bundle();
 
             bundle.putString   ("application_id", Application.getPackageContext().getPackageName());
-            bundle.putByteArray("request", courier);
+            bundle.putByteArray("request", stream.toByteArray());
 
             IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
 
             result = IPinpadService.Stub.asInterface(binder)
-                    .getPinpadManager(null).send(bundle, callback);
+                            .getPinpadManager(null).send(bundle, callback);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 

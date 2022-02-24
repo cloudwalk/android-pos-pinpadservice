@@ -71,8 +71,6 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
                         writer.close();
                     }
 
-                    // Log.d(TAG, "setConfig::file [" + file.getAbsolutePath() + "] [" + length + "] [" + file.length() + "]");
-
                     content = new byte[(int) file.length()];
 
                     FileInputStream reader = new FileInputStream(file);

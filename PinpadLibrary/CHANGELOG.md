@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Dependencies
+## Current dependencies
 
 ### Sunmi
 - Pinpad Service 1.0.4
@@ -8,11 +8,17 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [1.0.16] - 2022-02-24
+- Improve `Bundle` API consistency when facing improper or unanticipated
+  interruptions.
+- Prefer `ByteArrayOutputStream` to trim byte streams whenever possible.
+- Retroactively update documentation. 
+
 ## [1.0.15] - 2022-02-23
-- Workaround eventual ACK trash in vendor buffers.
+- Workaround eventual `<<ACK>>` trash in vendor streams.
 
 ## [1.0.14] - 2021-12-17
-- Update data conversion from `Bundle` interface for `OPN`, `CHP` and `GPN`.
+- Update data conversion from the `Bundle` API for `OPN`, `CHP` and `GPN`.
 - Update build tools.
 
 ## [1.0.13] - 2021-11-29
@@ -28,16 +34,15 @@
 - Ensure single reading channel when using the `Bundle` API.
 
 ## [1.0.9] - 2021-11-24
-- Ceases automatic request retries.
-- Ensure consistency when mixing APIs in a threaded environment.
+- Cease automatic request retries.
+- Ensure consistency when mixing interfaces in a threaded environment.
 - Update logs.
 
 ## [1.0.8] - 2021-11-16
 - Update logs.
 
 ## [1.0.7] - 2021-11-12
-- Greatly increases consistency when handling message exchanges from the
-  `Bundle` API.
+- Greatly increase consistency of message exchange when using the `Bundle` API.
 - Forcefully send a single `<<CAN>>` byte upon abort requests.
 
 ## [1.0.6] - 2021-11-12
@@ -51,10 +56,10 @@
 - Update public API for compliance with community standards.
 
 ## [1.0.3] - 2021-10-11
-- Add vendor specific key mapping creation support.
+- Add key mapping creation support.
 
 ## [1.0.2] - 2021-10-05
-- Update service communication using its newest public API.
+- Update service message exchange.
 
 ## [1.0.1] - 2021-10-04
 - Update dependencies.
