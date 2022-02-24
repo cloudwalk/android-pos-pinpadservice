@@ -49,19 +49,10 @@ public class PinpadManager {
         /* Nothing to do */
     }
 
-    /**
-     * Performs an ABECS PINPAD request using the key/value format, heavily based on the default
-     * public data format, as specified by the ABECS PINPAD protocol.
-     *
-     * @param bundle {@link Bundle}
-     * @return {@link Bundle}
-     */
-    public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
-        Log.d(TAG, "request");
+    private static Bundle _request(Bundle bundle, IServiceCallback callback) {
+        // Log.d(TAG, "_request");
 
-        long   timestamp = SystemClock.elapsedRealtime();
-
-        Bundle output;
+        long timestamp = SystemClock.elapsedRealtime();
 
         try {
             sRequestSemaphore.acquireUninterruptibly();
@@ -124,7 +115,7 @@ public class PinpadManager {
                 }
             } while (status <= 1);
 
-            output = PinpadUtility.parseResponseDataPacket(response, status);
+            return PinpadUtility.parseResponseDataPacket(response, status);
         } catch (Exception exception) {
             ABECS.STAT RSP_STAT;
 
@@ -134,27 +125,24 @@ public class PinpadManager {
                 RSP_STAT = ABECS.STAT.ST_INTERR;
             }
 
-            output = new Bundle();
+            Bundle response = new Bundle();
 
             String CMD_ID = bundle.getString(ABECS.CMD_ID, "UNKNOWN");
 
-            output.putSerializable(ABECS.RSP_EXCEPTION, exception);
-            output.putString      (ABECS.RSP_ID, CMD_ID);
-            output.putSerializable(ABECS.RSP_STAT, RSP_STAT);
+            response.putSerializable(ABECS.RSP_EXCEPTION, exception);
+            response.putString      (ABECS.RSP_ID, CMD_ID);
+            response.putSerializable(ABECS.RSP_STAT, RSP_STAT);
+
+            return response;
         } finally {
             sRequestSemaphore.release();
 
             Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
-
-        return output;
     }
 
-    /**
-     * Performs an ABECS PINPAD abort request, interrupting blocking or sequential commands.
-     */
-    public static void abort() {
-        Log.d(TAG, "abort");
+    private static void _abort() {
+        // Log.d(TAG, "_abort");
 
         long timestamp = SystemClock.elapsedRealtime();
 
@@ -169,10 +157,8 @@ public class PinpadManager {
 
             long[] timeout = { 2000, timestamp + 2000 };
 
-            byte[] response;
-
             do {
-                response = new byte[2048];
+                byte[] response = new byte[2048];
 
                 status = receive(response, timeout[0]);
 
@@ -185,7 +171,9 @@ public class PinpadManager {
                 }
 
                 timeout[0] = timeout[1] - SystemClock.elapsedRealtime();
-            } while (response[0] != 0x04);
+
+                if (response[0] == 0x04) { break; }
+            } while (true);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
@@ -193,6 +181,51 @@ public class PinpadManager {
 
             Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
+    }
+
+    /**
+     * Performs an ABECS PINPAD request using the key/value format, heavily based on the default
+     * public data format, as specified by the ABECS PINPAD protocol.
+     *
+     * @param bundle {@link Bundle}
+     * @return {@link Bundle}
+     */
+    public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
+        Log.d(TAG, "request");
+
+        Bundle[]  response  = { null };
+        Semaphore semaphore = new Semaphore(0, true);
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                response[0] = _request(bundle, callback);
+
+                semaphore.release();
+            }
+        }.start();
+
+        semaphore.acquireUninterruptibly();
+
+        return response[0];
+    }
+
+    /**
+     * Performs an ABECS PINPAD abort request, interrupting blocking or sequential commands.
+     */
+    public static void abort() {
+        Log.d(TAG, "abort");
+
+        Semaphore semaphore = new Semaphore(0, true);
+
+        new Thread() {
+            @Override
+            public void run() { super.run(); _abort(); semaphore.release(); }
+        }.start();
+
+        semaphore.acquireUninterruptibly();
     }
 
     /**

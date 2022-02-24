@@ -9,6 +9,8 @@
 - Pinpad Service 1.0.3
 
 ## [1.0.16] - 2022-02-24
+- Improve the `Bundle` API consistency when facing improper or unanticipated
+  interruptions.
 - Prefer `ByteArrayOutputStream` to trim byte streams whenever possible.
 
 ## [1.0.15] - 2022-02-23
