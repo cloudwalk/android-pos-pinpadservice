@@ -16,21 +16,18 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
-public class VendorUtility {
+public class VerifoneUtility {
     private static final String
-            TAG = VendorUtility.class.getSimpleName();
+            TAG = VerifoneUtility.class.getSimpleName();
 
     private static AcessoDiretoPinpad
             sAcessoDiretoPinpad = null;
 
-    private static final Semaphore[]
-            sSemaphore = {
-                    new Semaphore(1, true),
-                    new Semaphore(1, true)
-            };
+    private static final Semaphore
+            sAbortSemaphore = new Semaphore(1, true);
 
     private static final String[]
-            sService = {
+            sVerifoneService = {
                     "com.vfi.smartpos.deviceservice",
                     "com.verifone.smartpos.service.VerifoneDeviceService",
                     "com.vfi.smartpos.system_service",
@@ -40,8 +37,11 @@ public class VendorUtility {
     public static final BlockingQueue<Bundle>
             sResponseQueue = new LinkedBlockingQueue<>();
 
-    private VendorUtility() {
-        Log.d(TAG, "VendorUtility");
+    public static final Semaphore
+            sRecvSemaphore = new Semaphore(1, true);
+
+    private VerifoneUtility() {
+        Log.d(TAG, "VerifoneUtility");
 
         /* Nothing to do */
     }
@@ -54,7 +54,7 @@ public class VendorUtility {
         Semaphore semaphore = new Semaphore(0, true);
 
         if (sAcessoDiretoPinpad == null) {
-            ServiceUtility.register(sService[0], sService[1], new ServiceUtility.Callback() {
+            ServiceUtility.register(sVerifoneService[0], sVerifoneService[1], new ServiceUtility.Callback() {
                 @Override
                 public void onSuccess() {
                     try {
@@ -86,27 +86,26 @@ public class VendorUtility {
         Log.d(TAG, "recv");
 
         try {
-            sSemaphore[1].acquire();
+            sRecvSemaphore.acquireUninterruptibly();
 
             String applicationId = bundle.getString   ("application_id");
             byte[] request       = bundle.getByteArray("request");
             Bundle requestBundle = bundle.getBundle   ("request_bundle");
 
-            while (true) {
-                if (sResponseQueue.poll() == null) { break; }
-            }
+            while (sResponseQueue.poll() != null);
 
             byte[] buffer = new byte[2048];
             int    count  = 0;
 
             do {
-                int timeout = (count != 0) ? 0 : 2000;
-
-                if (!sSemaphore[0].tryAcquire(0, SECONDS)) {
+                if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
                     break;
                 }
 
                 try {
+                    int timeout = (count != 0) ? 0 : 2000; // 2022-02-24: `timeout` is also helpful
+                                                           // to indicate loop count
+
                     count = getPinpad().recebeResposta(buffer, timeout);
 
                     if (count > 0) {
@@ -126,7 +125,7 @@ public class VendorUtility {
                         if (buffer[0] != 0x06) { return; }
                     }
                 } finally {
-                    sSemaphore[0].release();
+                    sAbortSemaphore.release();
                 }
             } while (count++ <= 1);
 
@@ -145,17 +144,17 @@ public class VendorUtility {
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
-            sSemaphore[1].release();
+            sRecvSemaphore.release();
         }
     }
 
     public static int abort(Bundle bundle) {
         Log.d(TAG, "abort");
 
-        sSemaphore[0].acquireUninterruptibly();
-        sSemaphore[1].acquireUninterruptibly();
-        sSemaphore[1].release();
-        sSemaphore[0].release();
+        sAbortSemaphore.acquireUninterruptibly();
+        sRecvSemaphore .acquireUninterruptibly();
+        sAbortSemaphore.release();
+        sRecvSemaphore .release();
 
         return send(bundle);
     }

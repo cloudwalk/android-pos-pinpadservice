@@ -2,7 +2,7 @@ package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import static io.cloudwalk.pos.pinpadservice.utilities.VendorUtility.sResponseQueue;
+import static io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility.sResponseQueue;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -17,7 +17,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.pinpadservice.utilities.VendorUtility;
+import io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -97,16 +97,22 @@ public class PinpadManager extends IPinpadManager.Stub {
             switch (request[0]) {
                 case 0x18:
                     if (request.length == 1) {
-                        result = VendorUtility.abort(bundle);
+                        result = VerifoneUtility.abort(bundle);
                         break;
                     }
                     /* no break; */
 
                 default:
                     if (requestBundle == null) {
-                        requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
+                        try {
+                            requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
 
-                        bundle.putBundle("request_bundle", requestBundle);
+                            bundle.putBundle("request_bundle", requestBundle);
+                        } catch (Exception exception) {
+                            Log.e(TAG, Log.getStackTraceString(exception));
+
+                            requestBundle = new Bundle();
+                        }
                     }
 
                     CallbackUtility.setServiceCallback(callback);
@@ -117,11 +123,32 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GPN: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            result = VendorUtility.send(bundle);
+                            result = VerifoneUtility.send(bundle);
                             break;
 
                         default:
-                            throw new IllegalArgumentException();
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    super.run();
+
+                                    VerifoneUtility.sRecvSemaphore.acquireUninterruptibly();
+
+                                    Bundle response = new Bundle();
+
+                                    response.putString   ("application_id", applicationId);
+                                    response.putByteArray("response",       new byte[] { 0x15 });
+
+                                    while (sResponseQueue.poll() != null);
+
+                                    sResponseQueue.add(response);
+
+                                    VerifoneUtility.sRecvSemaphore.release();
+                                }
+                            }.start();
+
+                            result = 0;
+                            break;
                     }
             }
         } catch (Exception exception) {

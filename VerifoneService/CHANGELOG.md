@@ -19,7 +19,7 @@
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.
   
-## [1.1.0] - YYYY-MM-DD
+## [1.1.0] - 2022-02-24
 - Completely rewrite internal byte stream handling routines.
 
 ## [1.0.9] - 2022-02-23

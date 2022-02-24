@@ -8,6 +8,9 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [1.0.16] - 2022-02-24
+- Prefer `ByteArrayOutputStream` to trim byte streams whenever possible.
+
 ## [1.0.15] - 2022-02-23
 - Workaround eventual ACK trash in vendor buffers.
 

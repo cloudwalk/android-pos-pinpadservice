@@ -26,13 +26,13 @@ public class PinpadManager {
             TAG = IPinpadService.class.getSimpleName().substring(1);
 
     private static final Semaphore
-            sExchangeSemaphore = new Semaphore(1, true);
+            sAbortSemaphore   = new Semaphore(1, true);
 
     private static final Semaphore
-            sReceiveSemaphore  = new Semaphore(1, true);
+            sReceiveSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
-            sRequestSemaphore  = new Semaphore(1, true);
+            sRequestSemaphore = new Semaphore(1, true);
 
     private static final String
             ACTION_PINPAD_SERVICE  = "io.cloudwalk.pos.pinpadservice.PinpadService";
@@ -71,7 +71,7 @@ public class PinpadManager {
             int    status   = 0;
 
             try {
-                sExchangeSemaphore.acquireUninterruptibly();
+                sAbortSemaphore.acquireUninterruptibly();
 
                 status = send   (request, request.length, callback);
 
@@ -89,10 +89,10 @@ public class PinpadManager {
                     throw new TimeoutException();
                 }
             } finally {
-                sExchangeSemaphore.release();
+                sAbortSemaphore.release();
             }
 
-            switch (response[0]) {
+            switch (response[0]) { /* 2022-02-24: <<ACK>> or <<EOT>> only */
                 case 0x06:
                     /* Nothing to do */
                     break;
@@ -109,7 +109,9 @@ public class PinpadManager {
             do {
                 response = new byte[2048];
 
-                if (!sExchangeSemaphore.tryAcquire(0, SECONDS)) { throw new InterruptedException(); }
+                if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
+                    throw new InterruptedException();
+                }
 
                 try {
                     status = receive(response, 0);
@@ -118,7 +120,7 @@ public class PinpadManager {
                         throw new RuntimeException("request::status [" + status + "]");
                     }
                 } finally {
-                    sExchangeSemaphore.release();
+                    sAbortSemaphore.release();
                 }
             } while (status <= 1);
 
@@ -157,7 +159,7 @@ public class PinpadManager {
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
-            sExchangeSemaphore.acquireUninterruptibly();
+            sAbortSemaphore.acquireUninterruptibly();
 
             int status = send   (new byte[] { 0x18 }, 1, null);
 
@@ -165,14 +167,14 @@ public class PinpadManager {
                 throw new RuntimeException("abort::status [" + status + "]");
             }
 
-            long[] timeout = { 2000, SystemClock.elapsedRealtime() + 2000 };
+            long[] timeout = { 2000, timestamp + 2000 };
 
             byte[] response;
 
             do {
                 response = new byte[2048];
 
-                status = receive(response, (timeout[0] < 0) ? 0 : timeout[0]);
+                status = receive(response, timeout[0]);
 
                 if (status < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
@@ -187,7 +189,7 @@ public class PinpadManager {
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
-            sExchangeSemaphore.release();
+            sAbortSemaphore.release();
 
             Log.d(TAG, "abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
@@ -245,7 +247,7 @@ public class PinpadManager {
                 IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
 
                 result = IPinpadService.Stub.asInterface(binder)
-                        .getPinpadManager(null).recv(bundle);
+                                .getPinpadManager(null).recv(bundle);
 
                 if (result > 0) {
                     System.arraycopy(bundle.getByteArray("response"), 0, response, 0, result);
@@ -312,7 +314,7 @@ public class PinpadManager {
             IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
 
             result = IPinpadService.Stub.asInterface(binder)
-                    .getPinpadManager(null).send(bundle, callback);
+                            .getPinpadManager(null).send(bundle, callback);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
