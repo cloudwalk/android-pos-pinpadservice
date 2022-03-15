@@ -47,6 +47,9 @@ public class CallbackUtility {
 
         switch (tipoNotificacao) {
             case NTF_PIN_START:
+                PinCaptureActivity.resumeActivity();
+                /* no break */
+
             case NTF_PIN_ENTRY:
                 visibility = 1;
                 /* no break */
@@ -54,7 +57,7 @@ public class CallbackUtility {
             case NTF_PIN_FINISH:
                 visibility = (visibility != 0) ? visibility : 2;
 
-                PinCaptureActivity.setVisibility(visibility != 2);
+                PinCaptureActivity.moveActivityToFront(visibility != 2);
                 break;
 
             default:

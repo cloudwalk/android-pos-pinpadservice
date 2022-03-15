@@ -12,9 +12,8 @@
 - BC 001.29
 
 ## Known issues
-- PIN keyboard external customization is disabled.
-- Callbacks are not interrupted by `ST_TIMEOUT`. Caller application has to
-  oversight time passing.
+- PIN keyboard customization options are missing.
+- Callbacks are not interrupted by `ST_TIMEOUT` (caller has to oversight time).
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.

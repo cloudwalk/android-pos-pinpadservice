@@ -15,16 +15,15 @@
         <item name="colorPrimaryVariant">@color/gray</item>
     </style>
 
-    <style name="InfinitePay.Theme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" />
+    <style name="PinpadService.Theme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" />
 
-    <style name="InfinitePay.Theme.NoActionBar.Keyboard">
-        <item name="android:background">#263238</item>
+    <style name="PinpadService.Theme.NoActionBar.Keyboard">
         <item name="android:fontFamily">@font/ceraproregular</item>
         <item name="android:gravity">center</item>
-        <item name="android:layout_height">120px</item>
-        <item name="android:layout_width">240px</item>
-        <item name="android:padding">5dp</item>
-        <item name="android:textColor">#AEBAC6</item>
+        <item name="android:layout_height">130px</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">34sp</item>
+        <item name="android:visibility">invisible</item>
     </style>
 </resources>

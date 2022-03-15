@@ -19,8 +19,6 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent">
             <include layout="@layout/default_pin_keyboard" />
-
-            <include layout="@layout/default_pin_keyboard_skin" />
         </FrameLayout>
 
     </RelativeLayout>

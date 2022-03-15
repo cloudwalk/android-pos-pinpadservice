@@ -1,223 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:app="http://schemas.android.com/apk/res-auto">
-    <LinearLayout
-            android:id="@+id/default_ll_pin_keyboard_skin"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- TODO: review/add responsiveness -->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:background="@drawable/keyboard_skin"    
+            android:id="@+id/keyboard"
+            android:layout_height="720px"
+            android:layout_width="match_parent">
+
+        <GridLayout
+            android:columnCount="4"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:orientation="vertical">
+            android:layout_width="700px"
+            android:layout_gravity="center"
+            android:rowCount="4"
+            android:layout_marginBottom="20px"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+            <Button
+                android:id="@+id/default_keyboard_custom_pos00"
+                android:text="1"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
+            <Button
+                android:id="@+id/default_keyboard_custom_pos01"
+                android:text="2"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
+            <Button
+                android:id="@+id/default_keyboard_custom_pos02"
+                android:text="3"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
+            <Button
+                android:id="@+id/default_keyboard_custom_pos03"
+                android:text="C"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
+            <Button
+                android:id="@+id/default_keyboard_custom_pos04"
+                android:text="4"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
+            <Button
+                android:id="@+id/default_keyboard_custom_pos05"
+                android:text="5"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
 
-        <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:visibility="invisible">
             <Button
-                    android:id="@+id/default_keyboard_custom_pos00"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="C" />
+                android:id="@+id/default_keyboard_custom_pos06"
+                android:text="6"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
             <Button
-                    android:id="@+id/default_keyboard_custom_pos01"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="C" />
+                android:id="@+id/default_keyboard_custom_pos07"
+                android:text="L"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
             <Button
-                    android:id="@+id/default_keyboard_custom_pos02"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="C" />
+                android:id="@+id/default_keyboard_custom_pos08"
+                android:text="7"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
             <Button
-                    android:id="@+id/default_keyboard_custom_pos03"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="E" />
+                android:id="@+id/default_keyboard_custom_pos09"
+                android:text="8"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
             <Button
-                    android:id="@+id/default_keyboard_custom_pos04"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="E" />
+                android:id="@+id/default_keyboard_custom_pos10"
+                android:text="9"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
             <Button
-                    android:id="@+id/default_keyboard_custom_pos05"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="E" />
-        </LinearLayout>
+                android:id="@+id/default_keyboard_custom_pos11"
+                android:text="E"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
 
-        <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:visibility="invisible">
             <Button
-                    android:id="@+id/default_keyboard_custom_pos06"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="1" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos07"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="1" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos08"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="2" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos09"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="2" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos10"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="3" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos11"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="3" />
-        </LinearLayout>
+                android:id="@+id/default_keyboard_custom_pos12"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard"/>
 
-        <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:visibility="invisible">
             <Button
-                    android:id="@+id/default_keyboard_custom_pos12"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="4" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos13"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="4" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos14"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="5" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos15"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="5" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos16"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="6" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos17"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="6" />
-        </LinearLayout>
+                android:id="@+id/default_keyboard_custom_pos13"
+                android:text="0"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
 
-        <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:visibility="invisible">
             <Button
-                    android:id="@+id/default_keyboard_custom_pos18"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="7" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos19"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="7" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos20"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="8" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos21"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="8" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos22"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="9" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos23"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="9" />
-        </LinearLayout>
+                android:id="@+id/default_keyboard_custom_pos14"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
 
-        <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:visibility="invisible">
             <Button
-                    android:id="@+id/default_keyboard_custom_pos24"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos25"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos26"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="0" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos27"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="0" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos28"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="L" />
-            <Button
-                    android:id="@+id/default_keyboard_custom_pos29"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:text="L" />
-        </LinearLayout>
-    </LinearLayout>
+                android:id="@+id/default_keyboard_custom_pos15"
+                android:text="L"
+                style="@style/PinpadService.Theme.NoActionBar.Keyboard" />
+        </GridLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </merge>

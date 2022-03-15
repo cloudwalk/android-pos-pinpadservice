@@ -1,5 +1,8 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import br.com.setis.sunmi.ppcomp.PINplug;
 import io.cloudwalk.loglibrary.Log;
@@ -34,9 +38,6 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static AppCompatActivity
             sActivity = null;
 
-    private static Bundle
-            sExtras = null;
-
     private static String
             sApplicationId = null;
 
@@ -49,16 +50,19 @@ public class PinCaptureActivity extends AppCompatActivity {
         int[] height        = new int[2];
 
         do {
-            View btnC = findViewById(sExtras.getInt("keyboard_custom_pos00"));
+            View[] btn = {
+                    findViewById(R.id.default_keyboard_custom_pos03),
+                    findViewById(R.id.default_keyboard_custom_pos00)
+            };
 
-            btnC.getLocationOnScreen(locationCAN);
-            btnC.getLocationOnScreen(locationNUM);
+            btn[0].getLocationOnScreen(locationCAN);
+            btn[1].getLocationOnScreen(locationNUM);
 
-            width[0]  = btnC.getWidth();
-            width[1]  = btnC.getWidth();
+            width[0]  = btn[0].getWidth();
+            width[1]  = btn[1].getWidth();
 
-            height[0] = btnC.getHeight();
-            height[1] = btnC.getHeight();
+            height[0] = btn[0].getHeight();
+            height[1] = btn[1].getHeight();
         } while (locationCAN[0] == 0 && locationCAN[1] == 0
               && locationNUM[0] == 0 && locationNUM[1] == 0);
 
@@ -72,14 +76,14 @@ public class PinCaptureActivity extends AppCompatActivity {
         int canY = locationCAN[1];
         int canW = width[0];
         int canH = height[0];
-        int rows = 5;
-        int cols = 6;
+        int rows = 4;
+        int cols = 4;
         byte[] keyMap = buildKeyMap(rows, cols);
 
         JSONObject obj = new JSONObject();
 
         try {
-            obj.put("layout",   sExtras.getInt("activity_pin_capture"));
+            obj.put("layout",   R.layout.default_activity_pin_capture);
 
             obj.put("numX",     numX);
             obj.put("numY",     numY);
@@ -109,25 +113,33 @@ public class PinCaptureActivity extends AppCompatActivity {
     private byte[] buildKeyMap(int rows, int cols) {
         // Log.d(TAG, "buildKeyMap");
 
-        String keyList  = "123456789";
         byte[] keyMap   = new byte[rows * cols];
 
-        //   0   1   2   3   4   5 |  C  C  C  E  E  E
-        //   6   7   8   9  10  11 |  1  1  2  2  3  3
-        //  12  13  14  15  16  17 |  4  4  5  5  6  6
-        //  18  19  20  21  22  23 |  7  7  8  8  9  9
-        //  24  25  26  27  28  29 |        0  0  L  L
+        //   0   1   2   3  |  1   2   3   C
+        //   4   5   6   7  |  4   5   6   L
+        //   8   9  10  11  |  7   8   9   E
+        //  12  13  14  15  |      0       E
 
-        keyMap[ 0] = keyMap[ 1] = keyMap[2] = 0x1B; // C
-        keyMap[ 3] = keyMap[ 4] = keyMap[5] = 0x0D; // E
-        keyMap[24] = keyMap[25] = ' ';
-        keyMap[26] = keyMap[27] = '0';
-        keyMap[28] = keyMap[29] = 0x0C;             // L
+        keyMap[ 0] = '1';
+        keyMap[ 1] = '2';
+        keyMap[ 2] = '3';
 
-        for (int i = 6, j = 0; i < 23; i += 2, j++) {
-            keyMap[i]       = (byte) keyList.charAt(j);
-            keyMap[i + 1]   = keyMap [i];
-        }
+        keyMap[ 4] = '4';
+        keyMap[ 5] = '5';
+        keyMap[ 6] = '6';
+
+        keyMap[ 8] = '7';
+        keyMap[ 9] = '8';
+        keyMap[10] = '9';
+
+        keyMap[12] = ' ';
+        keyMap[13] = '0';
+        keyMap[14] = ' ';
+
+        keyMap[ 3] = 0x1B; // C
+        keyMap[ 7] = 0x0C; // L
+        keyMap[11] = 0x0D; // E
+        keyMap[15] = 0x0D; // E
 
         return keyMap;
     }
@@ -138,13 +150,11 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        sExtras = getIntent().getExtras();
-
-        setContentView(sExtras.getInt("activity_pin_capture"));
+        setContentView(R.layout.default_activity_pin_capture);
 
         sActivity = this;
 
-        RelativeLayout relativeLayout = findViewById(sExtras.getInt("rl_pin_capture"));
+        RelativeLayout relativeLayout = findViewById(R.id.default_rl_pin_capture);
 
         relativeLayout.getViewTreeObserver()
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -172,18 +182,22 @@ public class PinCaptureActivity extends AppCompatActivity {
     protected void onPause() {
         Log.d(TAG, "onPause");
 
-        int availablePermits = sLifeCycleSemaphore.availablePermits();
+        try {
+            if (!sLifeCycleSemaphore.tryAcquire(0, TimeUnit.MILLISECONDS)) {
+                if (sActivity != null) {
+                    ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                            .moveTaskToFront(sActivity.getTaskId(), 0);
+                }
+            } else {
+                sLifeCycleSemaphore.release();
+            }
 
-        Log.d(TAG, "onPause::availablePermits [" + availablePermits + "]");
+            super.onPause();
 
-        if (availablePermits <= 0) {
-            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
-                    .moveTaskToFront(getTaskId(), 0);
+            overridePendingTransition(0, 0);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
-
-        super.onPause();
-
-        overridePendingTransition(0, 0);
     }
 
     @Override
@@ -195,6 +209,15 @@ public class PinCaptureActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
+    public static void resumeActivity() {
+        Log.d(TAG, "resumeActivity");
+
+        if (sActivity != null) {
+            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                    .moveTaskToFront(sActivity.getTaskId(), 0);
+        }
+    }
+
     public static void finishActivity() {
         Log.d(TAG, "finishActivity");
 
@@ -203,47 +226,25 @@ public class PinCaptureActivity extends AppCompatActivity {
 
             sActivity = null;
             sApplicationId = null;
-            sExtras = null;
 
             sLifeCycleSemaphore.release();
         }
     }
 
-    public static Bundle getKeyboardResID(String applicationId) {
-        Log.d(TAG, "getKeyboardResID::applicationId [" + applicationId + "]");
+    public static void moveActivityToFront(boolean status) {
+        Log.d(TAG, "moveActivityToFront::status [" + status + "]");
 
-        Bundle bundle = new Bundle();
-
-        if (!applicationId.equals    ("io.cloudwalk.pos.poc2104301453.demo")
-           & applicationId.startsWith("io.cloudwalk.")) {
-            bundle.putInt("activity_pin_capture", R.layout.infinitepay_activity_pin_capture);
-            bundle.putInt("rl_pin_capture", R.id.infinitepay_rl_pin_capture);
-            bundle.putInt("keyboard_custom_pos00", R.id.infinitepay_keyboard_custom_pos00);
-        } else {
-            bundle.putInt("activity_pin_capture", R.layout.default_activity_pin_capture);
-            bundle.putInt("rl_pin_capture", R.id.default_rl_pin_capture);
-            bundle.putInt("keyboard_custom_pos00", R.id.default_keyboard_custom_pos00);
-        }
-
-        return bundle;
-    }
-
-    public static void setVisibility(boolean status) {
-        Log.d(TAG, "setVisibility::status [" + status + "]");
-
-        if (sActivity != null && sExtras != null) {
+        if (sActivity != null) {
             Semaphore semaphore = new Semaphore(0, true);
 
             sActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (status) {
-                        sActivity.findViewById(sExtras.getInt("rl_pin_capture")).setVisibility(View.VISIBLE);
+                    sActivity.findViewById(R.id.default_rl_pin_capture).setVisibility((status) ? VISIBLE : INVISIBLE);
 
+                    if (status) {
                         ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
                                 .moveTaskToFront(sActivity.getTaskId(), 0);
-                    } else {
-                        finishActivity();
                     }
 
                     semaphore.release();
@@ -261,13 +262,9 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         sApplicationId = applicationId;
 
-        Bundle keyboardResID = getKeyboardResID(sApplicationId);
-
         Context context = Application.getPackageContext();
 
-        Intent intent = new Intent(context, PinCaptureActivity.class).putExtras(keyboardResID);
-
-        context.startActivity(intent);
+        context.startActivity(new Intent(context, PinCaptureActivity.class));
 
         sLifeCycleSemaphore.acquireUninterruptibly();
     }
