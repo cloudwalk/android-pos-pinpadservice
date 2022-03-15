@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import br.com.setis.sunmi.ppcomp.PINplug;
 import io.cloudwalk.loglibrary.Log;
@@ -181,18 +182,22 @@ public class PinCaptureActivity extends AppCompatActivity {
     protected void onPause() {
         Log.d(TAG, "onPause");
 
-        int availablePermits = sLifeCycleSemaphore.availablePermits();
+        try {
+            if (!sLifeCycleSemaphore.tryAcquire(0, TimeUnit.MILLISECONDS)) {
+                if (sActivity != null) {
+                    ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                            .moveTaskToFront(sActivity.getTaskId(), 0);
+                }
+            } else {
+                sLifeCycleSemaphore.release();
+            }
 
-        Log.d(TAG, "onPause::availablePermits [" + availablePermits + "]");
+            super.onPause();
 
-        if (availablePermits <= 0) {
-            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
-                    .moveTaskToFront(sActivity.getTaskId(), 0);
+            overridePendingTransition(0, 0);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
-
-        super.onPause();
-
-        overridePendingTransition(0, 0);
     }
 
     @Override
