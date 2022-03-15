@@ -19,6 +19,9 @@
 - `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
   out of scope and its values should be ignored.
 
+## [1.1.2] - 2022-03-15
+- Update default PIN keyboard layout customization code.
+
 ## [1.1.1] - 2022-03-15
 - Update default PIN keyboard layout.
   

@@ -1,10 +1,15 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility.sAcessoDiretoPinpad;
+
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
@@ -12,9 +17,13 @@ import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import br.com.verifone.bibliotecapinpad.TecladoPINVirtual;
+import br.com.verifone.bibliotecapinpad.definicoes.IdentificacaoTeclaPIN;
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
 import io.cloudwalk.utilitieslibrary.AppCompatActivity;
@@ -33,22 +42,76 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static String
             sApplicationId = null;
 
+    private Map<IdentificacaoTeclaPIN, Integer> getPINViewMap() {
+        // Log.d(TAG, "getPINViewMap");
+
+        Map<IdentificacaoTeclaPIN, Integer> map = new HashMap<>();
+
+        map.put(IdentificacaoTeclaPIN.TECLA_0,          R.id.default_keyboard_custom_pos12);
+        map.put(IdentificacaoTeclaPIN.TECLA_1,          R.id.default_keyboard_custom_pos00);
+        map.put(IdentificacaoTeclaPIN.TECLA_2,          R.id.default_keyboard_custom_pos01);
+        map.put(IdentificacaoTeclaPIN.TECLA_3,          R.id.default_keyboard_custom_pos02);
+        map.put(IdentificacaoTeclaPIN.TECLA_4,          R.id.default_keyboard_custom_pos04);
+        map.put(IdentificacaoTeclaPIN.TECLA_5,          R.id.default_keyboard_custom_pos05);
+        map.put(IdentificacaoTeclaPIN.TECLA_6,          R.id.default_keyboard_custom_pos06);
+        map.put(IdentificacaoTeclaPIN.TECLA_7,          R.id.default_keyboard_custom_pos08);
+        map.put(IdentificacaoTeclaPIN.TECLA_8,          R.id.default_keyboard_custom_pos09);
+        map.put(IdentificacaoTeclaPIN.TECLA_9,          R.id.default_keyboard_custom_pos10);
+        map.put(IdentificacaoTeclaPIN.TECLA_CONFIRMA,   R.id.default_keyboard_custom_pos11);
+        map.put(IdentificacaoTeclaPIN.TECLA_CANCELA,    R.id.default_keyboard_custom_pos03);
+        map.put(IdentificacaoTeclaPIN.TECLA_VOLTA,      R.id.default_keyboard_custom_pos07);
+
+        return map;
+    }
+
+    private TecladoPINVirtual getTecladoPINVirtual() {
+        // Log.d(TAG, "getTecladoPINVirtual");
+
+        Semaphore semaphore = new Semaphore(0, true);
+        View[]    keyboard  = { null };
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                keyboard[0] = findViewById(R.id.cl_keyboard);
+
+                semaphore.release();
+            }
+        });
+
+        semaphore.acquireUninterruptibly();
+
+        return new TecladoPINVirtual(keyboard[0], getPINViewMap()) {
+            @Override
+            public View ObtemView() {
+                return keyboard[0];
+            }
+
+            @Override
+            public Map<IdentificacaoTeclaPIN, Integer> ObtemIdentificacaoTeclasPorId() {
+                return getPINViewMap();
+            }
+        };
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity);
+        setContentView(R.layout.default_activity_pin_capture);
 
         sActivity = this;
 
-        RelativeLayout relativeLayout = findViewById(R.id.relative_layout);
+        RelativeLayout relativeLayout = findViewById(R.id.default_rl_pin_capture);
 
         relativeLayout.getViewTreeObserver()
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
+                        sAcessoDiretoPinpad.InformaTecladoPINVirtual(getTecladoPINVirtual());
+
                         relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                         new Thread() {
@@ -118,6 +181,26 @@ public class PinCaptureActivity extends AppCompatActivity {
 
     public static void moveActivityToFront(boolean status) {
         Log.d(TAG, "moveActivityToFront::status [" + status + "]");
+
+        if (sActivity != null) {
+            Semaphore semaphore = new Semaphore(0, true);
+
+            sActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    sActivity.findViewById(R.id.default_rl_pin_capture).setVisibility((status) ? VISIBLE : INVISIBLE);
+
+                    if (status) {
+                        ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                                .moveTaskToFront(sActivity.getTaskId(), 0);
+                    }
+
+                    semaphore.release();
+                }
+            });
+
+            semaphore.acquireUninterruptibly();
+        }
     }
 
     public static void startActivity(@NotNull String applicationId) {
