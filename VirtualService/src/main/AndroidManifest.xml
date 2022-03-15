@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="io.cloudwalk.pos.pinpadservice">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="io.cloudwalk.pos.pinpadservice">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-            android:allowBackup="true"
-            android:icon="@mipmap/ic_pinpadservice"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_pinpadservice_round"
-            android:supportsRtl="true"
-            android:theme="@style/PinpadService.Theme.MaterialComponents.Light.NoActionBar">
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_pinpadservice"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_pinpadservice_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PinpadService.MaterialComponents.Light.NoActionBar">
 
         <receiver
-                android:exported="false"
-                android:name=".BroadcastReceiver"
-                android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            android:exported="false"
+            android:name=".BroadcastReceiver"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter android:priority="100">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <activity
-                android:exported="true"
-                android:name=".presentation.MainActivity"
-                android:launchMode="singleTask">
+            android:exported="true"
+            android:name=".presentation.MainActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,12 +36,11 @@
         </activity>
 
         <service
-                android:directBootAware="true"
-                android:enabled="true"
-                android:exported="true"
-                android:isolatedProcess="false"
-                android:name=".PinpadService"
-                tools:targetApi="l" />
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="true"
+            android:isolatedProcess="false"
+            android:name=".PinpadService"
+            tools:targetApi="l" />
     </application>
-
 </manifest>

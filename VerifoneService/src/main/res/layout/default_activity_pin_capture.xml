@@ -11,7 +11,7 @@
         android:id="@+id/default_rl_pin_capture"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:visibility="visible">
+        android:visibility="invisible">
         <FrameLayout
             android:id="@+id/default_fl_pin_keyboard"
             android:layout_alignParentBottom="true"

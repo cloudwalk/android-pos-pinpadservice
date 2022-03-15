@@ -15,7 +15,7 @@
 - BC 1.30
 
 ## Known issues
-- PIN keyboard customization options are missing (default layout is locked to
+- PIN keyboard customization options are missing (default layout supports
   P2-B/EU models exclusively).
 - Callbacks are not interrupted by `ST_TIMEOUT` (caller has to oversight time).
 - `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
@@ -23,7 +23,7 @@
   out of scope and its values should be ignored.
   
 ## [1.1.1] - 2022-03-15
-- Update default PIN keyboard layout with locked support to P2-B/EU models.
+- Update default PIN keyboard layout.
 
 ## [1.1.0] - 2022-02-24
 - Completely rewrite internal byte stream handling routines.

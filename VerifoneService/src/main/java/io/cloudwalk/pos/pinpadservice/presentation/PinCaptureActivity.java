@@ -1,7 +1,5 @@
 package io.cloudwalk.pos.pinpadservice.presentation;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +13,7 @@ import androidx.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadservice.R;
@@ -30,6 +29,9 @@ public class PinCaptureActivity extends AppCompatActivity {
 
     private static AppCompatActivity
             sActivity = null;
+
+    private static String
+            sApplicationId = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,18 +67,22 @@ public class PinCaptureActivity extends AppCompatActivity {
     protected void onPause() {
         Log.d(TAG, "onPause");
 
-        int availablePermits = sLifeCycleSemaphore.availablePermits();
+        try {
+            if (!sLifeCycleSemaphore.tryAcquire(0, TimeUnit.MILLISECONDS)) {
+                if (sActivity != null) {
+                    ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                            .moveTaskToFront(sActivity.getTaskId(), 0);
+                }
+            } else {
+                sLifeCycleSemaphore.release();
+            }
 
-        Log.d(TAG, "onPause::availablePermits [" + availablePermits + "]");
+            super.onPause();
 
-        if (availablePermits <= 0) {
-            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
-                    .moveTaskToFront(getTaskId(), 0);
+            overridePendingTransition(0, 0);
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
-
-        super.onPause();
-
-        overridePendingTransition(0, 0);
     }
 
     @Override
@@ -88,6 +94,15 @@ public class PinCaptureActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
+    public static void resumeActivity() {
+        Log.d(TAG, "resumeActivity");
+
+        if (sActivity != null) {
+            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                    .moveTaskToFront(sActivity.getTaskId(), 0);
+        }
+    }
+
     public static void finishActivity() {
         Log.d(TAG, "finishActivity");
 
@@ -95,17 +110,14 @@ public class PinCaptureActivity extends AppCompatActivity {
             sActivity.finishAndRemoveTask();
 
             sActivity = null;
+            sApplicationId = null;
 
             sLifeCycleSemaphore.release();
         }
     }
 
-    public static void setVisibility(boolean status) {
-        Log.d(TAG, "setVisibility::status [" + status + "]");
-
-        if (!status) {
-            finishActivity();
-        }
+    public static void moveActivityToFront(boolean status) {
+        Log.d(TAG, "moveActivityToFront::status [" + status + "]");
     }
 
     public static void startActivity(@NotNull String applicationId) {
@@ -113,11 +125,11 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         sLifeCycleSemaphore.acquireUninterruptibly();
 
+        sApplicationId = applicationId;
+
         Context context = Application.getPackageContext();
 
-        Intent intent = new Intent(context, PinCaptureActivity.class);
-
-        context.startActivity(intent.addFlags(FLAG_ACTIVITY_NEW_TASK));
+        context.startActivity(new Intent(context, PinCaptureActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         sLifeCycleSemaphore.acquireUninterruptibly();
     }

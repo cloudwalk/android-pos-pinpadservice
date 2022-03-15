@@ -10,82 +10,82 @@
         android:id="@+id/keyboard"
         android:layout_height="720px"
         android:layout_width="match_parent">
-
         <GridLayout
-            android:columnCount="4"
+            android:columnCount="3"
+            android:id="@+id/gl_keyboard"
             android:layout_height="wrap_content"
-            android:layout_width="700px"
+            android:layout_width="525px"
             android:layout_gravity="center"
             android:rowCount="4"
             android:layout_marginBottom="20px"
+            android:layout_marginLeft="10px"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <Button
-                android:id="@+id/default_keyboard_custom_pos00"
+                android:id="@+id/keyboard_btn1"
                 android:text="1"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos01"
+                android:id="@+id/keyboard_btn2"
                 android:text="2"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos02"
+                android:id="@+id/keyboard_btn3"
                 android:text="3"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos03"
-                android:text="C"
-                style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
-
-            <Button
-                android:id="@+id/default_keyboard_custom_pos04"
+                android:id="@+id/keyboard_btn4"
                 android:text="4"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos05"
+                android:id="@+id/keyboard_btn5"
                 android:text="5"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos06"
+                android:id="@+id/keyboard_btn6"
                 android:text="6"
-                style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos07"
-                android:text="L"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
 
             <Button
-                android:id="@+id/default_keyboard_custom_pos08"
+                android:id="@+id/keyboard_btn7"
                 android:text="7"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos09"
+                android:id="@+id/keyboard_btn8"
                 android:text="8"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos10"
+                android:id="@+id/keyboard_btn9"
                 android:text="9"
-                style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos11"
-                android:text="E"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
 
             <Button
-                android:id="@+id/default_keyboard_custom_pos12"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard"/>
             <Button
-                android:id="@+id/default_keyboard_custom_pos13"
+                android:id="@+id/keyboard_btn0"
                 android:text="0"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
-                android:id="@+id/default_keyboard_custom_pos14"
-                style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos15"
-                android:text="L"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
         </GridLayout>
+
+        <Button
+            android:id="@+id/keyboard_btn_cancel"
+            app:layout_constraintBottom_toTopOf="@id/keyboard_btn_delete"
+            app:layout_constraintStart_toEndOf="@id/gl_keyboard"
+            style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
+
+        <Button
+            android:id="@+id/keyboard_btn_delete"
+            app:layout_constraintBottom_toTopOf="@id/keyboard_btn_confirm"
+            app:layout_constraintStart_toEndOf="@id/gl_keyboard"
+            style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
+
+        <Button
+            android:id="@+id/keyboard_btn_confirm"
+            android:layout_height="260px"
+            app:layout_constraintBottom_toBottomOf="@id/gl_keyboard"
+            app:layout_constraintStart_toEndOf="@id/gl_keyboard"
+            style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </merge>
