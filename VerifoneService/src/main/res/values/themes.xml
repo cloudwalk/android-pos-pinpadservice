@@ -15,7 +15,7 @@
         <item name="colorPrimaryVariant">@color/gray</item>
     </style>
 
-    <style name="Theme.PinpadService.NoActionBar.Keyboard" parent="Theme.PinpadService.NoActionBar">
+    <style name="Theme.PinpadService.NoActionBar.Button" parent="Theme.PinpadService.NoActionBar">
         <item name="android:fontFamily">@font/ceraproregular</item>
         <item name="android:gravity">center</item>
         <item name="android:layout_height">130px</item>
