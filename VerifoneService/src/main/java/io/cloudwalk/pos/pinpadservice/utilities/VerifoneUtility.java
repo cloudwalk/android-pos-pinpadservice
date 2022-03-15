@@ -20,9 +20,6 @@ public class VerifoneUtility {
     private static final String
             TAG = VerifoneUtility.class.getSimpleName();
 
-    private static AcessoDiretoPinpad
-            sAcessoDiretoPinpad = null;
-
     private static final Semaphore
             sAbortSemaphore = new Semaphore(1, true);
 
@@ -39,6 +36,9 @@ public class VerifoneUtility {
 
     public static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
+
+    public static AcessoDiretoPinpad
+            sAcessoDiretoPinpad = null;
 
     private VerifoneUtility() {
         Log.d(TAG, "VerifoneUtility");

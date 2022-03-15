@@ -7,7 +7,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:background="@drawable/keyboard_skin"
-        android:id="@+id/keyboard"
+        android:id="@+id/cl_keyboard"
         android:layout_height="720px"
         android:layout_width="match_parent">
 
@@ -21,6 +21,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
+
             <Button
                 android:id="@+id/default_keyboard_custom_pos00"
                 android:text="1"
@@ -84,7 +85,7 @@
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
             <Button
                 android:id="@+id/default_keyboard_custom_pos15"
-                android:text="L"
+                android:text="E"
                 style="@style/Theme.PinpadService.NoActionBar.Keyboard" />
         </GridLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
