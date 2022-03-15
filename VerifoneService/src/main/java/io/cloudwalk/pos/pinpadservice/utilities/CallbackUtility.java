@@ -36,18 +36,14 @@ public class CallbackUtility {
     private static void mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
         // Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
-        int visibility = 0;
-
         switch (tipoNotificacao) {
             case NTF_PIN_START:
             case NTF_PIN_ENTRY:
-                visibility = 1;
+                PinCaptureActivity.resumeActivity();
                 /* no break */
 
             case NTF_PIN_FINISH:
-                visibility = (visibility != 0) ? visibility : 2;
-
-                PinCaptureActivity.setVisibility(visibility != 2);
+                PinCaptureActivity.moveActivityToFront(tipoNotificacao != NTF_PIN_FINISH);
                 break;
 
             default:

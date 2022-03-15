@@ -264,7 +264,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         Context context = Application.getPackageContext();
 
-        context.startActivity(new Intent(context, PinCaptureActivity.class));
+        context.startActivity(new Intent(context, PinCaptureActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         sLifeCycleSemaphore.acquireUninterruptibly();
     }
