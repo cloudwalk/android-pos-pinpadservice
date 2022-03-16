@@ -6,6 +6,7 @@ import static android.view.View.VISIBLE;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -151,6 +152,34 @@ public class PinCaptureActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.default_activity_pin_capture);
+
+        int versionCode = -1;
+
+        try {
+            versionCode = getPackageManager().getPackageInfo(sApplicationId, 0).versionCode;
+
+            Log.d(TAG, "onCreate::sApplicationId [" + sApplicationId + "] versionCode [" + versionCode + "]");
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
+        }
+
+        switch (sApplicationId) {
+            case "io.cloudwalk.appclientcw":
+                if (versionCode < 203) {
+                    int background = Color.parseColor("#E5E5E5");
+
+                    findViewById(R.id.fl_keyboard).setBackgroundColor(background);
+                }
+                break;
+
+            case "io.cloudwalk.pos.poc2104301453.demo":
+                // TODO: add blurred gradient background?!
+                break;
+
+            default:
+                /* Nothing to do */
+                break;
+        }
 
         sActivity = this;
 

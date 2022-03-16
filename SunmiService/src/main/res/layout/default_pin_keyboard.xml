@@ -3,90 +3,96 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- TODO: review/add responsiveness -->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="@drawable/keyboard_skin"
-        android:id="@+id/cl_keyboard"
-        android:layout_height="720px"
+    <FrameLayout
+        android:background="@android:color/transparent"
+        android:id="@+id/fl_keyboard"
+        android:layout_gravity="center|bottom"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
-        <GridLayout
-            android:columnCount="4"
-            android:layout_height="wrap_content"
-            android:layout_width="700px"
-            android:layout_gravity="center"
-            android:rowCount="4"
-            android:layout_marginBottom="20px"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:background="@drawable/keyboard_skin"
+            android:id="@+id/cl_keyboard"
+            android:layout_height="720px"
+            android:layout_width="match_parent">
 
-            <Button
-                android:id="@+id/default_keyboard_custom_pos00"
-                android:text="1"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos01"
-                android:text="2"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos02"
-                android:text="3"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos03"
-                android:text="C"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
+            <GridLayout
+                android:columnCount="4"
+                android:layout_height="wrap_content"
+                android:layout_width="700px"
+                android:layout_gravity="center"
+                android:rowCount="4"
+                android:layout_marginBottom="20px"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
-            <Button
-                android:id="@+id/default_keyboard_custom_pos04"
-                android:text="4"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos05"
-                android:text="5"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos06"
-                android:text="6"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos07"
-                android:text="L"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos00"
+                    android:text="1"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos01"
+                    android:text="2"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos02"
+                    android:text="3"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos03"
+                    android:text="C"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
 
-            <Button
-                android:id="@+id/default_keyboard_custom_pos08"
-                android:text="7"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos09"
-                android:text="8"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos10"
-                android:text="9"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos11"
-                android:text="E"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos04"
+                    android:text="4"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos05"
+                    android:text="5"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos06"
+                    android:text="6"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos07"
+                    android:text="L"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
 
-            <Button
-                android:id="@+id/default_keyboard_custom_pos12"
-                style="@style/Theme.SunmiService.NoActionBar.Button"/>
-            <Button
-                android:id="@+id/default_keyboard_custom_pos13"
-                android:text="0"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos14"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-            <Button
-                android:id="@+id/default_keyboard_custom_pos15"
-                android:text="E"
-                style="@style/Theme.SunmiService.NoActionBar.Button" />
-        </GridLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos08"
+                    android:text="7"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos09"
+                    android:text="8"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos10"
+                    android:text="9"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos11"
+                    android:text="E"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos12"
+                    style="@style/Theme.SunmiService.NoActionBar.Button"/>
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos13"
+                    android:text="0"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos14"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+                <Button
+                    android:id="@+id/default_keyboard_custom_pos15"
+                    android:text="E"
+                    style="@style/Theme.SunmiService.NoActionBar.Button" />
+            </GridLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 </merge>
