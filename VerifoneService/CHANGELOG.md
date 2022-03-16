@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## Dependencies
+
+### X990
 - Android 5.1.1
 - Baseband BP01.003(SC20AUSAR01A03_SX)
 - Firmware V1.0.1.20210130
@@ -12,12 +14,14 @@
 - BC 001.29
 
 ## Known issues
-- PIN keyboard customization options are missing (default layout supports X990
-  exclusively).
-- Callbacks are not interrupted by `ST_TIMEOUT` (caller has to oversight time).
-- `MNU` and `GCD` will always disregard user input and return `ST_TIMEOUT`.
-- `PP_TLRMEM` and `PP_DSPxxx` - as well as other multimedia related TAGs - are
-  out of scope and its values should be ignored.
+- PIN keyboard external layout customization is missing.
+- Callbacks aren't interrupted by `ST_TIMEOUT`. Caller has to oversight time.
+- `MNU` and `GCD` will always disregard user input.
+- `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
+  should be ignored.
+
+## [1.1.3] - 2022-03-16
+- Update default PIN keyboard layout background.
 
 ## [1.1.2] - 2022-03-15
 - Update default PIN keyboard layout customization code.
