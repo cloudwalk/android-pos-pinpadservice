@@ -23,7 +23,7 @@
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
   should be ignored.
 
-## [1.1.3] - 2022-03-16
+## [1.1.3] - 2022-03-18
 - Update default PIN keyboard layout background.
 
 ## [1.1.2] - 2022-03-15
