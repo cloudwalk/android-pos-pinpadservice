@@ -88,10 +88,6 @@ public class VerifoneUtility {
         try {
             sRecvSemaphore.acquireUninterruptibly();
 
-            String applicationId = bundle.getString   ("application_id");
-            byte[] request       = bundle.getByteArray("request");
-            Bundle requestBundle = bundle.getBundle   ("request_bundle");
-
             while (sResponseQueue.poll() != null);
 
             byte[] buffer = new byte[2048];
@@ -114,7 +110,7 @@ public class VerifoneUtility {
 
                         Bundle response = new Bundle();
 
-                        response.putString   ("application_id", applicationId);
+                        response.putString   ("application_id", bundle.getString("application_id"));
                         response.putByteArray("response",       stream.toByteArray());
 
                         if (timeout != 0 || count != 1) {
@@ -127,22 +123,11 @@ public class VerifoneUtility {
                     sAbortSemaphore.release();
                 }
             } while (count++ <= 1);
-
-            if (request.length > 1) {
-                switch (requestBundle.getString(ABECS.CMD_ID)) {
-                    case ABECS.GPN:
-                    case ABECS.GOX:
-                        PinCaptureActivity.finishActivity();
-                        break;
-
-                    default:
-                        /* Nothing to do */
-                        break;
-                }
-            }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
+            PinCaptureActivity.finishActivity();
+
             sRecvSemaphore.release();
         }
     }
