@@ -285,7 +285,9 @@ public class PinCaptureActivity extends AppCompatActivity {
     }
 
     public static void startActivity(@NotNull String applicationId) {
-        Log.d(TAG, "startActivity");
+        Log.d(TAG, "startActivity::applicationId [" + applicationId + "]");
+
+        PinCaptureActivity.finishActivity();
 
         sLifeCycleSemaphore.acquireUninterruptibly();
 

@@ -54,6 +54,16 @@
 - Update dependencies.
 - Enable EMV LED operation.
 
+## [1.0.3.x] - 2022-03-23 - WARNING: v1.0.3.x mirrors v1.1.3+
+Due to the lack of support for updates of several components on older X990
+devices, these versions replicate all improvements of v1.1.3+, although missing
+all of the fixes from its dependencies.  
+In the event of a leveling opportunity, these versions will only accept to be
+updated or replaced by its correspondents v1.1.x, a equivalent or newer.  
+
+- 1.0.3.1 mirrors 1.1.3.
+- 1.0.3.2 mirrors 1.1.4.
+
 ## [1.0.3] - 2021-10-11
 - Add `DUKLINK.dat` creation support.
 
