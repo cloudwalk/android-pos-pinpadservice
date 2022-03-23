@@ -11,7 +11,7 @@ public class SharedPreferencesUtility {
             TAG = SharedPreferencesUtility.class.getSimpleName();
 
     private static final SharedPreferences
-            sSharedPreferences = Application.getPackageContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
+            sSharedPreferences = Application.getContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
 
     private static SharedPreferences.Editor
             sEditor = sSharedPreferences.edit();

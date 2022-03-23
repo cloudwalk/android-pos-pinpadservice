@@ -54,7 +54,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
 
                 sSemaphore.acquireUninterruptibly();
 
-                Context context = Application.getPackageContext();
+                Context context = Application.getContext();
                 byte[]  content;
 
                 try {

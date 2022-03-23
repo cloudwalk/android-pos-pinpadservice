@@ -341,7 +341,7 @@ public class PinpadManager {
 
             Bundle bundle = new Bundle();
 
-            bundle.putString   ("application_id", Application.getPackageContext().getPackageName());
+            bundle.putString   ("application_id", Application.getContext().getPackageName());
             bundle.putByteArray("request", stream.toByteArray());
 
             IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);

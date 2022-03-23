@@ -59,7 +59,7 @@ public class AboutAlertDialog extends AlertDialog {
 
         setView(view);
 
-        Context context = Application.getPackageContext();
+        Context context = Application.getContext();
 
         String componentList = "\n";
         String versionName   = "";

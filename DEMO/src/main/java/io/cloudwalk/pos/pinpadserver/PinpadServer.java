@@ -1,5 +1,6 @@
 package io.cloudwalk.pos.pinpadserver;
 
+import android.annotation.SuppressLint;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -152,12 +153,12 @@ public class PinpadServer {
         }
     }
 
+    @SuppressLint("WifiManagerLeak")
     public void raise()
             throws Exception {
         Log.d(TAG, "raise");
 
-        mWifiManager = (WifiManager) Application.getPackageContext().getApplicationContext()
-                .getSystemService(WIFI_SERVICE);
+        mWifiManager = (WifiManager) Application.getContext().getSystemService(WIFI_SERVICE);
 
         raise(getWiFiInetAddress(), 8080);
 

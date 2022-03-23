@@ -162,7 +162,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         try {
             if (!sLifeCycleSemaphore.tryAcquire(0, TimeUnit.MILLISECONDS)) {
                 if (sActivity != null) {
-                    ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                    ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
                             .moveTaskToFront(sActivity.getTaskId(), 0);
                 }
             } else {
@@ -190,7 +190,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         Log.d(TAG, "resumeActivity");
 
         if (sActivity != null) {
-            ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+            ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
                     .moveTaskToFront(sActivity.getTaskId(), 0);
         }
     }
@@ -220,7 +220,7 @@ public class PinCaptureActivity extends AppCompatActivity {
                     sActivity.findViewById(R.id.default_rl_pin_capture).setVisibility((status) ? VISIBLE : INVISIBLE);
 
                     if (status) {
-                        ((ActivityManager) (Application.getPackageContext().getSystemService(ACTIVITY_SERVICE)))
+                        ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
                                 .moveTaskToFront(sActivity.getTaskId(), 0);
                     }
 
@@ -241,7 +241,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         sApplicationId = applicationId;
 
-        Context context = Application.getPackageContext();
+        Context context = Application.getContext();
 
         context.startActivity(new Intent(context, PinCaptureActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 

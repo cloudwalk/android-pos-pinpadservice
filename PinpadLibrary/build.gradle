@@ -13,8 +13,8 @@ android {
     defaultConfig {
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode 17
-        versionName "1.0.16"
+        versionCode 18
+        versionName "1.0.17"
 
         buildConfigField 'String', 'PACKAGE_ID', "\"${groupId}.${artifactId}\""
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"
@@ -46,8 +46,8 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'io.cloudwalk:loglibrary:1.1.2'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.10'
+    implementation 'io.cloudwalk:loglibrary:1.1.4'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.12'
 }
 
 afterEvaluate {
