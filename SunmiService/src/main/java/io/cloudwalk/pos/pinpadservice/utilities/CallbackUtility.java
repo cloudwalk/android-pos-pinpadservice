@@ -50,11 +50,11 @@ public class CallbackUtility {
                 /* no break */
 
             case NTF_PIN_FINISH:
-                PinCaptureActivity.moveActivityToFront(tipoNotificacao != NTF_PIN_FINISH);
+                PinCaptureActivity.moveActivity(tipoNotificacao != NTF_PIN_FINISH);
                 break;
 
             default:
-                /* Nothing to do */
+                PinCaptureActivity.moveActivity(false);
                 break;
         }
 

@@ -9,9 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 22
         targetSdk 31
-        versionCode 105 // 2022-03-23: releases mirroring other releases will always have to keep
-                        // the original `versionCode` untouched
-        versionName "1.0.3.2"
+        versionCode 106
+        versionName "1.1.5"
 
         setProperty("archivesBaseName", "verifone-$applicationId-$versionName-${getDate()}")
     }
@@ -50,8 +49,8 @@ dependencies {
 
     implementation project(path: ':PinpadLibrary')
 
-    debugImplementation files('libs/PPCompX990-v001.19_debug.aar')
-    releaseImplementation files('libs/PPCompX990-v001.19.aar')
+    debugImplementation files('libs/PPCompX990-v001.29_debug.aar')
+    releaseImplementation files('libs/PPCompX990-v001.29.aar')
 
     implementation 'io.cloudwalk:loglibrary:1.1.4'
     implementation 'io.cloudwalk:utilitieslibrary:1.0.12'
