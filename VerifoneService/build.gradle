@@ -9,9 +9,9 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 22
         targetSdk 31
-        versionCode 105 // 2022-03-23: releases mirroring other releases will always have to keep
+        versionCode 106 // 2022-03-23: releases mirroring other releases will always have to keep
                         // the original `versionCode` untouched
-        versionName "1.0.3.2"
+        versionName "1.0.3.3"
 
         setProperty("archivesBaseName", "verifone-$applicationId-$versionName-${getDate()}")
     }

@@ -34,7 +34,10 @@ public class PinCaptureActivity extends AppCompatActivity {
             TAG = PinCaptureActivity.class.getSimpleName();
 
     private static final Semaphore
-            sLifeCycleSemaphore = new Semaphore(1, true);
+            sCreationSemaphore  = new Semaphore(0, true);
+
+    private static final Semaphore
+            sLifecycleSemaphore = new Semaphore(1, true);
 
     private static AppCompatActivity
             sActivity = null;
@@ -181,7 +184,11 @@ public class PinCaptureActivity extends AppCompatActivity {
                 break;
         }
 
+        sLifecycleSemaphore.acquireUninterruptibly();
+
         sActivity = this;
+
+        sLifecycleSemaphore.release();
 
         RelativeLayout relativeLayout = findViewById(R.id.default_rl_pin_capture);
 
@@ -200,7 +207,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
                                 PINplug.setPinpadType(1, JSONLayoutInfo);
 
-                                sLifeCycleSemaphore.release();
+                                sCreationSemaphore.release();
                             }
                         } .start();
                     }
@@ -212,19 +219,25 @@ public class PinCaptureActivity extends AppCompatActivity {
         Log.d(TAG, "onPause");
 
         try {
-            if (!sLifeCycleSemaphore.tryAcquire(0, TimeUnit.MILLISECONDS)) {
-                if (sActivity != null) {
-                    ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
-                            .moveTaskToFront(sActivity.getTaskId(), 0);
+            if (!sCreationSemaphore.tryAcquire(0, TimeUnit.MILLISECONDS)) {
+                try {
+                    sLifecycleSemaphore.acquireUninterruptibly();
+
+                    if (sActivity != null) {
+                        ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
+                                .moveTaskToFront(sActivity.getTaskId(), 0);
+                    }
+                } finally {
+                    sLifecycleSemaphore.release();
                 }
             } else {
-                sLifeCycleSemaphore.release();
+                sCreationSemaphore.release();
             }
 
             super.onPause();
 
             overridePendingTransition(0, 0);
-        } catch (Exception exception) {
+        } catch (InterruptedException exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
     }
@@ -241,46 +254,62 @@ public class PinCaptureActivity extends AppCompatActivity {
     public static void resumeActivity() {
         Log.d(TAG, "resumeActivity");
 
-        if (sActivity != null) {
-            ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
-                    .moveTaskToFront(sActivity.getTaskId(), 0);
+        try {
+            sLifecycleSemaphore.acquireUninterruptibly();
+
+            if (sActivity != null) {
+                ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
+                        .moveTaskToFront(sActivity.getTaskId(), 0);
+            }
+        } finally {
+            sLifecycleSemaphore.release();
         }
     }
 
     public static void finishActivity() {
         Log.d(TAG, "finishActivity");
 
-        if (sActivity != null) {
-            sActivity.finishAndRemoveTask();
+        try {
+            sLifecycleSemaphore.acquireUninterruptibly();
 
-            sActivity = null;
-            sApplicationId = null;
+            if (sActivity != null) {
+                sActivity.finishAndRemoveTask();
 
-            sLifeCycleSemaphore.release();
+                sActivity = null;
+                sApplicationId = null;
+            }
+        } finally {
+            sLifecycleSemaphore.release();
         }
     }
 
-    public static void moveActivityToFront(boolean status) {
-        Log.d(TAG, "moveActivityToFront::status [" + status + "]");
+    public static void moveActivity(boolean front) {
+        Log.d(TAG, "moveActivity::front [" + front + "]");
 
-        if (sActivity != null) {
-            Semaphore semaphore = new Semaphore(0, true);
+        try {
+            sLifecycleSemaphore.acquireUninterruptibly();
 
-            sActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    sActivity.findViewById(R.id.default_rl_pin_capture).setVisibility((status) ? VISIBLE : INVISIBLE);
+            if (sActivity != null) {
+                Semaphore semaphore = new Semaphore(0, true);
 
-                    if (status) {
-                        ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
-                                .moveTaskToFront(sActivity.getTaskId(), 0);
+                sActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        sActivity.findViewById(R.id.default_rl_pin_capture).setVisibility((front) ? VISIBLE : INVISIBLE);
+
+                        if (front) {
+                            ((ActivityManager) (Application.getContext().getSystemService(ACTIVITY_SERVICE)))
+                                    .moveTaskToFront(sActivity.getTaskId(), 0);
+                        }
+
+                        semaphore.release();
                     }
+                });
 
-                    semaphore.release();
-                }
-            });
-
-            semaphore.acquireUninterruptibly();
+                semaphore.acquireUninterruptibly();
+            }
+        } finally {
+            sLifecycleSemaphore.release();
         }
     }
 
@@ -289,15 +318,13 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         PinCaptureActivity.finishActivity();
 
-        sLifeCycleSemaphore.acquireUninterruptibly();
-
         sApplicationId = applicationId;
 
         Context context = Application.getContext();
 
         context.startActivity(new Intent(context, PinCaptureActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
-        sLifeCycleSemaphore.acquireUninterruptibly();
+        sCreationSemaphore.acquireUninterruptibly();
     }
 
     @Override
