@@ -314,9 +314,11 @@ public class MainActivity extends AppCompatActivity {
 
                         String msg  = bundle.getString(NTF_MSG, "");
 
-                        while (msg.charAt(0) == '\n') msg = msg.substring(1);
+                        if (!msg.isEmpty()) {
+                            while (msg.charAt(0) == '\n') msg = msg.substring(1);
+                        }
 
-                               msg += "\n" + pin.substring(pin.length() - 16);
+                        msg += "\n" + pin.substring(pin.length() - 16);
 
                         updatePinpadContent(msg);
 
