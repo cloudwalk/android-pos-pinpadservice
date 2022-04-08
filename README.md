@@ -1,30 +1,53 @@
 # Pinpad Service
 
+<img src="SHIELD.svg"/><br/>
+
 Originally built as a (P)roof (O)f (C)oncept, the Pinpad Service serves as a
 virtual ABECS PINPAD for POS solutions.  
 From the entire ABECS specification, multimedia, proprietary and deprecated
 instructions are left out, reducing scope to 18 instructions:  
 
-- OPN, GIN and CLX
+- OPN, GIX and CLX
 - CEX, CHP, EBX, GCD, GPN, GTK, MNU and RMC
 - TLI, TLR and TLE
 - GCX, GED, GOX and FCX
 
 Be sure to check [ABECS](https://www.abecs.org.br/) website and
-[spec.](https://www.abecs.org.br/certificacao-funcional-dos-pinpads) to have a
-deeper understanding on how to make requests and handle its responses.  
+[specification](https://www.abecs.org.br/certificacao-funcional-dos-pinpads) to
+have a deeper understanding on how to make requests and handle its responses.  
 
-Made available in its own installable package, the Pinpad Service can be
-shared by several applications and updated independently, reducing costs of OTA
-data usage and code maintenance.  
-The Library that pairs with it helps to hide the complexity of binding the
-service, as well as handling AIDL restrictions. It serves as handler and it was
-designed to avoid otherwise direct connections.  
+Made available in its own installable package, the Pinpad Service can be shared
+by several applications and updated independently.  
+The Library that pairs with it helps to hide the complexity of handling the
+service, as well as AIDL restrictions.  
 
-Be sure to check the [DEMO application](#demo-application) for an example on
-how to consume the Pinpad Service using the associated Pinpad Library.
+Check the [DEMO application](#demo-application) for an example on how to
+consume the Pinpad Service using the associated Pinpad Library.  
 
-## Local dependencies
+## Project dependencies
+
+Each platform covered by this project may have its own dependencies, each in
+its own module. They'll be listed in their respective `build.gradle` file -
+e.g. [Verifone/build.gradle](VerifoneService/build.gradle).  
+For instance, these are the Verifone Pinpad Service v1.1.5 dependencies:  
+
+```build.gradle
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'org.jetbrains:annotations:16.0.1'
+
+    implementation project(path: ':PinpadLibrary')
+
+    debugImplementation files('libs/PPCompX990-v001.29_debug.aar')  // copyrighted dependency
+    releaseImplementation files('libs/PPCompX990-v001.29.aar')      // copyrighted dependency
+
+    implementation 'io.cloudwalk:loglibrary:1.1.4'                  // local dependency
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.12'           // local dependency
+}
+```
+
+### Local dependencies
 
 Local dependencies are those which are _private_, but within the scope of the
 Pinpad Service development team. They need to be made available locally before
@@ -36,35 +59,37 @@ the Pinpad Service can be built:
 2. Rebuild their `release` variants based on tags of your choice.
 3. Run tasks: `gradle publishToMavenLocal`
 
-## Copyrighted dependencies
+### Copyrighted dependencies
 
 Copyrighted dependencies are those provided by third parties. They are under
 NDA and can't be made public.  
-For each platform integrated to the Pinpad Service, reach out the respective
-platform representatives.  
+For each platform covered by this project, reach out the respective platform
+representatives[^1].  
+
+[^1]: CloudWalkers will find the entire set of dependencies under NDA through a
+single link: [CloudWalk Devices](https://drive.google.com/drive/folders/1KX-WcBStMcyAN9CY-LTCBJ9zlkAlfEVA)
 
 ## DEMO application
 
-The Pinpad Service includes a DEMO module, covering the very basics:  
+The Pinpad Service includes a DEMO application, covering the very basics:  
 
 - [SplashActivity.java](DEMO/src/main/java/io/cloudwalk/pos/demo/presentation/SplashActivity.java)
-  shows how to connect the service using the Pinpad Library.
+  shows how to bind the service using the Pinpad Library.
 - [MainActivity.java](DEMO/src/main/java/io/cloudwalk/pos/demo/presentation/MainActivity.java)
   shows how to perform local requests.
   - _Check [DEMO.java](DEMO/src/main/java/io/cloudwalk/pos/demo/DEMO.java) for
-    samples of requests made through the `Bundle` interface_.
+    samples of requests made through the (String) `Bundle` API_.
 
 An ABECS PINPAD natively exchanges `byte[]` streams. However, the Pinpad
-Service allows local requests made through a `Bundle` interface, for easier
-handling. The Pinpad Library is the one responsible for the conversion between
-`Bundle` and `byte[]`. In any case, if one decides to use the native `byte[]`
-interface, it can do so:
+Service allows local requests made through a (String) `Bundle` API, for easier
+data handling[^2]. The Pinpad Library is the one responsible for the conversion
+between (String) `Bundle` and `byte[]`.  
 
-- _Bundle_ API
+[^2]: (String) `Bundle` API is highly recommended over `byte` API.
+
+- (String) _Bundle_ API
   - `PinpadManager#abort();`
   - `PinpadManager#request(Bundle, IServiceCallback);`
 - _byte[]_ API
   - `PinpadManager#send(byte[], int, IServiceCallback);`
   - `PinpadManager#receive(byte[], long);`
-
-<!-- TODO: summary of the `Bundle` API characteristics -->
