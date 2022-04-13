@@ -65,6 +65,7 @@ Copyrighted dependencies are those provided by third parties. They are under
 NDA and can't be made public.  
 For each platform covered by this project, reach out the respective platform
 representatives[^1].  
+In each manufacturer service folder, create a new "libs" folder and save the correct dependencies in it.
 
 [^1]: CloudWalkers will find the entire set of dependencies under NDA through a
 single link: [CloudWalk Devices](https://drive.google.com/drive/folders/1KX-WcBStMcyAN9CY-LTCBJ9zlkAlfEVA)
