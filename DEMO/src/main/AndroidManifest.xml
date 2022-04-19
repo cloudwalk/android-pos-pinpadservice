@@ -32,7 +32,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".presentation.MainActivity" />
+        <activity
+            android:exported="false"
+            android:name=".presentation.MainActivity"
+            android:noHistory="true" />
+
+        <activity
+            android:exported="false"
+            android:name=".presentation.ExitActivity"
+            android:noHistory="true" />
     </application>
 
 </manifest>
