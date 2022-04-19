@@ -509,4 +509,13 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onOptionsItemSelected");
+
+        // super.onBackPressed();
+
+        moveTaskToBack(true);
+    }
 }

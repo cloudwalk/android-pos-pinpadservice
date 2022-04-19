@@ -8,6 +8,10 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [0.0.8] - 2022-04-20
+- Ensure the `Back` button won't trigger an application reload cycle, simply
+  moving the activity stack to the background.
+
 ## [0.0.7] - 2022-04-19
 - Review application reload when coming from the history stack.
 
