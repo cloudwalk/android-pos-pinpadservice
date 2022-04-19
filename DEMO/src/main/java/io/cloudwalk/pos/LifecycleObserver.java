@@ -26,8 +26,8 @@ public class LifecycleObserver implements androidx.lifecycle.LifecycleObserver {
     public static AtomicBoolean
             sBackground = new AtomicBoolean(false);
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP) // TODO: use `DefaultLifecycleObserver`
-                                               // or `LifecycleEventObserver` instead
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP) // TODO: prefer `DefaultLifecycleObserver` or
+                                               // `LifecycleEventObserver` instead
     public void onEnterBackground() {
         Log.d(TAG, "onEnterBackground");
 
