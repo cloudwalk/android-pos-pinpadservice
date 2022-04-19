@@ -2,6 +2,8 @@ package io.cloudwalk.pos.demo.presentation;
 
 import static java.util.Locale.US;
 
+import static io.cloudwalk.pos.Application.sPinpadServer;
+
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -460,39 +462,15 @@ public class MainActivity extends AppCompatActivity {
 
                 updateStatus(2, "Raising server...");
 
-                mPinpadServer = new PinpadServer(serverCallback);
-
-                try { mPinpadServer.raise(); } catch (Exception exception) { serverCallback.onServerFailure(exception); }
-            }
-        }.start();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.d(TAG, "onStop");
-
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
                 try {
-                    // TODO: ensure both `abort` and `close` will always run before finishing
+                    sPinpadServer.set(new PinpadServer(serverCallback));
 
-                    PinpadManager.abort();
-
-                    mPinpadServer.close();
+                    sPinpadServer.get().raise();
                 } catch (Exception exception) {
-                    /* Nothing to do */
+                    serverCallback.onServerFailure(exception);
                 }
             }
         }.start();
-
-        super.onStop();
-
-        mAboutAlertDialog.dismiss();
-
-        finish();
     }
 
     @Override
