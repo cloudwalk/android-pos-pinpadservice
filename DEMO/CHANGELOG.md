@@ -8,6 +8,13 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [0.0.6] - 2022-04-19
+- Ensure proper process kill only - and only if - it's explicitly sent to
+  background by the user.
+
+## [0.0.5] - 2022-03-30
+- Update poorly implemented callbacks to avoid unexpected exceptions.
+
 ## [0.0.4] - 2022-02-09
 - Adjust minor UX aspects.
 
