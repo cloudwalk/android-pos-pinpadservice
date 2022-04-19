@@ -1,5 +1,7 @@
 package io.cloudwalk.pos.demo.presentation;
 
+import static io.cloudwalk.pos.Application.sPinpadServer;
+
 import androidx.annotation.ColorInt;
 
 import android.app.AlertDialog;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.pos.pinpadserver.PinpadServer;
 import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
@@ -70,19 +73,25 @@ public class SplashActivity extends AppCompatActivity {
 
         loadDependencies();
 
+        PinpadServer server = sPinpadServer.get();
+
+        if (server != null) {
+            server.close();
+        }
+
+        sPinpadServer.set(null);
+
         /* The 'acquire' call serves the purpose of blocking the application till all required
-         * dependencies are ready. For that, the semaphore instantiation must take into account the
-         * right amount of permits: (number of dependencies * -1)
-         * See SplashActivity#loadDependencies() for further insight on the number of permits */
+         * dependencies are ready. */
         mSemaphore[0].acquireUninterruptibly();
+
+        mSemaphore[0] = new Semaphore(-1, true);
 
         if (!wasPaused()) {
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
 
             overridePendingTransition(0, 0);
         }
-
-        finish();
     }
 
     private void loadDependencies() {
@@ -203,9 +212,16 @@ public class SplashActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(getString(R.string.app_name));
 
-        updateContentScrolling(2, getString(R.string.warning_application_starting));
-
         mAboutAlertDialog = new AboutAlertDialog(this);
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+
+        super.onResume();
+
+        updateContentScrolling(2, getString(R.string.warning_application_starting));
 
         /* 'onCreate' shouldn't be blocked by potentially demanding routines, hence the thread */
         new Thread() {
@@ -222,9 +238,9 @@ public class SplashActivity extends AppCompatActivity {
     protected void onStop() {
         Log.d(TAG, "onStop");
 
-        super.onStop();
-
         mAboutAlertDialog.dismiss();
+
+        super.onStop();
     }
 
     @Override

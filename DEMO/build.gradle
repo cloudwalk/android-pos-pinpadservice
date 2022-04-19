@@ -9,8 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.poc2104301453.demo"
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode 6
-        versionName "0.0.6"
+        versionCode 7
+        versionName "0.0.7"
 
         buildConfigField 'String', 'BUILD_DATE', "\"${getDate()}\""
 
