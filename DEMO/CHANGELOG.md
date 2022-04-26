@@ -8,6 +8,9 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [0.0.9] - 2022-04-26
+- Now the DEMO application processes a card using the GCX, GOX and FCX commands.
+
 ## [0.0.8] - 2022-04-20
 - Ensure the `Back` button won't trigger an application reload cycle, simply
   moving the activity stack to the background.
