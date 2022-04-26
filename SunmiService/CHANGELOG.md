@@ -17,7 +17,7 @@
 - BC 1.30
 
 ## Known issues
-- PIN keyboard external layout customization is missing.
+- PIN keyboard external layout customization is disabled.
 - Callbacks aren't interrupted by `ST_TIMEOUT`. Caller has to oversight time.
 - `MNU` and `GCD` will always disregard user input.
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values

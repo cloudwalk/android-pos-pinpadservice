@@ -5,22 +5,22 @@
 ### X990
 - Android 5.1.1
 - Baseband BP01.003(SC20AUSAR01A03_SX)
-- Firmware V1.0.1.20210130
+- Firmware V1.0.1.20200313
 - Linux Kernel 3.10.49
-- ROM V1.1.0.202101301407 BRA
+- ROM V1.1.0.202003131201 BRA
 - Security Driver VA.215.S.076.202202101445
 - VFService 3.11.2.3
 - VFSystemService 1.8.11
-- BC 001.29
+- BC 001.31
 
 ## Known issues
-- PIN keyboard external layout customization is missing.
+- PIN keyboard external layout customization is disabled.
 - Callbacks aren't interrupted by `ST_TIMEOUT`. Caller has to oversight time.
 - `MNU` and `GCD` will always disregard user input.
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
   should be ignored.
 
-## [1.1.6] - YYYY-MM-DD
+## [1.1.6] - 2022-04-19
 - Update dependencies.
 
 ## [1.1.5] - 2022-03-27
