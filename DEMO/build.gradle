@@ -10,7 +10,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 31
         versionCode 8
-        versionName "v0.0.8.1 (alinerezendeCW)"
+        versionName "0.0.8.1 (alinerezendeCW)"
 
         buildConfigField 'String', 'BUILD_DATE', "\"${getDate()}\""
 

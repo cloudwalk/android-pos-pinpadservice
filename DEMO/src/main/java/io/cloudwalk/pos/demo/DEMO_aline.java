@@ -19,7 +19,7 @@ public class DEMO_aline {
         /* Nothing to do */
     }
 
-    public static Bundle GCX() { //done by aline
+    public static Bundle GCX() {
         Log.d(TAG, "GCX");
 
         Bundle request = new Bundle();
@@ -39,7 +39,7 @@ public class DEMO_aline {
         return request;
     }
 
-    public static Bundle GOX() { //done by aline
+    public static Bundle GOX() {
         Log.d(TAG, "GOX");
 
         Bundle request = new Bundle();
@@ -58,7 +58,7 @@ public class DEMO_aline {
         return request;
     }
 
-    public static Bundle FCX() { //done by aline
+    public static Bundle FCX() {
         Log.d(TAG, "FCX");
 
         Bundle request = new Bundle();
