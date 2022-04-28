@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.pos.demo.DEMO;
+import io.cloudwalk.pos.demo.DEMO_aline;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadserver.PinpadServer;
@@ -353,9 +354,12 @@ public class MainActivity extends AppCompatActivity {
                 // requestList.add(DEMO.EBX());
                 // requestList.add(DEMO.GPN());
                 // requestList.add(DEMO.GCX());
+                requestList.add(DEMO_aline.GCX());
                 // requestList.add(DEMO.GED());
                 // requestList.add(DEMO.GOX());
+                requestList.add(DEMO_aline.GOX());
                 // requestList.add(DEMO.FCX());
+                requestList.add(DEMO_aline.FCX());
                 // requestList.add(DEMO.MNU());
                 // requestList.add(DEMO.GCD());
                 // requestList.add(DEMO.CHP());
