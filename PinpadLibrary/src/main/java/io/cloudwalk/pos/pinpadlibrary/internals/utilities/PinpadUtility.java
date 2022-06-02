@@ -107,6 +107,112 @@ public class PinpadUtility {
         }
     }
 
+    private static byte[] unwrapDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "unwrapDataPacket");
+
+        byte[] pkt = new byte[2048 - 4];
+
+        int threshold = Math.min(length, 2044 + 4);
+
+        int j = 0;
+
+        for (int i = 1; i < threshold; i++) {
+            switch (input[i]) {
+                case 0x16: /* PKTSTART */
+                    continue;
+
+                case 0x17: /* PKTSTOP  */
+                    i = threshold;
+                    continue;
+
+                case 0x13:
+                    switch (input[++i]) {
+                        case 0x33: /* DC3 */
+                            pkt[j++] = 0x13;
+                            break;
+
+                        case 0x36: /* SYN */
+                            pkt[j++] = 0x16;
+                            break;
+
+                        case 0x37: /* ETB */
+                            pkt[j++] = 0x17;
+                            break;
+
+                        default:
+                            pkt[j++] = input[i];
+                            break;
+                    }
+                    break;
+
+                default:
+                    pkt[j++] = input[i];
+                    break;
+            }
+        }
+
+        // TODO: validate CRC
+
+        byte[] output = new byte[j];
+
+        System.arraycopy(pkt, 0, output, 0, j);
+
+        return output;
+    }
+
+    private static byte[] wrapDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "wrapDataPacket");
+
+        byte[] pkt = new byte[2044 + 4];
+
+        pkt[0] = 0x16; /* PKTSTART */
+
+        int threshold = Math.min(length, 2044 + 4);
+
+        int j = 1;
+
+        for (int i = 0; i < threshold; i++) {
+            switch (input[i]) {
+                case 0x13: /* DC3 */
+                    pkt[j++] = 0x13;
+                    pkt[j++] = 0x33;
+                    break;
+
+                case 0x16: /* SYN */
+                    pkt[j++] = 0x13;
+                    pkt[j++] = 0x36;
+                    break;
+
+                case 0x17: /* ETB */
+                    pkt[j++] = 0x13;
+                    pkt[j++] = 0x37;
+                    break;
+
+                default:
+                    pkt[j++] = input[i];
+                    break;
+            }
+        }
+
+        pkt[j] = 0x17; /* PKTSTOP */
+
+        byte[] crc = new byte[length + 1];
+
+        System.arraycopy(input, 0, crc, 0, length);
+
+        crc[length] = pkt[j];
+
+        crc = DataUtility.CRC16_XMODEM(crc);
+
+        System.arraycopy(crc, 0, pkt, j + 1, crc.length);
+
+        pkt = Arrays.copyOf(pkt, j + 1 + crc.length);
+
+        return pkt;
+    }
+
     private PinpadUtility() {
         Log.d(TAG, "PinpadUtility");
 
@@ -430,112 +536,6 @@ public class PinpadUtility {
         stream.write(V);
 
         return stream.toByteArray();
-    }
-
-    private static byte[] unwrapDataPacket(byte[] input, int length)
-            throws Exception {
-        Log.d(TAG, "unwrapDataPacket");
-
-        byte[] pkt = new byte[2048 - 4];
-
-        int threshold = Math.min(length, 2044 + 4);
-
-        int j = 0;
-
-        for (int i = 1; i < threshold; i++) {
-            switch (input[i]) {
-                case 0x16: /* PKTSTART */
-                    continue;
-
-                case 0x17: /* PKTSTOP  */
-                    i = threshold;
-                    continue;
-
-                case 0x13:
-                    switch (input[++i]) {
-                        case 0x33: /* DC3 */
-                            pkt[j++] = 0x13;
-                            break;
-
-                        case 0x36: /* SYN */
-                            pkt[j++] = 0x16;
-                            break;
-
-                        case 0x37: /* ETB */
-                            pkt[j++] = 0x17;
-                            break;
-
-                        default:
-                            pkt[j++] = input[i];
-                            break;
-                    }
-                    break;
-
-                default:
-                    pkt[j++] = input[i];
-                    break;
-            }
-        }
-
-        // TODO: validate CRC
-
-        byte[] output = new byte[j];
-
-        System.arraycopy(pkt, 0, output, 0, j);
-
-        return output;
-    }
-
-    private static byte[] wrapDataPacket(byte[] input, int length)
-            throws Exception {
-        Log.d(TAG, "wrapDataPacket");
-
-        byte[] pkt = new byte[2044 + 4];
-
-        pkt[0] = 0x16; /* PKTSTART */
-
-        int threshold = Math.min(length, 2044 + 4);
-
-        int j = 1;
-
-        for (int i = 0; i < threshold; i++) {
-            switch (input[i]) {
-                case 0x13: /* DC3 */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x33;
-                    break;
-
-                case 0x16: /* SYN */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x36;
-                    break;
-
-                case 0x17: /* ETB */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x37;
-                    break;
-
-                default:
-                    pkt[j++] = input[i];
-                    break;
-            }
-        }
-
-        pkt[j] = 0x17; /* PKTSTOP */
-
-        byte[] crc = new byte[length + 1];
-
-        System.arraycopy(input, 0, crc, 0, length);
-
-        crc[length] = pkt[j];
-
-        crc = DataUtility.CRC16_XMODEM(crc);
-
-        System.arraycopy(crc, 0, pkt, j + 1, crc.length);
-
-        pkt = Arrays.copyOf(pkt, j + 1 + crc.length);
-
-        return pkt;
     }
 
     public static int getIntFromDigitsArray(byte[] input, int length) {
