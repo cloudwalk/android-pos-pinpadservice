@@ -544,6 +544,8 @@ public class PinpadUtility {
         int response = 0;
 
         if (input.length >= length) {
+            Log.h(TAG, input, length);
+
             for (int i = length - 1, j = 0; i >= 0; i--, j++) {
                 if (input[j] < 0x30 || input[j] > 0x39) {
                     String message = String.format(US, "getIntFromDigitsArray::input[%d] [%02X]", j, input[j]);
@@ -553,6 +555,8 @@ public class PinpadUtility {
 
                 response += (input[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
             }
+
+            Log.d(TAG, String.format(US, "getIntFromDigitsArray::response [%d]", response));
         } else {
             String message = String.format(US, "getIntFromDigitsArray::input.length [%d] length [%d]", input.length, length);
 
