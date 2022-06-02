@@ -8,7 +8,7 @@
 -assumenosideeffects class android.util.Log {
     public static int d(...);
     public static int e(...);
-    public static java.lang.String getStackTraceString(...);
+#   public static java.lang.String getStackTraceString(...);
     public static int i(...);
     public static boolean isLoggable(java.lang.String, int);
     public static int println(...);
