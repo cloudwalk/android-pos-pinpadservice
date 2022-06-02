@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class CHP {
@@ -43,7 +44,7 @@ public class CHP {
         System.arraycopy(input, 7, CHP_OPER,   0, 1);
         System.arraycopy(input, 8, CHP_CMDLEN, 0, 3);
 
-        CHP_CMD = new byte[DataUtility.getIntFromByteArray(CHP_CMDLEN, CHP_CMDLEN.length) * 2];
+        CHP_CMD = new byte[PinpadUtility.getIntFromDigitsArray(CHP_CMDLEN, CHP_CMDLEN.length) * 2];
 
         output.putString(ABECS.CHP_SLOT, new String(CHP_SLOT));
         output.putString(ABECS.CHP_OPER, new String(CHP_OPER));
@@ -79,7 +80,7 @@ public class CHP {
         System.arraycopy(input,  0, RSP_ID,     0,  3);
         System.arraycopy(input,  3, RSP_STAT,   0,  3);
 
-        ABECS.STAT status   = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
+        ABECS.STAT status   = ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)];
             Bundle output   = new Bundle();
 
         output.putString      (ABECS.RSP_ID, new String(RSP_ID));
@@ -89,7 +90,7 @@ public class CHP {
 
         System.arraycopy(input, 9, CHP_RSPLEN, 0, 3);
 
-        int i = DataUtility.getIntFromByteArray(CHP_RSPLEN, 3) * 2;
+        int i = PinpadUtility.getIntFromDigitsArray(CHP_RSPLEN, CHP_RSPLEN.length) * 2;
 
         System.arraycopy(input, 12, CHP_RSP,   0, i);
 

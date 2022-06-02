@@ -39,6 +39,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'io.cloudwalk.pos.pinpadservice'
 }
 
 dependencies {
@@ -52,6 +53,6 @@ dependencies {
     implementation files('libs/PayLib-release-1.4.62.aar')
     implementation files('libs/PPCompp2-v1.30.aar')
 
-    implementation 'io.cloudwalk:loglibrary:1.1.4'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.12'
+    implementation 'io.cloudwalk:loglibrary:1.1.5'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.13'
 }
