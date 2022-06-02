@@ -49,9 +49,8 @@ dependencies {
 
 ### Local dependencies
 
-Local dependencies are those which are _private_, but within the scope of the
-Pinpad Service development team. They need to be made available locally before
-the Pinpad Service can be built:  
+Local dependencies are those within the scope of the Pinpad Service development
+team . They need to be made available before the Pinpad Service can be built:  
 
 1. Clone the repositories
    [android-misc-loglibrary](https://github.com/cloudwalk/android-misc-loglibrary)
@@ -68,8 +67,9 @@ representatives[^1].
 For each platform module, create a new `libs` directory and save the
 correspondent dependencies in it.
 
-[^1]: CloudWalkers will find the entire set of dependencies under NDA through a
-single link: [CloudWalk Devices](https://drive.google.com/drive/folders/1KX-WcBStMcyAN9CY-LTCBJ9zlkAlfEVA)
+[^1]: Those with CloudWalk credentials will find the entire set of dependencies
+under NDA through a single link:
+[CloudWalk Devices](https://drive.google.com/drive/folders/1KX-WcBStMcyAN9CY-LTCBJ9zlkAlfEVA)
 
 ## DEMO application
 
@@ -80,16 +80,16 @@ The Pinpad Service includes a DEMO application, covering the very basics:
 - [MainActivity.java](DEMO/src/main/java/io/cloudwalk/pos/demo/presentation/MainActivity.java)
   shows how to perform local requests.
   - _Check [DEMO.java](DEMO/src/main/java/io/cloudwalk/pos/demo/DEMO.java) for
-    samples of requests made through the (String) `Bundle` API_.
+    samples of requests made through the `Bundle` API_.
 
 An ABECS PINPAD natively exchanges `byte[]` streams. However, the Pinpad
-Service allows local requests made through a (String) `Bundle` API, for easier
+Service allows local requests made through a `Bundle` API, for easier
 data handling[^2]. The Pinpad Library is the one responsible for the conversion
-between (String) `Bundle` and `byte[]`.  
+between `Bundle` and `byte[]`.  
 
-[^2]: (String) `Bundle` API is highly recommended over `byte` API.
+[^2]: `Bundle` API is recommended over `byte` API.
 
-- (String) _Bundle_ API
+- _Bundle_ API
   - `PinpadManager#abort();`
   - `PinpadManager#request(Bundle, IServiceCallback);`
 - _byte[]_ API
