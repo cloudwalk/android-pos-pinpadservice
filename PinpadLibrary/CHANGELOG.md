@@ -8,7 +8,7 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [1.0.17] - 2022-19-DD
+## [1.0.17] - 2022-06-03
 - Update internal dependencies.
 - Review CHANGELOG.md.
 
