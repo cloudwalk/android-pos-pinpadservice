@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -45,7 +46,7 @@ public class OPN {
         System.arraycopy(input, 6, OPN_OPMODE, 0, 1);
         System.arraycopy(input, 7, OPN_MODLEN, 0, 3);
 
-        OPN_MOD = new byte[DataUtility.getIntFromByteArray(OPN_MODLEN, OPN_MODLEN.length) * 2];
+        OPN_MOD = new byte[PinpadUtility.getIntFromDigitsArray(OPN_MODLEN, OPN_MODLEN.length) * 2];
 
         System.arraycopy(input,                  10, OPN_MOD,    0, OPN_MOD.length);
         System.arraycopy(input, OPN_MOD.length + 10, OPN_EXPLEN, 0, 1);
@@ -53,7 +54,7 @@ public class OPN {
         output.putString(ABECS.OPN_OPMODE, new String(OPN_OPMODE));
         output.putString(ABECS.OPN_MOD,    new String(OPN_MOD));
 
-        OPN_EXP = new byte[DataUtility.getIntFromByteArray(OPN_EXPLEN, OPN_EXPLEN.length) * 2];
+        OPN_EXP = new byte[PinpadUtility.getIntFromDigitsArray(OPN_EXPLEN, OPN_EXPLEN.length) * 2];
 
         System.arraycopy(input, OPN_MOD.length + 11, OPN_EXP,    0, OPN_EXP.length);
 
@@ -77,7 +78,7 @@ public class OPN {
         Bundle output = new Bundle();
 
         output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
+        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
 
         if (length < 7) {
             return output;

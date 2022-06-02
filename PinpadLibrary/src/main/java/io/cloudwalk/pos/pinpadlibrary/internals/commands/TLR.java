@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class TLR {
@@ -36,7 +37,7 @@ public class TLR {
         System.arraycopy(input, 3, CMD_LEN1, 0, 3);
         System.arraycopy(input, 6, TLR_NREC, 0, 2);
 
-        TLR_DATA = new byte[DataUtility.getIntFromByteArray(CMD_LEN1, CMD_LEN1.length) - 2];
+        TLR_DATA = new byte[PinpadUtility.getIntFromDigitsArray(CMD_LEN1, CMD_LEN1.length) - 2];
 
         System.arraycopy(input, 8, TLR_DATA, 0, TLR_DATA.length);
 

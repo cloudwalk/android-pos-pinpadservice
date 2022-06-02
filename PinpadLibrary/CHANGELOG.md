@@ -8,14 +8,15 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [1.0.17] - 2022-19-dd
+## [1.0.17] - 2022-06-03
 - Update internal dependencies.
+- Review CHANGELOG.md.
 
 ## [1.0.16] - 2022-02-24
 - Improve `Bundle` API consistency when facing improper or unanticipated
   interruptions.
 - Prefer `ByteArrayOutputStream` to trim byte streams whenever possible.
-- Retroactively update documentation. 
+- Review documentation. 
 
 ## [1.0.15] - 2022-02-23
 - Workaround eventual `<<ACK>>` trash in vendor streams.
@@ -38,7 +39,7 @@
 
 ## [1.0.9] - 2021-11-24
 - Cease automatic request retries.
-- Ensure consistency when mixing interfaces in a threaded environment.
+- Ensure consistency when mixing APIs in a threaded environment.
 - Update logs.
 
 ## [1.0.8] - 2021-11-16

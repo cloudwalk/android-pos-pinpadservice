@@ -64,7 +64,7 @@ public class PinpadUtility {
                 return output;
             }
 
-            CMD_DATA = new byte[DataUtility.getIntFromByteArray(CMD_LEN1, CMD_LEN1.length)];
+            CMD_DATA = new byte[PinpadUtility.getIntFromDigitsArray(CMD_LEN1, CMD_LEN1.length)];
 
             System.arraycopy(input, 6, CMD_DATA, 0, CMD_DATA.length);
 
@@ -88,7 +88,8 @@ public class PinpadUtility {
             Bundle output = new Bundle();
 
             output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)]);
+
+            output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
 
             if (length < 10) {
                 return output;
@@ -96,7 +97,7 @@ public class PinpadUtility {
 
             System.arraycopy(input, 6, RSP_LEN1, 0, 3);
 
-            RSP_DATA = new byte[DataUtility.getIntFromByteArray(RSP_LEN1, RSP_LEN1.length)];
+            RSP_DATA = new byte[PinpadUtility.getIntFromDigitsArray(RSP_LEN1, RSP_LEN1.length)];
 
             System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
 
@@ -104,64 +105,6 @@ public class PinpadUtility {
 
             return output;
         }
-    }
-
-    private PinpadUtility() {
-        Log.d(TAG, "PinpadUtility");
-
-        /* Nothing to do */
-    }
-
-    private static byte[] wrapDataPacket(byte[] input, int length)
-            throws Exception {
-        Log.d(TAG, "wrapDataPacket");
-
-        byte[] pkt = new byte[2044 + 4];
-
-        pkt[0] = 0x16; /* PKTSTART */
-
-        int threshold = Math.min(length, 2044 + 4);
-
-        int j = 1;
-
-        for (int i = 0; i < threshold; i++) {
-            switch (input[i]) {
-                case 0x13: /* DC3 */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x33;
-                    break;
-
-                case 0x16: /* SYN */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x36;
-                    break;
-
-                case 0x17: /* ETB */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x37;
-                    break;
-
-                default:
-                    pkt[j++] = input[i];
-                    break;
-            }
-        }
-
-        pkt[j] = 0x17; /* PKTSTOP */
-
-        byte[] crc = new byte[length + 1];
-
-        System.arraycopy(input, 0, crc, 0, length);
-
-        crc[length] = pkt[j];
-
-        crc = DataUtility.CRC16_XMODEM(crc);
-
-        System.arraycopy(crc, 0, pkt, j + 1, crc.length);
-
-        pkt = Arrays.copyOf(pkt, j + 1 + crc.length);
-
-        return pkt;
     }
 
     private static byte[] unwrapDataPacket(byte[] input, int length)
@@ -216,6 +159,64 @@ public class PinpadUtility {
         System.arraycopy(pkt, 0, output, 0, j);
 
         return output;
+    }
+
+    private static byte[] wrapDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "wrapDataPacket");
+
+        byte[] pkt = new byte[2044 + 4];
+
+        pkt[0] = 0x16; /* PKTSTART */
+
+        int threshold = Math.min(length, 2044 + 4);
+
+        int j = 1;
+
+        for (int i = 0; i < threshold; i++) {
+            switch (input[i]) {
+                case 0x13: /* DC3 */
+                    pkt[j++] = 0x13;
+                    pkt[j++] = 0x33;
+                    break;
+
+                case 0x16: /* SYN */
+                    pkt[j++] = 0x13;
+                    pkt[j++] = 0x36;
+                    break;
+
+                case 0x17: /* ETB */
+                    pkt[j++] = 0x13;
+                    pkt[j++] = 0x37;
+                    break;
+
+                default:
+                    pkt[j++] = input[i];
+                    break;
+            }
+        }
+
+        pkt[j] = 0x17; /* PKTSTOP */
+
+        byte[] crc = new byte[length + 1];
+
+        System.arraycopy(input, 0, crc, 0, length);
+
+        crc[length] = pkt[j];
+
+        crc = DataUtility.CRC16_XMODEM(crc);
+
+        System.arraycopy(crc, 0, pkt, j + 1, crc.length);
+
+        pkt = Arrays.copyOf(pkt, j + 1 + crc.length);
+
+        return pkt;
+    }
+
+    private PinpadUtility() {
+        Log.d(TAG, "PinpadUtility");
+
+        /* Nothing to do */
     }
 
     public static Bundle parseRequestDataPacket(byte[] input, int length)
@@ -535,5 +536,33 @@ public class PinpadUtility {
         stream.write(V);
 
         return stream.toByteArray();
+    }
+
+    public static int getIntFromDigitsArray(byte[] input, int length) {
+        Log.d(TAG, "getIntFromDigitsArray");
+
+        int response = 0;
+
+        if (input.length >= length) {
+            Log.h(TAG, input, length);
+
+            for (int i = length - 1, j = 0; i >= 0; i--, j++) {
+                if (input[j] < 0x30 || input[j] > 0x39) {
+                    String message = String.format(US, "getIntFromDigitsArray::input[%d] [%02X]", j, input[j]);
+
+                    throw new IllegalArgumentException(message);
+                }
+
+                response += (input[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
+            }
+
+            Log.d(TAG, String.format(US, "getIntFromDigitsArray::response [%d]", response));
+        } else {
+            String message = String.format(US, "getIntFromDigitsArray::input.length [%d] length [%d]", input.length, length);
+
+            throw new IllegalArgumentException(message);
+        }
+
+        return response;
     }
 }

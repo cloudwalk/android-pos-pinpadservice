@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class GPN {
@@ -74,7 +75,7 @@ public class GPN {
         System.arraycopy(input,  0, RSP_ID,     0,  3);
         System.arraycopy(input,  3, RSP_STAT,   0,  3);
 
-        ABECS.STAT status   = ABECS.STAT.values()[DataUtility.getIntFromByteArray(RSP_STAT, RSP_STAT.length)];
+        ABECS.STAT status   = ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)];
             Bundle output   = new Bundle();
 
         output.putString      (ABECS.RSP_ID, new String(RSP_ID));
