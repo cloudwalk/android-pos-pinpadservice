@@ -8,6 +8,14 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [0.0.9] - 2022-06-03
+- Update internal dependencies.
+- Disable additional local requests from previous version.
+- Review CHANGELOG.md.
+
+## [0.0.8.x] - WARNING: interns usage only
+- Enable additional local requests for internal validation.
+
 ## [0.0.8] - 2022-04-20
 - Ensure the `Back` button won't trigger an application reload cycle, simply
   moving the activity stack to the background.
@@ -29,7 +37,7 @@
 - Fully integrate Pinpad Service Server.
 
 ## [0.0.2] - 2022-02-04
-- Draft server w/ monochromatic display.
+- Draft server with monochromatic display.
 
 ## [0.0.1] - 2021-10-27
 - Initial release.
