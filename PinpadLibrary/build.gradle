@@ -13,8 +13,8 @@ android {
     defaultConfig {
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode 18
-        versionName "1.0.17"
+        versionCode 19
+        versionName "1.0.18"
 
         buildConfigField 'String', 'PACKAGE_ID', "\"${groupId}.${artifactId}\""
         buildConfigField 'int', 'VERSION_CODE', "${versionCode}"
