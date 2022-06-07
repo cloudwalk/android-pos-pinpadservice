@@ -8,11 +8,13 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [1.0.19] - 2022-06-07
+## [1.1.0] - 2022-06-07
 - Update dependencies.
 - Add response byte stream builder, taking a `Bundle` as input:
   - `PinpadUtility#buildResponseDataPacket(Bundle)`
 - Update TLV parser.
+- Update ABECS (secure) `OPN` response packet parsing for the `Bundle` API (used
+  to failed due to wrong internal `OPN_CRKSEC` array length).
 
 ## [1.0.18] - 2022-06-03
 - Update dependencies.

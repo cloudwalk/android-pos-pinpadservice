@@ -12,6 +12,8 @@ import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
+import org.jetbrains.annotations.NotNull;
+
 public class OPN {
     private static final String
             TAG = OPN.class.getSimpleName();
@@ -70,7 +72,7 @@ public class OPN {
         byte[] RSP_ID       = new byte[3];
         byte[] RSP_STAT     = new byte[3];
         byte[] OPN_CRKSLEN  = new byte[3];
-        byte[] OPN_CRKSEC   = new byte[512];
+        byte[] OPN_CRKSEC   = new byte[256];
 
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
@@ -85,9 +87,9 @@ public class OPN {
         }
 
         System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
-        System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
+        System.arraycopy(input, 12, OPN_CRKSEC,  0, 256);
 
-        output.putString(ABECS.OPN_CRKSEC,  new String(OPN_CRKSEC));
+        output.putString(ABECS.OPN_CRKSEC, DataUtility.getHexStringFromByteArray(OPN_CRKSEC));
 
         return output;
     }
@@ -120,5 +122,46 @@ public class OPN {
         byte[] CMD_DATA = stream[1].toByteArray();
 
         return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        String RSP_ID      = null;
+        int    RSP_STAT    = -1;
+        String OPN_CRKSLEN = "256";
+        byte[] OPN_CRKSEC  = null;
+
+        for (String T : input.keySet()) {
+            String V = (!T.equals(ABECS.RSP_STAT)) ? input.getString(T) : "";
+
+            switch (T) {
+                case ABECS.RSP_ID:
+                    RSP_ID = input.getString(ABECS.RSP_ID);
+                    break;
+
+                case ABECS.RSP_STAT:
+                    RSP_STAT = ((ABECS.STAT) input.getSerializable(ABECS.RSP_STAT)).ordinal();
+                    break;
+
+                case ABECS.OPN_CRKSEC:
+                    OPN_CRKSEC = PinpadUtility.buildTLV(ABECS.TYPE.B, "8063", V);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "] [" + V + "]");
+            }
+        }
+
+        stream.write(RSP_ID                                             .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", RSP_STAT)                .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", OPN_CRKSEC.length + 3)   .getBytes(UTF_8));
+        stream.write(OPN_CRKSLEN.getBytes(UTF_8));
+        stream.write(OPN_CRKSEC);
+
+        return stream.toByteArray();
     }
 }
