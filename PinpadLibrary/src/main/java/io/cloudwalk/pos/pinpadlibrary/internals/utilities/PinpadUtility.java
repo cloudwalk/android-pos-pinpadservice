@@ -669,7 +669,7 @@ public class PinpadUtility {
         switch (RSP_ID) {
             case ABECS.OPN: response = OPN.buildResponseDataPacket(input); break;
             case ABECS.CHP: response = CHP.buildResponseDataPacket(input); break;
-            // case ABECS.GPN: response = GPN.buildResponseDataPacket(input); break;
+            case ABECS.GPN: response = GPN.buildResponseDataPacket(input); break;
 
             case ABECS.GIX: case ABECS.CLX:
             case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:

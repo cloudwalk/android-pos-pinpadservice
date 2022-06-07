@@ -98,7 +98,7 @@ public class CHP {
 
         System.arraycopy(input, 12, CHP_RSP,   0, i);
 
-        output.putString(ABECS.CHP_RSP, DataUtility.getHexStringFromByteArray(CHP_RSP, i, 0));
+        output.putString(ABECS.CHP_RSP, new String(CHP_RSP, 0, i));
 
         return output;
     }
@@ -146,9 +146,9 @@ public class CHP {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        String RSP_ID      = null;
-        int    RSP_STAT    = -1;
-        byte[] CHP_RSP     = null;
+        String RSP_ID       = null;
+        int    RSP_STAT     = ABECS.STAT.ST_INTERR.ordinal();
+        byte[] CHP_RSP      = null;
 
         for (String T : input.keySet()) {
             String V = (!T.equals(ABECS.RSP_STAT)) ? input.getString(T) : "";
@@ -163,7 +163,7 @@ public class CHP {
                     break;
 
                 case ABECS.CHP_RSP:
-                    CHP_RSP = DataUtility.getByteArrayFromHexString(V);
+                    CHP_RSP = V.getBytes(UTF_8);
                     break;
 
                 default:
@@ -171,8 +171,8 @@ public class CHP {
             }
         }
 
-        stream.write(RSP_ID                                             .getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", RSP_STAT)                .getBytes(UTF_8));
+        stream.write(RSP_ID                                         .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", RSP_STAT)            .getBytes(UTF_8));
 
         if (RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
             stream.write(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00 });
@@ -180,10 +180,8 @@ public class CHP {
             return stream.toByteArray();
         }
 
-        stream.write(String.format(US, "%03d", CHP_RSP.length + 3)      .getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", CHP_RSP.length / 2)      .getBytes(UTF_8));
-
-
+        stream.write(String.format(US, "%03d", CHP_RSP.length + 3)  .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", CHP_RSP.length / 2)  .getBytes(UTF_8));
         stream.write(CHP_RSP);
 
         return stream.toByteArray();

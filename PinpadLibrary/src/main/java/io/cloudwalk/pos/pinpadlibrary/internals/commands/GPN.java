@@ -5,6 +5,8 @@ import static java.util.Locale.US;
 
 import android.os.Bundle;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
@@ -125,5 +127,58 @@ public class GPN {
         byte[] CMD_DATA = stream[1].toByteArray();
 
         return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        String RSP_ID       = null;
+        int    RSP_STAT     = ABECS.STAT.ST_INTERR.ordinal();
+        byte[] GPN_PINBLK   = null;
+        byte[] GPN_KSN      = null;
+
+        for (String T : input.keySet()) {
+            String V = (!T.equals(ABECS.RSP_STAT)) ? input.getString(T) : "";
+
+            switch (T) {
+                case ABECS.RSP_ID:
+                    RSP_ID = input.getString(ABECS.RSP_ID);
+                    break;
+
+                case ABECS.RSP_STAT:
+                    RSP_STAT = ((ABECS.STAT) input.getSerializable(ABECS.RSP_STAT)).ordinal();
+                    break;
+
+                case ABECS.GPN_PINBLK:
+                    GPN_PINBLK = V.getBytes(UTF_8);
+                    break;
+
+                case ABECS.GPN_KSN:
+                    GPN_KSN    = V.getBytes(UTF_8);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "] [" + V + "]");
+            }
+        }
+
+        stream.write(RSP_ID                                         .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", RSP_STAT)            .getBytes(UTF_8));
+
+        if (RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
+            stream.write(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00 });
+
+            return stream.toByteArray();
+        }
+
+        int RSP_LEN1 = GPN_PINBLK.length + GPN_KSN.length;
+
+        stream.write(String.format(US, "%03d", RSP_LEN1)            .getBytes(UTF_8));
+        stream.write(GPN_PINBLK); stream.write(GPN_KSN);
+
+        return stream.toByteArray();
     }
 }
