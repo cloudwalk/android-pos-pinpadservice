@@ -611,7 +611,7 @@ public class PinpadUtility {
 
     public static byte[] buildResponseDataPacket(@NotNull Bundle input)
             throws Exception {
-        Log.d(TAG, "parseResponseDataPacket");
+        Log.d(TAG, "buildResponseDataPacket");
 
         byte[] response = null;
 
