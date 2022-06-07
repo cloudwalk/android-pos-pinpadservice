@@ -72,7 +72,7 @@ public class OPN {
         byte[] RSP_ID       = new byte[3];
         byte[] RSP_STAT     = new byte[3];
         byte[] OPN_CRKSLEN  = new byte[3];
-        byte[] OPN_CRKSEC   = new byte[256];
+        byte[] OPN_CRKSEC   = new byte[512];
 
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
@@ -87,7 +87,7 @@ public class OPN {
         }
 
         System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
-        System.arraycopy(input, 12, OPN_CRKSEC,  0, 256);
+        System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
 
         output.putString(ABECS.OPN_CRKSEC, DataUtility.getHexStringFromByteArray(OPN_CRKSEC));
 
@@ -131,8 +131,7 @@ public class OPN {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         String RSP_ID      = null;
-        int    RSP_STAT    = -1;
-        String OPN_CRKSLEN = "256";
+        int    RSP_STAT    = ABECS.STAT.ST_INTERR.ordinal();
         byte[] OPN_CRKSEC  = null;
 
         for (String T : input.keySet()) {
@@ -148,7 +147,7 @@ public class OPN {
                     break;
 
                 case ABECS.OPN_CRKSEC:
-                    OPN_CRKSEC = PinpadUtility.buildTLV(ABECS.TYPE.B, "8063", V);
+                    OPN_CRKSEC = DataUtility.getByteArrayFromHexString(V);
                     break;
 
                 default:
@@ -158,8 +157,15 @@ public class OPN {
 
         stream.write(RSP_ID                                             .getBytes(UTF_8));
         stream.write(String.format(US, "%03d", RSP_STAT)                .getBytes(UTF_8));
+
+        if (OPN_CRKSEC == null || RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
+            stream.write(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00 });
+
+            return stream.toByteArray();
+        }
+
         stream.write(String.format(US, "%03d", OPN_CRKSEC.length + 3)   .getBytes(UTF_8));
-        stream.write(OPN_CRKSLEN.getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", OPN_CRKSEC.length / 2)   .getBytes(UTF_8));
         stream.write(OPN_CRKSEC);
 
         return stream.toByteArray();

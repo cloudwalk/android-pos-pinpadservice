@@ -5,6 +5,8 @@ import static java.util.Locale.US;
 
 import android.os.Bundle;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
@@ -57,13 +59,15 @@ public class CHP {
 
         output.putString(ABECS.CHP_CMD,  new String(CHP_CMD));
 
-        if (output.getString(ABECS.CHP_OPER).equals("3")) {
-            System.arraycopy(input, CHP_CMD.length + 11, CHP_PINFMT, 0, 1);
-            System.arraycopy(input, CHP_CMD.length + 12, CHP_PINMSG, 0, 32);
-
-            output.putString(ABECS.CHP_PINFMT, new String(CHP_PINFMT));
-            output.putString(ABECS.CHP_PINMSG, new String(CHP_PINMSG));
+        if (!output.getString(ABECS.CHP_OPER).equals("3")) {
+            return output;
         }
+
+        System.arraycopy(input, CHP_CMD.length + 11, CHP_PINFMT, 0, 1);
+        System.arraycopy(input, CHP_CMD.length + 12, CHP_PINMSG, 0, 32);
+
+        output.putString(ABECS.CHP_PINFMT, new String(CHP_PINFMT));
+        output.putString(ABECS.CHP_PINMSG, new String(CHP_PINMSG));
 
         return output;
     }
@@ -94,7 +98,7 @@ public class CHP {
 
         System.arraycopy(input, 12, CHP_RSP,   0, i);
 
-        output.putString(ABECS.CHP_RSP, new String(CHP_RSP).substring(0, i));
+        output.putString(ABECS.CHP_RSP, DataUtility.getHexStringFromByteArray(CHP_RSP, i, 0));
 
         return output;
     }
@@ -134,5 +138,54 @@ public class CHP {
         byte[] CMD_DATA = stream[1].toByteArray();
 
         return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        String RSP_ID      = null;
+        int    RSP_STAT    = -1;
+        byte[] CHP_RSP     = null;
+
+        for (String T : input.keySet()) {
+            String V = (!T.equals(ABECS.RSP_STAT)) ? input.getString(T) : "";
+
+            switch (T) {
+                case ABECS.RSP_ID:
+                    RSP_ID = input.getString(ABECS.RSP_ID);
+                    break;
+
+                case ABECS.RSP_STAT:
+                    RSP_STAT = ((ABECS.STAT) input.getSerializable(ABECS.RSP_STAT)).ordinal();
+                    break;
+
+                case ABECS.CHP_RSP:
+                    CHP_RSP = DataUtility.getByteArrayFromHexString(V);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "] [" + V + "]");
+            }
+        }
+
+        stream.write(RSP_ID                                             .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", RSP_STAT)                .getBytes(UTF_8));
+
+        if (RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
+            stream.write(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00 });
+
+            return stream.toByteArray();
+        }
+
+        stream.write(String.format(US, "%03d", CHP_RSP.length + 3)      .getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", CHP_RSP.length / 2)      .getBytes(UTF_8));
+
+
+        stream.write(CHP_RSP);
+
+        return stream.toByteArray();
     }
 }

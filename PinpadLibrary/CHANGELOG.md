@@ -13,8 +13,7 @@
 - Add response byte stream builder, taking a `Bundle` as input:
   - `PinpadUtility#buildResponseDataPacket(Bundle)`
 - Update TLV parser.
-- Update ABECS (secure) `OPN` response packet parsing for the `Bundle` API (used
-  to failed due to wrong internal `OPN_CRKSEC` array length).
+- Update `CHP` response packet parsing.
 
 ## [1.0.18] - 2022-06-03
 - Update dependencies.
@@ -34,7 +33,7 @@
 - Workaround eventual `<<ACK>>` trash in vendor streams.
 
 ## [1.0.14] - 2021-12-17
-- Update data conversion from the `Bundle` API for `OPN`, `CHP` and `GPN`.
+- Update `OPN`, `CHP` and `GPN` response packet parsing.
 - Update build tools.
 
 ## [1.0.13] - 2021-11-29

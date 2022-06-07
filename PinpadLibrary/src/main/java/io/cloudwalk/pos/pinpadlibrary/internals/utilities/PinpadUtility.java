@@ -87,7 +87,7 @@ public class PinpadUtility {
 
             Bundle output = new Bundle();
 
-            output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
+            output.putString(ABECS.RSP_ID, new String(RSP_ID));
 
             output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
 
@@ -105,6 +105,8 @@ public class PinpadUtility {
 
             return output;
         }
+
+        // TODO: buildRequestDataPacket(?!) // GIX; CLX; CEX; EBX; GCD; GTK; MNU; GCX; GED; GOX; FCX
 
         public static byte[] buildResponseDataPacket(@NotNull Bundle input)
                 throws Exception {
@@ -252,9 +254,9 @@ public class PinpadUtility {
         }
     }
 
-    private static byte[] unwrapDataPacket(byte[] input, int length)
+    private static byte[] _unwrapDataPacket(byte[] input, int length)
             throws Exception {
-        Log.d(TAG, "unwrapDataPacket");
+        Log.d(TAG, "_unwrapDataPacket");
 
         byte[] pkt = new byte[2048 - 4];
 
@@ -297,7 +299,7 @@ public class PinpadUtility {
             }
         }
 
-        // TODO: validate CRC
+        // TODO: validate CRC (not strictly required for POS solutions)
 
         byte[] output = new byte[j];
 
@@ -306,9 +308,9 @@ public class PinpadUtility {
         return output;
     }
 
-    private static byte[] wrapDataPacket(byte[] input, int length)
+    private static byte[] _wrapDataPacket(byte[] input, int length)
             throws Exception {
-        Log.d(TAG, "wrapDataPacket");
+        Log.d(TAG, "_wrapDataPacket");
 
         byte[] pkt = new byte[2044 + 4];
 
@@ -368,7 +370,7 @@ public class PinpadUtility {
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        byte[] request = unwrapDataPacket(input, length);
+        byte[] request = _unwrapDataPacket(input, length);
 
         String CMD_ID = String.format(US, "%c%c%c", request[0], request[1], request[2]);
 
@@ -400,7 +402,7 @@ public class PinpadUtility {
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        byte[] response = unwrapDataPacket(input, length);
+        byte[] response = _unwrapDataPacket(input, length);
 
         String CMD_ID = String.format(US, "%c%c%c", response[0], response[1], response[2]);
 
@@ -425,7 +427,7 @@ public class PinpadUtility {
 
     public static Bundle parseTLV(byte[] stream, int length) { // 2022-06-07: ABECS TLV does not
                                                                // strictly follow "EMV v4.3 Book 3, Annex B (page 155)"
-                                                               // definitions and therefore requires a custom parser
+                                                               // definitions and therefore require a "custom" parser
         Bundle output = new Bundle();
 
         int cursor    = 0;
@@ -609,42 +611,6 @@ public class PinpadUtility {
         return output;
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
-            throws Exception {
-        Log.d(TAG, "buildResponseDataPacket");
-
-        byte[] response = null;
-
-        String RSP_ID = input.getString(ABECS.RSP_ID, "UNKNOWN");
-
-        switch (RSP_ID) {
-            case ABECS.OPN: response = OPN.buildResponseDataPacket(input); break;
-            // case ABECS.CHP: response = CHP.buildResponseDataPacket(input); break;
-            // case ABECS.GPN: response = GPN.buildResponseDataPacket(input); break;
-
-            case ABECS.GIX: case ABECS.CLX:
-            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
-            case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
-            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                response = CMD.buildResponseDataPacket(input);
-                break;
-
-            default:
-                /* Nothing to do */
-                break;
-        }
-
-        if (response != null) {
-            if (response.length <= 2048) {
-                return wrapDataPacket(response, response.length);
-            }
-
-            throw new RuntimeException("RSP_ID [" + RSP_ID + "] packet exceeds maximum length (2048)");
-        } else {
-            throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
-        }
-    }
-
     public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
@@ -683,12 +649,48 @@ public class PinpadUtility {
 
         if (request != null) {
             if (request.length <= 2048) {
-                return wrapDataPacket(request, request.length);
+                return _wrapDataPacket(request, request.length);
             }
 
             throw new RuntimeException("CMD_ID [" + CMD_ID + "] packet exceeds maximum length (2048)");
         } else {
             throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+        }
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
+
+        byte[] response = null;
+
+        String RSP_ID = input.getString(ABECS.RSP_ID, "UNKNOWN");
+
+        switch (RSP_ID) {
+            case ABECS.OPN: response = OPN.buildResponseDataPacket(input); break;
+            case ABECS.CHP: response = CHP.buildResponseDataPacket(input); break;
+            // case ABECS.GPN: response = GPN.buildResponseDataPacket(input); break;
+
+            case ABECS.GIX: case ABECS.CLX:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+            case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                response = CMD.buildResponseDataPacket(input);
+                break;
+
+            default:
+                /* Nothing to do */
+                break;
+        }
+
+        if (response != null) {
+            if (response.length <= 2048) {
+                return _wrapDataPacket(response, response.length);
+            }
+
+            throw new RuntimeException("RSP_ID [" + RSP_ID + "] packet exceeds maximum length (2048)");
+        } else {
+            throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
         }
     }
 
