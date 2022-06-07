@@ -278,7 +278,9 @@ public class PinpadUtility {
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    public static Bundle parseTLV(byte[] stream, int length) { // TODO: refactor according to EMV v4.3 Book 3 Annex B
+    public static Bundle parseTLV(byte[] stream, int length) { // 2022-06-07: ABECS TLV does not
+                                                               // strictly follow "EMV v4.3 Book 3, Annex B (page 155)"
+                                                               // definitions and therefore requires a custom parser
         Bundle output = new Bundle();
 
         int cursor    = 0;
@@ -382,7 +384,7 @@ public class PinpadUtility {
                 case 0x8043: output.putString(ABECS.PP_TRK3INC,     new String(V)); break;
 
                 case 0x8044:
-                    int i;
+                    int i; // TODO: lazy detection; must be improved
 
                     for (i = 0; i < V.length; i++) {
                         if (V[i] < 0x20 || V[i] > 0x7E) {
@@ -429,32 +431,34 @@ public class PinpadUtility {
                 case 0x8022: /* PP_MFSUP    */
                 case 0x805E: /* PP_MFNAME   */
                     /* 2021-12-14: out-of-scope */
+                    break;
 
                 default:
+                    String key;
+
                     if (tag >= 0x9100 && tag <= 0x9163) {
-                        String key = ABECS.PP_KSNTDESPnn.replace("nn", String.format(US, "%02d", (tag - 0x9100)));
+                        key = ABECS.PP_KSNTDESPnn.replace("nn", String.format(US, "%02d", (tag - 0x9100)));
 
                         output.putString(key, DataUtility.getHexStringFromByteArray(V));
-                        continue;
-                    }
-
-                    if (tag >= 0x9200 && tag <= 0x9263) {
-                        String key = ABECS.PP_KSNTDESDnn.replace("nn", String.format(US, "%02d", (tag - 0x9200)));
+                    } else if (tag >= 0x9200 && tag <= 0x9263) {
+                        key = ABECS.PP_KSNTDESDnn.replace("nn", String.format(US, "%02d", (tag - 0x9200)));
 
                         output.putString(key, DataUtility.getHexStringFromByteArray(V));
-                        continue;
-                    }
-
-                    if (tag >= 0x9300 && tag <= 0x9363) {
-                        String key = ABECS.PP_TABVERnn  .replace("nn", String.format(US, "%02d", (tag - 0x9300)));
+                    } else if (tag >= 0x9300 && tag <= 0x9363) {
+                        key = ABECS.PP_TABVERnn  .replace("nn", String.format(US, "%02d", (tag - 0x9300)));
 
                         output.putString(key, new String(V));
-                        continue;
-                    }
+                    } else {
+                        key = DataUtility.getHexStringFromByteArray(T, T.length, 2);
 
-                    // TODO: add unknown or out-of-scope TAG to bundle: e.g. output.putString("0x1234", "0123...ABCDEF");
+                        output.putString(key, DataUtility.getHexStringFromByteArray(V));
+                    }
                     break;
             }
+
+            Arrays.fill(T, (byte) 0x00);
+            Arrays.fill(L, (byte) 0x00);
+            Arrays.fill(V, (byte) 0x00);
         }
 
         return output;

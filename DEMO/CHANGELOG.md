@@ -9,6 +9,7 @@
 - Pinpad Service 1.0.3
 
 ## [0.0.10] - 2022-06-07
+- Update internal dependencies.
 - Lock screen orientation (portrait).
 
 ## [0.0.9] - 2022-06-03
