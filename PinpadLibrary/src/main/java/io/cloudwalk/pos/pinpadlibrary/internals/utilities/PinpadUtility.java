@@ -278,7 +278,7 @@ public class PinpadUtility {
         throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    public static Bundle parseTLV(byte[] stream, int length) {
+    public static Bundle parseTLV(byte[] stream, int length) { // TODO: refactor according to EMV v4.3 Book 3 Annex B
         Bundle output = new Bundle();
 
         int cursor    = 0;

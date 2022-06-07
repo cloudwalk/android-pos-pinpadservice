@@ -3,6 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature android:name="android.hardware.screen.portrait" />
+
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -24,7 +26,8 @@
         <activity
             android:exported="true"
             android:name=".presentation.SplashActivity"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,7 +38,8 @@
         <activity
             android:exported="false"
             android:name=".presentation.MainActivity"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="sensorPortrait" />
 
         <activity
             android:exported="false"

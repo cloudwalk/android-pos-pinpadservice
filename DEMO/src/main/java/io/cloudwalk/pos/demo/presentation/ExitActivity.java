@@ -31,8 +31,6 @@ public class ExitActivity extends Activity {
 
         super.onCreate(savedInstanceState);
 
-        // TODO: additional specific exit routines
-
         finishAndRemoveTask();
     }
 
