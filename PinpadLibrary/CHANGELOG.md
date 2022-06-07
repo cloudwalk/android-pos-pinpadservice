@@ -10,8 +10,9 @@
 
 ## [1.0.19] - 2022-06-07
 - Update dependencies.
-- Add ABECS response byte stream builder, taking a `Bundle` as input.
-- Update ABECS custom TLV parser.
+- Add response byte stream builder, taking a `Bundle` as input:
+  - `PinpadUtility#buildResponseDataPacket(Bundle)`
+- Update TLV parser.
 
 ## [1.0.18] - 2022-06-03
 - Update dependencies.
