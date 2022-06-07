@@ -1,16 +1,15 @@
 package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
 import android.os.Bundle;
 
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class CEX {
     private static final String
@@ -22,31 +21,30 @@ public class CEX {
         /* Nothing to do */
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        List<String> list = new ArrayList<>(0);
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_CEXOPT   = input.getString(ABECS.SPE_CEXOPT);
-        String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
-        String SPE_PANMASK  = input.getString(ABECS.SPE_PANMASK);
+        list.add(ABECS.SPE_CEXOPT);
+        list.add(ABECS.SPE_TIMEOUT);
+        list.add(ABECS.SPE_PANMASK);
 
-        if (SPE_CEXOPT  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.A, "0006", SPE_CEXOPT));
-        }
+        return PinpadUtility.CMD.buildRequestDataPacket(input, list);
+    }
 
-        if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
-        }
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
 
-        if (SPE_PANMASK != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0023", SPE_PANMASK));
-        }
+        List<String> list = new ArrayList<>(0);
 
-        byte[] CMD_DATA = stream[1].toByteArray();
+        list.add(ABECS.PP_EVENT);
+        list.add(ABECS.PP_TRK1INC);
+        list.add(ABECS.PP_TRK2INC);
+        list.add(ABECS.PP_TRK3INC);
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+        return PinpadUtility.CMD.buildResponseDataPacket(input, list);
     }
 }

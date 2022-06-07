@@ -1,17 +1,15 @@
 package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
 import android.os.Bundle;
 
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class MNU {
     private static final String
@@ -23,32 +21,26 @@ public class MNU {
         /* Nothing to do */
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        List<String> list = new ArrayList<>(0);
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
-        String SPE_DSPMSG   = input.getString(ABECS.SPE_DSPMSG);
+        list.add(ABECS.SPE_TIMEOUT);
+        list.add(ABECS.SPE_DSPMSG);
 
-        ArrayList<String> SPE_MNUOPT = input.getStringArrayList(ABECS.SPE_MNUOPT);
+        return PinpadUtility.CMD.buildRequestDataPacket(input, list);
+    }
 
-        if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
-        }
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
 
-        if (SPE_DSPMSG  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
-        }
+        List<String> list = new ArrayList<>(0);
 
-        for (String MNUOPT : SPE_MNUOPT) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "0020", MNUOPT));
-        }
+        list.add(ABECS.PP_VALUE);
 
-        byte[] CMD_DATA = stream[1].toByteArray();
-
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+        return PinpadUtility.CMD.buildResponseDataPacket(input, list);
     }
 }

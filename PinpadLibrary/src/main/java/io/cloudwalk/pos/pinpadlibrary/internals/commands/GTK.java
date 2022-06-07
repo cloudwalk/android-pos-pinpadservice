@@ -1,16 +1,15 @@
 package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
 import android.os.Bundle;
 
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class GTK {
     private static final String
@@ -22,56 +21,40 @@ public class GTK {
         /* Nothing to do */
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        List<String> list = new ArrayList<>(0);
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_TRACKS   = input.getString(ABECS.SPE_TRACKS);
-        String SPE_MTHDDAT  = input.getString(ABECS.SPE_MTHDDAT);
-        String SPE_IVCBC    = input.getString(ABECS.SPE_IVCBC);
-        String SPE_OPNDIG   = input.getString(ABECS.SPE_OPNDIG);
-        String SPE_KEYIDX   = input.getString(ABECS.SPE_KEYIDX);
-        String SPE_WKENC    = input.getString(ABECS.SPE_WKENC);
-        String SPE_PBKMOD   = input.getString(ABECS.SPE_PBKMOD);
-        String SPE_PBKEXP   = input.getString(ABECS.SPE_PBKEXP);
+        list.add(ABECS.SPE_TRACKS);
+        list.add(ABECS.SPE_MTHDDAT);
+        list.add(ABECS.SPE_IVCBC);
+        list.add(ABECS.SPE_OPNDIG);
+        list.add(ABECS.SPE_KEYIDX);
+        list.add(ABECS.SPE_WKENC);
+        list.add(ABECS.SPE_PBKMOD);
+        list.add(ABECS.SPE_PBKEXP);
 
-        if (SPE_TRACKS  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0007", SPE_TRACKS));
-        }
+        return PinpadUtility.CMD.buildRequestDataPacket(input, list);
+    }
 
-        if (SPE_MTHDDAT != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0003", SPE_MTHDDAT));
-        }
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
 
-        if (SPE_IVCBC   != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "001D", SPE_IVCBC));
-        }
+        List<String> list = new ArrayList<>(0);
 
-        if (SPE_OPNDIG  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0008", SPE_OPNDIG));
-        }
+        list.add(ABECS.PP_ENCPAN);
+        list.add(ABECS.PP_TRACK1);
+        list.add(ABECS.PP_TRACK2);
+        list.add(ABECS.PP_TRACK3);
+        list.add(ABECS.PP_TRK1KSN);
+        list.add(ABECS.PP_TRK2KSN);
+        list.add(ABECS.PP_TRK3KSN);
+        list.add(ABECS.PP_ENCPANKSN);
+        list.add(ABECS.PP_ENCKRAND);
 
-        if (SPE_KEYIDX  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
-        }
-
-        if (SPE_WKENC   != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "000A", SPE_WKENC));
-        }
-
-        if (SPE_PBKMOD  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0024", SPE_PBKMOD));
-        }
-
-        if (SPE_PBKEXP  != null) {
-            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0025", SPE_PBKEXP));
-        }
-
-        byte[] CMD_DATA = stream[1].toByteArray();
-
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+        return PinpadUtility.CMD.buildResponseDataPacket(input, list);
     }
 }

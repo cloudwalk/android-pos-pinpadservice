@@ -10,10 +10,9 @@
 
 ## [1.1.0] - 2022-06-07
 - Update dependencies.
-- Add response byte stream builder, taking a `Bundle` as input:
+- Unify handling of TLV data for multiple commands.
+- Add response byte stream builder:
   - `PinpadUtility#buildResponseDataPacket(Bundle)`
-- Update TLV parser.
-- Update `CHP` response packet parsing.
 
 ## [1.0.18] - 2022-06-03
 - Update dependencies.

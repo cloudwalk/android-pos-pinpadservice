@@ -294,8 +294,6 @@ public class PinpadManager {
             result = -1;
         } finally {
             Log.h(TAG, response, result);
-
-            // Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 
         return result;
@@ -352,8 +350,6 @@ public class PinpadManager {
             Log.e(TAG, Log.getStackTraceString(exception));
 
             result = -1;
-        } finally {
-            // Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 
         return result;

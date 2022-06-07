@@ -5,6 +5,8 @@ import static java.util.Locale.US;
 
 import android.os.Bundle;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
@@ -26,7 +28,7 @@ public class TLR {
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle output = new Bundle();
+        Bundle response = new Bundle();
 
         byte[] CMD_ID       = new byte[3];
         byte[] CMD_LEN1     = new byte[3];
@@ -41,14 +43,21 @@ public class TLR {
 
         System.arraycopy(input, 8, TLR_DATA, 0, TLR_DATA.length);
 
-        output.putString(ABECS.CMD_ID,   new String(CMD_ID));
-        output.putString(ABECS.TLR_NREC, new String(TLR_NREC));
-        output.putString(ABECS.TLR_DATA, new String(TLR_DATA));
+        response.putString(ABECS.CMD_ID,   new String(CMD_ID));
+        response.putString(ABECS.TLR_NREC, new String(TLR_NREC));
+        response.putString(ABECS.TLR_DATA, new String(TLR_DATA));
 
-        return output;
+        return response;
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static Bundle parseResponseDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseResponseDataPacket");
+
+        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
+    }
+
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
@@ -66,5 +75,12 @@ public class TLR {
         byte[] CMD_DATA = stream[1].toByteArray();
 
         return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
+
+        return PinpadUtility.CMD.buildResponseDataPacket(input);
     }
 }
