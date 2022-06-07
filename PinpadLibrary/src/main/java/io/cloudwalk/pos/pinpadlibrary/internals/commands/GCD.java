@@ -35,19 +35,19 @@ public class GCD {
         String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
 
         if (SPE_MSGIDX  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000B", SPE_MSGIDX));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000B", SPE_MSGIDX));
         }
 
         if (SPE_MINDIG  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000D", SPE_MINDIG));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000D", SPE_MINDIG));
         }
 
         if (SPE_MAXDIG  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000E", SPE_MAXDIG));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000E", SPE_MAXDIG));
         }
 
         if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

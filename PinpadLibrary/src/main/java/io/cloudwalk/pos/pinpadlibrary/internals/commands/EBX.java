@@ -36,23 +36,23 @@ public class EBX {
         String SPE_IVCBC    = input.getString(ABECS.SPE_IVCBC);
 
         if (SPE_DATAIN  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "000F", SPE_DATAIN));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "000F", SPE_DATAIN));
         }
 
         if (SPE_MTHDDAT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0003", SPE_MTHDDAT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0003", SPE_MTHDDAT));
         }
 
         if (SPE_KEYIDX  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
         }
 
         if (SPE_WKENC   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "000A", SPE_WKENC));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "000A", SPE_WKENC));
         }
 
         if (SPE_IVCBC   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "001D", SPE_IVCBC));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "001D", SPE_IVCBC));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

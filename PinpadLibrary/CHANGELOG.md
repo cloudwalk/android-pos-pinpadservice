@@ -8,13 +8,18 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [1.0.19] - 2022-06-07
+- Update dependencies.
+- Add ABECS response byte stream builder, taking a `Bundle` as input.
+- Update ABECS custom TLV parser.
+
 ## [1.0.18] - 2022-06-03
-- Update internal dependencies.
+- Update dependencies.
 - Review CHANGELOG.md.
 - Optimize ASCII data conversion from byte arrays.
 
 ## [1.0.17] - 2022-05-21
-- Update internal dependencies.
+- Update dependencies.
 
 ## [1.0.16] - 2022-02-24
 - Improve `Bundle` API consistency when facing improper or unanticipated
@@ -30,10 +35,10 @@
 - Update build tools.
 
 ## [1.0.13] - 2021-11-29
-- Update internal dependencies.
+- Update dependencies.
 
 ## [1.0.12] - 2021-11-29
-- Update internal dependencies.
+- Update dependencies.
 
 ## [1.0.11] - 2021-11-26
 - Update logs.

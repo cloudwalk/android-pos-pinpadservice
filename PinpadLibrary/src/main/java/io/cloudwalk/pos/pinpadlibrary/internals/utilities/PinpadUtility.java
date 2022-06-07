@@ -105,6 +105,151 @@ public class PinpadUtility {
 
             return output;
         }
+
+        public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+                throws Exception {
+            Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+
+            ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+
+            String RSP_ID   = null;
+            int    RSP_STAT = -1;
+
+            for (String T : input.keySet()) {
+                String V = (!T.equals(ABECS.RSP_STAT)) ? input.getString(T) : "";
+
+                switch (T) {
+                    case ABECS.RSP_ID:
+                        RSP_ID = input.getString(ABECS.RSP_ID);
+                        break;
+
+                    case ABECS.RSP_STAT:
+                        RSP_STAT = ((ABECS.STAT) input.getSerializable(ABECS.RSP_STAT)).ordinal();
+                        break;
+
+                    case ABECS.SPE_MTHDPIN:     stream[1].write(buildTLV(ABECS.TYPE.N, "0002", V)); break;
+                    case ABECS.SPE_MTHDDAT:     stream[1].write(buildTLV(ABECS.TYPE.N, "0003", V)); break;
+                    case ABECS.SPE_CEXOPT:      stream[1].write(buildTLV(ABECS.TYPE.A, "0006", V)); break;
+                    case ABECS.SPE_TRACKS:      stream[1].write(buildTLV(ABECS.TYPE.N, "0007", V)); break;
+                    case ABECS.SPE_OPNDIG:      stream[1].write(buildTLV(ABECS.TYPE.N, "0008", V)); break;
+                    case ABECS.SPE_KEYIDX:      stream[1].write(buildTLV(ABECS.TYPE.N, "0009", V)); break;
+                    case ABECS.SPE_ACQREF:      stream[1].write(buildTLV(ABECS.TYPE.N, "0010", V)); break;
+                    case ABECS.SPE_APPTYPE:     stream[1].write(buildTLV(ABECS.TYPE.N, "0011", V)); break;
+                    case ABECS.SPE_AIDLIST:     stream[1].write(buildTLV(ABECS.TYPE.A, "0012", V)); break;
+                    case ABECS.SPE_AMOUNT:      stream[1].write(buildTLV(ABECS.TYPE.N, "0013", V)); break;
+                    case ABECS.SPE_CASHBACK:    stream[1].write(buildTLV(ABECS.TYPE.N, "0014", V)); break;
+                    case ABECS.SPE_TRNDATE:     stream[1].write(buildTLV(ABECS.TYPE.N, "0015", V)); break;
+                    case ABECS.SPE_TRNTIME:     stream[1].write(buildTLV(ABECS.TYPE.N, "0016", V)); break;
+                    case ABECS.SPE_GCXOPT:      stream[1].write(buildTLV(ABECS.TYPE.N, "0017", V)); break;
+                    case ABECS.SPE_GOXOPT:      stream[1].write(buildTLV(ABECS.TYPE.N, "0018", V)); break;
+                    case ABECS.SPE_FCXOPT:      stream[1].write(buildTLV(ABECS.TYPE.N, "0019", V)); break;
+                    case ABECS.SPE_DSPMSG:      stream[1].write(buildTLV(ABECS.TYPE.S, "001B", V)); break;
+                    case ABECS.SPE_ARC:         stream[1].write(buildTLV(ABECS.TYPE.A, "001C", V)); break;
+                    case ABECS.SPE_MFNAME:      stream[1].write(buildTLV(ABECS.TYPE.A, "001E", V)); break;
+                    case ABECS.SPE_MNUOPT:      stream[1].write(buildTLV(ABECS.TYPE.S, "0020", V)); break;
+                    case ABECS.SPE_TRNCURR:     stream[1].write(buildTLV(ABECS.TYPE.N, "0022", V)); break;
+                    case ABECS.SPE_PANMASK:     stream[1].write(buildTLV(ABECS.TYPE.N, "0023", V)); break;
+                    case ABECS.SPE_IDLIST:      stream[1].write(buildTLV(ABECS.TYPE.B, "0001", V)); break;
+                    case ABECS.SPE_TAGLIST:     stream[1].write(buildTLV(ABECS.TYPE.B, "0004", V)); break;
+                    case ABECS.SPE_EMVDATA:     stream[1].write(buildTLV(ABECS.TYPE.B, "0005", V)); break;
+                    case ABECS.SPE_WKENC:       stream[1].write(buildTLV(ABECS.TYPE.B, "000A", V)); break;
+                    case ABECS.SPE_MSGIDX:      stream[1].write(buildTLV(ABECS.TYPE.X, "000B", V)); break;
+                    case ABECS.SPE_TIMEOUT:     stream[1].write(buildTLV(ABECS.TYPE.X, "000C", V)); break;
+                    case ABECS.SPE_MINDIG:      stream[1].write(buildTLV(ABECS.TYPE.X, "000D", V)); break;
+                    case ABECS.SPE_MAXDIG:      stream[1].write(buildTLV(ABECS.TYPE.X, "000E", V)); break;
+                    case ABECS.SPE_DATAIN:      stream[1].write(buildTLV(ABECS.TYPE.B, "000F", V)); break;
+                    case ABECS.SPE_TRMPAR:      stream[1].write(buildTLV(ABECS.TYPE.B, "001A", V)); break;
+                    case ABECS.SPE_IVCBC:       stream[1].write(buildTLV(ABECS.TYPE.B, "001D", V)); break;
+                    case ABECS.SPE_TRNTYPE:     stream[1].write(buildTLV(ABECS.TYPE.B, "0021", V)); break;
+                    case ABECS.SPE_PBKMOD:      stream[1].write(buildTLV(ABECS.TYPE.B, "0024", V)); break;
+                    case ABECS.SPE_PBKEXP:      stream[1].write(buildTLV(ABECS.TYPE.B, "0025", V)); break;
+
+                    case ABECS.PP_SERNUM:       stream[1].write(buildTLV(ABECS.TYPE.A, "8001", V)); break;
+                    case ABECS.PP_PARTNBR:      stream[1].write(buildTLV(ABECS.TYPE.A, "8002", V)); break;
+                    case ABECS.PP_MODEL:        stream[1].write(buildTLV(ABECS.TYPE.A, "8003", V)); break;
+                    case ABECS.PP_MNNAME:       stream[1].write(buildTLV(ABECS.TYPE.A, "8004", V)); break;
+                    case ABECS.PP_CAPAB:        stream[1].write(buildTLV(ABECS.TYPE.A, "8005", V)); break;
+                    case ABECS.PP_SOVER:        stream[1].write(buildTLV(ABECS.TYPE.A, "8006", V)); break;
+                    case ABECS.PP_SPECVER:      stream[1].write(buildTLV(ABECS.TYPE.A, "8007", V)); break;
+                    case ABECS.PP_MANVERS:      stream[1].write(buildTLV(ABECS.TYPE.A, "8008", V)); break;
+                    case ABECS.PP_APPVERS:      stream[1].write(buildTLV(ABECS.TYPE.A, "8009", V)); break;
+                    case ABECS.PP_GENVERS:      stream[1].write(buildTLV(ABECS.TYPE.A, "800A", V)); break;
+                    case ABECS.PP_KRNLVER:      stream[1].write(buildTLV(ABECS.TYPE.A, "8010", V)); break;
+                    case ABECS.PP_CTLSVER:      stream[1].write(buildTLV(ABECS.TYPE.A, "8011", V)); break;
+                    case ABECS.PP_MCTLSVER:     stream[1].write(buildTLV(ABECS.TYPE.A, "8012", V)); break;
+                    case ABECS.PP_VCTLSVER:     stream[1].write(buildTLV(ABECS.TYPE.A, "8013", V)); break;
+                    case ABECS.PP_AECTLSVER:    stream[1].write(buildTLV(ABECS.TYPE.A, "8014", V)); break;
+                    case ABECS.PP_DPCTLSVER:    stream[1].write(buildTLV(ABECS.TYPE.A, "8015", V)); break;
+                    case ABECS.PP_PUREVER:      stream[1].write(buildTLV(ABECS.TYPE.A, "8016", V)); break;
+                    case ABECS.PP_MKTDESP:      stream[1].write(buildTLV(ABECS.TYPE.A, "8032", V)); break;
+                    case ABECS.PP_MKTDESD:      stream[1].write(buildTLV(ABECS.TYPE.A, "8033", V)); break;
+                    case ABECS.PP_DKPTTDESP:    stream[1].write(buildTLV(ABECS.TYPE.A, "8035", V)); break;
+                    case ABECS.PP_DKPTTDESD:    stream[1].write(buildTLV(ABECS.TYPE.A, "8036", V)); break;
+                    case ABECS.PP_EVENT:        stream[1].write(buildTLV(ABECS.TYPE.A, "8040", V)); break;
+                    case ABECS.PP_TRK1INC:      stream[1].write(buildTLV(ABECS.TYPE.A, "8041", V)); break;
+                    case ABECS.PP_TRK2INC:      stream[1].write(buildTLV(ABECS.TYPE.A, "8042", V)); break;
+                    case ABECS.PP_TRK3INC:      stream[1].write(buildTLV(ABECS.TYPE.A, "8043", V)); break;
+                    case ABECS.PP_TRACK1:       stream[1].write(buildTLV(ABECS.TYPE.B, "8044", V)); break;
+                    case ABECS.PP_TRACK2:       stream[1].write(buildTLV(ABECS.TYPE.B, "8045", V)); break;
+                    case ABECS.PP_TRACK3:       stream[1].write(buildTLV(ABECS.TYPE.B, "8046", V)); break;
+                    case ABECS.PP_TRK1KSN:      stream[1].write(buildTLV(ABECS.TYPE.B, "8047", V)); break;
+                    case ABECS.PP_TRK2KSN:      stream[1].write(buildTLV(ABECS.TYPE.B, "8048", V)); break;
+                    case ABECS.PP_TRK3KSN:      stream[1].write(buildTLV(ABECS.TYPE.B, "8049", V)); break;
+                    case ABECS.PP_ENCPAN:       stream[1].write(buildTLV(ABECS.TYPE.B, "804A", V)); break;
+                    case ABECS.PP_ENCPANKSN:    stream[1].write(buildTLV(ABECS.TYPE.B, "804B", V)); break;
+                    case ABECS.PP_KSN:          stream[1].write(buildTLV(ABECS.TYPE.B, "804C", V)); break;
+                    case ABECS.PP_VALUE:        stream[1].write(buildTLV(ABECS.TYPE.A, "804D", V)); break;
+                    case ABECS.PP_DATAOUT:      stream[1].write(buildTLV(ABECS.TYPE.B, "804E", V)); break;
+                    case ABECS.PP_CARDTYPE:     stream[1].write(buildTLV(ABECS.TYPE.N, "804F", V)); break;
+                    case ABECS.PP_ICCSTAT:      stream[1].write(buildTLV(ABECS.TYPE.N, "8050", V)); break;
+                    case ABECS.PP_AIDTABINFO:   stream[1].write(buildTLV(ABECS.TYPE.A, "8051", V)); break;
+                    case ABECS.PP_PAN:          stream[1].write(buildTLV(ABECS.TYPE.N, "8052", V)); break;
+                    case ABECS.PP_PANSEQNO:     stream[1].write(buildTLV(ABECS.TYPE.N, "8053", V)); break;
+                    case ABECS.PP_EMVDATA:      stream[1].write(buildTLV(ABECS.TYPE.B, "8054", V)); break;
+                    case ABECS.PP_CHNAME:       stream[1].write(buildTLV(ABECS.TYPE.A, "8055", V)); break;
+                    case ABECS.PP_GOXRES:       stream[1].write(buildTLV(ABECS.TYPE.N, "8056", V)); break;
+                    case ABECS.PP_PINBLK:       stream[1].write(buildTLV(ABECS.TYPE.B, "8057", V)); break;
+                    case ABECS.PP_FCXRES:       stream[1].write(buildTLV(ABECS.TYPE.N, "8058", V)); break;
+                    case ABECS.PP_ISRESULTS:    stream[1].write(buildTLV(ABECS.TYPE.B, "8059", V)); break;
+                    case ABECS.PP_BIGRAND:      stream[1].write(buildTLV(ABECS.TYPE.B, "805A", V)); break;
+                    case ABECS.PP_LABEL:        stream[1].write(buildTLV(ABECS.TYPE.S, "805B", V)); break;
+                    case ABECS.PP_ISSCNTRY:     stream[1].write(buildTLV(ABECS.TYPE.N, "805C", V)); break;
+                    case ABECS.PP_CARDEXP:      stream[1].write(buildTLV(ABECS.TYPE.N, "805D", V)); break;
+                    case ABECS.PP_DEVTYPE:      stream[1].write(buildTLV(ABECS.TYPE.N, "8060", V)); break;
+                    case ABECS.PP_TLRMEM:       stream[1].write(buildTLV(ABECS.TYPE.X, "8062", V)); break;
+                    case ABECS.PP_ENCKRAND:     stream[1].write(buildTLV(ABECS.TYPE.B, "8063", V)); break;
+
+                    default:
+                        if (T.startsWith(ABECS.PP_KSNTDESPnn.substring(0, 11))) {
+                            T = String.format(US, "%4.4s", (Integer.parseInt(T.substring(11)) + 0x9100)).replace(' ', '0');
+
+                            stream[1].write(buildTLV(ABECS.TYPE.B, T, V));
+                            break;
+                        } else if (T.startsWith(ABECS.PP_KSNTDESDnn.substring(0, 11))) {
+                            T = String.format(US, "%4.4s", (Integer.parseInt(T.substring(11)) + 0x9200)).replace(' ', '0');
+
+                            stream[1].write(buildTLV(ABECS.TYPE.B, T, V));
+                            break;
+                        } else if (T.startsWith(ABECS.PP_TABVERnn.substring(0, 9))) {
+                            T = String.format(US, "%4.4s", (Integer.parseInt(T.substring(9))  + 0x9300)).replace(' ', '0');
+
+                            stream[1].write(buildTLV(ABECS.TYPE.B, T, V));
+                            break;
+                        }
+
+                        throw new RuntimeException("Unknown or unhandled TAG [" + T + "] [" + V + "]");
+                }
+            }
+
+            byte[] RSP_DATA = stream[1].toByteArray();
+
+            stream[0].write(RSP_ID                                      .getBytes(UTF_8));
+            stream[0].write(String.format(US, "%03d", RSP_STAT)         .getBytes(UTF_8));
+            stream[0].write(String.format(US, "%03d", RSP_DATA.length)  .getBytes(UTF_8));
+            stream[0].write(RSP_DATA);
+
+            return stream[0].toByteArray();
+        }
     }
 
     private static byte[] unwrapDataPacket(byte[] input, int length)
@@ -464,6 +609,42 @@ public class PinpadUtility {
         return output;
     }
 
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "parseResponseDataPacket");
+
+        byte[] response = null;
+
+        String RSP_ID = input.getString(ABECS.RSP_ID, "UNKNOWN");
+
+        switch (RSP_ID) {
+            // case ABECS.OPN: response = OPN.buildResponseDataPacket(input); break;
+            // case ABECS.CHP: response = CHP.buildResponseDataPacket(input); break;
+            // case ABECS.GPN: response = GPN.buildResponseDataPacket(input); break;
+
+            case ABECS.GIX: case ABECS.CLX:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+            case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
+            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                response = CMD.buildResponseDataPacket(input);
+                break;
+
+            default:
+                /* Nothing to do */
+                break;
+        }
+
+        if (response != null) {
+            if (response.length <= 2048) {
+                return wrapDataPacket(response, response.length);
+            }
+
+            throw new RuntimeException("RSP_ID [" + RSP_ID + "] packet exceeds maximum length (2048)");
+        } else {
+            throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
+        }
+    }
+
     public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
@@ -511,15 +692,17 @@ public class PinpadUtility {
         }
     }
 
-    public static byte[] buildRequestTLV(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
+    public static byte[] buildTLV(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
             throws Exception {
-        Log.d(TAG, "buildRequestTLV");
+        Log.d(TAG, "buildTLV");
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         byte[] T = null;
         byte[] L = null;
         byte[] V = null;
+
+        tag = String.format(US, "%4.4s", tag).replace(' ', '0');
 
         switch (type) {
             case A: case S: case N:

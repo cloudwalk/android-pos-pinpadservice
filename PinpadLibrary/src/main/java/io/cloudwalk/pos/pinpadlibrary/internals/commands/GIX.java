@@ -35,7 +35,7 @@ public class GIX {
         String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
 
         if (SPE_IDLIST != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0001", SPE_IDLIST));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0001", SPE_IDLIST));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

@@ -31,7 +31,7 @@ public class GED {
         String CMD_ID       = input.getString(ABECS.CMD_ID);
         String SPE_TAGLIST  = input.getString(ABECS.SPE_TAGLIST);
 
-        stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
+        stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
 
         byte[] CMD_DATA = stream[1].toByteArray();
 

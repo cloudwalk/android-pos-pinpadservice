@@ -45,59 +45,59 @@ public class GOX {
         String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
 
         if (SPE_ACQREF   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0010", SPE_ACQREF));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0010", SPE_ACQREF));
         }
 
         if (SPE_TRNTYPE  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0021", SPE_TRNTYPE));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0021", SPE_TRNTYPE));
         }
 
         if (SPE_AMOUNT   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0013", SPE_AMOUNT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0013", SPE_AMOUNT));
         }
 
         if (SPE_CASHBACK != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0014", SPE_CASHBACK));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0014", SPE_CASHBACK));
         }
 
         if (SPE_TRNCURR  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0022", SPE_TRNCURR));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0022", SPE_TRNCURR));
         }
 
         if (SPE_GOXOPT   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0018", SPE_GOXOPT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0018", SPE_GOXOPT));
         }
 
         if (SPE_MTHDPIN  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0002", SPE_MTHDPIN));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0002", SPE_MTHDPIN));
         }
 
         if (SPE_KEYIDX   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0009", SPE_KEYIDX));
         }
 
         if (SPE_WKENC    != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "000A", SPE_WKENC));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "000A", SPE_WKENC));
         }
 
         if (SPE_DSPMSG   != null) { // TODO: should it accept '\n'?
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
         }
 
         if (SPE_TRMPAR   != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "001A", SPE_TRMPAR));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "001A", SPE_TRMPAR));
         }
 
         if (SPE_EMVDATA  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0005", SPE_EMVDATA));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0005", SPE_EMVDATA));
         }
 
         if (SPE_TAGLIST  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
         }
 
         if (SPE_TIMEOUT  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

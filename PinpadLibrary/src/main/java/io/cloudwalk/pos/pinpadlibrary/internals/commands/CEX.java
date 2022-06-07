@@ -34,15 +34,15 @@ public class CEX {
         String SPE_PANMASK  = input.getString(ABECS.SPE_PANMASK);
 
         if (SPE_CEXOPT  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "0006", SPE_CEXOPT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.A, "0006", SPE_CEXOPT));
         }
 
         if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
         if (SPE_PANMASK != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0023", SPE_PANMASK));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0023", SPE_PANMASK));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

@@ -36,15 +36,15 @@ public class MNU {
         ArrayList<String> SPE_MNUOPT = input.getStringArrayList(ABECS.SPE_MNUOPT);
 
         if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
         if (SPE_DSPMSG  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
         }
 
         for (String MNUOPT : SPE_MNUOPT) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "0020", MNUOPT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "0020", MNUOPT));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

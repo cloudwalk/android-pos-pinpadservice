@@ -33,11 +33,11 @@ public class CLX {
         String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
 
         if (SPE_DSPMSG != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
         }
 
         if (SPE_MFNAME != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001E", SPE_MFNAME));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.S, "001E", SPE_MFNAME));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();

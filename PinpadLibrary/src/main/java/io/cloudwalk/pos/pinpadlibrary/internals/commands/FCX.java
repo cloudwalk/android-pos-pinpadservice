@@ -36,23 +36,23 @@ public class FCX {
         String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
 
         if (SPE_FCXOPT  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0019", SPE_FCXOPT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.N, "0019", SPE_FCXOPT));
         }
 
         if (SPE_ARC     != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "001C", SPE_ARC));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.A, "001C", SPE_ARC));
         }
 
         if (SPE_EMVDATA != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0005", SPE_EMVDATA));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0005", SPE_EMVDATA));
         }
 
         if (SPE_TAGLIST != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
         }
 
         if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
+            stream[1].write(PinpadUtility.buildTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
         }
 
         byte[] CMD_DATA = stream[1].toByteArray();
