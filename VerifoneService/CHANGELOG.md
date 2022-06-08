@@ -20,6 +20,9 @@
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
   should be ignored.
 
+## [1.1.7] - YYYY-MM-DD
+- Update dependencies.
+
 ## [1.1.6] - 2022-04-19
 - Update dependencies.
 
@@ -46,21 +49,21 @@
 - Update dependencies and compilation tools.
 
 ## [1.0.8] - 2022-01-17
-- Update vendor components.
+- Update vendor dependencies.
   
 ## [1.0.7] - 2021-12-07
 - Update dependencies and compilation tools.
 - Ensure the proper components variants will be used in each build type.
-- Update vendor components.
+- Update vendor dependencies.
 
 ## [1.0.6] - 2021-11-10
-- Update vendor components.
+- Update vendor dependencies.
 
 ## [1.0.5] - 2021-11-03
-- Update vendor components.
+- Update vendor dependencies.
 
 ## [1.0.4] - 2021-10-27
-- Update vendor components.
+- Update vendor dependencies.
 - Update dependencies.
 - Enable EMV LED operation.
 
