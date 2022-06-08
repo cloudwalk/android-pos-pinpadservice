@@ -50,8 +50,6 @@ public class PinpadManager {
     }
 
     private static Bundle _request(Bundle bundle, IServiceCallback callback) {
-        // Log.d(TAG, "_request");
-
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
@@ -142,8 +140,6 @@ public class PinpadManager {
     }
 
     private static void _abort() {
-        // Log.d(TAG, "_abort");
-
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
@@ -294,8 +290,6 @@ public class PinpadManager {
             result = -1;
         } finally {
             Log.h(TAG, response, result);
-
-            // Log.d(TAG, "receive::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 
         return result;
@@ -352,8 +346,6 @@ public class PinpadManager {
             Log.e(TAG, Log.getStackTraceString(exception));
 
             result = -1;
-        } finally {
-            // Log.d(TAG, "send::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
         }
 
         return result;

@@ -9,8 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.poc2104301453.demo"
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode 9
-        versionName "0.0.9"
+        versionCode 10
+        versionName "0.0.10"
 
         buildConfigField 'String', 'BUILD_DATE', "\"${getDate()}\""
 
@@ -48,5 +48,5 @@ dependencies {
     implementation project(path: ':PinpadLibrary')
 
     implementation 'io.cloudwalk:loglibrary:1.1.5'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.13'
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.14'
 }

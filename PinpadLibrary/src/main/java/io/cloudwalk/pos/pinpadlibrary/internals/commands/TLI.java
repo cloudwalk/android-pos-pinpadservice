@@ -5,10 +5,13 @@ import static java.util.Locale.US;
 
 import android.os.Bundle;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class TLI {
@@ -25,24 +28,23 @@ public class TLI {
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle output = new Bundle();
+        Bundle response = new Bundle();
 
-        byte[] CMD_ID       = new byte[3];
-        byte[] TLI_ACQIDX   = new byte[2];
-        byte[] TLI_TABVER   = new byte[10];
+        response.putString(ABECS.CMD_ID,      new String(input, 0,  3));
+        response.putString(ABECS.TLI_ACQIDX,  new String(input, 6,  2));
+        response.putString(ABECS.TLI_TABVER,  new String(input, 8, 10));
 
-        System.arraycopy(input, 0, CMD_ID,     0,  3);
-        System.arraycopy(input, 6, TLI_ACQIDX, 0,  2);
-        System.arraycopy(input, 8, TLI_TABVER, 0, 10);
-
-        output.putString(ABECS.CMD_ID,      new String(CMD_ID));
-        output.putString(ABECS.TLI_ACQIDX,  new String(TLI_ACQIDX));
-        output.putString(ABECS.TLI_TABVER,  new String(TLI_TABVER));
-
-        return output;
+        return response;
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static Bundle parseResponseDataPacket(byte[] input, int length)
+            throws Exception {
+        Log.d(TAG, "parseResponseDataPacket");
+
+        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
+    }
+
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
@@ -58,5 +60,12 @@ public class TLI {
         byte[] CMD_DATA = stream[1].toByteArray();
 
         return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
+
+        return PinpadUtility.CMD.buildResponseDataPacket(input);
     }
 }

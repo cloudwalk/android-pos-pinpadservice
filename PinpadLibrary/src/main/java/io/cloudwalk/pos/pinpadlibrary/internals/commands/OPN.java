@@ -1,6 +1,11 @@
 package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.US;
+
 import android.os.Bundle;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 
@@ -8,9 +13,6 @@ import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
 
 public class OPN {
     private static final String
@@ -26,8 +28,6 @@ public class OPN {
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle output = new Bundle();
-
         byte[] CMD_ID       = new byte[3];
         byte[] OPN_OPMODE   = new byte[1];
         byte[] OPN_MODLEN   = new byte[3];
@@ -37,10 +37,12 @@ public class OPN {
 
         System.arraycopy(input, 0, CMD_ID, 0, 3);
 
-        output.putString(ABECS.CMD_ID, new String(CMD_ID));
+        Bundle response = new Bundle();
+
+        response.putString(ABECS.CMD_ID, new String(CMD_ID));
 
         if (length < 7) {
-            return output;
+            return response;
         }
 
         System.arraycopy(input, 6, OPN_OPMODE, 0, 1);
@@ -51,16 +53,16 @@ public class OPN {
         System.arraycopy(input,                  10, OPN_MOD,    0, OPN_MOD.length);
         System.arraycopy(input, OPN_MOD.length + 10, OPN_EXPLEN, 0, 1);
 
-        output.putString(ABECS.OPN_OPMODE, new String(OPN_OPMODE));
-        output.putString(ABECS.OPN_MOD,    new String(OPN_MOD));
+        response.putString(ABECS.OPN_OPMODE, new String(OPN_OPMODE));
+        response.putString(ABECS.OPN_MOD,    new String(OPN_MOD));
 
         OPN_EXP = new byte[PinpadUtility.getIntFromDigitsArray(OPN_EXPLEN, OPN_EXPLEN.length) * 2];
 
         System.arraycopy(input, OPN_MOD.length + 11, OPN_EXP,    0, OPN_EXP.length);
 
-        output.putString(ABECS.OPN_EXP,    new String(OPN_EXP));
+        response.putString(ABECS.OPN_EXP,    new String(OPN_EXP));
 
-        return output;
+        return response;
     }
 
     public static Bundle parseResponseDataPacket(byte[] input, int length)
@@ -75,24 +77,24 @@ public class OPN {
         System.arraycopy(input, 0, RSP_ID,   0, 3);
         System.arraycopy(input, 3, RSP_STAT, 0, 3);
 
-        Bundle output = new Bundle();
+        Bundle response = new Bundle();
 
-        output.putString      (ABECS.RSP_ID,   new String(RSP_ID));
-        output.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
+        response.putString(ABECS.RSP_ID, new String(RSP_ID));
+        response.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
 
-        if (length < 7) {
-            return output;
+        if (length < 10) {
+            return response;
         }
 
-        System.arraycopy(input,  9, OPN_CRKSLEN, 0, 3);
+        System.arraycopy(input,  9, OPN_CRKSLEN, 0,   3);
         System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
 
-        output.putString(ABECS.OPN_CRKSEC,  new String(OPN_CRKSEC));
+        response.putString(ABECS.OPN_CRKSEC, new String(OPN_CRKSEC));
 
-        return output;
+        return response;
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
@@ -120,5 +122,52 @@ public class OPN {
         byte[] CMD_DATA = stream[1].toByteArray();
 
         return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        String RSP_ID       = null;
+        int    RSP_STAT     = ABECS.STAT.ST_INTERR.ordinal();
+        byte[] OPN_CRKSEC   = null;
+
+        for (String T : input.keySet()) {
+            switch (T) {
+                case ABECS.RSP_ID:
+                    RSP_ID = input.getString(T);
+                    break;
+
+                case ABECS.RSP_STAT:
+                    RSP_STAT = ((ABECS.STAT) input.getSerializable(T)).ordinal();
+                    break;
+
+                case ABECS.OPN_CRKSEC:
+                    OPN_CRKSEC = input.getString(T).getBytes(UTF_8);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "]");
+            }
+        }
+
+        stream.write(RSP_ID.getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
+
+        if (OPN_CRKSEC == null || RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
+            stream.write(0x00);
+            stream.write(0x00);
+            stream.write(0x00);
+
+            return stream.toByteArray();
+        }
+
+        stream.write(String.format(US, "%03d", OPN_CRKSEC.length + 3).getBytes(UTF_8));
+        stream.write(String.format(US, "%03d", OPN_CRKSEC.length / 2).getBytes(UTF_8));
+        stream.write(OPN_CRKSEC);
+
+        return stream.toByteArray();
     }
 }

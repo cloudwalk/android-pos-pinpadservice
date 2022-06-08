@@ -1,16 +1,15 @@
 package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
-
 import android.os.Bundle;
 
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
 
 public class FCX {
     private static final String
@@ -22,41 +21,31 @@ public class FCX {
         /* Nothing to do */
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        List<String> list = new ArrayList<>(0);
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_FCXOPT   = input.getString(ABECS.SPE_FCXOPT);
-        String SPE_ARC      = input.getString(ABECS.SPE_ARC);
-        String SPE_EMVDATA  = input.getString(ABECS.SPE_EMVDATA);
-        String SPE_TAGLIST  = input.getString(ABECS.SPE_TAGLIST);
-        String SPE_TIMEOUT  = input.getString(ABECS.SPE_TIMEOUT);
+        list.add(ABECS.SPE_FCXOPT);
+        list.add(ABECS.SPE_ARC);
+        list.add(ABECS.SPE_EMVDATA);
+        list.add(ABECS.SPE_TAGLIST);
+        list.add(ABECS.SPE_TIMEOUT);
 
-        if (SPE_FCXOPT  != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.N, "0019", SPE_FCXOPT));
-        }
+        return PinpadUtility.CMD.buildRequestDataPacket(input, list);
+    }
 
-        if (SPE_ARC     != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.A, "001C", SPE_ARC));
-        }
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
 
-        if (SPE_EMVDATA != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0005", SPE_EMVDATA));
-        }
+        List<String> list = new ArrayList<>(0);
 
-        if (SPE_TAGLIST != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0004", SPE_TAGLIST));
-        }
+        list.add(ABECS.PP_FCXRES);
+        list.add(ABECS.PP_EMVDATA);
+        list.add(ABECS.PP_ISRESULTS);
 
-        if (SPE_TIMEOUT != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.X, "000C", SPE_TIMEOUT));
-        }
-
-        byte[] CMD_DATA = stream[1].toByteArray();
-
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+        return PinpadUtility.CMD.buildResponseDataPacket(input, list);
     }
 }

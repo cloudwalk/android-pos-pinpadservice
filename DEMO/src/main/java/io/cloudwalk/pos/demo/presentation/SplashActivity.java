@@ -61,11 +61,11 @@ public class SplashActivity extends AppCompatActivity {
     private SpannableString getBullet(@ColorInt int color) {
         Log.d(TAG, "getBullet::color [" + color + "]");
 
-        SpannableString output = new SpannableString("  ");
+        SpannableString response = new SpannableString("  ");
 
-        output.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        response.setSpan(new BulletSpan(7, color), 0, 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 
-        return output;
+        return response;
     }
 
     private void loadApplication() {

@@ -2,15 +2,14 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
 import android.os.Bundle;
 
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
 
 public class CLX {
     private static final String
@@ -22,26 +21,22 @@ public class CLX {
         /* Nothing to do */
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        List<String> list = new ArrayList<>(0);
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_DSPMSG   = input.getString(ABECS.SPE_DSPMSG);
-        String SPE_MFNAME   = input.getString(ABECS.SPE_MFNAME);
+        list.add(ABECS.SPE_DSPMSG);
+        list.add(ABECS.SPE_MFNAME);
 
-        if (SPE_DSPMSG != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001B", SPE_DSPMSG));
-        }
+        return PinpadUtility.CMD.buildRequestDataPacket(input, list);
+    }
 
-        if (SPE_MFNAME != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.S, "001E", SPE_MFNAME));
-        }
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
 
-        byte[] CMD_DATA = stream[1].toByteArray();
-
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+        return PinpadUtility.CMD.buildResponseDataPacket(input);
     }
 }

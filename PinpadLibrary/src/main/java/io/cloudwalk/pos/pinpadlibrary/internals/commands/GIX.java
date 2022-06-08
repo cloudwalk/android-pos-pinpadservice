@@ -2,22 +2,19 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 
 import android.os.Bundle;
 
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.US;
 
 public class GIX {
     private static final String
             TAG = GIX.class.getSimpleName();
-
-    private static final byte[]
-            SPE_IDLIST = new byte[] { 0x00, 0x01 };
 
     private GIX() {
         Log.d(TAG, "GIX");
@@ -25,21 +22,71 @@ public class GIX {
         /* Nothing to do */
     }
 
-    public static byte[] buildRequestDataPacket(Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        List<String> list = new ArrayList<>(0);
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String SPE_IDLIST   = input.getString(ABECS.SPE_IDLIST);
+        list.add(ABECS.SPE_IDLIST);
 
-        if (SPE_IDLIST != null) {
-            stream[1].write(PinpadUtility.buildRequestTLV(ABECS.TYPE.B, "0001", SPE_IDLIST));
+        return PinpadUtility.CMD.buildRequestDataPacket(input, list);
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
+
+        List<List<String>> list = new ArrayList<>(0);
+
+        for (int i = 0; i < 4; i++) {
+            list.add(new ArrayList<>(0));
         }
 
-        byte[] CMD_DATA = stream[1].toByteArray();
+        list.get(0).add(ABECS.PP_SERNUM);
+        list.get(0).add(ABECS.PP_PARTNBR);
+        list.get(0).add(ABECS.PP_MODEL);
+        list.get(0).add(ABECS.PP_MNNAME);
+        list.get(0).add(ABECS.PP_CAPAB);
+        list.get(0).add(ABECS.PP_SOVER);
+        list.get(0).add(ABECS.PP_SPECVER);
+        list.get(0).add(ABECS.PP_MANVERS);
+        list.get(0).add(ABECS.PP_APPVERS);
+        list.get(0).add(ABECS.PP_GENVERS);
+        list.get(0).add(ABECS.PP_KRNLVER);
+        list.get(0).add(ABECS.PP_CTLSVER);
+        list.get(0).add(ABECS.PP_MCTLSVER);
+        list.get(0).add(ABECS.PP_VCTLSVER);
+        list.get(0).add(ABECS.PP_AECTLSVER);
+        list.get(0).add(ABECS.PP_DPCTLSVER);
+        list.get(0).add(ABECS.PP_PUREVER);
+        list.get(0).add(ABECS.PP_MKTDESP);
+        list.get(0).add(ABECS.PP_MKTDESD);
+        list.get(0).add(ABECS.PP_DKPTTDESP);
+        list.get(0).add(ABECS.PP_DKPTTDESD);
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+        for (String entry : input.keySet()) {
+            if (entry.equals(ABECS.RSP_STAT)) {
+                continue;
+            }
+
+            if (input.getString(entry)       .startsWith("PP_KSNTDESP")) {
+                list.get(1).add(entry);
+            } else if (input.getString(entry).startsWith("PP_KSNTDESD")) {
+                list.get(2).add(entry);
+            } else if (input.getString(entry).startsWith("PP_TABVER")) {
+                list.get(3).add(entry);
+            }
+        }
+
+        for (int i = 1; i < 4; i++) {
+            Collections.sort(list.get(i), String::compareTo);
+
+            list.get(0).addAll(list.get(i));
+        }
+
+        list.get(0).add(ABECS.PP_BIGRAND);
+
+        return PinpadUtility.CMD.buildResponseDataPacket(input, list.get(0));
     }
 }

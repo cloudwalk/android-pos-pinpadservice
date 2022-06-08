@@ -114,15 +114,15 @@ public class CallbackUtility {
     public static IServiceCallback getServiceCallback() {
         Log.d(TAG, "getServiceCallback");
 
-        IServiceCallback output;
+        IServiceCallback response;
 
         sClbkSemaphore.acquireUninterruptibly();
 
-        output = sServiceCallback;
+        response = sServiceCallback;
 
         sClbkSemaphore.release();
 
-        return output;
+        return response;
     }
 
     public static void setServiceCallback(IServiceCallback callback) {
