@@ -149,7 +149,7 @@ public class OPN {
                     break;
 
                 default:
-                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "] [" + V + "]");
+                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "]");
             }
         }
 

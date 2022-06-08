@@ -50,8 +50,6 @@ public class PinpadManager {
     }
 
     private static Bundle _request(Bundle bundle, IServiceCallback callback) {
-        // Log.d(TAG, "_request");
-
         long timestamp = SystemClock.elapsedRealtime();
 
         try {
@@ -142,8 +140,6 @@ public class PinpadManager {
     }
 
     private static void _abort() {
-        // Log.d(TAG, "_abort");
-
         long timestamp = SystemClock.elapsedRealtime();
 
         try {

@@ -195,6 +195,8 @@ public class PinpadUtility {
 
         public static byte[] buildResponseDataPacket(@NotNull Bundle input, @NotNull List<String> sort)
                 throws Exception {
+            Log.d(TAG, "buildResponseDataPacket");
+
             ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
             String RSP_ID = input.getString(ABECS.RSP_ID);
@@ -910,7 +912,7 @@ public class PinpadUtility {
                     return _buildTLV(ABECS.TYPE.B, name, value);
                 }
 
-                throw new RuntimeException("Unknown or unhandled TAG [" + name + "] [" + value + "]");
+                throw new RuntimeException("Unknown or unhandled TAG [" + name + "]");
         }
     }
 
