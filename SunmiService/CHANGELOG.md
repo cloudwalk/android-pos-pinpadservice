@@ -23,6 +23,9 @@
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
   should be ignored.
 
+## [1.1.6] - YYYY-MM-DD
+- Update dependencies.
+
 ## [1.1.5] - 2022-03-27
 - Broaden PIN capture activity updates to whenever a callback event is
   triggered.
@@ -46,8 +49,7 @@
 - Update dependencies and compilation tools.
 
 ## [1.0.4] - 2021-10-26
-- Update vendor components.
-- Update dependencies.
+- Update vendor dependencies.
 - Enable EMV LED operation.
   
 ## [1.0.3] - 2021-10-11
