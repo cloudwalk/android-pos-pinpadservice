@@ -8,7 +8,7 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [1.1.0] - 2022-06-07
+## [1.1.0] - YYYY-MM-DD
 - Update dependencies.
 - Unify handling of TLV data for multiple commands.
 - Add response byte stream builder:
