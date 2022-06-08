@@ -82,7 +82,7 @@ public class OPN {
         response.putString(ABECS.RSP_ID, new String(RSP_ID));
         response.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
 
-        if (ABECS.STAT.ST_OK != response.getSerializable(ABECS.RSP_STAT)) {
+        if (length < 10) {
             return response;
         }
 
