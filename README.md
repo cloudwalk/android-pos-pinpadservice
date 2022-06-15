@@ -5,7 +5,7 @@
 Originally built as a (P)roof (O)f (C)oncept, the Pinpad Service serves as a
 virtual ABECS PINPAD for POS solutions.  
 From the entire ABECS specification, multimedia, proprietary and deprecated
-instructions are left out, reducing scope to 18 instructions:  
+instructions are left out, reducing scope to:  
 
 - OPN, GIX and CLX
 - CEX, CHP, EBX, GCD, GPN, GTK, MNU and RMC
@@ -17,12 +17,10 @@ Be sure to check [ABECS](https://www.abecs.org.br/) website and
 have a deeper understanding on how to make requests and handle its responses.  
 
 Made available in its own installable package, the Pinpad Service can be shared
-by several applications and updated independently.  
-The Library that pairs with it helps to hide the complexity of handling the
-service, as well as AIDL restrictions.  
-
-Check the [DEMO application](#demo-application) for an example on how to
-consume the Pinpad Service using the associated Pinpad Library.  
+by several applications and updated independently. The Library that pairs with
+it helps to hide the complexity of handling the service, as well as AIDL
+restrictions (check the [DEMO application](#demo-application) for an example on
+how to consume the Pinpad Service using the associated Pinpad Library).  
 
 ## Project dependencies
 
@@ -31,32 +29,31 @@ its own module. They'll be listed in their respective `build.gradle` file -
 e.g. [Verifone/build.gradle](VerifoneService/build.gradle).  
 For instance, these are the Verifone Pinpad Service v1.1.5 dependencies:  
 
-```build.gradle
+```gradle
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'org.jetbrains:annotations:16.0.1'
 
-    implementation project(path: ':PinpadLibrary')
+    implementation 'io.cloudwalk:loglibrary:1.1.4'                  // local dependency
+    implementation 'io.cloudwalk:utilitieslibrary:1.0.12'           // local dependency
 
     debugImplementation files('libs/PPCompX990-v001.29_debug.aar')  // copyrighted dependency
     releaseImplementation files('libs/PPCompX990-v001.29.aar')      // copyrighted dependency
 
-    implementation 'io.cloudwalk:loglibrary:1.1.4'                  // local dependency
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.12'           // local dependency
+    implementation project(path: ':PinpadLibrary')
 }
 ```
 
 ### Local dependencies
 
 Local dependencies are those within the scope of the Pinpad Service development
-team . They need to be made available before the Pinpad Service can be built:  
+team. They need to be made available before the Pinpad Service can be built:  
 
 1. Clone the repositories
    [android-misc-loglibrary](https://github.com/mauriciospinardi/android-misc-loglibrary)
    and [android-misc-utilitieslibrary](https://github.com/mauriciospinardi/android-misc-utilitieslibrary)
-2. Rebuild their `release` variants based on tags of your choice.
-3. Run tasks: `gradle publishToMavenLocal`
+2. Follow the instructions in each README.md to locally publish them.
 
 ### Copyrighted dependencies
 
