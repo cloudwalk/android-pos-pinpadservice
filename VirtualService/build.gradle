@@ -41,8 +41,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'org.jetbrains:annotations:16.0.1'
 
-    implementation project(path: ':PinpadLibrary')
-
     implementation 'io.cloudwalk:loglibrary:1.1.5'
     implementation 'io.cloudwalk:utilitieslibrary:1.0.14'
+
+    implementation project(path: ':PinpadLibrary')
 }
