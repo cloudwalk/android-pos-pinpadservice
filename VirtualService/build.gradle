@@ -3,14 +3,14 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 22
-        targetSdk 31
-        versionCode 3
-        versionName "0.0.3"
+        targetSdk 32
+        versionCode 4
+        versionName "0.0.4"
 
         buildConfigField 'String', 'BUILD_DATE', "\"${getDate()}\""
 
@@ -41,8 +41,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'org.jetbrains:annotations:16.0.1'
 
-    implementation project(path: ':PinpadLibrary')
-
     implementation 'io.cloudwalk:loglibrary:1.1.5'
     implementation 'io.cloudwalk:utilitieslibrary:1.0.14'
+
+    implementation project(path: ':PinpadLibrary')
 }

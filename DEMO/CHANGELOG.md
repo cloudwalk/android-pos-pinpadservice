@@ -8,6 +8,10 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [0.0.11] - YYYY-MM-DD
+- Update application theme.
+- Remove application from backup and restore infrastructure.
+
 ## [0.0.10] - 2022-06-08
 - Update dependencies.
 - Lock screen orientation (portrait).

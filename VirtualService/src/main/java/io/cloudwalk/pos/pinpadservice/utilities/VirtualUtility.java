@@ -59,11 +59,14 @@ public class VirtualUtility {
                                 break;
                             }
 
-                            response.putString(ABECS.PP_MODEL, String.format(US, "%.20s", "VIRTUAL//" + response.getString(ABECS.PP_MODEL)));
+                            String PP_MODEL = response.getString(ABECS.PP_MODEL);
 
-                            Log.d(TAG, ABECS.PP_MODEL + "[" + response.getString(ABECS.PP_MODEL) + "]");
+                            if (!PP_MODEL.contains("VIRTUAL//")) {
+                                response.putString(ABECS.PP_MODEL, String.format(US, "%.20s", "VIRTUAL//" + PP_MODEL));
 
-                            return PinpadUtility.buildResponseDataPacket(response);
+                                return PinpadUtility.buildResponseDataPacket(response);
+                            }
+                            break;
 
                         default:
                             /* Nothing to do */

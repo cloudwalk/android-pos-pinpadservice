@@ -3,6 +3,10 @@
 ## Dependencies
 - Android 5.1 (API 22)
 
+## [0.0.4] - YYYY-MM-DD
+- Update dependencies.
+- Remove application from backup and restore infrastructure.
+
 ## [0.0.3] - 2022-06-08
 - Update dependencies.
 - Intercept `GIX` response to inject `VIRTUAL//` into `PP_MODEL`.

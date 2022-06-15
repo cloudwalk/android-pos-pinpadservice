@@ -1,22 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.POC2104301453" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <!-- Primary brand color. -->
+    <style name="Theme.POC2104301453.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/black</item>
-        <!-- <item name="colorPrimaryVariant">@color/purple_700</item> -->
+        <item name="colorPrimaryVariant">@color/gray</item>
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Status bar color. -->
+
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
     </style>
 
-    <style name="Theme.POC2104301453.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
+    <style name="Theme.POC2104301453.NoActionBar.AppBarOverlay"
+        parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="Theme.POC2104301453.AppBarOverlay"
-            parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.POC2104301453.PopupOverlay"
-            parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.POC2104301453.NoActionBar.PopupOverlay"
+        parent="ThemeOverlay.AppCompat.Light" />
 </resources>
