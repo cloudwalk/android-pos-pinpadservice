@@ -35,10 +35,10 @@ public class PinpadManager {
             sRequestSemaphore = new Semaphore(1, true);
 
     private static final String
-            ACTION_PINPAD_SERVICE  = "io.cloudwalk.pos.pinpadservice.PinpadService";
+            PINPAD_SERVICE_ACTION  = "io.cloudwalk.pos.pinpadservice.PinpadService";
 
     private static final String
-            PACKAGE_PINPAD_SERVICE = "io.cloudwalk.pos.pinpadservice";
+            PINPAD_SERVICE_PACKAGE = "io.cloudwalk.pos.pinpadservice";
 
     /**
      * Constructor.
@@ -62,7 +62,7 @@ public class PinpadManager {
             try {
                 sAbortSemaphore.acquireUninterruptibly();
 
-                status = send   (request, request.length, callback);
+                status = send(request, request.length, callback);
 
                 if (status  < 0) {
                     throw new RuntimeException("request::status [" + status + "]");
@@ -145,7 +145,7 @@ public class PinpadManager {
         try {
             sAbortSemaphore.acquireUninterruptibly();
 
-            int status = send   (new byte[] { 0x18 }, 1, null);
+            int status = send(new byte[] { 0x18 }, 1, null);
 
             if (status < 0) {
                 throw new RuntimeException("abort::status [" + status + "]");
@@ -273,7 +273,7 @@ public class PinpadManager {
 
                 bundle.putLong("timeout", (timeout < 0) ? 0 : timeout);
 
-                IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+                IBinder binder = ServiceUtility.retrieve(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION);
 
                 result = IPinpadService.Stub.asInterface(binder)
                                 .getPinpadManager(null).recv(bundle);
@@ -302,13 +302,13 @@ public class PinpadManager {
     public static void register(@NotNull ServiceUtility.Callback callback) {
         Log.d(TAG, "register");
 
-        ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE, null, callback);
+        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, null, callback);
     }
 
     public static void register(Bundle bundle, @NotNull ServiceUtility.Callback callback) {
         Log.d(TAG, "register");
 
-        ServiceUtility.register(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE, bundle, callback);
+        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, bundle, callback);
     }
 
     /**
@@ -338,7 +338,7 @@ public class PinpadManager {
             bundle.putString   ("application_id", Application.getContext().getPackageName());
             bundle.putByteArray("request", stream.toByteArray());
 
-            IBinder binder = ServiceUtility.retrieve(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+            IBinder binder = ServiceUtility.retrieve(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION);
 
             result = IPinpadService.Stub.asInterface(binder)
                             .getPinpadManager(null).send(bundle, callback);
@@ -357,6 +357,6 @@ public class PinpadManager {
     public static void unregister() {
         Log.d(TAG, "unregister");
 
-        ServiceUtility.unregister(PACKAGE_PINPAD_SERVICE, ACTION_PINPAD_SERVICE);
+        ServiceUtility.unregister(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION);
     }
 }

@@ -1,13 +1,12 @@
 package io.cloudwalk.pos.pinpadlibrary;
 
 public class ABECS {
-    public static final String
+    private static final String
             TAG = ABECS.class.getSimpleName();
 
     /*
      * Basic data fields.
      */
-
     public static final String CMD_ID           = "CMD_ID";
     public static final String RSP_ID           = "RSP_ID";
     public static final String RSP_EXCEPTION    = "RSP_EXCEPTION";
@@ -16,7 +15,6 @@ public class ABECS {
     /*
      * Supported requests.
      */
-
     public static final String OPN              = "OPN";
     public static final String GIX              = "GIX";
     public static final String CLX              = "CLX";
@@ -39,7 +37,6 @@ public class ABECS {
     /*
      * Untagged data fields.
      */
-
     public static final String OPN_OPMODE       = "OPN_OPMODE";
     public static final String OPN_MOD          = "OPN_MOD";
     public static final String OPN_EXP          = "OPN_EXP";
@@ -69,7 +66,6 @@ public class ABECS {
     /*
      * Request data fields.
      */
-
     public static final String SPE_IDLIST       = "SPE_IDLIST";
     public static final String SPE_MTHDPIN      = "SPE_MTHDPIN";
     public static final String SPE_MTHDDAT      = "SPE_MTHDDAT";
@@ -111,7 +107,6 @@ public class ABECS {
     /*
      * Response data fields.
      */
-
     public static final String PP_SERNUM        = "PP_SERNUM";
     public static final String PP_PARTNBR       = "PP_PARTNBR";
     public static final String PP_MODEL         = "PP_MODEL";
@@ -174,10 +169,9 @@ public class ABECS {
     public static final String PP_KSNTDESDnn    = "PP_KSNTDESDnn";
     public static final String PP_TABVERnn      = "PP_TABVERnn";
 
-    /*
+    /**
      * Response status enumerator.
      */
-
     public static enum STAT {
         ST_OK,              PP_PROCESSING,      PP_NOTIFY,
         ST_NOSEC,           ST_F1,              ST_F2,
@@ -226,10 +220,9 @@ public class ABECS {
         }
     }
 
-    /*
-     * Data field types.
+    /**
+     * Data types enumerator.
      */
-
     public static enum TYPE {
         A, S, N, H, X, B;
 

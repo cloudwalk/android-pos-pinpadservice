@@ -135,13 +135,13 @@ public class PinpadUtility {
             return stream[0].toByteArray();
         }
 
-        public static byte[] buildRequestDataPacket(@NotNull Bundle input, @NotNull List<String> sort)
+        public static byte[] buildRequestDataPacket(@NotNull Bundle input, @NotNull List<String> sorter)
                 throws Exception {
             ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
 
             String CMD_ID = input.getString(ABECS.CMD_ID);
 
-            for (String entry : sort) {
+            for (String entry : sorter) {
                 String value = input.getString(entry);
 
                 if (value != null) {
@@ -193,7 +193,7 @@ public class PinpadUtility {
             return stream[0].toByteArray();
         }
 
-        public static byte[] buildResponseDataPacket(@NotNull Bundle input, @NotNull List<String> sort)
+        public static byte[] buildResponseDataPacket(@NotNull Bundle input, @NotNull List<String> sorter)
                 throws Exception {
             Log.d(TAG, "buildResponseDataPacket");
 
@@ -201,7 +201,7 @@ public class PinpadUtility {
 
             String RSP_ID = input.getString(ABECS.RSP_ID);
 
-            for (String entry : sort) {
+            for (String entry : sorter) {
                 String value = input.getString(entry);
 
                 if (value != null) {
