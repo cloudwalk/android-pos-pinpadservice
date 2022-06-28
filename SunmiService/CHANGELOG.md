@@ -26,6 +26,7 @@
 ## [1.1.6] - YYYY-MM-DD
 - Update dependencies.
 - Remove application from backup and restore infrastructure.
+- ...
 
 ## [1.1.5] - 2022-03-27
 - Broaden PIN capture activity updates to whenever a callback event is

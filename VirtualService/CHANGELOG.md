@@ -3,6 +3,9 @@
 ## Dependencies
 - Android 5.1 (API 22)
 
+## [0.0.5] - YYYY-MM-DD
+- ...
+
 ## [0.0.4] - 2022-06-15
 - Update dependencies.
 - Remove application from backup and restore infrastructure.

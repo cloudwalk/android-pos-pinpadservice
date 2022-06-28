@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -37,7 +39,7 @@ import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.BundleUtility;
 
 public class MainActivity extends AppCompatActivity {
     private static final String
@@ -54,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
     private MainAdapter
             mMainAdapter = null;
-
-    private PinpadServer
-            mPinpadServer = null;
 
     private RecyclerView
             mRecyclerView = null;
@@ -304,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "onServiceCallback");
 
                         try {
-                            String trace = DataUtility.getJSONObjectFromBundle(bundle, true).toString();
+                            String trace = BundleUtility.getJSONObject(bundle, true).toString();
 
                             Log.d(TAG, "onServiceCallback::" + trace);
                         } catch (Exception exception) {
@@ -335,40 +334,42 @@ public class MainActivity extends AppCompatActivity {
 
                 updateStatus(2, getString(R.string.warning_local_processing));
 
-                Bundle request;
+                List<String> requestList = new ArrayList<>(0);
 
-                List<Bundle> requestList = new ArrayList<>(0);
+                try {
+                    // requestList.add(DEMO.CLX());
+                    requestList.add(DEMO.GIX());
+                    // requestList.add(DEMO.OPN());
+                    // requestList.add(DEMO.TLI());
 
-                // requestList.add(DEMO.CLX());
-                requestList.add(DEMO.GIX());
-                // requestList.add(DEMO.OPN());
-                // requestList.add(DEMO.TLI());
+                    // for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
 
-                // for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
+                    // requestList.add(DEMO.TLE());
+                    // requestList.add(DEMO.CEX());
+                    // requestList.add(DEMO.GTK());
+                    // requestList.add(DEMO.RMC());
+                    // requestList.add(DEMO.EBX());
+                    // requestList.add(DEMO.GPN());
+                    // requestList.add(DEMO.GCX());
+                    // requestList.add(DEMO.GED());
+                    // requestList.add(DEMO.GOX());
+                    // requestList.add(DEMO.FCX());
+                    // requestList.add(DEMO.MNU());
+                    // requestList.add(DEMO.GCD());
+                    // requestList.add(DEMO.CHP());
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+                } finally {
+                    PinpadManager.abort();
+                }
 
-                // requestList.add(DEMO.TLE());
-                // requestList.add(DEMO.CEX());
-                // requestList.add(DEMO.GTK());
-                // requestList.add(DEMO.RMC());
-                // requestList.add(DEMO.EBX());
-                // requestList.add(DEMO.GPN());
-                // requestList.add(DEMO.GCX());
-                // requestList.add(DEMO.GED());
-                // requestList.add(DEMO.GOX());
-                // requestList.add(DEMO.FCX());
-                // requestList.add(DEMO.MNU());
-                // requestList.add(DEMO.GCD());
-                // requestList.add(DEMO.CHP());
-
-                PinpadManager.abort();
-
-                for (Bundle TX : requestList) {
+                for (String entry : requestList) {
                     try {
-                        updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
+                        updateContentScrolling(null, "\"TX\": " + (new JSONObject(entry)).toString(4));
 
-                        Bundle RX = PinpadManager.request(TX, serviceCallback);
+                        JSONObject RX = new JSONObject(PinpadManager.request(entry, serviceCallback));
 
-                        updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
+                        updateContentScrolling(null, "\"RX\": " + RX.toString(4));
 
                         if (wasStopped()) {
                             return;
@@ -389,9 +390,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                // TODO: replace hardcoded strings by values @string.xml
-
-                updateStatus(0, "Finished processing local requests");
+                updateStatus(0, "Finished processing local requests"); // TODO: replace hardcoded strings by values @string.xml
 
                 PinpadServer.Callback serverCallback = new PinpadServer.Callback() {
                     @Override
@@ -403,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onClientConnection(String address) {
-                        // TODO: UX
+                        /* Nothing to do */
                     }
 
                     @Override
@@ -417,23 +416,23 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onServerReceive(byte[] trace, int length) {
-                        try {
-                            Bundle TX = PinpadUtility.parseRequestDataPacket(trace, length);
+                        // try {
+                        //     JSONObject TX = PinpadUtility.parseRequestDataPacket(trace, length);
 
-                            updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
-                        } catch (Exception exception) {
+                        //     updateContentScrolling(null, "\"TX\": " + TX.toString(4));
+                        // } catch (Exception exception) {
                             if (length <= 0) { return; }
 
                             updateContentScrolling("\n", Log.getByteTraceString(trace, length));
-                        }
+                        // }
                     }
 
                     @Override
                     public void onServerSend(byte[] trace, int length) {
                         try {
-                            Bundle RX = PinpadUtility.parseResponseDataPacket(trace, length);
+                            JSONObject RX = PinpadUtility.parseResponseDataPacket(trace, length);
 
-                            updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
+                            updateContentScrolling(null, "\"RX\": " + RX.toString(4));
 
                             switch (RX.getString(ABECS.RSP_ID)) {
                                 case ABECS.TLI:

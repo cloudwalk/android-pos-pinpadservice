@@ -23,6 +23,7 @@
 ## [1.1.7] - YYYY-MM-DD
 - Update dependencies.
 - Remove application from backup and restore infrastructure.
+- ...
 
 ## [1.1.6] - 2022-04-19
 - Update dependencies.
