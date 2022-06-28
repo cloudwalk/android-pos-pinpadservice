@@ -416,21 +416,21 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onServerReceive(byte[] trace, int length) {
-                        // try {
-                        //     JSONObject TX = PinpadUtility.parseRequestDataPacket(trace, length);
+                        try {
+                            JSONObject TX = new JSONObject(PinpadUtility.parseRequestDataPacket(trace, length));
 
-                        //     updateContentScrolling(null, "\"TX\": " + TX.toString(4));
-                        // } catch (Exception exception) {
+                            updateContentScrolling(null, "\"TX\": " + TX.toString(4));
+                        } catch (Exception exception) {
                             if (length <= 0) { return; }
 
                             updateContentScrolling("\n", Log.getByteTraceString(trace, length));
-                        // }
+                        }
                     }
 
                     @Override
                     public void onServerSend(byte[] trace, int length) {
                         try {
-                            JSONObject RX = PinpadUtility.parseResponseDataPacket(trace, length);
+                            JSONObject RX = new JSONObject(PinpadUtility.parseResponseDataPacket(trace, length));
 
                             updateContentScrolling(null, "\"RX\": " + RX.toString(4));
 

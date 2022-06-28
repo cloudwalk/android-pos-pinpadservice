@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -19,9 +20,9 @@ public class PinpadUtility {
     private static final String
             TAG = PinpadUtility.class.getSimpleName();
 
-    private static byte[] _buildTLV(@NotNull ABECS.TYPE type, @NotNull String name, @NotNull String value)
+    private static byte[] _buildTLV(ABECS.TYPE type, String name, String value)
             throws Exception {
-        Log.d(TAG, "_buildTLV");
+        // Log.d(TAG, "_buildTLV");
 
         byte[] T = null;
         byte[] L = null;
@@ -43,7 +44,7 @@ public class PinpadUtility {
 
                 case H: case X: case B:
                     L = ByteBuffer.allocate(2).putShort(length[1]).array();
-                    V = ByteUtility.fromHexString(name);
+                    V = ByteUtility.fromHexString(value);
                     break;
 
                 default:
@@ -66,9 +67,9 @@ public class PinpadUtility {
         }
     }
 
-    private static byte[] _unwrapDataPacket(byte[] input, int length)
+    private static byte[] _unwrapDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "_unwrapDataPacket");
+        // Log.d(TAG, "_unwrapDataPacket");
 
         byte[] pkt = new byte[2048 - 4];
 
@@ -78,7 +79,7 @@ public class PinpadUtility {
             int j = 0;
 
             for (int i = 1; i < threshold; i++) {
-                switch (input[i]) {
+                switch (array[i]) {
                     case 0x16: /* PKTSTART */
                         continue;
 
@@ -87,7 +88,7 @@ public class PinpadUtility {
                         continue;
 
                     case 0x13:
-                        switch (input[++i]) {
+                        switch (array[++i]) {
                             case 0x33: /* DC3 */
                                 pkt[j++] = 0x13;
                                 break;
@@ -101,13 +102,13 @@ public class PinpadUtility {
                                 break;
 
                             default:
-                                pkt[j++] = input[i];
+                                pkt[j++] = array[i];
                                 break;
                         }
                         break;
 
                     default:
-                        pkt[j++] = input[i];
+                        pkt[j++] = array[i];
                         break;
                 }
             }
@@ -124,9 +125,9 @@ public class PinpadUtility {
         }
     }
 
-    private static byte[] _wrapDataPacket(byte[] input, int length)
+    private static byte[] _wrapDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "_wrapDataPacket");
+        // Log.d(TAG, "_wrapDataPacket");
 
         byte[][] pkt = {
                 new byte[2044 + 4],
@@ -146,7 +147,7 @@ public class PinpadUtility {
             int j = 1;
 
             for (int i = 0; i < threshold; i++) {
-                switch (input[i]) {
+                switch (array[i]) {
                     case 0x13: /* DC3 */
                         pkt[0][j++] = 0x13;
                         pkt[0][j++] = 0x33;
@@ -163,18 +164,18 @@ public class PinpadUtility {
                         break;
 
                     default:
-                        pkt[0][j++] = input[i];
+                        pkt[0][j++] = array[i];
                         break;
                 }
             }
 
             pkt[0][j] = 0x17; /* PKTSTOP */
 
-            System.arraycopy(input, 0, crc[0], 0, length);
+            System.arraycopy(array, 0, crc[0], 0, length);
 
             crc[0][length] = pkt[0][j];
 
-            crc[1] = ByteUtility.crc(crc[0], crc[0].length, 0);
+            crc[1] = ByteUtility.crc(crc[0], 0, crc[0].length);
 
             System.arraycopy(crc[1], 0, pkt[0], j + 1, crc[1].length);
 
@@ -194,26 +195,75 @@ public class PinpadUtility {
         /* Nothing to do */
     }
 
-    public static JSONObject parseResponseDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "parseResponseDataPacket");
+        Log.d(TAG, "parseRequestDataPacket::array.length [" + array.length + "] length [" + length + "]");
+
+        byte[] stream = _unwrapDataPacket(array, length);
+
+        String CMD_ID;
+
+        switch (CMD_ID = new String(stream, 0, 3)) {
+            // case ABECS.OPN:
+            //     return OPN.parseRequestDataPacket(stream, stream.length);
+
+            // case ABECS.CHP:
+            //     return CHP.parseRequestDataPacket(stream, stream.length);
+
+            // case ABECS.GPN:
+            //     return GPN.parseRequestDataPacket(stream, stream.length);
+
+            // case ABECS.RMC:
+            //     return RMC.parseRequestDataPacket(stream, stream.length);
+
+            // case ABECS.TLI:
+            //     return TLI.parseRequestDataPacket(stream, stream.length);
+
+            // case ABECS.TLR:
+            //     return TLR.parseRequestDataPacket(stream, stream.length);
+
+            // case ABECS.TLE:
+            //     return TLE.parseRequestDataPacket(stream, stream.length);
+
+            case ABECS.GIX: case ABECS.CLX:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
+            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                return CMD.parseRequestDataPacket(stream, stream.length);
+
+            default:
+                throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+        }
+    }
+
+    public static String parseResponseDataPacket(byte[] array, int length)
+            throws Exception {
+        Log.d(TAG, "parseResponseDataPacket::array.length [" + array.length + "] length [" + length + "]");
 
         byte[] stream = null;
 
         try {
-            stream = _unwrapDataPacket(input, length);
+            stream = _unwrapDataPacket(array, length);
 
             String RSP_ID;
 
             switch (RSP_ID = new String(stream, 0, 3)) {
-                // case ABECS.OPN: return OPN.parseResponseDataPacket(stream, stream.length);
+                // case ABECS.OPN:
+                //     return OPN.parseResponseDataPacket(stream, stream.length);
 
-                // case ABECS.CHP: return CHP.parseResponseDataPacket(stream, stream.length);
-                // case ABECS.GPN: return GPN.parseResponseDataPacket(stream, stream.length);
+                // case ABECS.CHP:
+                //     return CHP.parseResponseDataPacket(stream, stream.length);
 
-                // case ABECS.TLI: return TLI.parseResponseDataPacket(stream, stream.length);
-                // case ABECS.TLR: return TLR.parseResponseDataPacket(stream, stream.length);
-                // case ABECS.TLE: return TLE.parseResponseDataPacket(stream, stream.length);
+                // case ABECS.GPN:
+                //     return GPN.parseResponseDataPacket(stream, stream.length);
+
+                // case ABECS.TLI:
+                //     return TLI.parseResponseDataPacket(stream, stream.length);
+
+                // case ABECS.TLR:
+                //     return TLR.parseResponseDataPacket(stream, stream.length);
+
+                // case ABECS.TLE:
+                //     return TLE.parseResponseDataPacket(stream, stream.length);
 
                 case ABECS.GIX: case ABECS.CLX:
                 case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
@@ -221,22 +271,19 @@ public class PinpadUtility {
                     return CMD.parseResponseDataPacket(stream, stream.length);
 
                 default:
-                    /* Nothing to do */
-                    break;
+                    throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
             }
-
-            throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
         } finally {
             ByteUtility.clear(stream);
         }
     }
 
-    public static JSONObject parseTLV(byte[] input, int length, int offset)
+    public static String parseTLV(byte[] array, int offset, int length)
             throws Exception {
-        Log.d(TAG, "parseTLV::input.length [" + input.length + "] length [" + length + "] offset [" + offset + "]");
+        Log.d(TAG, "parseTLV::array.length [" + array.length + "] offset [" + offset + "] length [" + length + "]");
 
         length = Math.max(length, 0);
-        length = Math.min(length, input.length);
+        length = Math.min(length, array.length);
 
         offset = Math.max(offset, 0);
 
@@ -251,13 +298,13 @@ public class PinpadUtility {
             byte[] V = null;
 
             try {
-                System.arraycopy(input, cursor, T, 2, 2);
+                System.arraycopy(array, cursor, T, 2, 2);
 
                 cursor += 2;
 
                 int tag = ByteBuffer.wrap(T).getInt();
 
-                System.arraycopy(input, cursor, L, 2, 2);
+                System.arraycopy(array, cursor, L, 2, 2);
 
                 cursor += 2;
 
@@ -265,7 +312,7 @@ public class PinpadUtility {
 
                 V = new byte[threshold];
 
-                System.arraycopy(input, cursor, V, 0, threshold);
+                System.arraycopy(array, cursor, V, 0, threshold);
 
                 switch (tag) {
                     case 0x0002: response.put(ABECS.SPE_MTHDPIN,    new String(V)); break;
@@ -406,7 +453,7 @@ public class PinpadUtility {
 
                             response.put(key, new String(V));
                         } else {
-                            key = ByteUtility.getHexString(T, T.length, 2);
+                            key = String.format(US, "%04X", tag);
 
                             response.put(key, ByteUtility.getHexString(V, V.length));
                         }
@@ -419,32 +466,51 @@ public class PinpadUtility {
             }
         }
 
-        return response;
+        return response.toString();
     }
 
-    public static byte[] buildRequestDataPacket(JSONObject input)
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
-        Log.d(TAG, "buildRequestDataPacket");
+        Log.d(TAG, "buildRequestDataPacket::string [" + string + "]");
 
         byte[] stream = null;
 
         try {
-            String CMD_ID = input.has(ABECS.CMD_ID) ? input.getString(ABECS.CMD_ID) : "UNKNOWN";
+            String CMD_ID = "UNKNOWN";
+
+            try {
+                CMD_ID = new JSONObject(string).getString(ABECS.CMD_ID);
+            } catch (Exception ignored) { }
 
             switch (CMD_ID) {
-                // case ABECS.OPN: stream = OPN.buildRequestDataPacket(input); break;
+                // case ABECS.OPN:
+                //     stream = OPN.buildRequestDataPacket(array);
+                //     break;
 
-                // case ABECS.CHP: stream = CHP.buildRequestDataPacket(input); break;
-                // case ABECS.GPN: stream = GPN.buildRequestDataPacket(input); break;
+                // case ABECS.CHP:
+                //     stream = CHP.buildRequestDataPacket(array);
+                //     break;
 
-                // case ABECS.TLI: stream = TLI.buildRequestDataPacket(input); break;
-                // case ABECS.TLR: stream = TLR.buildRequestDataPacket(input); break;
-                // case ABECS.TLE: stream = TLE.buildRequestDataPacket(input); break;
+                // case ABECS.GPN:
+                //     stream = GPN.buildRequestDataPacket(array);
+                //     break;
+
+                // case ABECS.TLI:
+                //     stream = TLI.buildRequestDataPacket(array);
+                //     break;
+
+                // case ABECS.TLR:
+                //     stream = TLR.buildRequestDataPacket(array);
+                //     break;
+
+                // case ABECS.TLE:
+                //     stream = TLE.buildRequestDataPacket(array);
+                //     break;
 
                 case ABECS.GIX: case ABECS.CLX:
                 case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                    stream = CMD.buildRequestDataPacket(input);
+                    stream = CMD.buildRequestDataPacket(string);
                     break;
 
                 default:
@@ -466,8 +532,73 @@ public class PinpadUtility {
         }
     }
 
+    public static byte[] buildResponseDataPacket(@NotNull String string)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket::string [" + string + "]");
+
+        byte[] stream = null;
+
+        try {
+            String RSP_ID = "UNKNOWN";
+
+            try {
+                RSP_ID = new JSONObject(string).getString(ABECS.CMD_ID);
+            } catch (Exception ignored) { }
+
+            switch (RSP_ID) {
+                // case ABECS.OPN:
+                //     stream = OPN.buildResponseDataPacket(string);
+                //     break;
+
+                // case ABECS.CHP:
+                //     stream = CHP.buildResponseDataPacket(string);
+                //     break;
+
+                // case ABECS.GPN:
+                //     stream = GPN.buildResponseDataPacket(string);
+                //     break;
+
+                // case ABECS.TLI:
+                //     stream = TLI.buildResponseDataPacket(string);
+                //     break;
+
+                // case ABECS.TLR:
+                //     stream = TLR.buildResponseDataPacket(string);
+                //     break;
+
+                // case ABECS.TLE:
+                //     stream = TLE.buildResponseDataPacket(string);
+                //     break;
+
+                case ABECS.GIX: case ABECS.CLX:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                    stream = CMD.buildResponseDataPacket(string);
+                    break;
+
+                default:
+                    /* Nothing to do */
+                    break;
+            }
+
+            if (stream != null) {
+                if (stream.length <= 2048) {
+                    return _wrapDataPacket(stream, stream.length);
+                }
+
+                throw new RuntimeException("RSP_ID [" + RSP_ID + "] packet exceeds maximum length (2048)");
+            } else {
+                throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
+            }
+        } finally {
+            ByteUtility.clear(stream);
+        }
+    }
+
     public static byte[] buildTLV(@NotNull String name, @NotNull String value)
             throws Exception {
+        Log.d(TAG, "buildTLV::name [" + name + "] value [" + value + "]");
+
         switch (name) {
             case ABECS.SPE_MTHDPIN:
                 return _buildTLV(ABECS.TYPE.N, "0002", value);
@@ -507,8 +638,34 @@ public class PinpadUtility {
                 return _buildTLV(ABECS.TYPE.A, "001C", value);
             case ABECS.SPE_MFNAME:
                 return _buildTLV(ABECS.TYPE.A, "001E", value);
+
             case ABECS.SPE_MNUOPT:
-                return _buildTLV(ABECS.TYPE.S, "0020", value);
+                ByteArrayOutputStream[] stream = {
+                        new ByteArrayOutputStream()
+                };
+
+                byte[] response = null;
+
+                try {
+                    JSONArray array = new JSONArray(value);
+
+                    for (int i = 0; i < array.length(); i++) {
+                        try {
+                            response = _buildTLV(ABECS.TYPE.S, "0020", array.getString(i));
+
+                            stream[0].write(response);
+                        } finally {
+                            ByteUtility.clear(response);
+                        }
+                    }
+
+                    response = stream[0].toByteArray();
+                } finally {
+                    ByteUtility.clear(stream[0]);
+                }
+
+                return response;
+
             case ABECS.SPE_TRNCURR:
                 return _buildTLV(ABECS.TYPE.N, "0022", value);
             case ABECS.SPE_PANMASK:

@@ -80,9 +80,7 @@ public class PinpadServer {
             if (mServerSocket != null) {
                 mServerSocket.close();
             }
-        } catch (Exception warning) {
-            Log.w(TAG, Log.getStackTraceString(warning));
-        }
+        } catch (Exception ignored) { }
 
         if (mWifiLock != null) {
             if (mWifiLock.isHeld()) {
@@ -108,22 +106,22 @@ public class PinpadServer {
         return InetAddress.getByAddress(BigInteger.valueOf(address).toByteArray());
     }
 
-    private void onServerReceive(byte[] input, int length) {
+    private void onServerReceive(byte[] array, int length) {
         Log.d(TAG, "onServerReceive");
 
         mSemaphore.acquireUninterruptibly();
 
-        mServerCallback.onServerReceive(input, length);
+        mServerCallback.onServerReceive(array, length);
 
         mSemaphore.release();
     }
 
-    private void onServerSend(byte[] input, int length) {
+    private void onServerSend(byte[] array, int length) {
         Log.d(TAG, "onServerSend");
 
         mSemaphore.acquireUninterruptibly();
 
-        mServerCallback.onServerSend(input, length);
+        mServerCallback.onServerSend(array, length);
 
         mSemaphore.release();
     }
@@ -218,7 +216,7 @@ public class PinpadServer {
 
                                     if (count  < 0) { continue; }
 
-                                    count = PinpadManager.receive(stream, 2000);
+                                    count = PinpadManager.recv(stream, 2000);
 
                                     if (count == 0) { continue; }
 
@@ -248,7 +246,7 @@ public class PinpadServer {
                                                     if (!mExchangeSemaphore.tryAcquire(0, SECONDS)) {
                                                         count = -1;
                                                     } else {
-                                                        try { count = PinpadManager.receive(stream, 0); } finally { mExchangeSemaphore.release(); }
+                                                        try { count = PinpadManager.recv(stream, 0); } finally { mExchangeSemaphore.release(); }
                                                     }
                                                 } while (count == 0);
 

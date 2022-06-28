@@ -3,6 +3,7 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -17,37 +18,83 @@ public class CMD {
     private static final String
             TAG = CMD.class.getSimpleName();
 
-    private CMD() {
-        /* Nothing to do */
-    }
-
-    public static JSONObject parseResponseDataPacket(byte[] input, int length)
+    private static int _getInt(byte[] array, int offset, int length)
             throws Exception {
-        Log.d(TAG, "parseResponseDataPacket");
+        // Log.d(TAG, "_getInt::array.length [" + array.length + "] array [" + length + "]");
 
-        JSONObject response = new JSONObject();
+        length = Math.max(length, 0);
+        length = Math.min(length, array.length);
 
-        String RSP_ID = new String(input, 0, 3);
-        ABECS.STAT RSP_STAT = ABECS.STAT.values()[getInt(input, 3, 3)];
+        offset = Math.max(offset, 0);
 
-        response.put(ABECS.RSP_ID, RSP_ID);
-        response.put(ABECS.RSP_STAT, RSP_STAT.name());
+        int response = 0;
 
-        if (length >= 10) {
-            Log.h(TAG, input, input.length);
+        for (int i = length - 1, j = offset; (j < array.length && i >= 0); i--, j++) {
+            if (array[j] < 0x30 || array[j] > 0x39) {
+                String message = String.format(US, "_getInt::array[%d] [%02X]", j, array[j]);
 
-            JSONObject RSP_DATA = PinpadUtility.parseTLV(input, input.length, 9);
-
-            for (Iterator<String> it = RSP_DATA.keys(); it.hasNext(); ) {
-                String entry = it.next();
-                response.put(entry, RSP_DATA.getString(entry));
+                throw new IllegalArgumentException(message);
             }
+
+            response += (array[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
         }
 
         return response;
     }
 
-    public static byte[] buildRequestDataPacket(JSONObject input)
+    private CMD() {
+        /* Nothing to do */
+    }
+
+    public static String parseRequestDataPacket(byte[] array, int length)
+            throws Exception {
+        Log.d(TAG, "parseRequestDataPacket");
+
+        JSONObject[] request = {
+                new JSONObject(),
+                null
+        };
+
+        request[0].put(ABECS.CMD_ID, new String(array, 0, 3));
+
+        if (length >= 7) {
+            String CMD_DATA = PinpadUtility.parseTLV(array, 6, array.length);
+
+            for (Iterator<String> it = (request[1] = new JSONObject(CMD_DATA)).keys(); it.hasNext(); ) {
+                String entry = it.next();
+                request[0].put(entry, request[1].getString(entry));
+            }
+        }
+
+        return request[0].toString();
+    }
+
+    public static String parseResponseDataPacket(byte[] array, int length)
+            throws Exception {
+        Log.d(TAG, "parseResponseDataPacket");
+
+        JSONObject[] response = {
+                new JSONObject(),
+                null
+        };
+
+        response[0].put(ABECS.RSP_ID, new String(array, 0, 3));
+
+        response[0].put(ABECS.RSP_STAT, ABECS.STAT.values()[_getInt(array, 3, 3)].name());
+
+        if (length >= 10) {
+            String RSP_DATA = PinpadUtility.parseTLV(array, 9, array.length);
+
+            for (Iterator<String> it = (response[1] = new JSONObject(RSP_DATA)).keys(); it.hasNext(); ) {
+                String entry = it.next();
+                response[0].put(entry, response[1].getString(entry));
+            }
+        }
+
+        return response[0].toString();
+    }
+
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
@@ -57,9 +104,9 @@ public class CMD {
         };
 
         try {
-            String CMD_ID = input.has(ABECS.CMD_ID) ? input.getString(ABECS.CMD_ID) : "UNKNOWN";
+            JSONObject input = new JSONObject(string);
 
-            stream[0].write(CMD_ID.getBytes(UTF_8));
+            stream[0].write(input.getString(ABECS.CMD_ID).getBytes(UTF_8));
 
             for (Iterator<String> it = input.keys(); it.hasNext(); ) {
                 String entry = it.next();
@@ -70,7 +117,13 @@ public class CMD {
                         break;
 
                     default:
-                        stream[1].write(PinpadUtility.buildTLV(entry, input.getString(entry)));
+                        byte[] array = PinpadUtility.buildTLV(entry, input.getString(entry));
+
+                        stream[1].write(array);
+
+                        Log.h(TAG, array, array.length);
+
+                        ByteUtility.clear(array);
                         break;
                 }
             }
@@ -89,26 +142,57 @@ public class CMD {
         }
     }
 
-    public static int getInt(byte[] input, int length, int offset) {
-        Log.d(TAG, "getInt::input.length [" + input.length + "] length [" + length + "]");
+    public static byte[] buildResponseDataPacket(@NotNull String string)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
 
-        length = Math.max(length, 0);
-        length = Math.min(length, input.length);
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        offset = Math.max(offset, 0);
+        try {
+            JSONObject input = new JSONObject(string);
 
-        int response = 0;
+            stream[0].write(input.getString(ABECS.RSP_ID).getBytes(UTF_8));
 
-        for (int i = length - 1, j = offset; i >= offset; i--, j++) {
-            if (input[j] < 0x30 || input[j] > 0x39) {
-                String message = String.format(US, "getInt::input[%d] [%02X]", j, input[j]);
+            for (Iterator<String> it = input.keys(); it.hasNext(); ) {
+                String entry = it.next();
 
-                throw new IllegalArgumentException(message);
+                switch (entry) {
+                    case ABECS.RSP_ID:
+                        /* Nothing to do */
+                        break;
+
+                    case ABECS.RSP_STAT:
+                        int RSP_STAT = ABECS.STAT.valueOf(input.getString(entry)).ordinal();
+
+                        stream[0].write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
+                        break;
+
+                    default:
+                        byte[] array = PinpadUtility.buildTLV(entry, input.getString(entry));
+
+                        stream[1].write(array);
+
+                        Log.h(TAG, array, array.length);
+
+                        ByteUtility.clear(array);
+                        break;
+                }
             }
 
-            response += (input[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
-        }
+            byte[] RSP_DATA = stream[1].toByteArray();
 
-        return response;
+            stream[0].write(String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8));
+            stream[0].write(RSP_DATA);
+
+            byte[] response = stream[0].toByteArray();
+
+            return response;
+        } finally {
+            ByteUtility.clear(stream[0]);
+            ByteUtility.clear(stream[1]);
+        }
     }
 }
