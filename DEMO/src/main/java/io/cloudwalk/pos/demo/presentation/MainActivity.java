@@ -479,6 +479,10 @@ public class MainActivity extends AppCompatActivity {
         mAboutAlertDialog.dismiss();
 
         super.onStop();
+
+        overridePendingTransition(0, 0);
+
+        finishAndRemoveTask();
     }
 
     @Override

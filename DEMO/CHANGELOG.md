@@ -9,6 +9,9 @@
 - Pinpad Service 1.0.3
 
 ## [0.0.11] - 2022-06-15
+- Update dependencies.
+- Rollback changes to the history stack in order to fix GPN/GOX critical
+  failures, introduced in release 0.0.6.
 - Update application theme.
 - Remove application from backup and restore infrastructure.
 
