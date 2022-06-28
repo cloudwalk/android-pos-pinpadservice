@@ -13,7 +13,14 @@ import java.util.Arrays;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.CHP;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CMD;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.GPN;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLE;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLI;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLR;
 import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class PinpadUtility {
@@ -175,7 +182,7 @@ public class PinpadUtility {
 
             crc[0][length] = pkt[0][j];
 
-            crc[1] = ByteUtility.crc(crc[0], 0, crc[0].length);
+            crc[1] = ByteUtility.crc16(crc[0], 0, crc[0].length);
 
             System.arraycopy(crc[1], 0, pkt[0], j + 1, crc[1].length);
 
@@ -204,26 +211,22 @@ public class PinpadUtility {
         String CMD_ID;
 
         switch (CMD_ID = new String(stream, 0, 3)) {
-            // case ABECS.OPN:
-            //     return OPN.parseRequestDataPacket(stream, stream.length);
+            case ABECS.OPN:
+                return OPN.parseRequestDataPacket(stream, stream.length);
 
-            // case ABECS.CHP:
-            //     return CHP.parseRequestDataPacket(stream, stream.length);
+            case ABECS.CHP:
+                return CHP.parseRequestDataPacket(stream, stream.length);
+            case ABECS.GPN:
+                return GPN.parseRequestDataPacket(stream, stream.length);
+            case ABECS.RMC:
+                return RMC.parseRequestDataPacket(stream, stream.length);
 
-            // case ABECS.GPN:
-            //     return GPN.parseRequestDataPacket(stream, stream.length);
-
-            // case ABECS.RMC:
-            //     return RMC.parseRequestDataPacket(stream, stream.length);
-
-            // case ABECS.TLI:
-            //     return TLI.parseRequestDataPacket(stream, stream.length);
-
-            // case ABECS.TLR:
-            //     return TLR.parseRequestDataPacket(stream, stream.length);
-
-            // case ABECS.TLE:
-            //     return TLE.parseRequestDataPacket(stream, stream.length);
+            case ABECS.TLI:
+                return TLI.parseRequestDataPacket(stream, stream.length);
+            case ABECS.TLR:
+                return TLR.parseRequestDataPacket(stream, stream.length);
+            case ABECS.TLE:
+                return TLE.parseRequestDataPacket(stream, stream.length);
 
             case ABECS.GIX: case ABECS.CLX:
             case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
@@ -247,26 +250,25 @@ public class PinpadUtility {
             String RSP_ID;
 
             switch (RSP_ID = new String(stream, 0, 3)) {
-                // case ABECS.OPN:
-                //     return OPN.parseResponseDataPacket(stream, stream.length);
+                case ABECS.OPN:
+                    return OPN.parseResponseDataPacket(stream, stream.length);
 
-                // case ABECS.CHP:
-                //     return CHP.parseResponseDataPacket(stream, stream.length);
+                case ABECS.CHP:
+                    return CHP.parseResponseDataPacket(stream, stream.length);
+                case ABECS.GPN:
+                    return GPN.parseResponseDataPacket(stream, stream.length);
+                case ABECS.RMC:
+                    return RMC.parseResponseDataPacket(stream, stream.length);
 
-                // case ABECS.GPN:
-                //     return GPN.parseResponseDataPacket(stream, stream.length);
-
-                // case ABECS.TLI:
-                //     return TLI.parseResponseDataPacket(stream, stream.length);
-
-                // case ABECS.TLR:
-                //     return TLR.parseResponseDataPacket(stream, stream.length);
-
-                // case ABECS.TLE:
-                //     return TLE.parseResponseDataPacket(stream, stream.length);
+                case ABECS.TLI:
+                    return TLI.parseResponseDataPacket(stream, stream.length);
+                case ABECS.TLR:
+                    return TLR.parseResponseDataPacket(stream, stream.length);
+                case ABECS.TLE:
+                    return TLE.parseResponseDataPacket(stream, stream.length);
 
                 case ABECS.GIX: case ABECS.CLX:
-                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     return CMD.parseResponseDataPacket(stream, stream.length);
 
@@ -479,36 +481,36 @@ public class PinpadUtility {
             String CMD_ID = "UNKNOWN";
 
             try {
-                CMD_ID = new JSONObject(string).getString(ABECS.CMD_ID);
+                CMD_ID = (new JSONObject(string)).getString(ABECS.CMD_ID);
             } catch (Exception ignored) { }
 
             switch (CMD_ID) {
-                // case ABECS.OPN:
-                //     stream = OPN.buildRequestDataPacket(array);
-                //     break;
+                case ABECS.OPN:
+                    stream = OPN.buildRequestDataPacket(string);
+                    break;
 
-                // case ABECS.CHP:
-                //     stream = CHP.buildRequestDataPacket(array);
-                //     break;
+                case ABECS.CHP:
+                    stream = CHP.buildRequestDataPacket(string);
+                    break;
+                case ABECS.GPN:
+                    stream = GPN.buildRequestDataPacket(string);
+                    break;
+                case ABECS.RMC:
+                    stream = RMC.buildRequestDataPacket(string);
+                    break;
 
-                // case ABECS.GPN:
-                //     stream = GPN.buildRequestDataPacket(array);
-                //     break;
-
-                // case ABECS.TLI:
-                //     stream = TLI.buildRequestDataPacket(array);
-                //     break;
-
-                // case ABECS.TLR:
-                //     stream = TLR.buildRequestDataPacket(array);
-                //     break;
-
-                // case ABECS.TLE:
-                //     stream = TLE.buildRequestDataPacket(array);
-                //     break;
+                case ABECS.TLI:
+                    stream = TLI.buildRequestDataPacket(string);
+                    break;
+                case ABECS.TLR:
+                    stream = TLR.buildRequestDataPacket(string);
+                    break;
+                case ABECS.TLE:
+                    stream = TLE.buildRequestDataPacket(string);
+                    break;
 
                 case ABECS.GIX: case ABECS.CLX:
-                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     stream = CMD.buildRequestDataPacket(string);
                     break;
@@ -542,36 +544,36 @@ public class PinpadUtility {
             String RSP_ID = "UNKNOWN";
 
             try {
-                RSP_ID = new JSONObject(string).getString(ABECS.CMD_ID);
+                RSP_ID = (new JSONObject(string)).getString(ABECS.RSP_ID);
             } catch (Exception ignored) { }
 
             switch (RSP_ID) {
-                // case ABECS.OPN:
-                //     stream = OPN.buildResponseDataPacket(string);
-                //     break;
+                case ABECS.OPN:
+                    stream = OPN.buildResponseDataPacket(string);
+                    break;
 
-                // case ABECS.CHP:
-                //     stream = CHP.buildResponseDataPacket(string);
-                //     break;
+                case ABECS.CHP:
+                    stream = CHP.buildResponseDataPacket(string);
+                    break;
+                case ABECS.GPN:
+                    stream = GPN.buildResponseDataPacket(string);
+                    break;
+                case ABECS.RMC:
+                    stream = RMC.buildResponseDataPacket(string);
+                    break;
 
-                // case ABECS.GPN:
-                //     stream = GPN.buildResponseDataPacket(string);
-                //     break;
-
-                // case ABECS.TLI:
-                //     stream = TLI.buildResponseDataPacket(string);
-                //     break;
-
-                // case ABECS.TLR:
-                //     stream = TLR.buildResponseDataPacket(string);
-                //     break;
-
-                // case ABECS.TLE:
-                //     stream = TLE.buildResponseDataPacket(string);
-                //     break;
+                case ABECS.TLI:
+                    stream = TLI.buildResponseDataPacket(string);
+                    break;
+                case ABECS.TLR:
+                    stream = TLR.buildResponseDataPacket(string);
+                    break;
+                case ABECS.TLE:
+                    stream = TLE.buildResponseDataPacket(string);
+                    break;
 
                 case ABECS.GIX: case ABECS.CLX:
-                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     stream = CMD.buildResponseDataPacket(string);
                     break;
@@ -597,7 +599,7 @@ public class PinpadUtility {
 
     public static byte[] buildTLV(@NotNull String name, @NotNull String value)
             throws Exception {
-        Log.d(TAG, "buildTLV::name [" + name + "] value [" + value + "]");
+        Log.d(TAG, "buildTLV::name [" + name + "] value [" + value.replace("\n", "\\n").replace("\r", "\\r") + "]");
 
         switch (name) {
             case ABECS.SPE_MTHDPIN:

@@ -8,6 +8,11 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## [1.2.0] - YYYY-MM-DD
+- Update dependencies.
+- Deprecate `Bundle` API in favor of the newly added `JSON string` API to
+  simplify internal coding and retain request/response data order.
+
 ## [1.1.0] - 2022-06-08
 - Update dependencies.
 - Unify handling of TLV data for multiple commands.

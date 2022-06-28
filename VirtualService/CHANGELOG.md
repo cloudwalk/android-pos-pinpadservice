@@ -3,8 +3,10 @@
 ## Dependencies
 - Android 5.1 (API 22)
 
-## [0.0.5] - YYYY-MM-DD
-- ...
+## [0.1.0] - YYYY-MM-DD
+- Update dependencies.
+- Deprecate `Bundle` API in favor of the newly added `JSON string` API to
+  simplify internal coding and retain request/response data order.
 
 ## [0.0.4] - 2022-06-15
 - Update dependencies.

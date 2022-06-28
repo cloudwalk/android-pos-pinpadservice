@@ -186,13 +186,25 @@ public class PinpadManager {
     }
 
     /**
+     * Constructor.
+     */
+    private PinpadManager() {
+        Log.d(TAG, "PinpadManager");
+
+        /* Nothing to do */
+    }
+
+    /**
      * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#request(String, IServiceCallback)}.
      */
     @Deprecated
     public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
         Log.d(TAG, "request");
 
-        Bundle[]  response  = { new Bundle() };
+        Bundle[]  response  = {
+                new Bundle()
+        };
+
         Semaphore semaphore = new Semaphore(0, true);
 
         new Thread() {
@@ -201,19 +213,26 @@ public class PinpadManager {
                 super.run();
 
                 try {
-                    JSONObject[] jsonObject = { new JSONObject(), null };
+                    JSONObject[] buffer = { new JSONObject(), null };
 
                     for (String entry : bundle.keySet()) {
-                        jsonObject[0].put(entry, bundle.get(entry));
+                        buffer[0].put(entry, bundle.get(entry));
                     }
 
-                    String string = _request(jsonObject[0].toString(), callback);
+                    String string = _request(buffer[0].toString(), callback);
 
-                    jsonObject[1] = new JSONObject(string);
+                    buffer[1] = new JSONObject(string);
 
-                    for (Iterator<String> it = jsonObject[1].keys(); it.hasNext(); ) {
+                    for (Iterator<String> it = buffer[1].keys(); it.hasNext(); ) {
                         String entry = it.next();
-                        response[0].putString(entry, jsonObject[1].getString(entry));
+
+                        if (ABECS.RSP_STAT.equals(entry)) {
+                            ABECS.STAT RSP_STAT = ABECS.STAT.valueOf(buffer[1].getString(ABECS.RSP_STAT));
+
+                            response[0].putSerializable(ABECS.RSP_STAT, RSP_STAT);
+                        } else {
+                            response[0].putString(entry, buffer[1].getString(entry));
+                        }
                     }
 
                     semaphore.release();
@@ -229,36 +248,7 @@ public class PinpadManager {
     }
 
     /**
-     * @deprecated As of release 1.2.0 (usage is discouraged).
-     */
-    public static void execute(@NotNull Runnable runnable) {
-        Log.d(TAG, "execute");
-
-        ServiceUtility.execute(runnable);
-    }
-
-    /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(Bundle, ServiceUtility.Callback)};
-     */
-    @Deprecated
-    public static void register(@NotNull ServiceUtility.Callback callback) {
-        Log.d(TAG, "register");
-
-        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, null, callback);
-    }
-
-    /**
-     * Constructor.
-     */
-    private PinpadManager() {
-        Log.d(TAG, "PinpadManager");
-
-        /* Nothing to do */
-    }
-
-    /**
-     * Performs a request using JSON string as input, heavily based on the default public data
-     * format, as specified by the ABECS PINPAD protocol.
+     * Performs a request using JSON string as input, mirroring the ABECS PINPAD protocol.
      *
      * @param string JSON {@link String}
      * @param callback {@link IServiceCallback}
@@ -287,7 +277,7 @@ public class PinpadManager {
     }
 
     /**
-     * Performs an abort request, interrupting blocking and/or queued commands.
+     * Interrupts blocking and/or queued requests.
      */
     public static void abort() {
         Log.d(TAG, "abort");
@@ -303,10 +293,20 @@ public class PinpadManager {
     }
 
     /**
-     * Waits for the processing result of a previously sent request.<br>
+     * @deprecated As of release 1.2.0, usage is discouraged.
+     */
+    @Deprecated
+    public static void execute(@NotNull Runnable runnable) {
+        Log.d(TAG, "execute");
+
+        ServiceUtility.execute(runnable);
+    }
+
+    /**
+     * Queries the queue of processing results.<br>
      * See {@link PinpadManager#send(byte[], int, IServiceCallback)}.
      *
-     * @param array {@code byte[]} as specified by ABECS PINPAD protocol
+     * @param array {@code byte[]} as specified by the ABECS PINPAD protocol
      * @param timeout self-describing (milliseconds)
      * @return {@code int} bigger than zero if the request was processed successfully, less than
      *         zero in the event of a failure and zero if timeout was reached
@@ -401,11 +401,21 @@ public class PinpadManager {
     }
 
     /**
+     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(Bundle, ServiceUtility.Callback)};
+     */
+    @Deprecated
+    public static void register(@NotNull ServiceUtility.Callback callback) {
+        Log.d(TAG, "register");
+
+        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, null, callback);
+    }
+
+    /**
      * Binds the service.<br>
      * Ensures the binding will be undone in the event of a service disconnection.<br>
      *
-     * @param bundle provides a channel for proper identification, operation mode selection and
-     * key mapping dynamic definition.
+     * @param bundle channel for identification, operation mode selection and key mapping dynamic
+     *               definition.
      * @param callback {@link ServiceUtility.Callback}
      */
     public static void register(Bundle bundle, @NotNull ServiceUtility.Callback callback) {
