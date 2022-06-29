@@ -10,8 +10,8 @@
 
 ## [0.1.0] - YYYY-MM-DD
 - Update dependencies.
-- Replace `Bundle` API by `JSON string` API to simplify internal coding and
-  retain request/response data order when parsing data streams.
+- Replace `Bundle` API by `JSON` API to simplify internal coding and retain
+  request/response data order when parsing data streams.
 
 ## [0.0.4] - 2022-06-15
 - Update dependencies.

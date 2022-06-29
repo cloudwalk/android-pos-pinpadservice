@@ -25,8 +25,8 @@ public class PinpadService {
      * Binds the service.<br>
      * Ensures the binding will be undone in the event of a service disconnection.<br>
      *
-     * @param string JSON string for identification, operation mode selection and key mapping
-     *               dynamic definition.
+     * @param string JSON for identification, operation mode selection and key mapping dynamic
+     *               definition.
      * @param callback {@link ServiceUtility.Callback}
      */
     public static void register(String string, @NotNull ServiceUtility.Callback callback) {

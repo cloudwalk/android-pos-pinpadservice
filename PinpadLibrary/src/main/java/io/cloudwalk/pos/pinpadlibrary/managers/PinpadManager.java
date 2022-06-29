@@ -228,7 +228,7 @@ public class PinpadManager {
     }
 
     /**
-     * Performs a request using JSON string as argument, mirroring the default public data format.
+     * Performs a request using JSON as argument, mirroring the default public data format.
      *
      * @param string JSON {@link String}
      * @param callback {@link Callback}

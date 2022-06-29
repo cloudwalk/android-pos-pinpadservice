@@ -77,16 +77,16 @@ The Pinpad Service includes a DEMO application, covering the very basics:
 - [MainActivity.java](DEMO/src/main/java/io/cloudwalk/pos/demo/presentation/MainActivity.java)
   shows how to perform local requests.
   - _Check [DEMO.java](DEMO/src/main/java/io/cloudwalk/pos/demo/DEMO.java) for
-    samples of requests made through the `JSON string` API_.
+    samples of requests made through the `JSON` API_.
 
 An ABECS PINPAD natively exchanges `byte[]` streams. However, the Pinpad
-Service allows local requests made through a `JSON string` API, for easier
+Service allows local requests made through a `JSON` API, for easier
 data handling[^2]. The Pinpad Library is the one responsible for the conversion
-between `JSON string` and `byte[]`.  
+between `JSON` and `byte[]`.  
 
-[^2]: Usage of the `JSON string` API is highly recommended over the `byte` API.
+[^2]: Usage of the `JSON` API is highly recommended over the `byte` API.
 
-- _JSON string_ API
+- _JSON_ API
   - `PinpadManager#interrupt();`
   - `PinpadManager#request(String, IServiceCallback);`
 - _byte[]_ API
