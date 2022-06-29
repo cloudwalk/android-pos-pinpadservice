@@ -53,8 +53,8 @@ public class PlatformUtility {
         return sAcessoDiretoPinpad;
     }
 
-    private static void _recv(Bundle bundle) {
-        Log.d(TAG, "_recv");
+    private static void _process(Bundle bundle) {
+        Log.d(TAG, "_process");
 
         try {
             sRecvSemaphore.acquireUninterruptibly();
@@ -144,7 +144,7 @@ public class PlatformUtility {
         if (status >= 0) {
             new Thread() {
                 @Override
-                public void run() { super.run(); _recv(bundle); }
+                public void run() { super.run(); _process(bundle); }
             }.start();
         }
 

@@ -82,9 +82,9 @@ public class PlatformUtility {
         return array;
     }
 
-    private static int _route(Bundle bundle)
+    private static int _process(Bundle bundle)
             throws Exception {
-        // Log.d(TAG, "_route");
+        // Log.d(TAG, "_process");
 
         String address  = SharedPreferencesUtility.readIPv4();
         int    delim    = address.indexOf(":");
@@ -102,7 +102,7 @@ public class PlatformUtility {
                 && sPinpadSocket.isConnected() && !sPinpadSocket.isClosed()) {
             sPinpadSocket.close();
 
-            Log.d(TAG, "_route::" + sPinpadSocket + " (close) (overlapping)");
+            Log.d(TAG, "_process::" + sPinpadSocket + " (close) (overlapping)");
         }
 
         sPinpadSocket = new Socket();
@@ -216,8 +216,8 @@ public class PlatformUtility {
         int[] status = { -1 };
 
         try {
-            return _route(bundle);  // 2021-01-25: in theory, none should consume the service in
-                                    // the main thread
+            return _process(bundle);  // 2021-01-25: in theory, none should consume the service in
+                                      // the main thread
         } catch (NetworkOnMainThreadException exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
@@ -229,7 +229,7 @@ public class PlatformUtility {
                     super.run();
 
                     try {
-                        status[0] = _route(bundle);
+                        status[0] = _process(bundle);
                     } catch (Exception exception) {
                         Log.e(TAG, Log.getStackTraceString(exception));
                     } finally {

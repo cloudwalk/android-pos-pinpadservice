@@ -29,7 +29,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 import br.com.verifone.bibliotecapinpad.InterfaceUsuarioPinpad;
 import br.com.verifone.bibliotecapinpad.definicoes.LedsContactless;
@@ -45,11 +45,8 @@ public class CallbackUtility {
     private static final String
             TAG = CallbackUtility.class.getSimpleName();
 
-    private static final Semaphore
-            sClbkSemaphore = new Semaphore(1, true);
-
-    private static IServiceCallback
-            sServiceCallback = null;
+    private static AtomicReference<IServiceCallback>
+            sServiceCallback = new AtomicReference<>(null);
 
     private CallbackUtility() {
         Log.d(TAG, "CallbackUtility");
@@ -57,8 +54,8 @@ public class CallbackUtility {
         /* Nothing to do */
     }
 
-    private static void mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
-        // Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
+    private static void _mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
+        // Log.d(TAG, "_mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
         switch (PinpadManager.Callback.Type.values()[tipoNotificacao]) {
             case NTF_PIN_START:
@@ -100,17 +97,17 @@ public class CallbackUtility {
         }
     }
 
-    private static void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
-        // Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
+    private static void _notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
+        // Log.d(TAG, "_notificacaoCapturaPin::_notificacaoCapturaPin [" + _notificacaoCapturaPin + "]");
 
         String msg   = notificacaoCapturaPin.obtemMensagemCapturaPin();
            int count = notificacaoCapturaPin.obtemQuantidadeDigitosPin();
 
-           mensagemNotificacao(msg, count, NTF_PIN_ENTRY.ordinal());
+           _mensagemNotificacao(msg, count, NTF_PIN_ENTRY.ordinal());
     }
 
-    private static void menu(Menu menu) {
-        // Log.d(TAG, "menu::menu [" + menu + "]");
+    private static void _menu(Menu menu) {
+        // Log.d(TAG, "_menu::_menu [" + _menu + "]");
 
         IServiceCallback callback = getServiceCallback();
 
@@ -129,8 +126,8 @@ public class CallbackUtility {
         }
     }
 
-    private static void ledsProcessamentoContactless(LedsContactless ledsContactless) {
-        // Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
+    private static void _ledsProcessamentoContactless(LedsContactless ledsContactless) {
+        // Log.d(TAG, "_ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
         /* Nothing to do */
     }
@@ -138,25 +135,13 @@ public class CallbackUtility {
     public static IServiceCallback getServiceCallback() {
         Log.d(TAG, "getServiceCallback");
 
-        IServiceCallback response;
-
-        sClbkSemaphore.acquireUninterruptibly();
-
-        response = sServiceCallback;
-
-        sClbkSemaphore.release();
-
-        return response;
+        return sServiceCallback.get();
     }
 
     public static void setServiceCallback(IServiceCallback callback) {
         Log.d(TAG, "setServiceCallback");
 
-        sClbkSemaphore.acquireUninterruptibly();
-
-        sServiceCallback = callback;
-
-        sClbkSemaphore.release();
+        sServiceCallback.set(callback);
     }
 
     public static InterfaceUsuarioPinpad getCallback() {
@@ -190,28 +175,28 @@ public class CallbackUtility {
                     case DSP_ENCERRA_PIN:                   type = NTF_PIN_FINISH;              break;
                 }
 
-                CallbackUtility.mensagemNotificacao(mensagem, -1, (type != null) ? type.ordinal() : -1);
+                _mensagemNotificacao(mensagem, -1, (type != null) ? type.ordinal() : -1);
             }
 
             @Override
             public void notificacaoCapturaPin(NotificacaoCapturaPin notificacaoCapturaPin) {
                 Log.d(TAG, "notificacaoCapturaPin::notificacaoCapturaPin [" + notificacaoCapturaPin + "]");
 
-                CallbackUtility.notificacaoCapturaPin(notificacaoCapturaPin);
+                _notificacaoCapturaPin(notificacaoCapturaPin);
             }
 
             @Override
             public void menu(Menu menu) {
                 Log.d(TAG, "menu::menu [" + menu + "]");
 
-                CallbackUtility.menu(menu);
+                _menu(menu);
             }
 
             @Override
             public void ledsProcessamentoContactless(LedsContactless ledsContactless) {
                 Log.d(TAG, "ledsProcessamentoContactless::ledsContactless [" + ledsContactless + "]");
 
-                CallbackUtility.ledsProcessamentoContactless(ledsContactless);
+                _ledsProcessamentoContactless(ledsContactless);
             }
         };
     }

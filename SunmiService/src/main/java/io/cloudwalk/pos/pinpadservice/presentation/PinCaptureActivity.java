@@ -45,8 +45,8 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static String
             sApplicationId = null;
 
-    private String buildJSONLayoutInfo() {
-        // Log.d(TAG, "buildJSONLayoutInfo");
+    private String _buildJSONLayoutInfo() {
+        // Log.d(TAG, "_buildJSONLayoutInfo");
 
         int[] locationCAN   = new int[2];
         int[] locationNUM   = new int[2];
@@ -82,7 +82,7 @@ public class PinCaptureActivity extends AppCompatActivity {
         int canH = height[0];
         int rows = 4;
         int cols = 4;
-        byte[] keyMap = buildKeyMap(rows, cols);
+        byte[] keyMap = _buildKeyMap(rows, cols);
 
         JSONObject obj = new JSONObject();
 
@@ -114,8 +114,8 @@ public class PinCaptureActivity extends AppCompatActivity {
         return "";
     }
 
-    private byte[] buildKeyMap(int rows, int cols) {
-        // Log.d(TAG, "buildKeyMap");
+    private byte[] _buildKeyMap(int rows, int cols) {
+        // Log.d(TAG, "_buildKeyMap");
 
         byte[] keyMap   = new byte[rows * cols];
 
@@ -196,7 +196,7 @@ public class PinCaptureActivity extends AppCompatActivity {
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        String JSONLayoutInfo = buildJSONLayoutInfo();
+                        String JSONLayoutInfo = _buildJSONLayoutInfo();
 
                         relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 

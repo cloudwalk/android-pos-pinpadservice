@@ -24,16 +24,16 @@ public class MainAlertDialog extends AlertDialog {
     private static final String
             IPV4_PATTERN = "^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(:(\\d{1,5})?)?)?)?)?)?)?)?";
 
-    private CharSequence onFilterBlock(EditText editText) {
-        Log.d(TAG, "onFilterBlock");
+    private CharSequence _onFilterBlock(EditText editText) {
+        Log.d(TAG, "_onFilterBlock");
 
         editText.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
         return null;
     }
 
-    private void onFilterEntry(EditText editText) {
-        Log.d(TAG, "onFilterEntry");
+    private void _onFilterEntry(EditText editText) {
+        Log.d(TAG, "_onFilterEntry");
 
         getButton(BUTTON_POSITIVE).setEnabled(false);
 
@@ -121,7 +121,7 @@ public class MainAlertDialog extends AlertDialog {
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                onFilterEntry(editText);
+                _onFilterEntry(editText);
 
                 String s  = dest  .subSequence(0, dstart).toString();
                        s += source.subSequence(start, end);
@@ -134,7 +134,7 @@ public class MainAlertDialog extends AlertDialog {
 
                     for (int i = 0; i < splits.length && i < 4; i++) {
                         if (Integer.parseInt(splits[i]) > 255) {
-                            return onFilterBlock(editText);
+                            return _onFilterBlock(editText);
                         }
                     }
 
@@ -142,7 +142,7 @@ public class MainAlertDialog extends AlertDialog {
 
                     return null;
                 } else {
-                    return onFilterBlock(editText);
+                    return _onFilterBlock(editText);
                 }
             }
         };
