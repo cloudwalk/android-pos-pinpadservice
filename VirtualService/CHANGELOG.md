@@ -5,7 +5,7 @@
 
 ## Known issues
 - Callbacks don't run on their own threads, therefore may fail to properly track
-  processing timeout.
+  processing timeout. Caller has to oversight time.
 - `MNU` and `GCD` were not fully developed and may not work as specified.
 
 ## [0.0.5] - YYYY-MM-DD

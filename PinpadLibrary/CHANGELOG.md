@@ -8,7 +8,7 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [2.0.0] - YYYY-MM-DD - WARNING: incompatible with previous release(s)
+## [1.2.0] - YYYY-MM-DD - WARNING: incompatible with previous release(s)
 - Update dependencies.
 - Replace `Bundle` API by `JSON` API to simplify internal coding and retain
   request/response data order when parsing data streams.

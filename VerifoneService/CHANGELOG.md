@@ -14,16 +14,19 @@
 - BC 001.31
 
 ## Known issues
-- PIN keyboard external layout customization is disabled.
-- Callbacks aren't interrupted by `ST_TIMEOUT`. Caller has to oversight time.
-- `MNU` and `GCD` will always disregard user input.
+- PIN keyboard layout external customization is disabled.
+- Callbacks don't run on their own threads, therefore may fail to properly track
+  processing timeout. Caller has to oversight time.
+- `MNU` and `GCD` were not fully developed and may not work as specified.
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
   should be ignored.
 
 ## [1.1.7] - YYYY-MM-DD
 - Update dependencies.
 - Remove application from backup and restore infrastructure.
-- ...
+- Replace `Bundle` API by `JSON` API to simplify internal coding and retain
+  request/response data order when parsing data streams.
+- Greatly increase data handling security.
 
 ## [1.1.6] - 2022-04-19
 - Update dependencies.
