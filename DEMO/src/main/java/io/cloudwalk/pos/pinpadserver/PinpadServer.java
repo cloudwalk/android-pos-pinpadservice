@@ -3,7 +3,6 @@ package io.cloudwalk.pos.pinpadserver;
 import android.annotation.SuppressLint;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.RemoteException;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -16,12 +15,14 @@ import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.utilitieslibrary.Application;
+import io.cloudwalk.utilitieslibrary.utilities.BundleUtility;
 
 import static android.content.Context.WIFI_SERVICE;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 public class PinpadServer {
     private static final String
@@ -54,15 +55,11 @@ public class PinpadServer {
     public static interface Callback {
         void onClientConnection(String address);
 
-        int  onPinpadCallback (Bundle bundle);
-
-        // TODO: void onPinpadReceive(byte[] trace, int length);
-
-        // TODO: void onPinpadSend(byte[] trace, int length);
+        int  onPinpadCallback(String string);
 
         void onServerFailure(Exception exception);
 
-        void onServerReceive(byte[] trace, int length);
+        void onServerRecv(byte[] trace, int length);
 
         void onServerSend(byte[] trace, int length);
 
@@ -106,12 +103,12 @@ public class PinpadServer {
         return InetAddress.getByAddress(BigInteger.valueOf(address).toByteArray());
     }
 
-    private void onServerReceive(byte[] array, int length) {
-        Log.d(TAG, "onServerReceive");
+    private void onServerRecv(byte[] array, int length) {
+        Log.d(TAG, "onServerRecv");
 
         mSemaphore.acquireUninterruptibly();
 
-        mServerCallback.onServerReceive(array, length);
+        mServerCallback.onServerRecv(array, length);
 
         mSemaphore.release();
     }
@@ -133,8 +130,10 @@ public class PinpadServer {
 
         mServiceCallback = new IServiceCallback.Stub() {
             @Override
-            public int onServiceCallback(Bundle bundle) throws RemoteException {
-                return mServerCallback.onPinpadCallback(bundle);
+            public int onServiceCallback(Bundle bundle) {
+                JSONObject buffer = BundleUtility.getJSONObject(bundle);
+
+                return mServerCallback.onPinpadCallback(buffer.toString());
             }
         };
     }
@@ -210,7 +209,7 @@ public class PinpadServer {
                                 mExchangeSemaphore.acquireUninterruptibly();
 
                                 try {
-                                    onServerReceive(stream, count);
+                                    onServerRecv(stream, count);
 
                                     count = PinpadManager.send(stream, count, mServiceCallback);
 

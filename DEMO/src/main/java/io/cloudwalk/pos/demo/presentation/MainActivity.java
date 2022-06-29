@@ -3,6 +3,10 @@ package io.cloudwalk.pos.demo.presentation;
 import static java.util.Locale.US;
 
 import static io.cloudwalk.pos.Application.sPinpadServer;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECT;
+import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TYPE;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
@@ -37,9 +41,7 @@ import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
 import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
-import io.cloudwalk.utilitieslibrary.utilities.BundleUtility;
 
 public class MainActivity extends AppCompatActivity {
     private static final String
@@ -52,16 +54,16 @@ public class MainActivity extends AppCompatActivity {
             sSemaphore = new Semaphore(1, true);
 
     private AlertDialog
-            mAboutAlertDialog = null;
+            mAboutAlertDialog   = null;
 
     private MainAdapter
-            mMainAdapter = null;
+            mMainAdapter        = null;
 
     private RecyclerView
-            mRecyclerView = null;
+            mRecyclerView       = null;
 
     private boolean
-            mAutoScroll = true;
+            mAutoScroll         = true;
 
     private SpannableString getBullet(@ColorInt int color) {
         // Log.d(TAG, "getBullet::color [" + color + "]");
@@ -297,38 +299,40 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+                PinpadManager.Callback serviceCallback = new PinpadManager.Callback() {
                     @Override
-                    public int onServiceCallback(Bundle bundle) {
-                        Log.d(TAG, "onServiceCallback");
+                    public int onServiceCallback(String string) {
+                        Log.d(TAG, "onServiceCallback::string [" + string + "]");
 
                         try {
-                            String trace = BundleUtility.getJSONObject(bundle, true).toString();
+                            JSONObject buffer = new JSONObject(string);
 
-                            Log.d(TAG, "onServiceCallback::" + trace);
+                            String pin  = "                ";
+                                   pin += (buffer.has(NTF_PIN)) ? buffer.getString(NTF_PIN) : "";
+
+                            String msg  = (buffer.has(NTF_MSG)) ? buffer.getString(NTF_MSG) : "";
+
+                            if (!msg.isEmpty()) {
+                                while (msg.charAt(0) == '\n') {
+                                    msg = msg.substring(1);
+                                }
+                            }
+
+                            msg += "\n" + pin.substring(pin.length() - 16);
+
+                            updatePinpadContent(msg);
+
+                            switch ((buffer.has(NTF_TYPE)) ? buffer.getInt(NTF_TYPE) : -99) {
+                                //  case...
+                                //  case...
+                                case NTF_SELECT: return 1;
+                                default:         return 0;
+                            }
                         } catch (Exception exception) {
                             Log.e(TAG, Log.getStackTraceString(exception));
                         }
 
-                        String pin  = "                ";
-                               pin += bundle.getString(NTF_PIN, "");
-
-                        String msg  = bundle.getString(NTF_MSG, "");
-
-                        if (!msg.isEmpty()) {
-                            while (msg.charAt(0) == '\n') msg = msg.substring(1);
-                        }
-
-                        msg += "\n" + pin.substring(pin.length() - 16);
-
-                        updatePinpadContent(msg);
-
-                        switch (bundle.getInt(NTF_TYPE, -99)) {
-                        //  case...
-                        //  case...
-                            case NTF_SELECT: return 1;
-                            default:         return 0;
-                        }
+                        return 0;
                     }
                 };
 
@@ -339,24 +343,24 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     // requestList.add(DEMO.CLX());
                     requestList.add(DEMO.GIX());
-                    // requestList.add(DEMO.OPN());
+                    requestList.add(DEMO.OPN());
                     // requestList.add(DEMO.TLI());
 
-                    // for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
+                    // for (String TLR : DEMO.TLR()) { requestList.add(TLR); }
 
                     // requestList.add(DEMO.TLE());
                     // requestList.add(DEMO.CEX());
                     // requestList.add(DEMO.GTK());
-                    // requestList.add(DEMO.RMC());
+                    requestList.add(DEMO.RMC());
                     // requestList.add(DEMO.EBX());
-                    // requestList.add(DEMO.GPN());
-                    // requestList.add(DEMO.GCX());
-                    // requestList.add(DEMO.GED());
-                    // requestList.add(DEMO.GOX());
-                    // requestList.add(DEMO.FCX());
+                    requestList.add(DEMO.GPN());
+                    requestList.add(DEMO.GCX());
+                    requestList.add(DEMO.GED());
+                    requestList.add(DEMO.GOX());
+                    requestList.add(DEMO.FCX());
                     // requestList.add(DEMO.MNU());
                     // requestList.add(DEMO.GCD());
-                    // requestList.add(DEMO.CHP());
+                    requestList.add(DEMO.CHP());
                 } catch (Exception exception) {
                     Log.e(TAG, Log.getStackTraceString(exception));
                 } finally {
@@ -394,9 +398,9 @@ public class MainActivity extends AppCompatActivity {
 
                 PinpadServer.Callback serverCallback = new PinpadServer.Callback() {
                     @Override
-                    public int onPinpadCallback(Bundle bundle) {
+                    public int onPinpadCallback(String string) {
                         try {
-                            return serviceCallback.onServiceCallback(bundle);
+                            return serviceCallback.onServiceCallback(string);
                         } catch (Exception exception) { return -1; }
                     }
 
@@ -415,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onServerReceive(byte[] trace, int length) {
+                    public void onServerRecv(byte[] trace, int length) {
                         try {
                             JSONObject TX = new JSONObject(PinpadUtility.parseRequestDataPacket(trace, length));
 

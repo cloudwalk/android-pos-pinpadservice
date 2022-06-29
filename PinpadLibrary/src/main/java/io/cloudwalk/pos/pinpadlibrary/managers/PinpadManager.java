@@ -13,6 +13,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.Application;
+import io.cloudwalk.utilitieslibrary.utilities.BundleUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
@@ -28,6 +29,12 @@ public class PinpadManager {
     private static final String
             TAG = IPinpadService.class.getSimpleName().substring(1);
 
+    private static final String
+            PINPAD_SERVICE_ACTION  = "io.cloudwalk.pos.pinpadservice.PinpadService";
+
+    private static final String
+            PINPAD_SERVICE_PACKAGE = "io.cloudwalk.pos.pinpadservice";
+
     private static final Semaphore
             sAbortSemaphore   = new Semaphore(1, true);
 
@@ -37,13 +44,28 @@ public class PinpadManager {
     private static final Semaphore
             sRequestSemaphore = new Semaphore(1, true);
 
-    private static final String
-            PINPAD_SERVICE_ACTION  = "io.cloudwalk.pos.pinpadservice.PinpadService";
+    public static interface Callback {
+        public int onServiceCallback(String string);
+    }
 
-    private static final String
-            PINPAD_SERVICE_PACKAGE = "io.cloudwalk.pos.pinpadservice";
+    private static String _request(String string, Callback callback) {
+        Log.d(TAG, "_request");
+
+        IServiceCallback channel = new IServiceCallback.Stub() {
+            @Override
+            public int onServiceCallback(Bundle bundle) {
+                JSONObject buffer = BundleUtility.getJSONObject(bundle);
+
+                return callback.onServiceCallback(buffer.toString());
+            }
+        };
+
+        return _request(string, (callback != null) ? channel : null);
+    }
 
     private static String _request(String string, IServiceCallback callback) {
+        Log.d(TAG, "_request");
+
         long timestamp  = SystemClock.elapsedRealtime();
 
         byte[][] stream = { null, null };
@@ -150,7 +172,7 @@ public class PinpadManager {
         try {
             sAbortSemaphore.acquireUninterruptibly();
 
-            int status = send(stream[0], 1, null);
+            int status = send(stream[0], 1, (Callback) null);
 
             if (status < 0) {
                 throw new RuntimeException("_abort::status [" + status + "]");
@@ -195,7 +217,7 @@ public class PinpadManager {
     }
 
     /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#request(String, IServiceCallback)}.
+     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#request(String, Callback)}.
      */
     @Deprecated
     public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
@@ -254,7 +276,7 @@ public class PinpadManager {
      * @param callback {@link IServiceCallback}
      * @return JSON {@link String}
      */
-    public static String request(@NotNull String string, IServiceCallback callback) {
+    public static String request(@NotNull String string, Callback callback) {
         Log.d(TAG, "request");
 
         String[]  response  = { null };
@@ -367,6 +389,25 @@ public class PinpadManager {
      * @return {@code int} bigger than zero if the request was sent successfully, less than zero
      *         otherwise
      */
+    public static int send(byte[] array, int length, Callback callback) {
+        // Log.d(TAG, "send");
+
+        IServiceCallback channel = new IServiceCallback.Stub() {
+            @Override
+            public int onServiceCallback(Bundle bundle) {
+                JSONObject buffer = BundleUtility.getJSONObject(bundle);
+
+                return callback.onServiceCallback(buffer.toString());
+            }
+        };
+
+        return send(array, length, (callback != null) ? channel : null);
+    }
+
+    /**
+     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#send(byte[], int, Callback)}.
+     */
+    @Deprecated
     public static int send(byte[] array, int length, IServiceCallback callback) {
         // Log.d(TAG, "send");
 
@@ -401,7 +442,7 @@ public class PinpadManager {
     }
 
     /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(Bundle, ServiceUtility.Callback)};
+     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(String, ServiceUtility.Callback)};
      */
     @Deprecated
     public static void register(@NotNull ServiceUtility.Callback callback) {
@@ -411,15 +452,47 @@ public class PinpadManager {
     }
 
     /**
+     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(String, ServiceUtility.Callback)};
+     */
+    @Deprecated
+    public static void register(Bundle bundle, @NotNull ServiceUtility.Callback callback) {
+        Log.d(TAG, "register");
+
+        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, bundle, callback);
+    }
+
+    /**
      * Binds the service.<br>
      * Ensures the binding will be undone in the event of a service disconnection.<br>
      *
-     * @param bundle channel for identification, operation mode selection and key mapping dynamic
+     * @param string channel for identification, operation mode selection and key mapping dynamic
      *               definition.
      * @param callback {@link ServiceUtility.Callback}
      */
-    public static void register(Bundle bundle, @NotNull ServiceUtility.Callback callback) {
+    public static void register(String string, @NotNull ServiceUtility.Callback callback) {
         Log.d(TAG, "register");
+
+        Bundle bundle = new Bundle();
+
+        try {
+            JSONObject buffer = new JSONObject(string);
+
+            for (Iterator<String> it = buffer.keys(); it.hasNext(); ) {
+                String entry = it.next();
+
+                Object value = buffer.get(entry);
+
+                if        (value instanceof String) {
+                    bundle.putString   (entry, (String) value);
+                } else if (value instanceof byte[]) {
+                    bundle.putByteArray(entry, (byte[]) value);
+                } else {
+                    Log.d(TAG, "register::entry type unsupported [" + entry + "]");
+                }
+            }
+        } catch (Exception exception) {
+            bundle = null;
+        }
 
         ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, bundle, callback);
     }
