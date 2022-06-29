@@ -104,11 +104,11 @@ public class CMD {
         };
 
         try {
-            JSONObject buffer = new JSONObject(string);
+            JSONObject json = new JSONObject(string);
 
-            stream[0].write(buffer.getString(ABECS.CMD_ID).getBytes(UTF_8));
+            stream[0].write(json.getString(ABECS.CMD_ID).getBytes(UTF_8));
 
-            for (Iterator<String> it = buffer.keys(); it.hasNext(); ) {
+            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
                 String entry = it.next();
 
                 switch (entry) {
@@ -117,7 +117,7 @@ public class CMD {
                         break;
 
                     default:
-                        byte[] array = PinpadUtility.buildTLV(entry, buffer.getString(entry));
+                        byte[] array = PinpadUtility.buildTLV(entry, json.getString(entry));
 
                         stream[1].write(array);
 
@@ -152,11 +152,11 @@ public class CMD {
         };
 
         try {
-            JSONObject buffer = new JSONObject(string);
+            JSONObject json = new JSONObject(string);
 
-            stream[0].write(buffer.getString(ABECS.RSP_ID).getBytes(UTF_8));
+            stream[0].write(json.getString(ABECS.RSP_ID).getBytes(UTF_8));
 
-            for (Iterator<String> it = buffer.keys(); it.hasNext(); ) {
+            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
                 String entry = it.next();
 
                 switch (entry) {
@@ -165,13 +165,13 @@ public class CMD {
                         break;
 
                     case ABECS.RSP_STAT:
-                        int RSP_STAT = ABECS.STAT.valueOf(buffer.getString(entry)).ordinal();
+                        int RSP_STAT = ABECS.STAT.valueOf(json.getString(entry)).ordinal();
 
                         stream[0].write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
                         break;
 
                     default:
-                        byte[] array = PinpadUtility.buildTLV(entry, buffer.getString(entry));
+                        byte[] array = PinpadUtility.buildTLV(entry, json.getString(entry));
 
                         stream[1].write(array);
 

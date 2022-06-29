@@ -28,6 +28,7 @@ import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
 import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 public class SplashActivity extends AppCompatActivity {
@@ -106,28 +107,28 @@ public class SplashActivity extends AppCompatActivity {
         String string = null;
 
         try {
-            JSONObject buffer = new JSONObject();
+            JSONObject json = new JSONObject();
 
             switch (Build.BRAND) {
                 case "SUNMI":
                     byte[] keymap = new byte[] { 0x31, 0x30, 0x30, 0x33, 0x31, 0x30, 0x0D, 0x0A,
                                                  0x31, 0x31, 0x31, 0x33, 0x31, 0x31 };
 
-                    buffer.put("keymap.dat", keymap);
+                    json.put("keymap.dat", ByteUtility.getHexString(keymap, keymap.length));
                     break;
 
                 case "Verifone":
                     byte[] duklink = new byte[] { 0x03, 0x0A, 0x03, 0x05, 0x0B, 0x04 };
 
-                    buffer.put("DUKLINK.dat", duklink);
+                    json.put("DUKLINK.dat", ByteUtility.getHexString(duklink, duklink.length));
                     break;
 
                 default:
-                    buffer = null;
+                    json = null;
                     break;
             }
 
-            string = (buffer != null) ? buffer.toString() : null;
+            string = (json != null) ? json.toString() : null;
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }

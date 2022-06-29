@@ -18,6 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.PinpadService;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
@@ -202,7 +203,7 @@ public class PinpadManager {
                 timeout[0] = timeout[1] - SystemClock.elapsedRealtime();
             }
 
-            return 0;
+            return 1;
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
@@ -272,6 +273,8 @@ public class PinpadManager {
                 super.run();
 
                 status[0] = _interrupt();
+
+                Log.d(TAG, "interrupt::status[0] [" + status[0] + "]");
 
                 semaphore.release();
             }
@@ -359,9 +362,9 @@ public class PinpadManager {
             IServiceCallback tunnel = new IServiceCallback.Stub() {
                 @Override
                 public int onServiceCallback(Bundle bundle) {
-                    JSONObject buffer = BundleUtility.getJSONObject(bundle);
+                    JSONObject json = BundleUtility.getJSONObject(bundle);
 
-                    return callback.onServiceCallback(buffer.toString());
+                    return callback.onServiceCallback(json.toString());
                 }
             };
 

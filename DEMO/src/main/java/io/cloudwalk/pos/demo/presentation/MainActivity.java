@@ -301,12 +301,12 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "onServiceCallback::string [" + string + "]");
 
                         try {
-                            JSONObject buffer = new JSONObject(string);
+                            JSONObject json = new JSONObject(string);
 
                             String pin  = "                ";
-                                   pin += (buffer.has(NTF_PIN)) ? buffer.getString(NTF_PIN) : "";
+                                   pin += (json.has(NTF_PIN)) ? json.getString(NTF_PIN) : "";
 
-                            String msg  = (buffer.has(NTF_MSG)) ? buffer.getString(NTF_MSG) : "";
+                            String msg  = (json.has(NTF_MSG)) ? json.getString(NTF_MSG) : "";
 
                             if (!msg.isEmpty()) {
                                 while (msg.charAt(0) == '\n') {
@@ -318,11 +318,11 @@ public class MainActivity extends AppCompatActivity {
 
                             updatePinpadContent(msg);
 
-                            if (!buffer.has(NTF_TYPE)) {
+                            if (!json.has(NTF_TYPE)) {
                                 return 0;
                             }
 
-                            switch (Type.values()[buffer.getInt(NTF_TYPE)]) {
+                            switch (Type.values()[json.getInt(NTF_TYPE)]) {
                                 //  case...
                                 //  case...
                                 case NTF_SELECT: return 1;

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.util.Iterator;
 
 import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 public class PinpadService {
@@ -34,19 +35,15 @@ public class PinpadService {
         Bundle bundle = new Bundle();
 
         try {
-            JSONObject buffer = new JSONObject(string);
+            JSONObject json = new JSONObject(string);
 
-            for (Iterator<String> it = buffer.keys(); it.hasNext(); ) {
+            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
                 String entry = it.next();
 
-                Object value = buffer.get(entry);
-
-                if        (value instanceof String) {
-                    bundle.putString   (entry, (String) value);
-                } else if (value instanceof byte[]) {
-                    bundle.putByteArray(entry, (byte[]) value);
+                if (entry.endsWith(".dat")) {
+                    bundle.putByteArray(entry, ByteUtility.fromHexString(json.getString(entry)));
                 } else {
-                    Log.e(TAG, "register::entry type unsupported [" + entry + "]");
+                    bundle.putString   (entry, json.getString(entry));
                 }
             }
         } catch (Exception exception) {

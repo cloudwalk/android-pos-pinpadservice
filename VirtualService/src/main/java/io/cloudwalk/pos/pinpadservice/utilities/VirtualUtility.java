@@ -128,7 +128,7 @@ public class VirtualUtility {
 
                     while (sResponseQueue.poll() != null);
 
-                    byte[] buffer = new byte[2048];
+                    byte[] stream = new byte[2048];
                     int    count  = 0;
 
                     do {
@@ -145,7 +145,7 @@ public class VirtualUtility {
                             pinpadSocket.setSoTimeout(timeout);
 
                             try {
-                                count = pinpadSocket.getInputStream().read(buffer, 0, buffer.length);
+                                count = pinpadSocket.getInputStream().read(stream, 0, stream.length);
                             } catch (SocketTimeoutException exception) {
                                 count = 0;
 
@@ -153,20 +153,20 @@ public class VirtualUtility {
                             }
 
                             if (count > 0) {
-                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-                                stream.write(buffer, 0, count);
+                                output.write(stream, 0, count);
 
                                 Bundle response = new Bundle();
 
                                 response.putString   ("application_id", applicationId);
-                                response.putByteArray("response",       _intercept("recv", stream.toByteArray()));
+                                response.putByteArray("response",       _intercept("recv", output.toByteArray()));
 
                                 if (timeout != 200 || count != 1) {
                                     sResponseQueue.add(response);
                                 }
 
-                                if (buffer[0] != 0x06) { break; }
+                                if (stream[0] != 0x06) { break; }
 
                                 try {
                                     String CMD_ID = (new JSONObject(bundle.getString("request_json"))).getString(ABECS.CMD_ID);
