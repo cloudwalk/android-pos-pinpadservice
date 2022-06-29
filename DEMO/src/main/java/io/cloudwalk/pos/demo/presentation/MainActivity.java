@@ -3,10 +3,6 @@ package io.cloudwalk.pos.demo.presentation;
 import static java.util.Locale.US;
 
 import static io.cloudwalk.pos.Application.sPinpadServer;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_PIN;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_SELECT;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TYPE;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
@@ -322,7 +318,11 @@ public class MainActivity extends AppCompatActivity {
 
                             updatePinpadContent(msg);
 
-                            switch ((buffer.has(NTF_TYPE)) ? buffer.getInt(NTF_TYPE) : -99) {
+                            if (!buffer.has(NTF_TYPE)) {
+                                return 0;
+                            }
+
+                            switch (Type.values()[buffer.getInt(NTF_TYPE)]) {
                                 //  case...
                                 //  case...
                                 case NTF_SELECT: return 1;
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception exception) {
                     Log.e(TAG, Log.getStackTraceString(exception));
                 } finally {
-                    PinpadManager.abort();
+                    PinpadManager.interrupt();
                 }
 
                 for (String entry : requestList) {
@@ -402,11 +402,6 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             return serviceCallback.onServiceCallback(string);
                         } catch (Exception exception) { return -1; }
-                    }
-
-                    @Override
-                    public void onClientConnection(String address) {
-                        /* Nothing to do */
                     }
 
                     @Override

@@ -2,68 +2,72 @@ package io.cloudwalk.pos.pinpadlibrary.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static io.cloudwalk.pos.pinpadlibrary.PinpadService.SERVICE_ACTION;
+import static io.cloudwalk.pos.pinpadlibrary.PinpadService.SERVICE_PACKAGE;
 
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
+
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.IPinpadService;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadlibrary.PinpadService;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.utilitieslibrary.Application;
 import io.cloudwalk.utilitieslibrary.utilities.BundleUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Iterator;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeoutException;
-
 public class PinpadManager {
     private static final String
-            TAG = IPinpadService.class.getSimpleName().substring(1);
-
-    private static final String
-            PINPAD_SERVICE_ACTION  = "io.cloudwalk.pos.pinpadservice.PinpadService";
-
-    private static final String
-            PINPAD_SERVICE_PACKAGE = "io.cloudwalk.pos.pinpadservice";
+            TAG = PinpadService.class.getSimpleName() + "::" + PinpadManager.class.getSimpleName();
 
     private static final Semaphore
-            sAbortSemaphore   = new Semaphore(1, true);
+            sInterruptSemaphore = new Semaphore(1, true);
 
     private static final Semaphore
-            sReceiveSemaphore = new Semaphore(1, true);
+            sReceiveSemaphore   = new Semaphore(1, true);
 
     private static final Semaphore
-            sRequestSemaphore = new Semaphore(1, true);
+            sRequestSemaphore   = new Semaphore(1, true);
 
     public static interface Callback {
+            String NTF_MSG                  = "NTF_MSG";
+            String NTF_OPTLST               = "NTF_OPTLST";
+            String NTF_PIN                  = "NTF_PIN";
+            String NTF_TIMEOUT              = "NTF_TIMEOUT";
+            String NTF_TITLE                = "NTF_TITLE";
+            String NTF_TYPE                 = "NTF_TYPE";
+
+        public static enum Type {
+            NOTIFICATION,
+            NTF_2x16,                       NTF_PROCESSING,
+            NTF_INSERT_SWIPE_CARD,          NTF_TAP_INSERT_SWIPE_CARD,
+            NTF_SELECT,                     NTF_SELECTED,
+            NTF_AID_INVALID,                NTF_PIN_START,
+            NTF_PIN_ENTRY,                  NTF_PIN_FINISH,
+            NTF_PIN_INVALID,                NTF_PIN_LAST_TRY,
+            NTF_PIN_BLOCKED,                NTF_PIN_VERIFIED,
+            NTF_CARD_BLOCKED,               NTF_REMOVE_CARD,
+            NTF_UPDATING,                   NTF_SECOND_TAP;
+
+            private Type() {
+                /* Nothing to do */
+            }
+        }
+
         public int onServiceCallback(String string);
     }
 
     private static String _request(String string, Callback callback) {
-        Log.d(TAG, "_request");
-
-        IServiceCallback channel = new IServiceCallback.Stub() {
-            @Override
-            public int onServiceCallback(Bundle bundle) {
-                JSONObject buffer = BundleUtility.getJSONObject(bundle);
-
-                return callback.onServiceCallback(buffer.toString());
-            }
-        };
-
-        return _request(string, (callback != null) ? channel : null);
-    }
-
-    private static String _request(String string, IServiceCallback callback) {
         Log.d(TAG, "_request");
 
         long timestamp  = SystemClock.elapsedRealtime();
@@ -78,7 +82,7 @@ public class PinpadManager {
 
             int status;
 
-            sAbortSemaphore.acquireUninterruptibly();
+            sInterruptSemaphore.acquireUninterruptibly();
 
             try {
                 status = send(stream[0], stream[0].length, callback);
@@ -97,10 +101,10 @@ public class PinpadManager {
                     throw new TimeoutException();
                 }
             } finally {
-                sAbortSemaphore.release();
+                sInterruptSemaphore.release();
             }
 
-            switch (stream[1][0]) { // 2022-02-24: <<ACK>> or <<EOT>>
+            switch (stream[1][0]) { // 2022-02-24: only <<ACK>> or <<EOT>>
                 case 0x06:
                     /* Nothing to do */
                     break;
@@ -117,7 +121,7 @@ public class PinpadManager {
             do {
                 ByteUtility.clear(stream[1]);
 
-                if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
+                if (!sInterruptSemaphore.tryAcquire(0, SECONDS)) {
                     throw new InterruptedException();
                 }
 
@@ -128,7 +132,7 @@ public class PinpadManager {
                         throw new RuntimeException("_request::status [" + status + "]");
                     }
                 } finally {
-                    sAbortSemaphore.release();
+                    sInterruptSemaphore.release();
                 }
             } while (status <= 1);
 
@@ -155,13 +159,15 @@ public class PinpadManager {
             ByteUtility.clear(stream[0]);
             ByteUtility.clear(stream[1]);
 
-            sRequestSemaphore.release();
-
             Log.d(TAG, "_request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+
+            sRequestSemaphore.release();
         }
     }
 
-    private static void _abort() {
+    private static int _interrupt() {
+        Log.d(TAG, "_interrupt");
+
         long timestamp = SystemClock.elapsedRealtime();
 
         byte[][] stream = {
@@ -170,12 +176,12 @@ public class PinpadManager {
         };
 
         try {
-            sAbortSemaphore.acquireUninterruptibly();
+            sInterruptSemaphore.acquireUninterruptibly();
 
             int status = send(stream[0], 1, (Callback) null);
 
             if (status < 0) {
-                throw new RuntimeException("_abort::status [" + status + "]");
+                throw new RuntimeException("_interrupt::status [" + status + "]");
             }
 
             long[] timeout = { 2000, timestamp + 2000 };
@@ -186,7 +192,7 @@ public class PinpadManager {
                 status = recv(stream[1], timeout[0]);
 
                 if (status < 0) {
-                    throw new RuntimeException("_abort::status [" + status + "]");
+                    throw new RuntimeException("_interrupt::status [" + status + "]");
                 }
 
                 if (status == 0) {
@@ -195,15 +201,19 @@ public class PinpadManager {
 
                 timeout[0] = timeout[1] - SystemClock.elapsedRealtime();
             }
+
+            return 0;
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
+
+            return (exception instanceof TimeoutException) ? 0 : -1;
         } finally {
             ByteUtility.clear(stream[0]);
             ByteUtility.clear(stream[1]);
 
-            sAbortSemaphore.release();
+            Log.d(TAG, "_interrupt::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
 
-            Log.d(TAG, "_abort::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
+            sInterruptSemaphore.release();
         }
     }
 
@@ -217,63 +227,10 @@ public class PinpadManager {
     }
 
     /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#request(String, Callback)}.
-     */
-    @Deprecated
-    public static Bundle request(@NotNull Bundle bundle, IServiceCallback callback) {
-        Log.d(TAG, "request");
-
-        Bundle[]  response  = {
-                new Bundle()
-        };
-
-        Semaphore semaphore = new Semaphore(0, true);
-
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                try {
-                    JSONObject[] buffer = { new JSONObject(), null };
-
-                    for (String entry : bundle.keySet()) {
-                        buffer[0].put(entry, bundle.get(entry));
-                    }
-
-                    String string = _request(buffer[0].toString(), callback);
-
-                    buffer[1] = new JSONObject(string);
-
-                    for (Iterator<String> it = buffer[1].keys(); it.hasNext(); ) {
-                        String entry = it.next();
-
-                        if (ABECS.RSP_STAT.equals(entry)) {
-                            ABECS.STAT RSP_STAT = ABECS.STAT.valueOf(buffer[1].getString(ABECS.RSP_STAT));
-
-                            response[0].putSerializable(ABECS.RSP_STAT, RSP_STAT);
-                        } else {
-                            response[0].putString(entry, buffer[1].getString(entry));
-                        }
-                    }
-
-                    semaphore.release();
-                } catch (Exception exception) {
-                    Log.e(TAG, Log.getStackTraceString(exception));
-                }
-            }
-        }.start();
-
-        semaphore.acquireUninterruptibly();
-
-        return response[0];
-    }
-
-    /**
-     * Performs a request using JSON string as input, mirroring the ABECS PINPAD protocol.
+     * Performs a request using JSON string as argument, mirroring the default public data format.
      *
      * @param string JSON {@link String}
-     * @param callback {@link IServiceCallback}
+     * @param callback {@link Callback}
      * @return JSON {@link String}
      */
     public static String request(@NotNull String string, Callback callback) {
@@ -299,34 +256,35 @@ public class PinpadManager {
     }
 
     /**
-     * Interrupts blocking and/or queued requests.
+     * Interrupts blocking and/or queued requests.<br>
+     * For those which are not newcomers: {@code interrupt} and {@code abort} are equivalent terms.
      */
-    public static void abort() {
-        Log.d(TAG, "abort");
+    public static int interrupt() {
+        Log.d(TAG, "interrupt");
 
         Semaphore semaphore = new Semaphore(0, true);
 
+        int[] status = { -1 };
+
         new Thread() {
             @Override
-            public void run() { super.run(); _abort(); semaphore.release(); }
+            public void run() {
+                super.run();
+
+                status[0] = _interrupt();
+
+                semaphore.release();
+            }
         }.start();
 
         semaphore.acquireUninterruptibly();
-    }
 
-    /**
-     * @deprecated As of release 1.2.0, usage is discouraged.
-     */
-    @Deprecated
-    public static void execute(@NotNull Runnable runnable) {
-        Log.d(TAG, "execute");
-
-        ServiceUtility.execute(runnable);
+        return status[0];
     }
 
     /**
      * Queries the queue of processing results.<br>
-     * See {@link PinpadManager#send(byte[], int, IServiceCallback)}.
+     * See {@link PinpadManager#send(byte[], int, Callback)}.
      *
      * @param array {@code byte[]} as specified by the ABECS PINPAD protocol
      * @param timeout self-describing (milliseconds)
@@ -353,10 +311,10 @@ public class PinpadManager {
 
                 bundle.putLong("timeout", (timeout < 0) ? 0 : timeout);
 
-                IBinder binder = ServiceUtility.retrieve(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION);
+                IBinder binder = ServiceUtility.retrieve(SERVICE_PACKAGE, SERVICE_ACTION);
 
-                status = IPinpadService.Stub.asInterface(binder)
-                        .getPinpadManager(null).recv(bundle);
+                status = IPinpadService.Stub
+                        .asInterface(binder).getPinpadManager(null).recv(bundle);
 
                 if (status > 0) {
                     stream = bundle.getByteArray("response");
@@ -381,34 +339,15 @@ public class PinpadManager {
 
     /**
      * Performs a request using the default public data format.<br>
-     * Doesn't wait for the processing result.
+     * Does not wait for processing results.
      *
      * @param array {@code byte[]} as specified by ABECS PINPAD protocol
      * @param length {@code input} length
-     * @param callback {@link IServiceCallback}
+     * @param callback {@link Callback}
      * @return {@code int} bigger than zero if the request was sent successfully, less than zero
      *         otherwise
      */
     public static int send(byte[] array, int length, Callback callback) {
-        // Log.d(TAG, "send");
-
-        IServiceCallback channel = new IServiceCallback.Stub() {
-            @Override
-            public int onServiceCallback(Bundle bundle) {
-                JSONObject buffer = BundleUtility.getJSONObject(bundle);
-
-                return callback.onServiceCallback(buffer.toString());
-            }
-        };
-
-        return send(array, length, (callback != null) ? channel : null);
-    }
-
-    /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#send(byte[], int, Callback)}.
-     */
-    @Deprecated
-    public static int send(byte[] array, int length, IServiceCallback callback) {
         // Log.d(TAG, "send");
 
         byte[] stream = null;
@@ -417,19 +356,29 @@ public class PinpadManager {
         try {
             Log.h(TAG, array, length);
 
+            IServiceCallback tunnel = new IServiceCallback.Stub() {
+                @Override
+                public int onServiceCallback(Bundle bundle) {
+                    JSONObject buffer = BundleUtility.getJSONObject(bundle);
+
+                    return callback.onServiceCallback(buffer.toString());
+                }
+            };
+
+            Bundle bundle = new Bundle();
+
+            bundle.putString("application_id", Application.getContext().getPackageName());
+
             stream = new byte[length];
 
             System.arraycopy(array, 0, stream, 0, stream.length);
 
-            Bundle bundle = new Bundle();
-
-            bundle.putString   ("application_id", Application.getContext().getPackageName());
             bundle.putByteArray("request", stream);
 
-            IBinder binder = ServiceUtility.retrieve(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION);
+            IBinder binder = ServiceUtility.retrieve(SERVICE_PACKAGE, SERVICE_ACTION);
 
-            status = IPinpadService.Stub.asInterface(binder)
-                    .getPinpadManager(null).send(bundle, callback);
+            status = IPinpadService.Stub
+                    .asInterface(binder).getPinpadManager(null).send(bundle, tunnel);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
 
@@ -439,70 +388,5 @@ public class PinpadManager {
         }
 
         return status;
-    }
-
-    /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(String, ServiceUtility.Callback)};
-     */
-    @Deprecated
-    public static void register(@NotNull ServiceUtility.Callback callback) {
-        Log.d(TAG, "register");
-
-        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, null, callback);
-    }
-
-    /**
-     * @deprecated As of release 1.2.0, replaced by {@link PinpadManager#register(String, ServiceUtility.Callback)};
-     */
-    @Deprecated
-    public static void register(Bundle bundle, @NotNull ServiceUtility.Callback callback) {
-        Log.d(TAG, "register");
-
-        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, bundle, callback);
-    }
-
-    /**
-     * Binds the service.<br>
-     * Ensures the binding will be undone in the event of a service disconnection.<br>
-     *
-     * @param string channel for identification, operation mode selection and key mapping dynamic
-     *               definition.
-     * @param callback {@link ServiceUtility.Callback}
-     */
-    public static void register(String string, @NotNull ServiceUtility.Callback callback) {
-        Log.d(TAG, "register");
-
-        Bundle bundle = new Bundle();
-
-        try {
-            JSONObject buffer = new JSONObject(string);
-
-            for (Iterator<String> it = buffer.keys(); it.hasNext(); ) {
-                String entry = it.next();
-
-                Object value = buffer.get(entry);
-
-                if        (value instanceof String) {
-                    bundle.putString   (entry, (String) value);
-                } else if (value instanceof byte[]) {
-                    bundle.putByteArray(entry, (byte[]) value);
-                } else {
-                    Log.d(TAG, "register::entry type unsupported [" + entry + "]");
-                }
-            }
-        } catch (Exception exception) {
-            bundle = null;
-        }
-
-        ServiceUtility.register(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION, bundle, callback);
-    }
-
-    /**
-     * Unbinds the service.
-     */
-    public static void unregister() {
-        Log.d(TAG, "unregister");
-
-        ServiceUtility.unregister(PINPAD_SERVICE_PACKAGE, PINPAD_SERVICE_ACTION);
     }
 }

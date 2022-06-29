@@ -45,7 +45,7 @@ public class LifecycleObserver implements androidx.lifecycle.LifecycleObserver {
 
                 sBackground.set(true);
 
-                PinpadManager.abort();
+                PinpadManager.interrupt();
 
                 PinpadServer server = sPinpadServer.get();
 

@@ -18,14 +18,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.pos.pinpadlibrary.PinpadService;
 import io.cloudwalk.pos.pinpadserver.PinpadServer;
 import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
 import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 public class SplashActivity extends AppCompatActivity {
@@ -99,31 +101,38 @@ public class SplashActivity extends AppCompatActivity {
 
         long timestamp = SystemClock.elapsedRealtime();
 
-        PinpadManager.unregister();
+        PinpadService.unregister();
 
-        Bundle extras = new Bundle();
+        String string = null;
 
-        switch (Build.BRAND) {
-            case "SUNMI":
-                byte[] keymap = new byte[] { 0x31, 0x30, 0x30, 0x33, 0x31, 0x30, 0x0D, 0x0A,
-                                             0x31, 0x31, 0x31, 0x33, 0x31, 0x31 };
+        try {
+            JSONObject buffer = new JSONObject();
 
-                extras.putByteArray("keymap.dat", keymap);
-                break;
+            switch (Build.BRAND) {
+                case "SUNMI":
+                    byte[] keymap = new byte[] { 0x31, 0x30, 0x30, 0x33, 0x31, 0x30, 0x0D, 0x0A,
+                                                 0x31, 0x31, 0x31, 0x33, 0x31, 0x31 };
 
-            case "Verifone":
-                byte[] duklink = new byte[] { 0x03, 0x0A, 0x03, 0x05, 0x0B, 0x04 };
+                    buffer.put("keymap.dat", keymap);
+                    break;
 
-                extras.putByteArray("DUKLINK.dat", duklink);
-                break;
+                case "Verifone":
+                    byte[] duklink = new byte[] { 0x03, 0x0A, 0x03, 0x05, 0x0B, 0x04 };
 
-            default:
-                extras = null;
-                break;
+                    buffer.put("DUKLINK.dat", duklink);
+                    break;
+
+                default:
+                    buffer = null;
+                    break;
+            }
+
+            string = (buffer != null) ? buffer.toString() : null;
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-
-        PinpadManager.register(extras, new ServiceUtility.Callback() {
+        PinpadService.register(string, new ServiceUtility.Callback() {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "onSuccess");

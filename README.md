@@ -87,7 +87,7 @@ between `JSON string` and `byte[]`.
 [^2]: Usage of the `JSON string` API is highly recommended over the `byte` API.
 
 - _JSON string_ API
-  - `PinpadManager#abort();`
+  - `PinpadManager#interrupt();`
   - `PinpadManager#request(String, IServiceCallback);`
 - _byte[]_ API
   - `PinpadManager#send(byte[], int, IServiceCallback);`

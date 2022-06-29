@@ -2,12 +2,15 @@ package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_MSG;
-import static io.cloudwalk.pos.pinpadlibrary.IServiceCallback.NTF_TYPE;
+
+import static io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager.Callback.NTF_MSG;
+import static io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager.Callback.NTF_TYPE;
+import static io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager.Callback.Type.NOTIFICATION;
 
 import android.os.Bundle;
 import android.os.NetworkOnMainThreadException;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
@@ -29,7 +32,7 @@ public class VirtualUtility {
             sPinpadSocket = null;
 
     private static final Semaphore
-            sAbortSemaphore = new Semaphore(1, true);
+            sInterruptSemaphore = new Semaphore(1, true);
 
     public static final BlockingQueue<Bundle>
             sResponseQueue = new LinkedBlockingQueue<>();
@@ -41,47 +44,43 @@ public class VirtualUtility {
         Log.d(TAG, "VirtualUtility");
     }
 
-    private static byte[] _intercept(String action, byte[] stream) {
+    private static byte[] _intercept(String action, byte[] array) {
         // Log.d(TAG, "_intercept");
 
         try {
-            if (stream.length < 3) {
-                return stream;
+            if (array.length < (1 + 6 + 1 + 2)) {
+                return array;
             }
 
-            switch (action) {
-                case "recv":
-                    Bundle response = PinpadUtility.parseResponseDataPacket(stream, stream.length);
+            if (action.equals("recv")) {
+                JSONObject response = new JSONObject(PinpadUtility.parseResponseDataPacket(array, array.length));
 
-                    switch (response.getString(ABECS.RSP_ID, "UNKNOWN")) {
-                        case ABECS.GIX:
-                            if (!response.containsKey(ABECS.PP_MODEL)) {
-                                break;
-                            }
-
-                            String PP_MODEL = response.getString(ABECS.PP_MODEL);
-
-                            if (!PP_MODEL.contains("VIRTUAL//")) {
-                                response.putString(ABECS.PP_MODEL, String.format(US, "%.20s", "VIRTUAL//" + PP_MODEL));
-
-                                return PinpadUtility.buildResponseDataPacket(response);
-                            }
+                switch (response.getString(ABECS.RSP_ID)) {
+                    case ABECS.GIX:
+                        if (!response.has(ABECS.PP_MODEL)) {
                             break;
+                        }
 
-                        default:
-                            /* Nothing to do */
-                            break;
-                    }
+                        String PP_MODEL = response.getString(ABECS.PP_MODEL);
 
-                default:
-                    /* Nothing to do */
-                    break;
+                        if (!PP_MODEL.contains("VIRTUAL//")) {
+                            response.put(ABECS.PP_MODEL, String.format(US, "%.20s", "VIRTUAL//" + PP_MODEL));
+                        }
+                        /* no break */
+
+                    default:
+                        return PinpadUtility.buildResponseDataPacket(response.toString());
+                }
+            } else {
+                JSONObject request = new JSONObject(PinpadUtility.parseRequestDataPacket(array, array.length));
+
+                return PinpadUtility.buildRequestDataPacket(request.toString());
             }
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        return stream;
+        return array;
     }
 
     private static int _route(Bundle bundle)
@@ -127,21 +126,19 @@ public class VirtualUtility {
                 try {
                     sRecvSemaphore.acquireUninterruptibly();
 
-                    String applicationId = bundle.getString   ("application_id");
-                    byte[] request       = bundle.getByteArray("request");
-                    Bundle requestBundle = bundle.getBundle   ("request_bundle");
-
                     while (sResponseQueue.poll() != null);
 
                     byte[] buffer = new byte[2048];
                     int    count  = 0;
 
                     do {
-                        if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
+                        if (!sInterruptSemaphore.tryAcquire(0, SECONDS)) {
                             break;
                         }
 
                         try {
+                            String applicationId = bundle.getString("application_id");
+
                             int timeout = (count != 0) ? 200 : 2000; // 2022-02-24: Java socket implementations take
                                                                      // `0` as no timeout whatsoever
 
@@ -172,20 +169,22 @@ public class VirtualUtility {
                                 if (buffer[0] != 0x06) { break; }
 
                                 try {
-                                    String CMD_ID = requestBundle.getString(ABECS.CMD_ID);
+                                    String CMD_ID = (new JSONObject(bundle.getString("request_json"))).getString(ABECS.CMD_ID);
 
                                     Bundle callback = new Bundle();
 
-                                    callback.putString(NTF_MSG,  String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, pinpadSocket.getInetAddress().getHostAddress()));
-                                    callback.putInt   (NTF_TYPE, NTF);
+                                    String message = String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, pinpadSocket.getInetAddress().getHostAddress());
+
+                                    Log.d(TAG, "message:: [" + message + "]");
+
+                                    callback.putString(NTF_MSG,  message);
+                                    callback.putInt   (NTF_TYPE, NOTIFICATION.ordinal());
 
                                     CallbackUtility.getServiceCallback().onServiceCallback(callback);
-                                } catch (NullPointerException exception) {
-                                    /* Nothing to do */
-                                }
+                                } catch (NullPointerException ignored) { }
                             }
                         } finally {
-                            sAbortSemaphore.release();
+                            sInterruptSemaphore.release();
                         }
                     } while (count++ <= 1);
                 } catch (Exception exception) {
@@ -201,13 +200,13 @@ public class VirtualUtility {
         return request.length;
     }
 
-    public static int abort(Bundle bundle) {
-        Log.d(TAG, "abort");
+    public static int interrupt(Bundle bundle) {
+        Log.d(TAG, "interrupt");
 
-        sAbortSemaphore.acquireUninterruptibly();
-        sRecvSemaphore .acquireUninterruptibly();
-        sAbortSemaphore.release();
-        sRecvSemaphore .release();
+        sInterruptSemaphore.acquireUninterruptibly();
+        sRecvSemaphore     .acquireUninterruptibly();
+        sInterruptSemaphore.release();
+        sRecvSemaphore     .release();
 
         return send(bundle);
     }

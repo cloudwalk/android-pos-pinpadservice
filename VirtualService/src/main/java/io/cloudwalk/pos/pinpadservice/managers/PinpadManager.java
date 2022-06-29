@@ -97,7 +97,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             switch (stream[0]) {
                 case 0x18:
                     if (stream.length == 1) {
-                        result = VirtualUtility.abort(bundle);
+                        result = VirtualUtility.interrupt(bundle);
                         break;
                     }
                     /* no break; */

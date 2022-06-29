@@ -229,10 +229,11 @@ public class PinpadUtility {
                 return TLE.parseRequestDataPacket(stream, stream.length);
 
             case ABECS.GIX: case ABECS.CLX:
-            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
             case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                 return CMD.parseRequestDataPacket(stream, stream.length);
 
+            case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
             default:
                 throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
         }
@@ -268,10 +269,11 @@ public class PinpadUtility {
                     return TLE.parseResponseDataPacket(stream, stream.length);
 
                 case ABECS.GIX: case ABECS.CLX:
-                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     return CMD.parseResponseDataPacket(stream, stream.length);
 
+                case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
                 default:
                     throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
             }
@@ -510,11 +512,12 @@ public class PinpadUtility {
                     break;
 
                 case ABECS.GIX: case ABECS.CLX:
-                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     stream = CMD.buildRequestDataPacket(string);
                     break;
 
+                case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
                 default:
                     /* Nothing to do */
                     break;
@@ -573,11 +576,12 @@ public class PinpadUtility {
                     break;
 
                 case ABECS.GIX: case ABECS.CLX:
-                case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     stream = CMD.buildResponseDataPacket(string);
                     break;
 
+                case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
                 default:
                     /* Nothing to do */
                     break;

@@ -31,7 +31,7 @@ public class PinpadServer {
     private final Semaphore
             mExchangeSemaphore = new Semaphore(1, true);
 
-    private IServiceCallback
+    private PinpadManager.Callback
             mServiceCallback = null;
 
     private PinpadServer.Callback
@@ -53,9 +53,7 @@ public class PinpadServer {
             mWifiLock = null;
 
     public static interface Callback {
-        void onClientConnection(String address);
-
-        int  onPinpadCallback(String string);
+        int  onPinpadCallback(String string); // TODO: replace with argument?!
 
         void onServerFailure(Exception exception);
 
@@ -128,12 +126,10 @@ public class PinpadServer {
 
         mServerCallback  = callback;
 
-        mServiceCallback = new IServiceCallback.Stub() {
+        mServiceCallback = new PinpadManager.Callback() {
             @Override
-            public int onServiceCallback(Bundle bundle) {
-                JSONObject buffer = BundleUtility.getJSONObject(bundle);
-
-                return mServerCallback.onPinpadCallback(buffer.toString());
+            public int onServiceCallback(String string) {
+                return mServerCallback.onPinpadCallback(string);
             }
         };
     }
@@ -197,8 +193,6 @@ public class PinpadServer {
 
                         while (true) {
                             mClientSocket = mServerSocket.accept();
-
-                            mServerCallback.onClientConnection(mClientSocket.getInetAddress().getHostAddress());
 
                             byte[] stream = new byte[2048];
                             int    count;
