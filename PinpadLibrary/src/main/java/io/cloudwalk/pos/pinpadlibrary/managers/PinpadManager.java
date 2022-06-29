@@ -29,7 +29,7 @@ import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
 public class PinpadManager {
     private static final String
-            TAG = PinpadService.class.getSimpleName() + "::" + PinpadManager.class.getSimpleName();
+            TAG = PinpadService.class.getSimpleName();
 
     private static final Semaphore
             sInterruptSemaphore = new Semaphore(1, true);

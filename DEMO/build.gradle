@@ -3,14 +3,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdk 32
 
     defaultConfig {
         applicationId "io.cloudwalk.pos.poc2104301453.demo"
-        minSdkVersion 22
-        targetSdkVersion 32
+        minSdk 22
+        targetSdk 32
         versionCode 12
-        versionName "0.0.12"
+        versionName "0.0.12-untagged"
 
         buildConfigField 'String', 'BUILD_DATE', "\"${getDate()}\""
 
@@ -46,7 +46,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:16.0.1'
 
     implementation 'io.cloudwalk:loglibrary:1.1.5'
-    implementation 'io.cloudwalk:utilitieslibrary:1.1.0'
+    implementation 'io.cloudwalk:utilitieslibrary:1.1.0-untagged'
 
     implementation project(path: ':PinpadLibrary')
 }

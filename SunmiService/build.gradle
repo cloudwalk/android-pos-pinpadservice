@@ -10,7 +10,7 @@ android {
         minSdk 22
         targetSdk 32
         versionCode 107
-        versionName "1.1.6"
+        versionName "1.1.6-untagged"
 
         setProperty("archivesBaseName", "sunmi-$applicationId-$versionName-${getDate()}")
     }
@@ -49,7 +49,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:16.0.1'
 
     implementation 'io.cloudwalk:loglibrary:1.1.5'
-    implementation 'io.cloudwalk:utilitieslibrary:1.1.0'
+    implementation 'io.cloudwalk:utilitieslibrary:1.1.0-untagged'
 
     implementation files('libs/PayLib-release-1.4.62.aar')
     implementation files('libs/PPCompp2-v1.30.aar')
