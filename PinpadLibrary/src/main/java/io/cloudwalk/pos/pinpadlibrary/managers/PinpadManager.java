@@ -69,9 +69,7 @@ public class PinpadManager {
     }
 
     private static String _request(String string, Callback callback) {
-        Log.d(TAG, "_request");
-
-        long timestamp  = SystemClock.elapsedRealtime();
+        // Log.d(TAG, "_request");
 
         byte[][] stream = { null, null };
 
@@ -89,13 +87,13 @@ public class PinpadManager {
                 status = send(stream[0], stream[0].length, callback);
 
                 if (status  < 0) {
-                    throw new RuntimeException("_request::status [" + status + "]");
+                    throw new RuntimeException("request::status [" + status + "]");
                 }
 
                 status = recv(stream[1], 2000);
 
                 if (status  < 0) {
-                    throw new RuntimeException("_request::status [" + status + "]");
+                    throw new RuntimeException("request::status [" + status + "]");
                 }
 
                 if (status == 0) {
@@ -114,7 +112,7 @@ public class PinpadManager {
                     throw new InterruptedException();
 
                 default:
-                    String message = String.format("_request::stream[1][0] [%02X]", stream[1][0]);
+                    String message = String.format("request::stream[1][0] [%02X]", stream[1][0]);
 
                     throw new RuntimeException(message);
             }
@@ -130,7 +128,7 @@ public class PinpadManager {
                     status = recv(stream[1], 0);
 
                     if (status  < 0) {
-                        throw new RuntimeException("_request::status [" + status + "]");
+                        throw new RuntimeException("request::status [" + status + "]");
                     }
                 } finally {
                     sInterruptSemaphore.release();
@@ -160,16 +158,12 @@ public class PinpadManager {
             ByteUtility.clear(stream[0]);
             ByteUtility.clear(stream[1]);
 
-            Log.d(TAG, "_request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
-
             sRequestSemaphore.release();
         }
     }
 
     private static int _interrupt() {
-        Log.d(TAG, "_interrupt");
-
-        long timestamp = SystemClock.elapsedRealtime();
+        // Log.d(TAG, "_interrupt");
 
         byte[][] stream = {
                 new byte[] { 0x18 },
@@ -177,12 +171,14 @@ public class PinpadManager {
         };
 
         try {
+            long timestamp = SystemClock.elapsedRealtime();
+
             sInterruptSemaphore.acquireUninterruptibly();
 
             int status = send(stream[0], 1, (Callback) null);
 
             if (status < 0) {
-                throw new RuntimeException("_interrupt::status [" + status + "]");
+                throw new RuntimeException("interrupt::status [" + status + "]");
             }
 
             long[] timeout = { 2000, timestamp + 2000 };
@@ -193,7 +189,7 @@ public class PinpadManager {
                 status = recv(stream[1], timeout[0]);
 
                 if (status < 0) {
-                    throw new RuntimeException("_interrupt::status [" + status + "]");
+                    throw new RuntimeException("interrupt::status [" + status + "]");
                 }
 
                 if (status == 0) {
@@ -211,8 +207,6 @@ public class PinpadManager {
         } finally {
             ByteUtility.clear(stream[0]);
             ByteUtility.clear(stream[1]);
-
-            Log.d(TAG, "_interrupt::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
 
             sInterruptSemaphore.release();
         }
@@ -245,7 +239,11 @@ public class PinpadManager {
             public void run() {
                 super.run();
 
+                long timestamp  = SystemClock.elapsedRealtime();
+
                 response[0] = _request(string, callback);
+
+                Log.d(TAG, "request::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "]");
 
                 semaphore.release();
             }
@@ -272,9 +270,11 @@ public class PinpadManager {
             public void run() {
                 super.run();
 
+                long timestamp = SystemClock.elapsedRealtime();
+
                 status[0] = _interrupt();
 
-                Log.d(TAG, "interrupt::status[0] [" + status[0] + "]");
+                Log.d(TAG, "interrupt::timestamp [" + (SystemClock.elapsedRealtime() - timestamp) + "] status[0] [" + status[0] + "]");
 
                 semaphore.release();
             }
