@@ -28,16 +28,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.demo.DEMO;
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.pos.pinpadserver.PinpadServer;
-import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
-import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
+import io.cloudwalk.pos.pinpadserver.PinpadServer;
+import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private static final String

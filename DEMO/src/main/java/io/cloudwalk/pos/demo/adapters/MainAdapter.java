@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.pos.demo.R;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     private static final String

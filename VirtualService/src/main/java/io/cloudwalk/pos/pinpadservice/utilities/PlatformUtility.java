@@ -2,7 +2,6 @@ package io.cloudwalk.pos.pinpadservice.utilities;
 
 import static java.util.Locale.US;
 import static java.util.concurrent.TimeUnit.SECONDS;
-
 import static io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager.Callback.NTF_MSG;
 import static io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager.Callback.NTF_TYPE;
 import static io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager.Callback.Type.NOTIFICATION;
@@ -24,9 +23,9 @@ import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 
-public class VirtualUtility {
+public class PlatformUtility {
     private static final String
-            TAG = VirtualUtility.class.getSimpleName();
+            TAG = PlatformUtility.class.getSimpleName();
 
     private static Socket
             sPinpadSocket = null;
@@ -40,8 +39,8 @@ public class VirtualUtility {
     public static final Semaphore
             sRecvSemaphore = new Semaphore(1, true);
 
-    private VirtualUtility() {
-        Log.d(TAG, "VirtualUtility");
+    private PlatformUtility() {
+        Log.d(TAG, "PlatformUtility");
     }
 
     private static byte[] _intercept(String action, byte[] array) {
@@ -128,8 +127,8 @@ public class VirtualUtility {
 
                     while (sResponseQueue.poll() != null);
 
-                    byte[] stream = new byte[2048];
-                    int    count  = 0;
+                    byte[] array = new byte[2048];
+                    int    count = 0;
 
                     do {
                         if (!sInterruptSemaphore.tryAcquire(0, SECONDS)) {
@@ -145,7 +144,7 @@ public class VirtualUtility {
                             pinpadSocket.setSoTimeout(timeout);
 
                             try {
-                                count = pinpadSocket.getInputStream().read(stream, 0, stream.length);
+                                count = pinpadSocket.getInputStream().read(array, 0, array.length);
                             } catch (SocketTimeoutException exception) {
                                 count = 0;
 
@@ -153,20 +152,20 @@ public class VirtualUtility {
                             }
 
                             if (count > 0) {
-                                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-                                output.write(stream, 0, count);
+                                stream.write(array, 0, count);
 
                                 Bundle response = new Bundle();
 
                                 response.putString   ("application_id", applicationId);
-                                response.putByteArray("response",       _intercept("recv", output.toByteArray()));
+                                response.putByteArray("response",       _intercept("recv", stream.toByteArray()));
 
                                 if (timeout != 200 || count != 1) {
                                     sResponseQueue.add(response);
                                 }
 
-                                if (stream[0] != 0x06) { break; }
+                                if (array[0] != 0x06) { break; }
 
                                 try {
                                     String CMD_ID = (new JSONObject(bundle.getString("request_json"))).getString(ABECS.CMD_ID);

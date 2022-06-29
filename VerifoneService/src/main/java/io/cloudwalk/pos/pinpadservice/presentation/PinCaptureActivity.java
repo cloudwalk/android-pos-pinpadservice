@@ -2,7 +2,8 @@ package io.cloudwalk.pos.pinpadservice.presentation;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility.sAcessoDiretoPinpad;
+
+import static io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility.sAcessoDiretoPinpad;
 
 import android.app.ActivityManager;
 import android.content.Context;

@@ -2,8 +2,6 @@ package io.cloudwalk.pos.demo.presentation;
 
 import static io.cloudwalk.pos.Application.sPinpadServer;
 
-import androidx.annotation.ColorInt;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,16 +16,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+
 import org.json.JSONObject;
 
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.loglibrary.Log;
+import io.cloudwalk.pos.demo.R;
+import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
 import io.cloudwalk.pos.pinpadlibrary.PinpadService;
 import io.cloudwalk.pos.pinpadserver.PinpadServer;
 import io.cloudwalk.utilitieslibrary.AppCompatActivity;
-import io.cloudwalk.pos.demo.R;
-import io.cloudwalk.pos.demo.databinding.ActivitySplashBinding;
-import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 

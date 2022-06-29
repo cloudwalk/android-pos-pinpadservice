@@ -1,8 +1,7 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-import static io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility.sResponseQueue;
+import static io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility.sResponseQueue;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -18,7 +17,7 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.pinpadservice.utilities.VirtualUtility;
+import io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -97,7 +96,7 @@ public class PinpadManager extends IPinpadManager.Stub {
             switch (stream[0]) {
                 case 0x18:
                     if (stream.length == 1) {
-                        result = VirtualUtility.interrupt(bundle);
+                        result = PlatformUtility.interrupt(bundle);
                         break;
                     }
                     /* no break; */
@@ -125,7 +124,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                         case ABECS.GPN: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            result = VirtualUtility.send(bundle);
+                            result = PlatformUtility.send(bundle);
                             break;
 
                         default:
@@ -134,7 +133,7 @@ public class PinpadManager extends IPinpadManager.Stub {
                                 public void run() {
                                     super.run();
 
-                                    VirtualUtility.sRecvSemaphore.acquireUninterruptibly();
+                                    PlatformUtility.sRecvSemaphore.acquireUninterruptibly();
 
                                     // TODO: review test case A003
 
@@ -147,7 +146,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                                     sResponseQueue.add(response);
 
-                                    VirtualUtility.sRecvSemaphore.release();
+                                    PlatformUtility.sRecvSemaphore.release();
                                 }
                             }.start();
 

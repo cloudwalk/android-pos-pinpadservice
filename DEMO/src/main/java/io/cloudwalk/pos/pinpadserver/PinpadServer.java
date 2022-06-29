@@ -1,8 +1,12 @@
 package io.cloudwalk.pos.pinpadserver;
 
+import static android.content.Context.WIFI_SERVICE;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.annotation.SuppressLint;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -12,17 +16,8 @@ import java.nio.ByteOrder;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.utilitieslibrary.Application;
-import io.cloudwalk.utilitieslibrary.utilities.BundleUtility;
-
-import static android.content.Context.WIFI_SERVICE;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 public class PinpadServer {
     private static final String
@@ -53,7 +48,9 @@ public class PinpadServer {
             mWifiLock = null;
 
     public static interface Callback {
-        int  onPinpadCallback(String string); // TODO: replace with argument?!
+        int  onPinpadCallback(String string);
+
+        // TODO: int  onServerCallback(String string);
 
         void onServerFailure(Exception exception);
 

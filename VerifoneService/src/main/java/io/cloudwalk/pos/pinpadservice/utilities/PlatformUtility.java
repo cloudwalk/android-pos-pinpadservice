@@ -4,6 +4,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.os.Bundle;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,12 +18,12 @@ import io.cloudwalk.pos.pinpadlibrary.ABECS;
 import io.cloudwalk.pos.pinpadservice.presentation.PinCaptureActivity;
 import io.cloudwalk.utilitieslibrary.utilities.ServiceUtility;
 
-public class VerifoneUtility {
+public class PlatformUtility {
     private static final String
-            TAG = VerifoneUtility.class.getSimpleName();
+            TAG = PlatformUtility.class.getSimpleName();
 
     private static final Semaphore
-            sAbortSemaphore = new Semaphore(1, true);
+            sInterruptSemaphore = new Semaphore(1, true);
 
     private static final String[]
             sVerifoneService = {
@@ -40,16 +42,14 @@ public class VerifoneUtility {
     public static AcessoDiretoPinpad
             sAcessoDiretoPinpad = null;
 
-    private VerifoneUtility() {
-        Log.d(TAG, "VerifoneUtility");
+    private PlatformUtility() {
+        Log.d(TAG, "PlatformUtility");
 
         /* Nothing to do */
     }
 
-    private static AcessoDiretoPinpad getPinpad() {
-        // Log.d(TAG, "getPinpad");
-
-        AcessoDiretoPinpad pinpad;
+    private static AcessoDiretoPinpad _getPinpad() {
+        // Log.d(TAG, "_getPinpad");
 
         Semaphore semaphore = new Semaphore(0, true);
 
@@ -77,13 +77,11 @@ public class VerifoneUtility {
             semaphore.acquireUninterruptibly();
         }
 
-        pinpad = sAcessoDiretoPinpad;
-
-        return pinpad;
+        return sAcessoDiretoPinpad;
     }
 
-    private static void recv(Bundle bundle) {
-        Log.d(TAG, "recv");
+    private static void _recv(Bundle bundle) {
+        Log.d(TAG, "_recv");
 
         try {
             sRecvSemaphore.acquireUninterruptibly();
@@ -94,14 +92,14 @@ public class VerifoneUtility {
             int    count  = 0;
 
             do {
-                if (!sAbortSemaphore.tryAcquire(0, SECONDS)) {
+                if (!sInterruptSemaphore.tryAcquire(0, SECONDS)) {
                     break;
                 }
 
                 try {
                     int timeout = (count != 0) ? 0 : 2000;
 
-                    count = getPinpad().recebeResposta(buffer, timeout);
+                    count = _getPinpad().recebeResposta(buffer, timeout);
 
                     if (count > 0) {
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -120,7 +118,7 @@ public class VerifoneUtility {
                         if (buffer[0] != 0x06) { break; }
                     }
                 } finally {
-                    sAbortSemaphore.release();
+                    sInterruptSemaphore.release();
                 }
             } while (count++ <= 1);
         } catch (Exception exception) {
@@ -132,13 +130,13 @@ public class VerifoneUtility {
         }
     }
 
-    public static int abort(Bundle bundle) {
-        Log.d(TAG, "abort");
+    public static int interrupt(Bundle bundle) {
+        Log.d(TAG, "interrupt");
 
-        sAbortSemaphore.acquireUninterruptibly();
-        sRecvSemaphore .acquireUninterruptibly();
-        sAbortSemaphore.release();
-        sRecvSemaphore .release();
+        sInterruptSemaphore.acquireUninterruptibly();
+        sRecvSemaphore     .acquireUninterruptibly();
+        sInterruptSemaphore.release();
+        sRecvSemaphore     .release();
 
         return send(bundle);
     }
@@ -147,30 +145,33 @@ public class VerifoneUtility {
         Log.d(TAG, "send");
 
         String applicationId = bundle.getString   ("application_id");
-        byte[] request       = bundle.getByteArray("request");
-        Bundle requestBundle = bundle.getBundle   ("request_bundle");
+        byte[] stream        = bundle.getByteArray("request");
 
-        if (request.length > 1) {
-            switch (requestBundle.getString(ABECS.CMD_ID)) {
-                case ABECS.GPN:
-                case ABECS.GOX:
-                    PinCaptureActivity.startActivity(applicationId);
-                    break;
+        try {
+            if (stream.length > 1) {
+                switch ((new JSONObject(bundle.getString("request_json", ""))).optString(ABECS.CMD_ID)) {
+                    case ABECS.GPN:
+                    case ABECS.GOX:
+                        PinCaptureActivity.startActivity(applicationId);
+                        break;
 
-                // TODO: intercept MNU and GCD
+                    // TODO: intercept MNU and GCD
 
-                default:
-                    /* Nothing to do */
-                    break;
+                    default:
+                        /* Nothing to do */
+                        break;
+                }
             }
+        } catch (Exception exception) {
+            Log.e(TAG, Log.getStackTraceString(exception));
         }
 
-        int status = getPinpad().enviaComando(request, request.length);
+        int status = _getPinpad().enviaComando(stream, stream.length);
 
         if (status >= 0) {
             new Thread() {
                 @Override
-                public void run() { super.run(); recv(bundle); }
+                public void run() { super.run(); _recv(bundle); }
             }.start();
         }
 
