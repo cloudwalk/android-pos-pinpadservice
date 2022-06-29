@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     // requestList.add(DEMO.CLX());
                     requestList.add(DEMO.GIX());
-                    requestList.add(DEMO.OPN());
+                    // requestList.add(DEMO.OPN());
                     // requestList.add(DEMO.TLI());
 
                     // for (String TLR : DEMO.TLR()) { requestList.add(TLR); }
@@ -351,13 +351,13 @@ public class MainActivity extends AppCompatActivity {
                     // requestList.add(DEMO.TLE());
                     // requestList.add(DEMO.CEX());
                     // requestList.add(DEMO.GTK());
-                    requestList.add(DEMO.RMC());
+                    // requestList.add(DEMO.RMC());
                     // requestList.add(DEMO.EBX());
-                    requestList.add(DEMO.GPN());
-                    requestList.add(DEMO.GCX());
-                    requestList.add(DEMO.GED());
-                    requestList.add(DEMO.GOX());
-                    requestList.add(DEMO.FCX());
+                    // requestList.add(DEMO.GPN());
+                    // requestList.add(DEMO.GCX());
+                    // requestList.add(DEMO.GED());
+                    // requestList.add(DEMO.GOX());
+                    // requestList.add(DEMO.FCX());
                     // requestList.add(DEMO.MNU());
                     // requestList.add(DEMO.GCD());
                     requestList.add(DEMO.CHP());
