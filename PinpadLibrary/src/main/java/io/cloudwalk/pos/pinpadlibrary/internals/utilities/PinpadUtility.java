@@ -68,9 +68,7 @@ public class PinpadUtility {
 
             return response;
         } finally {
-            ByteUtility.clear(T);
-            ByteUtility.clear(L);
-            ByteUtility.clear(V);
+            ByteUtility.clear(T, L, V);
         }
     }
 
@@ -190,9 +188,7 @@ public class PinpadUtility {
 
             return pkt[1];
         } finally {
-            ByteUtility.clear(pkt[0]);
-            ByteUtility.clear(crc[0]);
-            ByteUtility.clear(crc[1]);
+            ByteUtility.clear(pkt[0], crc[0], crc[1]);
         }
     }
 
@@ -464,9 +460,7 @@ public class PinpadUtility {
                         break;
                 }
             } finally {
-                ByteUtility.clear(T);
-                ByteUtility.clear(L);
-                ByteUtility.clear(V);
+                ByteUtility.clear(T, L, V);
             }
         }
 

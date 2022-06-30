@@ -12,27 +12,27 @@ public class TLE {
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        throw new RuntimeException("TODO: parseRequestDataPacket");
+        return CMD.parseRequestDataPacket(array, length);
     }
 
     public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        throw new RuntimeException("TODO: parseResponseDataPacket");
+        return CMD.parseResponseDataPacket(array, length);
     }
 
     public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        throw new RuntimeException("TODO: buildRequestDataPacket");
+        return CMD.buildRequestDataPacket(string);
     }
 
     public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildResponseDataPacket");
 
-        throw new RuntimeException("TODO: buildResponseDataPacket");
+        return CMD.buildResponseDataPacket(string);
     }
 }

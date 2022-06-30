@@ -103,10 +103,16 @@ public class CMD {
                 new ByteArrayOutputStream()
         };
 
+        byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
+        byte[] CMD_DATA = null;
+
         try {
             JSONObject json = new JSONObject(string);
 
-            stream[0].write(json.getString(ABECS.CMD_ID).getBytes(UTF_8));
+            CMD_ID = json.getString(ABECS.CMD_ID).getBytes(UTF_8);
+
+            stream[0].write(CMD_ID);
 
             for (Iterator<String> it = json.keys(); it.hasNext(); ) {
                 String entry = it.next();
@@ -117,28 +123,40 @@ public class CMD {
                         break;
 
                     default:
-                        byte[] array = PinpadUtility.buildTLV(entry, json.getString(entry));
+                        byte[] array = null;
 
-                        stream[1].write(array);
+                        try {
+                            array = PinpadUtility.buildTLV(entry, json.getString(entry));
 
-                        Log.h(TAG, array, array.length);
+                            stream[1].write(array);
+                        } finally {
+                            if (array != null) {
+                                Log.h(TAG, array, array.length);
+                            }
 
-                        ByteUtility.clear(array);
+                            ByteUtility.clear(array);
+                        }
                         break;
                 }
             }
 
-            byte[] CMD_DATA = stream[1].toByteArray();
+            try {
+                CMD_DATA = stream[1].toByteArray();
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
 
-            stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
-            stream[0].write(CMD_DATA);
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
 
             byte[] request = stream[0].toByteArray();
 
             return request;
         } finally {
-            ByteUtility.clear(stream[0]);
-            ByteUtility.clear(stream[1]);
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1, CMD_DATA);
         }
     }
 
@@ -151,48 +169,64 @@ public class CMD {
                 new ByteArrayOutputStream()
         };
 
+        byte[] RSP_ID   = null;
+        byte[] RSP_LEN1 = null;
+        byte[] RSP_DATA = null;
+
         try {
             JSONObject json = new JSONObject(string);
 
-            stream[0].write(json.getString(ABECS.RSP_ID).getBytes(UTF_8));
+            RSP_ID = json.getString(ABECS.RSP_ID).getBytes(UTF_8);
+
+            stream[0].write(RSP_ID);
 
             for (Iterator<String> it = json.keys(); it.hasNext(); ) {
                 String entry = it.next();
 
-                switch (entry) {
-                    case ABECS.RSP_ID:
-                        /* Nothing to do */
-                        break;
+                byte[] array = null;
 
-                    case ABECS.RSP_STAT:
-                        int RSP_STAT = ABECS.STAT.valueOf(json.getString(entry)).ordinal();
+                try {
+                    switch (entry) {
+                        case ABECS.RSP_ID:
+                            /* Nothing to do */
+                            break;
 
-                        stream[0].write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
-                        break;
+                        case ABECS.RSP_STAT:
+                            int RSP_STAT = ABECS.STAT.valueOf(json.getString(entry)).ordinal();
 
-                    default:
-                        byte[] array = PinpadUtility.buildTLV(entry, json.getString(entry));
+                            array = String.format(US, "%03d", RSP_STAT).getBytes(UTF_8);
 
-                        stream[1].write(array);
+                            stream[0].write(array);
+                            break;
 
+                        default:
+                            array = PinpadUtility.buildTLV(entry, json.getString(entry));
+
+                            stream[1].write(array);
+                            break;
+                    }
+                } finally {
+                    if (array != null) {
                         Log.h(TAG, array, array.length);
+                    }
 
-                        ByteUtility.clear(array);
-                        break;
+                    ByteUtility.clear(array);
                 }
             }
 
-            byte[] RSP_DATA = stream[1].toByteArray();
+            RSP_DATA = stream[1].toByteArray();
+            RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
 
-            stream[0].write(String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8));
+            stream[0].write(RSP_LEN1);
             stream[0].write(RSP_DATA);
 
             byte[] response = stream[0].toByteArray();
 
             return response;
         } finally {
-            ByteUtility.clear(stream[0]);
-            ByteUtility.clear(stream[1]);
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(RSP_ID, RSP_LEN1, RSP_DATA);
         }
     }
 }

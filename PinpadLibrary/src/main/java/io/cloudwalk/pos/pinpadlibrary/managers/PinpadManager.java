@@ -155,8 +155,7 @@ public class PinpadManager {
 
             return "{\"" + ABECS.RSP_ID + "\":\"" + RSP_ID + "\",\"" + ABECS.RSP_STAT + "\":\"" + RSP_STAT.name() + "\"}";
         } finally {
-            ByteUtility.clear(stream[0]);
-            ByteUtility.clear(stream[1]);
+            ByteUtility.clear(stream);
 
             sRequestSemaphore.release();
         }
@@ -205,8 +204,7 @@ public class PinpadManager {
 
             return (exception instanceof TimeoutException) ? 0 : -1;
         } finally {
-            ByteUtility.clear(stream[0]);
-            ByteUtility.clear(stream[1]);
+            ByteUtility.clear(stream);
 
             sInterruptSemaphore.release();
         }
