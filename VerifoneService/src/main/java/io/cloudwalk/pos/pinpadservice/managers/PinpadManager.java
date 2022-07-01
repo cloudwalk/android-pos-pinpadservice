@@ -18,6 +18,7 @@ import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -157,6 +158,8 @@ public class PinpadManager extends IPinpadManager.Stub {
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
+            ByteUtility.clear(stream);
+
             sSendSemaphore.release();
         }
 

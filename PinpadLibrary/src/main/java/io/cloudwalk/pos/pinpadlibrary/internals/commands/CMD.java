@@ -18,30 +18,6 @@ public class CMD {
     private static final String
             TAG = CMD.class.getSimpleName();
 
-    private static int _getInt(byte[] array, int offset, int length)
-            throws Exception {
-        // Log.d(TAG, "_getInt");
-
-        length = Math.max(length, 0);
-        length = Math.min(length, array.length);
-
-        offset = Math.max(offset, 0);
-
-        int response = 0;
-
-        for (int i = length - 1, j = offset; (j < array.length && i >= 0); i--, j++) {
-            if (array[j] < 0x30 || array[j] > 0x39) {
-                String message = String.format(US, "_getInt::array[%d] [%02X]", j, array[j]);
-
-                throw new IllegalArgumentException(message);
-            }
-
-            response += (array[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
-        }
-
-        return response;
-    }
-
     private CMD() {
         /* Nothing to do */
     }
@@ -80,7 +56,7 @@ public class CMD {
 
         response[0].put(ABECS.RSP_ID, new String(array, 0, 3));
 
-        response[0].put(ABECS.RSP_STAT, ABECS.STAT.values()[_getInt(array, 3, 3)].name());
+        response[0].put(ABECS.RSP_STAT, ABECS.STAT.values()[parseInt(array, 3, 3)].name());
 
         if (length >= 10) {
             String RSP_DATA = PinpadUtility.parseTLV(array, 9, array.length);
@@ -192,9 +168,7 @@ public class CMD {
                             break;
 
                         case ABECS.RSP_STAT:
-                            int RSP_STAT = ABECS.STAT.valueOf(json.getString(entry)).ordinal();
-
-                            array = String.format(US, "%03d", RSP_STAT).getBytes(UTF_8);
+                            array = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(entry)).ordinal()).getBytes(UTF_8);
 
                             stream[0].write(array);
                             break;
@@ -228,5 +202,29 @@ public class CMD {
 
             ByteUtility.clear(RSP_ID, RSP_LEN1, RSP_DATA);
         }
+    }
+
+    public static int parseInt(byte[] array, int offset, int length)
+            throws Exception {
+        // Log.d(TAG, "parseInt");
+
+        length = Math.max(length, 0);
+        length = Math.min(length, array.length);
+
+        offset = Math.max(offset, 0);
+
+        int response = 0;
+
+        for (int i = length - 1, j = offset; (j < array.length && i >= 0); i--, j++) {
+            if (array[j] < 0x30 || array[j] > 0x39) {
+                String message = String.format(US, "parseInt::array[%d] [%02X]", j, array[j]);
+
+                throw new IllegalArgumentException(message);
+            }
+
+            response += (array[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
+        }
+
+        return response;
     }
 }
