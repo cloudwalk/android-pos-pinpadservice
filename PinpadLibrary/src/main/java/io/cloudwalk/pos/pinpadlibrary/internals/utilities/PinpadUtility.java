@@ -200,7 +200,7 @@ public class PinpadUtility {
 
     public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "parseRequestDataPacket::array.length [" + array.length + "] length [" + length + "]");
+        Log.d(TAG, "parseRequestDataPacket");
 
         byte[] stream = _unwrapDataPacket(array, length);
 
@@ -237,7 +237,7 @@ public class PinpadUtility {
 
     public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "parseResponseDataPacket::array.length [" + array.length + "] length [" + length + "]");
+        Log.d(TAG, "parseResponseDataPacket");
 
         byte[] stream = null;
 
@@ -280,7 +280,7 @@ public class PinpadUtility {
 
     public static String parseTLV(byte[] array, int offset, int length)
             throws Exception {
-        Log.d(TAG, "parseTLV::array.length [" + array.length + "] offset [" + offset + "] length [" + length + "]");
+        Log.d(TAG, "parseTLV");
 
         length = Math.max(length, 0);
         length = Math.min(length, array.length);
@@ -314,7 +314,7 @@ public class PinpadUtility {
 
                 System.arraycopy(array, cursor, V, 0, threshold);
 
-                switch (tag) {
+                switch (tag) { // TODO: research better or more elegant approach?!
                     case 0x0002: response.put(ABECS.SPE_MTHDPIN,    new String(V)); break;
                     case 0x0003: response.put(ABECS.SPE_MTHDDAT,    new String(V)); break;
                     case 0x0006: response.put(ABECS.SPE_CEXOPT,     new String(V)); break;

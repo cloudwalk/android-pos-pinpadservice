@@ -227,7 +227,7 @@ public class PinpadManager {
      * @return JSON {@link String}
      */
     public static String request(@NotNull String string, Callback callback) {
-        Log.d(TAG, "request");
+        // Log.d(TAG, "request");
 
         String[]  response  = { null };
         Semaphore semaphore = new Semaphore(0, true);
@@ -257,7 +257,7 @@ public class PinpadManager {
      * For those which are not newcomers: {@code interrupt} and {@code abort} are equivalent terms.
      */
     public static int interrupt() {
-        Log.d(TAG, "interrupt");
+        // Log.d(TAG, "interrupt");
 
         Semaphore semaphore = new Semaphore(0, true);
 

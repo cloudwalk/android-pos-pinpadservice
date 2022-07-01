@@ -20,7 +20,7 @@ public class CMD {
 
     private static int _getInt(byte[] array, int offset, int length)
             throws Exception {
-        // Log.d(TAG, "_getInt::array.length [" + array.length + "] offset [" + offset + "] length [" + length + "]");
+        // Log.d(TAG, "_getInt");
 
         length = Math.max(length, 0);
         length = Math.min(length, array.length);
