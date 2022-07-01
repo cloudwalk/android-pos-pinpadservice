@@ -95,8 +95,8 @@ public class GPN {
             GPN_PAN    = String.format(US, "%19.19s", GPN_PAN);
 
             stream[0].write(CMD_ID);
-            stream[1].write(GPN_METHOD);        stream[1].write(GPN_KEYIDX);
-            stream[1].write(GPN_WKENC);         stream[1].write(GPN_PANLEN);
+            stream[1].write(GPN_METHOD);    stream[1].write(GPN_KEYIDX);
+            stream[1].write(GPN_WKENC);     stream[1].write(GPN_PANLEN);
 
             byte[] array = null;
 
@@ -108,8 +108,8 @@ public class GPN {
                 ByteUtility.clear(array);
             }
 
-            stream[1].write(GPN_ENTRIES);       stream[1].write(GPN_MIN1);
-            stream[1].write(GPN_MAX1);          stream[1].write(GPN_MSG1);
+            stream[1].write(GPN_ENTRIES);   stream[1].write(GPN_MIN1);
+            stream[1].write(GPN_MAX1);      stream[1].write(GPN_MSG1);
 
             byte[] CMD_DATA = null;
 
@@ -166,13 +166,9 @@ public class GPN {
                         break;
 
                     case ABECS.RSP_STAT:
-                        try {
-                            array = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(entry)).ordinal()).getBytes(UTF_8);
+                        array = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(entry)).ordinal()).getBytes(UTF_8);
 
-                            stream[0].write(array);
-                        } finally {
-                            ByteUtility.clear(array);
-                        }
+                        stream[0].write(array);
                         break;
 
                     case ABECS.GPN_PINBLK:
@@ -186,6 +182,8 @@ public class GPN {
                     default:
                         throw new RuntimeException("Unknown or unhandled TAG [" + entry + "]");
                 }
+
+                ByteUtility.clear(array);
             }
 
             stream[1].write(GPN_PINBLK);
