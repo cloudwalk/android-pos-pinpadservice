@@ -146,53 +146,31 @@ public class OPN {
         };
 
         byte[] RSP_ID      = null;
-        byte[] RSP_LEN1    = null;
-        byte[] OPN_CRKSLEN = null;
-        byte[] OPN_CRKSEC  = null;
+        byte[] RSP_STAT    = null;      byte[] RSP_LEN1    = null;
+        byte[] OPN_CRKSLEN = null;      byte[] OPN_CRKSEC  = null;
         byte[] RSP_DATA    = null;
 
         try {
             JSONObject json = new JSONObject(string);
 
-            RSP_ID = json.getString(ABECS.RSP_ID).getBytes(UTF_8);
+            RSP_ID     = json.getString(ABECS.RSP_ID)    .getBytes(UTF_8);
+            OPN_CRKSEC = json.optString(ABECS.OPN_CRKSEC).getBytes(UTF_8);
 
-            stream[0].write(RSP_ID);
-
-            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
-                String entry = it.next();
-
-                byte[] array = null;
-
-                switch (entry) {
-                    case ABECS.RSP_ID:
-                        /* Nothing to do */
-                        break;
-
-                    case ABECS.RSP_STAT:
-                        array = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(entry)).ordinal()).getBytes(UTF_8);
-
-                        stream[0].write(array);
-                        break;
-
-                    case ABECS.OPN_CRKSEC:
-                        OPN_CRKSEC  = json.getString(entry).getBytes(UTF_8);
-
-                        OPN_CRKSLEN = String.format(US, "%03d", OPN_CRKSEC.length / 2).getBytes(UTF_8);
-
-                        stream[1].write(OPN_CRKSLEN);
-                        stream[1].write(OPN_CRKSEC );
-                        break;
-
-                    default:
-                        throw new RuntimeException("Unknown or unhandled TAG [" + entry + "]");
-                }
-
-                ByteUtility.clear(array);
+            if (OPN_CRKSEC.length > 0) {
+                OPN_CRKSLEN = String.format(US, "%03d", OPN_CRKSEC.length / 2).getBytes(UTF_8);
             }
 
+            stream[1].write((OPN_CRKSLEN != null) ? OPN_CRKSLEN : new byte[0]);
+            stream[1].write(OPN_CRKSEC);
+
+            RSP_STAT = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(ABECS.RSP_STAT)).ordinal()).getBytes(UTF_8);
+
             RSP_DATA = stream[1].toByteArray();
+
             RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
 
+            stream[0].write(RSP_ID);
+            stream[0].write(RSP_STAT);
             stream[0].write(RSP_LEN1);
             stream[0].write(RSP_DATA);
 
@@ -202,7 +180,7 @@ public class OPN {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(RSP_ID, RSP_LEN1, OPN_CRKSLEN, OPN_CRKSEC, RSP_DATA);
+            ByteUtility.clear(RSP_ID, RSP_STAT, RSP_LEN1, OPN_CRKSLEN, OPN_CRKSEC, RSP_DATA);
         }
     }
 }

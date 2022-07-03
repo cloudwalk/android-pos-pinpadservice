@@ -85,6 +85,6 @@ public class TLI {
             throws Exception {
         Log.d(TAG, "buildResponseDataPacket");
 
-        return CMD.buildRequestDataPacket(string);
+        return CMD.buildResponseDataPacket(string);
     }
 }

@@ -143,55 +143,28 @@ public class GPN {
         };
 
         byte[] RSP_ID     = null;
-        byte[] RSP_LEN1   = null;
-        byte[] GPN_PINBLK = null;
-        byte[] GPN_KSN    = null;
+        byte[] RSP_STAT   = null;       byte[] RSP_LEN1   = null;
+        byte[] GPN_PINBLK = null;       byte[] GPN_KSN    = null;
         byte[] RSP_DATA   = null;
 
         try {
             JSONObject json = new JSONObject(string);
 
-            RSP_ID = json.getString(ABECS.RSP_ID).getBytes(UTF_8);
-
-            stream[0].write(RSP_ID);
-
-            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
-                String entry = it.next();
-
-                byte[] array = null;
-
-                switch (entry) {
-                    case ABECS.RSP_ID:
-                        /* Nothing to do */
-                        break;
-
-                    case ABECS.RSP_STAT:
-                        array = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(entry)).ordinal()).getBytes(UTF_8);
-
-                        stream[0].write(array);
-                        break;
-
-                    case ABECS.GPN_PINBLK:
-                        GPN_PINBLK = json.getString(entry).getBytes(UTF_8);
-                        break;
-
-                    case ABECS.GPN_KSN:
-                        GPN_KSN    = json.getString(entry).getBytes(UTF_8);
-                        break;
-
-                    default:
-                        throw new RuntimeException("Unknown or unhandled TAG [" + entry + "]");
-                }
-
-                ByteUtility.clear(array);
-            }
+            RSP_ID     = json.getString(ABECS.RSP_ID)    .getBytes(UTF_8);
+            GPN_PINBLK = json.optString(ABECS.GPN_PINBLK).getBytes(UTF_8);
+            GPN_KSN    = json.getString(ABECS.GPN_KSN)   .getBytes(UTF_8);
 
             stream[1].write(GPN_PINBLK);
             stream[1].write(GPN_KSN);
 
+            RSP_STAT = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(ABECS.RSP_STAT)).ordinal()).getBytes(UTF_8);
+
             RSP_DATA = stream[1].toByteArray();
+
             RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
 
+            stream[0].write(RSP_ID);
+            stream[0].write(RSP_STAT);
             stream[0].write(RSP_LEN1);
             stream[0].write(RSP_DATA);
 
@@ -201,7 +174,7 @@ public class GPN {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(RSP_ID, RSP_LEN1, GPN_PINBLK, GPN_KSN, RSP_DATA);
+            ByteUtility.clear(RSP_ID, RSP_STAT, RSP_LEN1, GPN_PINBLK, GPN_KSN, RSP_DATA);
         }
     }
 }
