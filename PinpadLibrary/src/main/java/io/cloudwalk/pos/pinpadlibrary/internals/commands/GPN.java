@@ -152,7 +152,7 @@ public class GPN {
 
             RSP_ID     = json.getString(ABECS.RSP_ID)    .getBytes(UTF_8);
             GPN_PINBLK = json.optString(ABECS.GPN_PINBLK).getBytes(UTF_8);
-            GPN_KSN    = json.getString(ABECS.GPN_KSN)   .getBytes(UTF_8);
+            GPN_KSN    = json.optString(ABECS.GPN_KSN)   .getBytes(UTF_8);
 
             stream[1].write(GPN_PINBLK);
             stream[1].write(GPN_KSN);

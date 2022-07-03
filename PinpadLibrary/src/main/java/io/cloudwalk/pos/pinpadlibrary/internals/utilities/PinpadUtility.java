@@ -386,19 +386,6 @@ public class PinpadUtility {
                     case 0x8041: response.put(ABECS.PP_TRK1INC,     new String(V)); break;
                     case 0x8042: response.put(ABECS.PP_TRK2INC,     new String(V)); break;
                     case 0x8043: response.put(ABECS.PP_TRK3INC,     new String(V)); break;
-
-                    case 0x8044:
-                        int i; // TODO: improve detection?!
-
-                        for (i = 0; i < V.length; i++) {
-                            if (V[i] < 0x20 || V[i] > 0x7E) {
-                                break;
-                            }
-                        }
-
-                        response.put(ABECS.PP_TRACK1, (i < V.length) ? ByteUtility.getHexString(V, V.length) : new String(V));
-                        break;
-
                     case 0x804D: response.put(ABECS.PP_VALUE,       new String(V)); break;
                     case 0x804F: response.put(ABECS.PP_CARDTYPE,    new String(V)); break;
                     case 0x8050: response.put(ABECS.PP_ICCSTAT,     new String(V)); break;
@@ -413,6 +400,7 @@ public class PinpadUtility {
                     case 0x805D: response.put(ABECS.PP_CARDEXP,     new String(V)); break;
                     case 0x8060: response.put(ABECS.PP_DEVTYPE,     new String(V)); break;
 
+                    case 0x8044: response.put(ABECS.PP_TRACK1,      ByteUtility.getHexString(V, V.length)); break;
                     case 0x8045: response.put(ABECS.PP_TRACK2,      ByteUtility.getHexString(V, V.length)); break;
                     case 0x8046: response.put(ABECS.PP_TRACK3,      ByteUtility.getHexString(V, V.length)); break;
                     case 0x8047: response.put(ABECS.PP_TRK1KSN,     ByteUtility.getHexString(V, V.length)); break;

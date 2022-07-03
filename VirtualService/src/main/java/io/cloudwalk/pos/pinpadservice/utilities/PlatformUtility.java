@@ -174,7 +174,7 @@ public class PlatformUtility {
 
                                     String message = String.format(US, "\nPROCESSING %s\n/%s", CMD_ID, pinpadSocket.getInetAddress().getHostAddress());
 
-                                    Log.d(TAG, "message:: [" + message + "]");
+                                    Log.d(TAG, "message:: [" + message.replace("\n", "\\n").replace("\r", "\\r") + "]");
 
                                     callback.putString(NTF_MSG,  message);
                                     callback.putInt   (NTF_TYPE, NOTIFICATION.ordinal());

@@ -55,7 +55,7 @@ public class CallbackUtility {
     }
 
     private static void _mensagemNotificacao(String mensagem, int count, int tipoNotificacao) {
-        // Log.d(TAG, "_mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
+        // Log.d(TAG, "_mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n").replace("\r", "\\r") + "] count [" + count + "] tipoNotificacao [" + tipoNotificacao + "]");
 
         switch (PinpadManager.Callback.Type.values()[tipoNotificacao]) {
             case NTF_PIN_START:
@@ -150,7 +150,7 @@ public class CallbackUtility {
         return new InterfaceUsuarioPinpad() {
             @Override
             public void mensagemNotificacao(String mensagem, TipoNotificacao tipoNotificacao) {
-                Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n") : null) + "] tipoNotificacao [" + tipoNotificacao + "]");
+                Log.d(TAG, "mensagemNotificacao::mensagem [" + ((mensagem != null) ? mensagem.replace("\n", "\\n").replace("\r", "\\r") : null) + "] tipoNotificacao [" + tipoNotificacao + "]");
 
                 PinpadManager.Callback.Type type = null;
 

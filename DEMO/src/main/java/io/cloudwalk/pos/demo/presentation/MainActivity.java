@@ -346,7 +346,9 @@ public class MainActivity extends AppCompatActivity {
                     // requestList.add(DEMO.OPN());
                     // requestList.add(DEMO.TLI());
 
-                    // for (String TLR : DEMO.TLR()) { requestList.add(TLR); }
+                    // for (String TLR : DEMO.TLR()) {
+                    //     requestList.add(TLR);
+                    // }
 
                     // requestList.add(DEMO.TLE());
                     // requestList.add(DEMO.CEX());
@@ -360,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                     // requestList.add(DEMO.FCX());
                     // requestList.add(DEMO.MNU());
                     // requestList.add(DEMO.GCD());
-                    requestList.add(DEMO.CHP());
+                    // requestList.add(DEMO.CHP());
                 } catch (Exception exception) {
                     Log.e(TAG, Log.getStackTraceString(exception));
                 } finally {

@@ -312,7 +312,7 @@ public class PinpadManager {
 
                 bundle.putLong("timeout", (timeout < 0) ? 0 : timeout);
 
-                IBinder binder = ServiceUtility.retrieve(SERVICE_PACKAGE, SERVICE_ACTION);
+                IBinder binder = ServiceUtility.get(SERVICE_PACKAGE, SERVICE_ACTION);
 
                 status = IPinpadService.Stub
                         .asInterface(binder).getPinpadManager(null).recv(bundle);
@@ -376,7 +376,7 @@ public class PinpadManager {
 
             bundle.putByteArray("request", stream);
 
-            IBinder binder = ServiceUtility.retrieve(SERVICE_PACKAGE, SERVICE_ACTION);
+            IBinder binder = ServiceUtility.get(SERVICE_PACKAGE, SERVICE_ACTION);
 
             status = IPinpadService.Stub
                     .asInterface(binder).getPinpadManager(null).send(bundle, tunnel);
