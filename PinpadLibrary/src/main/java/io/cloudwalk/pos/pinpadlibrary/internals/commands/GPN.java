@@ -72,10 +72,10 @@ public class GPN {
         };
 
         byte[] CMD_ID      = null;
-        byte[] GPN_METHOD  = null;      byte[] GPN_KEYIDX  = null;
-        byte[] GPN_WKENC   = null;      byte[] GPN_PANLEN  = null;
-        byte[] GPN_ENTRIES = null;      byte[] GPN_MIN1    = null;
-        byte[] GPN_MAX1    = null;      byte[] GPN_MSG1    = null;
+        byte[] GPN_METHOD  = null;          byte[] GPN_KEYIDX  = null;
+        byte[] GPN_WKENC   = null;          byte[] GPN_PANLEN  = null;
+        byte[] GPN_ENTRIES = null;          byte[] GPN_MIN1    = null;
+        byte[] GPN_MAX1    = null;          byte[] GPN_MSG1    = null;
 
         try {
             JSONObject request = new JSONObject(string);

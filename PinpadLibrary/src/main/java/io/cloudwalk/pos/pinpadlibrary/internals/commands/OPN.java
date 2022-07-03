@@ -27,23 +27,17 @@ public class OPN {
 
         if (length > 3) {
             if (CMD.parseInt(array, 3, 3) > 0) {
-                int OPN_MODLEN = -1;
-                int OPN_EXPLEN = -1;
+                request.put(ABECS.OPN_OPMODE, new String(array, 6, 1));
 
-                request.put(ABECS.OPN_OPMODE, new String(array,  6, 1));
+                int OPN_MODLEN = CMD.parseInt(array, 7, 3);
 
-                OPN_MODLEN = CMD.parseInt(array, 7, 3);
+                request.put(ABECS.OPN_MOD, new String(array, 10, OPN_MODLEN * 2));
 
-                int i = OPN_MODLEN + 10;
+                OPN_MODLEN = (OPN_MODLEN * 2) + 10;
 
-                request.put(ABECS.OPN_MOD,    new String(array, 10, i));
+                int OPN_EXPLEN = CMD.parseInt(array, OPN_MODLEN++, 1);
 
-                OPN_EXPLEN = CMD.parseInt(array, i, 1);
-
-                int j = OPN_EXPLEN;
-                    i = OPN_MODLEN + 11;
-
-                request.put(ABECS.OPN_EXP,    new String(array,  i, j));
+                request.put(ABECS.OPN_EXP, new String(array, OPN_MODLEN, OPN_EXPLEN * 2));
             }
         }
 
