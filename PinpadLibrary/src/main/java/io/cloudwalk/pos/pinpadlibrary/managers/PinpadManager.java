@@ -351,9 +351,6 @@ public class PinpadManager {
     public static int send(byte[] array, int length, Callback callback) {
         // Log.d(TAG, "send");
 
-        byte[] stream = null;
-        int    status;
-
         try {
             Log.h(TAG, array, length);
 
@@ -370,7 +367,7 @@ public class PinpadManager {
 
             bundle.putString("application_id", Application.getContext().getPackageName());
 
-            stream = new byte[length];
+            byte[] stream = new byte[length];
 
             System.arraycopy(array, 0, stream, 0, stream.length);
 
@@ -378,16 +375,14 @@ public class PinpadManager {
 
             IBinder binder = ServiceUtility.get(SERVICE_PACKAGE, SERVICE_ACTION);
 
-            status = IPinpadService.Stub
+            return IPinpadService.Stub
                     .asInterface(binder).getPinpadManager(null).send(bundle, tunnel);
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
-
-            status = -1;
         } finally {
-            ByteUtility.clear(stream);
+            // ByteUtility.clear(array); 2022-07-03: conceptually, it's the caller responsibility
         }
 
-        return status;
+        return -1;
     }
 }
