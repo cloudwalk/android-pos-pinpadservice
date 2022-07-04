@@ -91,4 +91,4 @@ between `JSON` and `byte[]`.
   - `PinpadManager#request(String, Callback);`
 - _byte[]_ API
   - `PinpadManager#send(byte[], int, Callback);`
-  - `PinpadManager#receive(byte[], long);`
+  - `PinpadManager#recv(byte[], long);`
