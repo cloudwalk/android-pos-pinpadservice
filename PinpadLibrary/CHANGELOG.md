@@ -8,11 +8,13 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
-## [1.2.0] - YYYY-MM-DD - WARNING: incompatible with previous release(s)
+## Known issues
+- `MNU` and `GCD` are currently unsupported by `JSON` API.
+
+## [1.2.0] - 2022-07-03 - WARNING: incompatible with previous release(s)
 - Update dependencies.
 - Replace `Bundle` API by `JSON` API to simplify internal coding and retain
   request/response data order when parsing data streams.
-- Greatly increase data handling security.
 
 ## [1.1.0] - 2022-06-08
 - Update dependencies.

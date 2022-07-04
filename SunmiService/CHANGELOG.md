@@ -29,7 +29,6 @@
 - Remove application from backup and restore infrastructure.
 - Replace `Bundle` API by `JSON` API to simplify internal coding and retain
   request/response data order when parsing data streams.
-- Greatly increase data handling security.
 
 ## [1.1.5] - 2022-03-27
 - Broaden PIN capture activity updates to whenever a callback event is

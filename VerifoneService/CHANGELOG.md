@@ -26,7 +26,6 @@
 - Remove application from backup and restore infrastructure.
 - Replace `Bundle` API by `JSON` API to simplify internal coding and retain
   request/response data order when parsing data streams.
-- Greatly increase data handling security.
 
 ## [1.1.6] - 2022-04-19
 - Update dependencies.

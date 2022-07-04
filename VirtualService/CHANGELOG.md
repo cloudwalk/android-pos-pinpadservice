@@ -8,7 +8,7 @@
   processing timeout. Caller has to oversight time.
 - `MNU` and `GCD` were not fully developed and may not work as specified.
 
-## [0.0.5] - YYYY-MM-DD
+## [0.0.5] - 2022-07-03
 - Update dependencies.
 - Replace `Bundle` API by `JSON` API to simplify internal coding and retain
   request/response data order when parsing data streams.
