@@ -10,7 +10,7 @@ android {
         minSdk 22
         targetSdk 32
         versionCode 108
-        versionName "1.1.7-untagged"
+        versionName "1.1.7-dev"
 
         setProperty("archivesBaseName", "verifone-$applicationId-$versionName-${getDate()}")
     }

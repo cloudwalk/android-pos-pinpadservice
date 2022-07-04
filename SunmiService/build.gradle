@@ -10,7 +10,7 @@ android {
         minSdk 22
         targetSdk 32
         versionCode 107
-        versionName "1.1.6-untagged"
+        versionName "1.1.6-dev"
 
         setProperty("archivesBaseName", "sunmi-$applicationId-$versionName-${getDate()}")
     }
