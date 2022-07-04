@@ -46,6 +46,7 @@ public class TLR {
         };
 
         byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
         byte[] TLR_NREC = null;
         byte[] TLR_DATA = null;
 
@@ -65,7 +66,9 @@ public class TLR {
             try {
                 CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
                 stream[0].write(CMD_DATA);
             } finally {
                 ByteUtility.clear(CMD_DATA);
@@ -77,7 +80,7 @@ public class TLR {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(CMD_ID, TLR_NREC, TLR_DATA);
+            ByteUtility.clear(CMD_ID, CMD_LEN1, TLR_NREC, TLR_DATA);
         }
     }
 

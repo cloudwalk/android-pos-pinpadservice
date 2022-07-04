@@ -71,7 +71,7 @@ public class GPN {
                 new ByteArrayOutputStream()
         };
 
-        byte[] CMD_ID      = null;
+        byte[] CMD_ID      = null;          byte[] CMD_LEN1    = null;
         byte[] GPN_METHOD  = null;          byte[] GPN_KEYIDX  = null;
         byte[] GPN_WKENC   = null;          byte[] GPN_PANLEN  = null;
         byte[] GPN_ENTRIES = null;          byte[] GPN_MIN1    = null;
@@ -116,7 +116,9 @@ public class GPN {
             try {
                 CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
                 stream[0].write(CMD_DATA);
             } finally {
                 ByteUtility.clear(CMD_DATA);
@@ -128,7 +130,7 @@ public class GPN {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(CMD_ID, GPN_METHOD, GPN_KEYIDX, GPN_WKENC, GPN_PANLEN,
+            ByteUtility.clear(CMD_ID, CMD_LEN1, GPN_METHOD, GPN_KEYIDX, GPN_WKENC, GPN_PANLEN,
                     GPN_ENTRIES, GPN_MIN1, GPN_MAX1, GPN_MSG1);
         }
     }
@@ -142,10 +144,9 @@ public class GPN {
                 new ByteArrayOutputStream()
         };
 
-        byte[] RSP_ID     = null;
-        byte[] RSP_STAT   = null;       byte[] RSP_LEN1   = null;
-        byte[] GPN_PINBLK = null;       byte[] GPN_KSN    = null;
-        byte[] RSP_DATA   = null;
+        byte[] RSP_ID     = null;       byte[] RSP_STAT   = null;
+        byte[] RSP_LEN1   = null;       byte[] GPN_PINBLK = null;
+        byte[] GPN_KSN    = null;       byte[] RSP_DATA   = null;
 
         try {
             JSONObject json = new JSONObject(string);

@@ -76,7 +76,7 @@ public class CHP {
                 new ByteArrayOutputStream()
         };
 
-        byte[] CMD_ID     = null;
+        byte[] CMD_ID     = null;           byte[] CMD_LEN1   = null;
         byte[] CHP_SLOT   = null;           byte[] CHP_OPER   = null;
         byte[] CHP_CMDLEN = null;           byte[] CHP_CMD    = null;
         byte[] CHP_PINFMT = null;           byte[] CHP_PINMSG = null;
@@ -107,7 +107,9 @@ public class CHP {
             try {
                 CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
                 stream[0].write(CMD_DATA);
             } finally {
                 ByteUtility.clear(CMD_DATA);
@@ -119,7 +121,8 @@ public class CHP {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(CMD_ID, CHP_SLOT, CHP_OPER, CHP_CMDLEN, CHP_CMD, CHP_PINFMT, CHP_PINMSG);
+            ByteUtility.clear(CMD_ID, CMD_LEN1, CHP_SLOT, CHP_OPER, CHP_CMDLEN, CHP_CMD,
+                    CHP_PINFMT, CHP_PINMSG);
         }
     }
 
@@ -132,10 +135,9 @@ public class CHP {
                 new ByteArrayOutputStream()
         };
 
-        byte[] RSP_ID     = null;
-        byte[] RSP_STAT   = null;       byte[] RSP_LEN1   = null;
-        byte[] CHP_RSPLEN = null;       byte[] CHP_RSP    = null;
-        byte[] RSP_DATA   = null;
+        byte[] RSP_ID     = null;       byte[] RSP_STAT   = null;
+        byte[] RSP_LEN1   = null;       byte[] CHP_RSPLEN = null;
+        byte[] CHP_RSP    = null;       byte[] RSP_DATA   = null;
 
         try {
             JSONObject json = new JSONObject(string);

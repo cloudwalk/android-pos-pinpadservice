@@ -44,8 +44,9 @@ public class RMC {
                 new ByteArrayOutputStream()
         };
 
-        byte[] CMD_ID  = null;
-        byte[] RMC_MSG = null;
+        byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
+        byte[] RMC_MSG  = null;
 
         try {
             JSONObject request = new JSONObject(string);
@@ -61,7 +62,9 @@ public class RMC {
             try {
                 CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
                 stream[0].write(CMD_DATA);
             } finally {
                 ByteUtility.clear(CMD_DATA);
@@ -73,7 +76,7 @@ public class RMC {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(CMD_ID, RMC_MSG);
+            ByteUtility.clear(CMD_ID, CMD_LEN1, RMC_MSG);
         }
     }
 

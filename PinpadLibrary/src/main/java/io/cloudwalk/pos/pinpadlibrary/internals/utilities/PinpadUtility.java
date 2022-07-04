@@ -229,7 +229,7 @@ public class PinpadUtility {
             case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                 return CMD.parseRequestDataPacket(stream, stream.length);
 
-            case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
+            case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
             default:
                 throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
         }
@@ -269,7 +269,7 @@ public class PinpadUtility {
                 case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
                     return CMD.parseResponseDataPacket(stream, stream.length);
 
-                case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
+                case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
                 default:
                     throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
             }
@@ -499,7 +499,7 @@ public class PinpadUtility {
                     stream = CMD.buildRequestDataPacket(string);
                     break;
 
-                case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
+                case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
                 default:
                     /* Nothing to do */
                     break;
@@ -563,7 +563,7 @@ public class PinpadUtility {
                     stream = CMD.buildResponseDataPacket(string);
                     break;
 
-                case ABECS.GCD: case ABECS.MNU: // TODO: artificial GCD and MNU
+                case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
                 default:
                     /* Nothing to do */
                     break;

@@ -80,15 +80,16 @@ public class OPN {
                 new ByteArrayOutputStream()
         };
 
-        byte[] CMD_ID = null;
+        byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
 
         try {
             JSONObject request = new JSONObject(string);
 
             if (request.has(ABECS.OPN_OPMODE)) {
-                byte[] OPN_OPMODE = null;
-                byte[] OPN_MODLEN = null;       byte[] OPN_MOD    = null;
-                byte[] OPN_EXPLEN = null;       byte[] OPN_EXP    = null;
+                byte[] OPN_OPMODE = null;       byte[] OPN_MODLEN = null;
+                byte[] OPN_MOD    = null;       byte[] OPN_EXPLEN = null;
+                byte[] OPN_EXP    = null;
 
                 try {
                     OPN_OPMODE = request.getString(ABECS.OPN_OPMODE).getBytes(UTF_8);
@@ -120,7 +121,9 @@ public class OPN {
             try {
                 CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
                 stream[0].write(CMD_DATA);
             } finally {
                 ByteUtility.clear(CMD_DATA);
@@ -132,7 +135,7 @@ public class OPN {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(CMD_ID);
+            ByteUtility.clear(CMD_ID, CMD_LEN1);
         }
     }
 
@@ -145,10 +148,9 @@ public class OPN {
                 new ByteArrayOutputStream()
         };
 
-        byte[] RSP_ID      = null;
-        byte[] RSP_STAT    = null;      byte[] RSP_LEN1    = null;
-        byte[] OPN_CRKSLEN = null;      byte[] OPN_CRKSEC  = null;
-        byte[] RSP_DATA    = null;
+        byte[] RSP_ID      = null;      byte[] RSP_STAT    = null;
+        byte[] RSP_LEN1    = null;      byte[] OPN_CRKSLEN = null;
+        byte[] OPN_CRKSEC  = null;      byte[] RSP_DATA    = null;
 
         try {
             JSONObject json = new JSONObject(string);

@@ -116,15 +116,12 @@ public class CMD {
                 }
             }
 
-            try {
-                CMD_DATA = stream[1].toByteArray();
-                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+            CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(CMD_LEN1);
-                stream[0].write(CMD_DATA);
-            } finally {
-                ByteUtility.clear(CMD_DATA);
-            }
+            CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+            stream[0].write(CMD_LEN1);
+            stream[0].write(CMD_DATA);
 
             byte[] request = stream[0].toByteArray();
 
@@ -189,6 +186,7 @@ public class CMD {
             }
 
             RSP_DATA = stream[1].toByteArray();
+
             RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
 
             stream[0].write(RSP_LEN1);

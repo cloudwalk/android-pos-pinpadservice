@@ -46,6 +46,7 @@ public class TLI {
         };
 
         byte[] CMD_ID     = null;
+        byte[] CMD_LEN1   = null;
         byte[] TLI_ACQIDX = null;
         byte[] TLI_TABVER = null;
 
@@ -65,7 +66,9 @@ public class TLI {
             try {
                 CMD_DATA = stream[1].toByteArray();
 
-                stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
                 stream[0].write(CMD_DATA);
             } finally {
                 ByteUtility.clear(CMD_DATA);
@@ -77,7 +80,7 @@ public class TLI {
         } finally {
             ByteUtility.clear(stream);
 
-            ByteUtility.clear(CMD_ID, TLI_ACQIDX, TLI_TABVER);
+            ByteUtility.clear(CMD_ID, CMD_LEN1, TLI_ACQIDX, TLI_TABVER);
         }
     }
 
