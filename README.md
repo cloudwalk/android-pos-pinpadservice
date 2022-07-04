@@ -51,8 +51,8 @@ Local dependencies are those within the scope of the Pinpad Service development
 team. They need to be made available before the service can be built:  
 
 1. Clone the repositories
-   [android-misc-loglibrary](https://github.com/mauriciospinardi/android-misc-loglibrary)
-   and [android-misc-utilitieslibrary](https://github.com/mauriciospinardi/android-misc-utilitieslibrary)
+   [android-misc-loglibrary](https://github.com/cloudwalk/android-misc-loglibrary)
+   and [android-misc-utilitieslibrary](https://github.com/cloudwalk/android-misc-utilitieslibrary)
 2. Follow the instructions in each README.md to locally publish them.
 
 ### Copyrighted dependencies
