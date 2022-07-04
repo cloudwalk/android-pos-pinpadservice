@@ -3,353 +3,193 @@ package io.cloudwalk.pos.pinpadlibrary.internals.utilities;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.CEX;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.CHP;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.CLX;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.EBX;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.FCX;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCD;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.GCX;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.GED;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.GIX;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.GOX;
+import io.cloudwalk.pos.pinpadlibrary.internals.commands.CMD;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.GPN;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.GTK;
-import io.cloudwalk.pos.pinpadlibrary.internals.commands.MNU;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.OPN;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.RMC;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLE;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLI;
 import io.cloudwalk.pos.pinpadlibrary.internals.commands.TLR;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class PinpadUtility {
     private static final String
             TAG = PinpadUtility.class.getSimpleName();
 
-    public static class CMD {
-        private CMD() {
-            Log.d(TAG, "CMD");
-
-            /* Nothing to do */
-        }
-
-        public static Bundle parseRequestDataPacket(byte[] input, int length)
-                throws Exception {
-            Log.d(TAG, "parseRequestDataPacket");
-
-            byte[] CMD_ID   = new byte[3];
-            byte[] CMD_LEN1 = new byte[3];
-            byte[] CMD_DATA = null;
-
-            System.arraycopy(input, 0, CMD_ID,   0, 3);
-            System.arraycopy(input, 3, CMD_LEN1, 0, 3);
-
-            Bundle response = new Bundle();
-
-            response.putString(ABECS.CMD_ID, new String(CMD_ID));
-
-            if (length < 7) {
-                return response;
-            }
-
-            CMD_DATA = new byte[PinpadUtility.getIntFromDigitsArray(CMD_LEN1, CMD_LEN1.length)];
-
-            System.arraycopy(input, 6, CMD_DATA, 0, CMD_DATA.length);
-
-            response.putAll(PinpadUtility.parseTLV(CMD_DATA, CMD_DATA.length));
-
-            return response;
-        }
-
-        public static Bundle parseResponseDataPacket(byte[] input, int length)
-                throws Exception {
-            Log.d(TAG, "parseResponseDataPacket");
-
-            byte[] RSP_ID   = new byte[3];
-            byte[] RSP_STAT = new byte[3];
-            byte[] RSP_LEN1 = new byte[3];
-            byte[] RSP_DATA = null;
-
-            System.arraycopy(input, 0, RSP_ID,   0, 3);
-            System.arraycopy(input, 3, RSP_STAT, 0, 3);
-
-            Bundle response = new Bundle();
-
-            response.putString(ABECS.RSP_ID, new String(RSP_ID));
-            response.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
-
-            if (length < 10) {
-                return response;
-            }
-
-            System.arraycopy(input, 6, RSP_LEN1, 0, 3);
-
-            RSP_DATA = new byte[PinpadUtility.getIntFromDigitsArray(RSP_LEN1, RSP_LEN1.length)];
-
-            System.arraycopy(input, 9, RSP_DATA, 0, RSP_DATA.length);
-
-            response.putAll(PinpadUtility.parseTLV(RSP_DATA, RSP_DATA.length));
-
-            return response;
-        }
-
-        public static byte[] buildRequestDataPacket(@NotNull Bundle input)
-                throws Exception {
-            Log.d(TAG, "buildRequestDataPacket");
-
-            ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
-
-            String CMD_ID = null;
-
-            for (String T : input.keySet()) {
-                switch (T) {
-                    case ABECS.CMD_ID:
-                        CMD_ID = input.getString(T);
-                        break;
-
-                    default:
-                        stream[1].write(PinpadUtility.buildTLV(T, input.getString(T)));
-                        break;
-                }
-            }
-
-            byte[] RSP_DATA = stream[1].toByteArray();
-
-            stream[0].write(CMD_ID.getBytes(UTF_8));
-            stream[0].write(String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8));
-            stream[0].write(RSP_DATA);
-
-            return stream[0].toByteArray();
-        }
-
-        public static byte[] buildRequestDataPacket(@NotNull Bundle input, @NotNull List<String> sort)
-                throws Exception {
-            ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
-
-            String CMD_ID = input.getString(ABECS.CMD_ID);
-
-            for (String entry : sort) {
-                String value = input.getString(entry);
-
-                if (value != null) {
-                    stream[1].write(PinpadUtility.buildTLV(entry, value));
-                }
-            }
-
-            byte[] CMD_DATA = stream[1].toByteArray();
-
-            stream[0].write(CMD_ID.getBytes(UTF_8));
-            stream[0].write(String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8));
-            stream[0].write(CMD_DATA);
-
-            return stream[0].toByteArray();
-        }
-
-        public static byte[] buildResponseDataPacket(@NotNull Bundle input)
-                throws Exception {
-            Log.d(TAG, "buildResponseDataPacket");
-
-            ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
-
-            String RSP_ID   = null;
-            int    RSP_STAT = ABECS.STAT.ST_INTERR.ordinal();
-
-            for (String T : input.keySet()) {
-                switch (T) {
-                    case ABECS.RSP_ID:
-                        RSP_ID = input.getString(T);
-                        break;
-
-                    case ABECS.RSP_STAT:
-                        RSP_STAT = ((ABECS.STAT) input.getSerializable(T)).ordinal();
-                        break;
-
-                    default:
-                        stream[1].write(PinpadUtility.buildTLV(T, input.getString(T)));
-                        break;
-                }
-            }
-
-            byte[] RSP_DATA = stream[1].toByteArray();
-
-            stream[0].write(RSP_ID.getBytes(UTF_8));
-            stream[0].write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
-            stream[0].write(String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8));
-            stream[0].write(RSP_DATA);
-
-            return stream[0].toByteArray();
-        }
-
-        public static byte[] buildResponseDataPacket(@NotNull Bundle input, @NotNull List<String> sort)
-                throws Exception {
-            Log.d(TAG, "buildResponseDataPacket");
-
-            ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
-
-            String RSP_ID = input.getString(ABECS.RSP_ID);
-
-            for (String entry : sort) {
-                String value = input.getString(entry);
-
-                if (value != null) {
-                    stream[1].write(PinpadUtility.buildTLV(entry, value));
-                }
-            }
-
-            int    RSP_STAT = ((ABECS.STAT) input.getSerializable(ABECS.RSP_STAT)).ordinal();
-            byte[] RSP_DATA = stream[1].toByteArray();
-
-            stream[0].write(RSP_ID.getBytes(UTF_8));
-            stream[0].write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
-            stream[0].write(String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8));
-            stream[0].write(RSP_DATA);
-
-            return stream[0].toByteArray();
-        }
-    }
-
-    private static byte[] _buildTLV(@NotNull ABECS.TYPE type, @NotNull String tag, @NotNull String value)
+    private static byte[] _buildTLV(ABECS.TYPE type, String name, String value)
             throws Exception {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        // Log.d(TAG, "_buildTLV");
 
         byte[] T = null;
         byte[] L = null;
         byte[] V = null;
 
-        switch (type) {
-            case A: case S: case N:
-                T = DataUtility.getByteArrayFromHexString(tag);
-                L = ByteBuffer.allocate(2).putShort((short) (value.length())).array();
-                V = value.getBytes(UTF_8);
-                break;
+        try {
+            T = ByteUtility.fromHexString(name);
 
-            case H: case X: case B:
-                T = DataUtility.getByteArrayFromHexString(tag);
-                L = ByteBuffer.allocate(2).putShort((short) (value.length() / 2)).array();
-                V = DataUtility.getByteArrayFromHexString(value);
-                break;
+            short[] length = {
+                    (short) (value.length()),
+                    (short) (value.length() / 2)
+            };
+
+            switch (type) {
+                case A: case S: case N:
+                    L = ByteBuffer.allocate(2).putShort(length[0]).array();
+                    V = value.getBytes(UTF_8);
+                    break;
+
+                case H: case X: case B:
+                    L = ByteBuffer.allocate(2).putShort(length[1]).array();
+                    V = ByteUtility.fromHexString(value);
+                    break;
+
+                default:
+                    L = new byte[0];
+                    V = new byte[0];
+                    break;
+            }
+
+            byte[] response = new byte[T.length + L.length + V.length];
+
+            System.arraycopy(T, 0, response, 0, T.length);
+            System.arraycopy(L, 0, response, T.length, L.length);
+            System.arraycopy(V, 0, response, T.length + L.length, V.length);
+
+            return response;
+        } finally {
+            ByteUtility.clear(T, L, V);
         }
-
-        stream.write(T);
-        stream.write(L);
-        stream.write(V);
-
-        return stream.toByteArray();
     }
 
-    private static byte[] _unwrapDataPacket(byte[] input, int length)
+    private static byte[] _unwrapDataPacket(byte[] array, int length)
             throws Exception {
+        // Log.d(TAG, "_unwrapDataPacket");
+
         byte[] pkt = new byte[2048 - 4];
 
-        int threshold = Math.min(length, 2044 + 4);
+        try {
+            int threshold = Math.min(length, 2044 + 4);
 
-        int j = 0;
+            int j = 0;
 
-        for (int i = 1; i < threshold; i++) {
-            switch (input[i]) {
-                case 0x16: /* PKTSTART */
-                    continue;
+            for (int i = 1; i < threshold; i++) {
+                switch (array[i]) {
+                    case 0x16: /* PKTSTART */
+                        continue;
 
-                case 0x17: /* PKTSTOP  */
-                    i = threshold;
-                    continue;
+                    case 0x17: /* PKTSTOP  */
+                        i = threshold;
+                        continue;
 
-                case 0x13:
-                    switch (input[++i]) {
-                        case 0x33: /* DC3 */
-                            pkt[j++] = 0x13;
-                            break;
+                    case 0x13:
+                        switch (array[++i]) {
+                            case 0x33: /* DC3 */
+                                pkt[j++] = 0x13;
+                                break;
 
-                        case 0x36: /* SYN */
-                            pkt[j++] = 0x16;
-                            break;
+                            case 0x36: /* SYN */
+                                pkt[j++] = 0x16;
+                                break;
 
-                        case 0x37: /* ETB */
-                            pkt[j++] = 0x17;
-                            break;
+                            case 0x37: /* ETB */
+                                pkt[j++] = 0x17;
+                                break;
 
-                        default:
-                            pkt[j++] = input[i];
-                            break;
-                    }
-                    break;
+                            default:
+                                pkt[j++] = array[i];
+                                break;
+                        }
+                        break;
 
-                default:
-                    pkt[j++] = input[i];
-                    break;
+                    default:
+                        pkt[j++] = array[i];
+                        break;
+                }
             }
+
+            // TODO: validate CRC
+
+            byte[] response = new byte[j];
+
+            System.arraycopy(pkt, 0, response, 0, j);
+
+            return response;
+        } finally {
+            ByteUtility.clear(pkt);
         }
-
-        // TODO: validate CRC
-
-        byte[] response = new byte[j];
-
-        System.arraycopy(pkt, 0, response, 0, j);
-
-        return response;
     }
 
-    private static byte[] _wrapDataPacket(byte[] input, int length)
+    private static byte[] _wrapDataPacket(byte[] array, int length)
             throws Exception {
-        byte[] pkt = new byte[2044 + 4];
+        // Log.d(TAG, "_wrapDataPacket");
 
-        pkt[0] = 0x16; /* PKTSTART */
+        byte[][] pkt = {
+                new byte[2044 + 4],
+                null
+        };
 
-        int threshold = Math.min(length, 2044 + 4);
+        byte[][] crc = {
+                new byte[length + 1],
+                null
+        };
 
-        int j = 1;
+        try {
+            pkt[0][0] = 0x16; /* PKTSTART */
 
-        for (int i = 0; i < threshold; i++) {
-            switch (input[i]) {
-                case 0x13: /* DC3 */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x33;
-                    break;
+            int threshold = Math.min(length, 2044 + 4);
 
-                case 0x16: /* SYN */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x36;
-                    break;
+            int j = 1;
 
-                case 0x17: /* ETB */
-                    pkt[j++] = 0x13;
-                    pkt[j++] = 0x37;
-                    break;
+            for (int i = 0; i < threshold; i++) {
+                switch (array[i]) {
+                    case 0x13: /* DC3 */
+                        pkt[0][j++] = 0x13;
+                        pkt[0][j++] = 0x33;
+                        break;
 
-                default:
-                    pkt[j++] = input[i];
-                    break;
+                    case 0x16: /* SYN */
+                        pkt[0][j++] = 0x13;
+                        pkt[0][j++] = 0x36;
+                        break;
+
+                    case 0x17: /* ETB */
+                        pkt[0][j++] = 0x13;
+                        pkt[0][j++] = 0x37;
+                        break;
+
+                    default:
+                        pkt[0][j++] = array[i];
+                        break;
+                }
             }
+
+            pkt[0][j] = 0x17; /* PKTSTOP */
+
+            System.arraycopy(array, 0, crc[0], 0, length);
+
+            crc[0][length] = pkt[0][j];
+
+            crc[1] = ByteUtility.crc16(crc[0], 0, crc[0].length);
+
+            System.arraycopy(crc[1], 0, pkt[0], j + 1, crc[1].length);
+
+            pkt[1] = Arrays.copyOf(pkt[0], j + 1 + crc[1].length);
+
+            return pkt[1];
+        } finally {
+            ByteUtility.clear(pkt[0], crc[0], crc[1]);
         }
-
-        pkt[j] = 0x17; /* PKTSTOP */
-
-        byte[] crc = new byte[length + 1];
-
-        System.arraycopy(input, 0, crc, 0, length);
-
-        crc[length] = pkt[j];
-
-        crc = DataUtility.CRC16_XMODEM(crc);
-
-        System.arraycopy(crc, 0, pkt, j + 1, crc.length);
-
-        pkt = Arrays.copyOf(pkt, j + 1 + crc.length);
-
-        return pkt;
     }
 
     private PinpadUtility() {
@@ -358,362 +198,395 @@ public class PinpadUtility {
         /* Nothing to do */
     }
 
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "parseRequestDataPacket::input.length [" + input.length + "] length [" + length + "]");
+        Log.d(TAG, "parseRequestDataPacket");
 
-        byte[] request = _unwrapDataPacket(input, length);
+        byte[] stream = _unwrapDataPacket(array, length);
 
-        String CMD_ID = String.format(US, "%c%c%c", request[0], request[1], request[2]);
+        String CMD_ID;
 
-        switch (CMD_ID) {
-            case ABECS.OPN: return OPN.parseRequestDataPacket(request, request.length);
+        switch (CMD_ID = new String(stream, 0, 3)) {
+            case ABECS.OPN:
+                return OPN.parseRequestDataPacket(stream, stream.length);
 
-            case ABECS.CHP: return CHP.parseRequestDataPacket(request, request.length);
-            case ABECS.GPN: return GPN.parseRequestDataPacket(request, request.length);
-            case ABECS.RMC: return RMC.parseRequestDataPacket(request, request.length);
+            case ABECS.CHP:
+                return CHP.parseRequestDataPacket(stream, stream.length);
+            case ABECS.GPN:
+                return GPN.parseRequestDataPacket(stream, stream.length);
+            case ABECS.RMC:
+                return RMC.parseRequestDataPacket(stream, stream.length);
 
-            case ABECS.TLI: return TLI.parseRequestDataPacket(request, request.length);
-            case ABECS.TLR: return TLR.parseRequestDataPacket(request, request.length);
-            case ABECS.TLE: return TLE.parseRequestDataPacket(request, request.length);
+            case ABECS.TLI:
+                return TLI.parseRequestDataPacket(stream, stream.length);
+            case ABECS.TLR:
+                return TLR.parseRequestDataPacket(stream, stream.length);
+            case ABECS.TLE:
+                return TLE.parseRequestDataPacket(stream, stream.length);
 
             case ABECS.GIX: case ABECS.CLX:
-            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
+            case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
             case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                return CMD.parseRequestDataPacket(request, request.length);
+                return CMD.parseRequestDataPacket(stream, stream.length);
 
+            case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
             default:
-                /* Nothing to do */
-                break;
+                throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
         }
-
-        throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
+    public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
-        Log.d(TAG, "parseResponseDataPacket::input.length [" + input.length + "] length [" + length + "]");
+        Log.d(TAG, "parseResponseDataPacket");
 
-        byte[] response = _unwrapDataPacket(input, length);
+        byte[] stream = null;
 
-        String CMD_ID = String.format(US, "%c%c%c", response[0], response[1], response[2]);
+        try {
+            stream = _unwrapDataPacket(array, length);
 
-        switch (CMD_ID) {
-            case ABECS.OPN: return OPN.parseResponseDataPacket(response, response.length);
+            String RSP_ID;
 
-            case ABECS.CHP: return CHP.parseResponseDataPacket(response, response.length);
-            case ABECS.GPN: return GPN.parseResponseDataPacket(response, response.length);
-            case ABECS.RMC: return RMC.parseResponseDataPacket(response, response.length);
+            switch (RSP_ID = new String(stream, 0, 3)) {
+                case ABECS.OPN:
+                    return OPN.parseResponseDataPacket(stream, stream.length);
 
-            case ABECS.TLI: return TLI.parseResponseDataPacket(response, response.length);
-            case ABECS.TLR: return TLR.parseResponseDataPacket(response, response.length);
-            case ABECS.TLE: return TLE.parseResponseDataPacket(response, response.length);
+                case ABECS.CHP:
+                    return CHP.parseResponseDataPacket(stream, stream.length);
+                case ABECS.GPN:
+                    return GPN.parseResponseDataPacket(stream, stream.length);
+                case ABECS.RMC:
+                    return RMC.parseResponseDataPacket(stream, stream.length);
 
-            case ABECS.GIX: case ABECS.CLX:
-            case ABECS.CEX: case ABECS.EBX: case ABECS.GCD: case ABECS.GTK: case ABECS.MNU:
-            case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                return CMD.parseResponseDataPacket(response, response.length);
+                case ABECS.TLI:
+                    return TLI.parseResponseDataPacket(stream, stream.length);
+                case ABECS.TLR:
+                    return TLR.parseResponseDataPacket(stream, stream.length);
+                case ABECS.TLE:
+                    return TLE.parseResponseDataPacket(stream, stream.length);
 
-            default:
-                /* Nothing to do */
-                break;
+                case ABECS.GIX: case ABECS.CLX:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
+                case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                    return CMD.parseResponseDataPacket(stream, stream.length);
+
+                case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
+                default:
+                    throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
+            }
+        } finally {
+            ByteUtility.clear(stream);
         }
-
-        throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
     }
 
-    public static Bundle parseTLV(byte[] input, int length) {
-        Log.d(TAG, "parseTLV::input.length [" + input.length + "] length [" + length + "]");
+    public static String parseTLV(byte[] array, int offset, int length)
+            throws Exception {
+        Log.d(TAG, "parseTLV");
 
-        // 2022-06-07: ABECS doesn't strictly follows EMV v4.3 Book 3, Annex B (page 155)
+        length = Math.max(length, 0);
+        length = Math.min(length, array.length);
 
-        Bundle response = new Bundle();
+        offset = Math.max(offset, 0);
 
-        int cursor    = 0;
+        JSONObject response = new JSONObject();
+
+        int cursor    = offset;
         int threshold = 0;
 
         while ((cursor += threshold) < length) {
             byte[] T = new byte[4];
             byte[] L = new byte[4];
+            byte[] V = null;
 
-            System.arraycopy(input, cursor, T, 2, 2);
+            try {
+                System.arraycopy(array, cursor, T, 2, 2);
 
-            cursor += 2;
+                cursor += 2;
 
-            int tag = ByteBuffer.wrap(T).getInt();
+                int tag = ByteBuffer.wrap(T).getInt();
 
-            System.arraycopy(input, cursor, L, 2, 2);
+                System.arraycopy(array, cursor, L, 2, 2);
 
-            cursor += 2;
+                cursor += 2;
 
-            threshold = ByteBuffer.wrap(L).getInt();
+                threshold = ByteBuffer.wrap(L).getInt();
 
-            byte[] V = new byte[threshold];
+                V = new byte[threshold];
 
-            System.arraycopy(input, cursor, V, 0, threshold);
+                System.arraycopy(array, cursor, V, 0, threshold);
 
-            switch (tag) {
-                case 0x0002: response.putString(ABECS.SPE_MTHDPIN,    new String(V)); break;
-                case 0x0003: response.putString(ABECS.SPE_MTHDDAT,    new String(V)); break;
-                case 0x0006: response.putString(ABECS.SPE_CEXOPT,     new String(V)); break;
-                case 0x0007: response.putString(ABECS.SPE_TRACKS,     new String(V)); break;
-                case 0x0008: response.putString(ABECS.SPE_OPNDIG,     new String(V)); break;
-                case 0x0009: response.putString(ABECS.SPE_KEYIDX,     new String(V)); break;
-                case 0x0010: response.putString(ABECS.SPE_ACQREF,     new String(V)); break;
-                case 0x0011: response.putString(ABECS.SPE_APPTYPE,    new String(V)); break;
-                case 0x0012: response.putString(ABECS.SPE_AIDLIST,    new String(V)); break;
-                case 0x0013: response.putString(ABECS.SPE_AMOUNT,     new String(V)); break;
-                case 0x0014: response.putString(ABECS.SPE_CASHBACK,   new String(V)); break;
-                case 0x0015: response.putString(ABECS.SPE_TRNDATE,    new String(V)); break;
-                case 0x0016: response.putString(ABECS.SPE_TRNTIME,    new String(V)); break;
-                case 0x0017: response.putString(ABECS.SPE_GCXOPT,     new String(V)); break;
-                case 0x0018: response.putString(ABECS.SPE_GOXOPT,     new String(V)); break;
-                case 0x0019: response.putString(ABECS.SPE_FCXOPT,     new String(V)); break;
-                case 0x001B: response.putString(ABECS.SPE_DSPMSG,     new String(V)); break;
-                case 0x001C: response.putString(ABECS.SPE_ARC,        new String(V)); break;
-                case 0x001E: response.putString(ABECS.SPE_MFNAME,     new String(V)); break;
+                switch (tag) { // TODO: research better or more elegant approach?!
+                    case 0x0002: response.put(ABECS.SPE_MTHDPIN,    new String(V)); break;
+                    case 0x0003: response.put(ABECS.SPE_MTHDDAT,    new String(V)); break;
+                    case 0x0006: response.put(ABECS.SPE_CEXOPT,     new String(V)); break;
+                    case 0x0007: response.put(ABECS.SPE_TRACKS,     new String(V)); break;
+                    case 0x0008: response.put(ABECS.SPE_OPNDIG,     new String(V)); break;
+                    case 0x0009: response.put(ABECS.SPE_KEYIDX,     new String(V)); break;
+                    case 0x0010: response.put(ABECS.SPE_ACQREF,     new String(V)); break;
+                    case 0x0011: response.put(ABECS.SPE_APPTYPE,    new String(V)); break;
+                    case 0x0012: response.put(ABECS.SPE_AIDLIST,    new String(V)); break;
+                    case 0x0013: response.put(ABECS.SPE_AMOUNT,     new String(V)); break;
+                    case 0x0014: response.put(ABECS.SPE_CASHBACK,   new String(V)); break;
+                    case 0x0015: response.put(ABECS.SPE_TRNDATE,    new String(V)); break;
+                    case 0x0016: response.put(ABECS.SPE_TRNTIME,    new String(V)); break;
+                    case 0x0017: response.put(ABECS.SPE_GCXOPT,     new String(V)); break;
+                    case 0x0018: response.put(ABECS.SPE_GOXOPT,     new String(V)); break;
+                    case 0x0019: response.put(ABECS.SPE_FCXOPT,     new String(V)); break;
+                    case 0x001B: response.put(ABECS.SPE_DSPMSG,     new String(V)); break;
+                    case 0x001C: response.put(ABECS.SPE_ARC,        new String(V)); break;
+                    case 0x001E: response.put(ABECS.SPE_MFNAME,     new String(V)); break;
 
-                case 0x0020:
-                    ArrayList<String> list = response.getStringArrayList(ABECS.SPE_MNUOPT);
+                    case 0x0020:
+                        JSONArray SPE_MNUOPT = (response.has(ABECS.SPE_MNUOPT)) ? response.getJSONArray(ABECS.SPE_MNUOPT) : new JSONArray();
 
-                    if (list == null) {
-                        list = new ArrayList<>(0);
-                    }
+                        SPE_MNUOPT.put(new String(V));
 
-                    list.add(new String(V));
+                        response.put(ABECS.SPE_MNUOPT, SPE_MNUOPT);
+                        break;
 
-                    response.putStringArrayList(ABECS.SPE_MNUOPT, list);
-                    break;
+                    case 0x0022: response.put(ABECS.SPE_TRNCURR,    new String(V)); break;
+                    case 0x0023: response.put(ABECS.SPE_PANMASK,    new String(V)); break;
 
-                case 0x0022: response.putString(ABECS.SPE_TRNCURR,    new String(V)); break;
-                case 0x0023: response.putString(ABECS.SPE_PANMASK,    new String(V)); break;
+                    case 0x0001: response.put(ABECS.SPE_IDLIST,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x0004: response.put(ABECS.SPE_TAGLIST,    ByteUtility.getHexString(V, V.length)); break;
+                    case 0x0005: response.put(ABECS.SPE_EMVDATA,    ByteUtility.getHexString(V, V.length)); break;
+                    case 0x000A: response.put(ABECS.SPE_WKENC,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x000B: response.put(ABECS.SPE_MSGIDX,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x000C: response.put(ABECS.SPE_TIMEOUT,    ByteUtility.getHexString(V, V.length)); break;
+                    case 0x000D: response.put(ABECS.SPE_MINDIG,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x000E: response.put(ABECS.SPE_MAXDIG,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x000F: response.put(ABECS.SPE_DATAIN,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x001A: response.put(ABECS.SPE_TRMPAR,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x001D: response.put(ABECS.SPE_IVCBC,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x0021: response.put(ABECS.SPE_TRNTYPE,    ByteUtility.getHexString(V, V.length)); break;
+                    case 0x0024: response.put(ABECS.SPE_PBKMOD,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x0025: response.put(ABECS.SPE_PBKEXP,     ByteUtility.getHexString(V, V.length)); break;
 
-                case 0x0001: response.putString(ABECS.SPE_IDLIST,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x0004: response.putString(ABECS.SPE_TAGLIST,    DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x0005: response.putString(ABECS.SPE_EMVDATA,    DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x000A: response.putString(ABECS.SPE_WKENC,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x000B: response.putString(ABECS.SPE_MSGIDX,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x000C: response.putString(ABECS.SPE_TIMEOUT,    DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x000D: response.putString(ABECS.SPE_MINDIG,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x000E: response.putString(ABECS.SPE_MAXDIG,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x000F: response.putString(ABECS.SPE_DATAIN,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x001A: response.putString(ABECS.SPE_TRMPAR,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x001D: response.putString(ABECS.SPE_IVCBC,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x0021: response.putString(ABECS.SPE_TRNTYPE,    DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x0024: response.putString(ABECS.SPE_PBKMOD,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x0025: response.putString(ABECS.SPE_PBKEXP,     DataUtility.getHexStringFromByteArray(V)); break;
+                    case 0x8001: response.put(ABECS.PP_SERNUM,      new String(V)); break;
+                    case 0x8002: response.put(ABECS.PP_PARTNBR,     new String(V)); break;
+                    case 0x8003: response.put(ABECS.PP_MODEL,       new String(V)); break;
+                    case 0x8004: response.put(ABECS.PP_MNNAME,      new String(V)); break;
+                    case 0x8005: response.put(ABECS.PP_CAPAB,       new String(V)); break;
+                    case 0x8006: response.put(ABECS.PP_SOVER,       new String(V)); break;
+                    case 0x8007: response.put(ABECS.PP_SPECVER,     new String(V)); break;
+                    case 0x8008: response.put(ABECS.PP_MANVERS,     new String(V)); break;
+                    case 0x8009: response.put(ABECS.PP_APPVERS,     new String(V)); break;
+                    case 0x800A: response.put(ABECS.PP_GENVERS,     new String(V)); break;
+                    case 0x8010: response.put(ABECS.PP_KRNLVER,     new String(V)); break;
+                    case 0x8011: response.put(ABECS.PP_CTLSVER,     new String(V)); break;
+                    case 0x8012: response.put(ABECS.PP_MCTLSVER,    new String(V)); break;
+                    case 0x8013: response.put(ABECS.PP_VCTLSVER,    new String(V)); break;
+                    case 0x8014: response.put(ABECS.PP_AECTLSVER,   new String(V)); break;
+                    case 0x8015: response.put(ABECS.PP_DPCTLSVER,   new String(V)); break;
+                    case 0x8016: response.put(ABECS.PP_PUREVER,     new String(V)); break;
+                    case 0x8032: response.put(ABECS.PP_MKTDESP,     new String(V)); break;
+                    case 0x8033: response.put(ABECS.PP_MKTDESD,     new String(V)); break;
+                    case 0x8035: response.put(ABECS.PP_DKPTTDESP,   new String(V)); break;
+                    case 0x8036: response.put(ABECS.PP_DKPTTDESD,   new String(V)); break;
+                    case 0x8040: response.put(ABECS.PP_EVENT,       new String(V)); break;
+                    case 0x8041: response.put(ABECS.PP_TRK1INC,     new String(V)); break;
+                    case 0x8042: response.put(ABECS.PP_TRK2INC,     new String(V)); break;
+                    case 0x8043: response.put(ABECS.PP_TRK3INC,     new String(V)); break;
+                    case 0x804D: response.put(ABECS.PP_VALUE,       new String(V)); break;
+                    case 0x804F: response.put(ABECS.PP_CARDTYPE,    new String(V)); break;
+                    case 0x8050: response.put(ABECS.PP_ICCSTAT,     new String(V)); break;
+                    case 0x8051: response.put(ABECS.PP_AIDTABINFO,  new String(V)); break;
+                    case 0x8052: response.put(ABECS.PP_PAN,         new String(V)); break;
+                    case 0x8053: response.put(ABECS.PP_PANSEQNO,    new String(V)); break;
+                    case 0x8055: response.put(ABECS.PP_CHNAME,      new String(V)); break;
+                    case 0x8056: response.put(ABECS.PP_GOXRES,      new String(V)); break;
+                    case 0x8058: response.put(ABECS.PP_FCXRES,      new String(V)); break;
+                    case 0x805B: response.put(ABECS.PP_LABEL,       new String(V)); break;
+                    case 0x805C: response.put(ABECS.PP_ISSCNTRY,    new String(V)); break;
+                    case 0x805D: response.put(ABECS.PP_CARDEXP,     new String(V)); break;
+                    case 0x8060: response.put(ABECS.PP_DEVTYPE,     new String(V)); break;
 
-                case 0x8001: response.putString(ABECS.PP_SERNUM,      new String(V)); break;
-                case 0x8002: response.putString(ABECS.PP_PARTNBR,     new String(V)); break;
-                case 0x8003: response.putString(ABECS.PP_MODEL,       new String(V)); break;
-                case 0x8004: response.putString(ABECS.PP_MNNAME,      new String(V)); break;
-                case 0x8005: response.putString(ABECS.PP_CAPAB,       new String(V)); break;
-                case 0x8006: response.putString(ABECS.PP_SOVER,       new String(V)); break;
-                case 0x8007: response.putString(ABECS.PP_SPECVER,     new String(V)); break;
-                case 0x8008: response.putString(ABECS.PP_MANVERS,     new String(V)); break;
-                case 0x8009: response.putString(ABECS.PP_APPVERS,     new String(V)); break;
-                case 0x800A: response.putString(ABECS.PP_GENVERS,     new String(V)); break;
-                case 0x8010: response.putString(ABECS.PP_KRNLVER,     new String(V)); break;
-                case 0x8011: response.putString(ABECS.PP_CTLSVER,     new String(V)); break;
-                case 0x8012: response.putString(ABECS.PP_MCTLSVER,    new String(V)); break;
-                case 0x8013: response.putString(ABECS.PP_VCTLSVER,    new String(V)); break;
-                case 0x8014: response.putString(ABECS.PP_AECTLSVER,   new String(V)); break;
-                case 0x8015: response.putString(ABECS.PP_DPCTLSVER,   new String(V)); break;
-                case 0x8016: response.putString(ABECS.PP_PUREVER,     new String(V)); break;
-                case 0x8032: response.putString(ABECS.PP_MKTDESP,     new String(V)); break;
-                case 0x8033: response.putString(ABECS.PP_MKTDESD,     new String(V)); break;
-                case 0x8035: response.putString(ABECS.PP_DKPTTDESP,   new String(V)); break;
-                case 0x8036: response.putString(ABECS.PP_DKPTTDESD,   new String(V)); break;
-                case 0x8040: response.putString(ABECS.PP_EVENT,       new String(V)); break;
-                case 0x8041: response.putString(ABECS.PP_TRK1INC,     new String(V)); break;
-                case 0x8042: response.putString(ABECS.PP_TRK2INC,     new String(V)); break;
-                case 0x8043: response.putString(ABECS.PP_TRK3INC,     new String(V)); break;
+                    case 0x8044: response.put(ABECS.PP_TRACK1,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8045: response.put(ABECS.PP_TRACK2,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8046: response.put(ABECS.PP_TRACK3,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8047: response.put(ABECS.PP_TRK1KSN,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8048: response.put(ABECS.PP_TRK2KSN,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8049: response.put(ABECS.PP_TRK3KSN,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x804A: response.put(ABECS.PP_ENCPAN,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x804B: response.put(ABECS.PP_ENCPANKSN,   ByteUtility.getHexString(V, V.length)); break;
+                    case 0x804C: response.put(ABECS.PP_KSN,         ByteUtility.getHexString(V, V.length)); break;
+                    case 0x804E: response.put(ABECS.PP_DATAOUT,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8054: response.put(ABECS.PP_EMVDATA,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8057: response.put(ABECS.PP_PINBLK,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8059: response.put(ABECS.PP_ISRESULTS,   ByteUtility.getHexString(V, V.length)); break;
+                    case 0x805A: response.put(ABECS.PP_BIGRAND,     ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8062: response.put(ABECS.PP_TLRMEM,      ByteUtility.getHexString(V, V.length)); break;
+                    case 0x8063: response.put(ABECS.PP_ENCKRAND,    ByteUtility.getHexString(V, V.length)); break;
 
-                case 0x8044:
-                    int i; // TODO: lazy detection; must be improved
+                    case 0x001F: /* SPE_MFINFO  */
+                    case 0x8020: /* PP_DSPTXTSZ */
+                    case 0x8021: /* PP_DSPGRSZ  */
+                    case 0x8022: /* PP_MFSUP    */
+                    case 0x805E: /* PP_MFNAME   */
+                        /* 2021-12-14: out of scope */
+                        break;
 
-                    for (i = 0; i < V.length; i++) {
-                        if (V[i] < 0x20 || V[i] > 0x7E) {
-                            break;
+                    default:
+                        String key;
+
+                        if (tag >= 0x9100 && tag <= 0x9163) {
+                            key = ABECS.PP_KSNTDESPnn.replace("nn", String.format(US, "%02d", (tag - 0x9100)));
+
+                            response.put(key, ByteUtility.getHexString(V, V.length));
+                        } else if (tag >= 0x9200 && tag <= 0x9263) {
+                            key = ABECS.PP_KSNTDESDnn.replace("nn", String.format(US, "%02d", (tag - 0x9200)));
+
+                            response.put(key, ByteUtility.getHexString(V, V.length));
+                        } else if (tag >= 0x9300 && tag <= 0x9363) {
+                            key = ABECS.PP_TABVERnn  .replace("nn", String.format(US, "%02d", (tag - 0x9300)));
+
+                            response.put(key, new String(V));
+                        } else {
+                            key = String.format(US, "%04X", tag);
+
+                            response.put(key, ByteUtility.getHexString(V, V.length));
                         }
-                    }
+                        break;
+                }
+            } finally {
+                ByteUtility.clear(T, L, V);
+            }
+        }
 
-                    response.putString(ABECS.PP_TRACK1, (i < V.length) ? DataUtility.getHexStringFromByteArray(V) : new String(V));
+        return response.toString();
+    }
+
+    public static byte[] buildRequestDataPacket(@NotNull String string)
+            throws Exception {
+        Log.d(TAG, "buildRequestDataPacket::string [" + string + "]");
+
+        byte[] stream = null;
+
+        try {
+            String CMD_ID = "UNKNOWN";
+
+            try {
+                CMD_ID = (new JSONObject(string)).getString(ABECS.CMD_ID);
+            } catch (Exception ignored) { }
+
+            switch (CMD_ID) {
+                case ABECS.OPN:
+                    stream = OPN.buildRequestDataPacket(string);
                     break;
 
-                case 0x804D: response.putString(ABECS.PP_VALUE,       new String(V)); break;
-                case 0x804F: response.putString(ABECS.PP_CARDTYPE,    new String(V)); break;
-                case 0x8050: response.putString(ABECS.PP_ICCSTAT,     new String(V)); break;
-                case 0x8051: response.putString(ABECS.PP_AIDTABINFO,  new String(V)); break;
-                case 0x8052: response.putString(ABECS.PP_PAN,         new String(V)); break;
-                case 0x8053: response.putString(ABECS.PP_PANSEQNO,    new String(V)); break;
-                case 0x8055: response.putString(ABECS.PP_CHNAME,      new String(V)); break;
-                case 0x8056: response.putString(ABECS.PP_GOXRES,      new String(V)); break;
-                case 0x8058: response.putString(ABECS.PP_FCXRES,      new String(V)); break;
-                case 0x805B: response.putString(ABECS.PP_LABEL,       new String(V)); break;
-                case 0x805C: response.putString(ABECS.PP_ISSCNTRY,    new String(V)); break;
-                case 0x805D: response.putString(ABECS.PP_CARDEXP,     new String(V)); break;
-                case 0x8060: response.putString(ABECS.PP_DEVTYPE,     new String(V)); break;
-
-                case 0x8045: response.putString(ABECS.PP_TRACK2,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8046: response.putString(ABECS.PP_TRACK3,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8047: response.putString(ABECS.PP_TRK1KSN,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8048: response.putString(ABECS.PP_TRK2KSN,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8049: response.putString(ABECS.PP_TRK3KSN,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x804A: response.putString(ABECS.PP_ENCPAN,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x804B: response.putString(ABECS.PP_ENCPANKSN,   DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x804C: response.putString(ABECS.PP_KSN,         DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x804E: response.putString(ABECS.PP_DATAOUT,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8054: response.putString(ABECS.PP_EMVDATA,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8057: response.putString(ABECS.PP_PINBLK,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8059: response.putString(ABECS.PP_ISRESULTS,   DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x805A: response.putString(ABECS.PP_BIGRAND,     DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8062: response.putString(ABECS.PP_TLRMEM,      DataUtility.getHexStringFromByteArray(V)); break;
-                case 0x8063: response.putString(ABECS.PP_ENCKRAND,    DataUtility.getHexStringFromByteArray(V)); break;
-
-                case 0x001F: /* SPE_MFINFO  */
-                case 0x8020: /* PP_DSPTXTSZ */
-                case 0x8021: /* PP_DSPGRSZ  */
-                case 0x8022: /* PP_MFSUP    */
-                case 0x805E: /* PP_MFNAME   */
-                    /* 2021-12-14: out-of-scope */
+                case ABECS.CHP:
+                    stream = CHP.buildRequestDataPacket(string);
+                    break;
+                case ABECS.GPN:
+                    stream = GPN.buildRequestDataPacket(string);
+                    break;
+                case ABECS.RMC:
+                    stream = RMC.buildRequestDataPacket(string);
                     break;
 
+                case ABECS.TLI:
+                    stream = TLI.buildRequestDataPacket(string);
+                    break;
+                case ABECS.TLR:
+                    stream = TLR.buildRequestDataPacket(string);
+                    break;
+                case ABECS.TLE:
+                    stream = TLE.buildRequestDataPacket(string);
+                    break;
+
+                case ABECS.GIX: case ABECS.CLX:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
+                case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                    stream = CMD.buildRequestDataPacket(string);
+                    break;
+
+                case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
                 default:
-                    String key;
-
-                    if (tag >= 0x9100 && tag <= 0x9163) {
-                        key = ABECS.PP_KSNTDESPnn.replace("nn", String.format(US, "%02d", (tag - 0x9100)));
-
-                        response.putString(key, DataUtility.getHexStringFromByteArray(V));
-                    } else if (tag >= 0x9200 && tag <= 0x9263) {
-                        key = ABECS.PP_KSNTDESDnn.replace("nn", String.format(US, "%02d", (tag - 0x9200)));
-
-                        response.putString(key, DataUtility.getHexStringFromByteArray(V));
-                    } else if (tag >= 0x9300 && tag <= 0x9363) {
-                        key = ABECS.PP_TABVERnn  .replace("nn", String.format(US, "%02d", (tag - 0x9300)));
-
-                        response.putString(key, new String(V));
-                    } else {
-                        key = DataUtility.getHexStringFromByteArray(T, T.length, 2);
-
-                        response.putString(key, DataUtility.getHexStringFromByteArray(V));
-                    }
+                    /* Nothing to do */
                     break;
             }
 
-            Arrays.fill(T, (byte) 0x00);
-            Arrays.fill(L, (byte) 0x00);
-            Arrays.fill(V, (byte) 0x00);
-        }
+            if (stream != null) {
+                if (stream.length <= 2048) {
+                    return _wrapDataPacket(stream, stream.length);
+                }
 
-        return response;
-    }
-
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
-            throws Exception {
-        Log.d(TAG, "buildRequestDataPacket::input [" + input + "]");
-
-        byte[] request = null;
-
-        String CMD_ID = input.getString(ABECS.CMD_ID, "UNKNOWN");
-
-        // 2022-06-07: to enhance bug tracking and analysis,
-        // `CMD#buildRequestDataPacket(Bundle)` is ditched in favor of each
-        // command specific implementation
-
-        switch (CMD_ID) {
-            case ABECS.OPN: request = OPN.buildRequestDataPacket(input); break;
-            case ABECS.GIX: request = GIX.buildRequestDataPacket(input); break;
-            case ABECS.CLX: request = CLX.buildRequestDataPacket(input); break;
-
-            case ABECS.CEX: request = CEX.buildRequestDataPacket(input); break;
-            case ABECS.CHP: request = CHP.buildRequestDataPacket(input); break;
-            case ABECS.EBX: request = EBX.buildRequestDataPacket(input); break;
-            case ABECS.GCD: request = GCD.buildRequestDataPacket(input); break;
-            case ABECS.GPN: request = GPN.buildRequestDataPacket(input); break;
-            case ABECS.GTK: request = GTK.buildRequestDataPacket(input); break;
-            case ABECS.MNU: request = MNU.buildRequestDataPacket(input); break;
-            case ABECS.RMC: request = RMC.buildRequestDataPacket(input); break;
-
-            case ABECS.TLI: request = TLI.buildRequestDataPacket(input); break;
-            case ABECS.TLR: request = TLR.buildRequestDataPacket(input); break;
-            case ABECS.TLE: request = TLE.buildRequestDataPacket(input); break;
-
-            case ABECS.GCX: request = GCX.buildRequestDataPacket(input); break;
-            case ABECS.GED: request = GED.buildRequestDataPacket(input); break;
-            case ABECS.GOX: request = GOX.buildRequestDataPacket(input); break;
-            case ABECS.FCX: request = FCX.buildRequestDataPacket(input); break;
-
-            default:
-                /* Nothing to do */
-                break;
-        }
-
-        if (request != null) {
-            if (request.length <= 2048) {
-                return _wrapDataPacket(request, request.length);
+                throw new RuntimeException("CMD_ID [" + CMD_ID + "] packet exceeds maximum length (2048)");
+            } else {
+                throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
             }
-
-            throw new RuntimeException("CMD_ID [" + CMD_ID + "] packet exceeds maximum length (2048)");
-        } else {
-            throw new RuntimeException("Unknown or unhandled CMD_ID [" + CMD_ID + "]");
+        } finally {
+            ByteUtility.clear(stream);
         }
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+    public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
-        Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+        Log.d(TAG, "buildResponseDataPacket::string [" + string + "]");
 
-        byte[] response = null;
+        byte[] stream = null;
 
-        String RSP_ID = input.getString(ABECS.RSP_ID, "UNKNOWN");
+        try {
+            String RSP_ID = "UNKNOWN";
 
-        // 2022-06-07: to enhance bug tracking and analysis,
-        // `CMD#buildResponseDataPacket(Bundle)` is ditched in favor of each
-        // command specific implementation
+            try {
+                RSP_ID = (new JSONObject(string)).getString(ABECS.RSP_ID);
+            } catch (Exception ignored) { }
 
-        switch (RSP_ID) {
-            case ABECS.OPN: response = OPN.buildResponseDataPacket(input); break;
-            case ABECS.GIX: response = GIX.buildResponseDataPacket(input); break;
-            case ABECS.CLX: response = CLX.buildResponseDataPacket(input); break;
+            switch (RSP_ID) {
+                case ABECS.OPN:
+                    stream = OPN.buildResponseDataPacket(string);
+                    break;
 
-            case ABECS.CEX: response = CEX.buildResponseDataPacket(input); break;
-            case ABECS.CHP: response = CHP.buildResponseDataPacket(input); break;
-            case ABECS.EBX: response = EBX.buildResponseDataPacket(input); break;
-            case ABECS.GCD: response = GCD.buildResponseDataPacket(input); break;
-            case ABECS.GPN: response = GPN.buildResponseDataPacket(input); break;
-            case ABECS.GTK: response = GTK.buildResponseDataPacket(input); break;
-            case ABECS.MNU: response = MNU.buildResponseDataPacket(input); break;
-            case ABECS.RMC: response = RMC.buildResponseDataPacket(input); break;
+                case ABECS.CHP:
+                    stream = CHP.buildResponseDataPacket(string);
+                    break;
+                case ABECS.GPN:
+                    stream = GPN.buildResponseDataPacket(string);
+                    break;
+                case ABECS.RMC:
+                    stream = RMC.buildResponseDataPacket(string);
+                    break;
 
-            case ABECS.TLI: response = TLI.buildResponseDataPacket(input); break;
-            case ABECS.TLR: response = TLR.buildResponseDataPacket(input); break;
-            case ABECS.TLE: response = TLE.buildResponseDataPacket(input); break;
+                case ABECS.TLI:
+                    stream = TLI.buildResponseDataPacket(string);
+                    break;
+                case ABECS.TLR:
+                    stream = TLR.buildResponseDataPacket(string);
+                    break;
+                case ABECS.TLE:
+                    stream = TLE.buildResponseDataPacket(string);
+                    break;
 
-            case ABECS.GCX: response = GCX.buildResponseDataPacket(input); break;
-            case ABECS.GED: response = GED.buildResponseDataPacket(input); break;
-            case ABECS.GOX: response = GOX.buildResponseDataPacket(input); break;
-            case ABECS.FCX: response = FCX.buildResponseDataPacket(input); break;
+                case ABECS.GIX: case ABECS.CLX:
+                case ABECS.CEX: case ABECS.EBX: case ABECS.GTK:
+                case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
+                    stream = CMD.buildResponseDataPacket(string);
+                    break;
 
-            default:
-                /* Nothing to do */
-                break;
-        }
-
-        if (response != null) {
-            if (response.length <= 2048) {
-                return _wrapDataPacket(response, response.length);
+                case ABECS.GCD: case ABECS.MNU: // TODO: GCD and MNU
+                default:
+                    /* Nothing to do */
+                    break;
             }
 
-            throw new RuntimeException("RSP_ID [" + RSP_ID + "] packet exceeds maximum length (2048)");
-        } else {
-            throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
+            if (stream != null) {
+                if (stream.length <= 2048) {
+                    return _wrapDataPacket(stream, stream.length);
+                }
+
+                throw new RuntimeException("RSP_ID [" + RSP_ID + "] packet exceeds maximum length (2048)");
+            } else {
+                throw new RuntimeException("Unknown or unhandled RSP_ID [" + RSP_ID + "]");
+            }
+        } finally {
+            ByteUtility.clear(stream);
         }
     }
 
     public static byte[] buildTLV(@NotNull String name, @NotNull String value)
             throws Exception {
+        Log.d(TAG, "buildTLV::name [" + name + "] value [" + value.replace("\n", "\\n").replace("\r", "\\r") + "]");
+
         switch (name) {
             case ABECS.SPE_MTHDPIN:
                 return _buildTLV(ABECS.TYPE.N, "0002", value);
@@ -753,8 +626,34 @@ public class PinpadUtility {
                 return _buildTLV(ABECS.TYPE.A, "001C", value);
             case ABECS.SPE_MFNAME:
                 return _buildTLV(ABECS.TYPE.A, "001E", value);
+
             case ABECS.SPE_MNUOPT:
-                return _buildTLV(ABECS.TYPE.S, "0020", value);
+                ByteArrayOutputStream[] stream = {
+                        new ByteArrayOutputStream()
+                };
+
+                byte[] response = null;
+
+                try {
+                    JSONArray array = new JSONArray(value);
+
+                    for (int i = 0; i < array.length(); i++) {
+                        try {
+                            response = _buildTLV(ABECS.TYPE.S, "0020", array.getString(i));
+
+                            stream[0].write(response);
+                        } finally {
+                            ByteUtility.clear(response);
+                        }
+                    }
+
+                    response = stream[0].toByteArray();
+                } finally {
+                    ByteUtility.clear(stream[0]);
+                }
+
+                return response;
+
             case ABECS.SPE_TRNCURR:
                 return _buildTLV(ABECS.TYPE.N, "0022", value);
             case ABECS.SPE_PANMASK:
@@ -914,29 +813,5 @@ public class PinpadUtility {
 
                 throw new RuntimeException("Unknown or unhandled TAG [" + name + "]");
         }
-    }
-
-    public static int getIntFromDigitsArray(byte[] input, int length) {
-        Log.d(TAG, "getIntFromDigitsArray::input.length [" + input.length + "] length [" + length + "]");
-
-        int response = 0;
-
-        if (input.length >= length) {
-            for (int i = length - 1, j = 0; i >= 0; i--, j++) {
-                if (input[j] < 0x30 || input[j] > 0x39) {
-                    String message = String.format(US, "getIntFromDigitsArray::input[%d] [%02X]", j, input[j]);
-
-                    throw new IllegalArgumentException(message);
-                }
-
-                response += (input[j] - 0x30) * ((i > 0) ? (Math.pow(10, i)) : 1);
-            }
-        } else {
-            String message = String.format(US, "getIntFromDigitsArray::input.length [%d] length [%d]", input.length, length);
-
-            throw new IllegalArgumentException(message);
-        }
-
-        return response;
     }
 }

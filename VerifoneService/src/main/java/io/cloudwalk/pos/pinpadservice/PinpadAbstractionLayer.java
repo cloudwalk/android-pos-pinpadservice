@@ -58,7 +58,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
                 byte[]  content;
 
                 try {
-                    File    file   = new File ("/sdcard/PPComp", "DUKLINK.dat");
+                    File    file   = new File("/sdcard/PPComp", "DUKLINK.dat");
                     long    length = file.length();
                     boolean exists = file.length() > 0;
 

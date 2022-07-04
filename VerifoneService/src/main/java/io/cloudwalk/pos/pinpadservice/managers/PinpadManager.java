@@ -1,13 +1,13 @@
 package io.cloudwalk.pos.pinpadservice.managers;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-import static io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility.sResponseQueue;
+import static io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility.sResponseQueue;
 
 import android.os.Bundle;
 import android.os.SystemClock;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.concurrent.Semaphore;
 
@@ -17,7 +17,8 @@ import io.cloudwalk.pos.pinpadlibrary.IPinpadManager;
 import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadservice.utilities.CallbackUtility;
-import io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility;
+import io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class PinpadManager extends IPinpadManager.Stub {
     private static final String
@@ -90,40 +91,41 @@ public class PinpadManager extends IPinpadManager.Stub {
         int result = -1;
 
         String applicationId = bundle.getString   ("application_id");
-        byte[] request       = bundle.getByteArray("request");
-        Bundle requestBundle = bundle.getBundle   ("request_bundle");
+        byte[] stream        = bundle.getByteArray("request");
 
         try {
-            switch (request[0]) {
+            switch (stream[0]) {
                 case 0x18:
-                    if (request.length == 1) {
-                        result = VerifoneUtility.abort(bundle);
+                    if (stream.length == 1) {
+                        result = PlatformUtility.interrupt(bundle);
                         break;
                     }
                     /* no break; */
 
                 default:
-                    if (requestBundle == null) {
-                        try {
-                            requestBundle = PinpadUtility.parseRequestDataPacket(request, request.length);
+                    JSONObject request;
 
-                            bundle.putBundle("request_bundle", requestBundle);
-                        } catch (Exception exception) {
-                            Log.e(TAG, Log.getStackTraceString(exception));
+                    try {
+                        request = new JSONObject(PinpadUtility.parseRequestDataPacket(stream, stream.length));
 
-                            requestBundle = new Bundle();
-                        }
+                        bundle.putString("request_json", request.toString());
+                    } catch (Exception exception) {
+                        request = new JSONObject();
+
+                        Log.e(TAG, Log.getStackTraceString(exception));
                     }
 
                     CallbackUtility.setServiceCallback(callback);
 
-                    switch (requestBundle.getString(ABECS.CMD_ID, "UNKNOWN")) {
+                    String CMD_ID = (request.has(ABECS.CMD_ID) ? request.getString(ABECS.CMD_ID) : "UNKNOWN");
+
+                    switch (CMD_ID) {
                         case ABECS.OPN: case ABECS.GIX: case ABECS.CLX:
                         case ABECS.CEX: case ABECS.CHP: case ABECS.EBX: case ABECS.GCD:
                         case ABECS.GPN: case ABECS.GTK: case ABECS.MNU: case ABECS.RMC:
                         case ABECS.TLI: case ABECS.TLR: case ABECS.TLE:
                         case ABECS.GCX: case ABECS.GED: case ABECS.GOX: case ABECS.FCX:
-                            result = VerifoneUtility.send(bundle);
+                            result = PlatformUtility.send(bundle);
                             break;
 
                         default:
@@ -132,7 +134,9 @@ public class PinpadManager extends IPinpadManager.Stub {
                                 public void run() {
                                     super.run();
 
-                                    VerifoneUtility.sRecvSemaphore.acquireUninterruptibly();
+                                    PlatformUtility.sRecvSemaphore.acquireUninterruptibly();
+
+                                    // TODO: review test case A003
 
                                     Bundle response = new Bundle();
 
@@ -143,7 +147,7 @@ public class PinpadManager extends IPinpadManager.Stub {
 
                                     sResponseQueue.add(response);
 
-                                    VerifoneUtility.sRecvSemaphore.release();
+                                    PlatformUtility.sRecvSemaphore.release();
                                 }
                             }.start();
 
@@ -154,6 +158,8 @@ public class PinpadManager extends IPinpadManager.Stub {
         } catch (Exception exception) {
             Log.e(TAG, Log.getStackTraceString(exception));
         } finally {
+            ByteUtility.clear(stream);
+
             sSendSemaphore.release();
         }
 

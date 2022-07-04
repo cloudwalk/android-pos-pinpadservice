@@ -2,7 +2,6 @@ package io.cloudwalk.pos.pinpadservice;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;

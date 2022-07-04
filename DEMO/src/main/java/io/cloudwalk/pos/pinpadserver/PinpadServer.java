@@ -1,9 +1,12 @@
 package io.cloudwalk.pos.pinpadserver;
 
+import static android.content.Context.WIFI_SERVICE;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.annotation.SuppressLint;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
-import android.os.RemoteException;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -13,15 +16,8 @@ import java.nio.ByteOrder;
 import java.util.concurrent.Semaphore;
 
 import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
 import io.cloudwalk.utilitieslibrary.Application;
-
-import static android.content.Context.WIFI_SERVICE;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import org.jetbrains.annotations.NotNull;
 
 public class PinpadServer {
     private static final String
@@ -30,7 +26,7 @@ public class PinpadServer {
     private final Semaphore
             mExchangeSemaphore = new Semaphore(1, true);
 
-    private IServiceCallback
+    private PinpadManager.Callback
             mServiceCallback = null;
 
     private PinpadServer.Callback
@@ -52,25 +48,21 @@ public class PinpadServer {
             mWifiLock = null;
 
     public static interface Callback {
-        void onClientConnection(String address);
+        int  onPinpadCallback(String string);
 
-        int  onPinpadCallback (Bundle bundle);
-
-        // TODO: void onPinpadReceive(byte[] trace, int length);
-
-        // TODO: void onPinpadSend(byte[] trace, int length);
+        // TODO: int  onServerCallback(String string);
 
         void onServerFailure(Exception exception);
 
-        void onServerReceive(byte[] trace, int length);
+        void onServerRecv(byte[] trace, int length);
 
         void onServerSend(byte[] trace, int length);
 
         void onServerSuccess(String address);
     }
 
-    private void close(Exception exception) {
-        // Log.d(TAG, "close");
+    private void _close(Exception exception) {
+        // Log.d(TAG, "_close");
 
         try {
             if (mClientSocket != null) {
@@ -80,9 +72,7 @@ public class PinpadServer {
             if (mServerSocket != null) {
                 mServerSocket.close();
             }
-        } catch (Exception warning) {
-            Log.w(TAG, Log.getStackTraceString(warning));
-        }
+        } catch (Exception ignored) { }
 
         if (mWifiLock != null) {
             if (mWifiLock.isHeld()) {
@@ -95,9 +85,9 @@ public class PinpadServer {
         }
     }
 
-    private InetAddress getWiFiInetAddress()
+    private InetAddress _getWiFiInetAddress()
             throws Exception {
-        // Log.d(TAG, "getWiFiInetAddress");
+        // Log.d(TAG, "_getWiFiInetAddress");
 
         int address = mWifiManager.getConnectionInfo().getIpAddress();
 
@@ -108,22 +98,22 @@ public class PinpadServer {
         return InetAddress.getByAddress(BigInteger.valueOf(address).toByteArray());
     }
 
-    private void onServerReceive(byte[] input, int length) {
-        Log.d(TAG, "onServerReceive");
+    private void _onServerRecv(byte[] array, int length) {
+        Log.d(TAG, "_onServerRecv");
 
         mSemaphore.acquireUninterruptibly();
 
-        mServerCallback.onServerReceive(input, length);
+        mServerCallback.onServerRecv(array, length);
 
         mSemaphore.release();
     }
 
-    private void onServerSend(byte[] input, int length) {
-        Log.d(TAG, "onServerSend");
+    private void _onServerSend(byte[] array, int length) {
+        Log.d(TAG, "_onServerSend");
 
         mSemaphore.acquireUninterruptibly();
 
-        mServerCallback.onServerSend(input, length);
+        mServerCallback.onServerSend(array, length);
 
         mSemaphore.release();
     }
@@ -133,10 +123,10 @@ public class PinpadServer {
 
         mServerCallback  = callback;
 
-        mServiceCallback = new IServiceCallback.Stub() {
+        mServiceCallback = new PinpadManager.Callback() {
             @Override
-            public int onServiceCallback(Bundle bundle) throws RemoteException {
-                return mServerCallback.onPinpadCallback(bundle);
+            public int onServiceCallback(String string) {
+                return mServerCallback.onPinpadCallback(string);
             }
         };
     }
@@ -147,7 +137,7 @@ public class PinpadServer {
         try {
             mSemaphore.acquireUninterruptibly();
 
-            close(null);
+            _close(null);
         } finally {
             mSemaphore.release();
         }
@@ -160,7 +150,7 @@ public class PinpadServer {
 
         mWifiManager = (WifiManager) Application.getContext().getSystemService(WIFI_SERVICE);
 
-        raise(getWiFiInetAddress(), 8080);
+        raise(_getWiFiInetAddress(), 8080);
 
         try {
             mSemaphore.acquireUninterruptibly();
@@ -201,8 +191,6 @@ public class PinpadServer {
                         while (true) {
                             mClientSocket = mServerSocket.accept();
 
-                            mServerCallback.onClientConnection(mClientSocket.getInetAddress().getHostAddress());
-
                             byte[] stream = new byte[2048];
                             int    count;
 
@@ -212,20 +200,20 @@ public class PinpadServer {
                                 mExchangeSemaphore.acquireUninterruptibly();
 
                                 try {
-                                    onServerReceive(stream, count);
+                                    _onServerRecv(stream, count);
 
                                     count = PinpadManager.send(stream, count, mServiceCallback);
 
                                     if (count  < 0) { continue; }
 
-                                    count = PinpadManager.receive(stream, 2000);
+                                    count = PinpadManager.recv(stream, 2000);
 
                                     if (count == 0) { continue; }
 
                                     mClientSocket.getOutputStream().write(stream, 0, count);
                                     mClientSocket.getOutputStream().flush();
 
-                                    onServerSend(stream, count);
+                                    _onServerSend(stream, count);
                                 } finally {
                                     mExchangeSemaphore.release();
                                 }
@@ -248,13 +236,13 @@ public class PinpadServer {
                                                     if (!mExchangeSemaphore.tryAcquire(0, SECONDS)) {
                                                         count = -1;
                                                     } else {
-                                                        try { count = PinpadManager.receive(stream, 0); } finally { mExchangeSemaphore.release(); }
+                                                        try { count = PinpadManager.recv(stream, 0); } finally { mExchangeSemaphore.release(); }
                                                     }
                                                 } while (count == 0);
 
                                                 if (count < 0) { return; }
 
-                                                onServerSend(stream, count);
+                                                _onServerSend(stream, count);
 
                                                 socket.getOutputStream().write(stream, 0, count);
                                                 socket.getOutputStream().flush();
@@ -269,7 +257,7 @@ public class PinpadServer {
                     } catch (Exception exception) {
                         mServerCallback.onServerFailure(exception);
 
-                        close(exception);
+                        _close(exception);
                     }
                 }
             }.start();

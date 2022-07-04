@@ -3,84 +3,91 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class TLR {
     private static final String
             TAG = TLR.class.getSimpleName();
 
-    private TLR() {
-        Log.d(TAG, "TLR");
-
-        /* Nothing to do */
-    }
-
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle response = new Bundle();
+        JSONObject request = new JSONObject();
 
-        byte[] CMD_ID       = new byte[3];
-        byte[] CMD_LEN1     = new byte[3];
-        byte[] TLR_NREC     = new byte[2];
-        byte[] TLR_DATA     = null;
+        request.put(ABECS.CMD_ID,     new String(array, 0,  3));
+        request.put(ABECS.TLI_ACQIDX, new String(array, 6,  2));
+        request.put(ABECS.TLI_TABVER, new String(array, 8 ,10));
 
-        System.arraycopy(input, 0, CMD_ID,   0, 3);
-        System.arraycopy(input, 3, CMD_LEN1, 0, 3);
-        System.arraycopy(input, 6, TLR_NREC, 0, 2);
-
-        TLR_DATA = new byte[PinpadUtility.getIntFromDigitsArray(CMD_LEN1, CMD_LEN1.length) - 2];
-
-        System.arraycopy(input, 8, TLR_DATA, 0, TLR_DATA.length);
-
-        response.putString(ABECS.CMD_ID,   new String(CMD_ID));
-        response.putString(ABECS.TLR_NREC, new String(TLR_NREC));
-        response.putString(ABECS.TLR_DATA, new String(TLR_DATA));
-
-        return response;
+        return request.toString();
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
+    public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
+        return CMD.parseResponseDataPacket(array, length);
     }
 
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String TLR_NREC     = input.getString(ABECS.TLR_NREC);
-        String TLR_DATA     = input.getString(ABECS.TLR_DATA);
+        byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
+        byte[] TLR_NREC = null;
+        byte[] TLR_DATA = null;
 
-        TLR_DATA = TLR_DATA.length() > 999 ? TLR_DATA.substring(0, 999) : TLR_DATA;
+        try {
+            JSONObject request = new JSONObject(string);
 
-        stream[1].write(TLR_NREC.getBytes(UTF_8));
-        stream[1].write(TLR_DATA.getBytes(UTF_8));
+            CMD_ID   = request.getString(ABECS.CMD_ID)  .getBytes(UTF_8);
+            TLR_NREC = request.getString(ABECS.TLR_NREC).getBytes(UTF_8);
+            TLR_DATA = request.getString(ABECS.TLR_DATA).getBytes(UTF_8);
 
-        byte[] CMD_DATA = stream[1].toByteArray();
+            stream[0].write(CMD_ID);
+            stream[1].write(TLR_NREC);
+            stream[1].write(TLR_DATA);
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+            byte[] CMD_DATA = null;
+
+            try {
+                CMD_DATA = stream[1].toByteArray();
+
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
+
+            byte[] array = stream[0].toByteArray();
+
+            return array;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1, TLR_NREC, TLR_DATA);
+        }
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+    public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildResponseDataPacket");
 
-        return PinpadUtility.CMD.buildResponseDataPacket(input);
+        return CMD.buildResponseDataPacket(string);
     }
 }

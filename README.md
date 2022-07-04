@@ -48,7 +48,7 @@ dependencies {
 ### Local dependencies
 
 Local dependencies are those within the scope of the Pinpad Service development
-team. They need to be made available before the Pinpad Service can be built:  
+team. They need to be made available before the service can be built:  
 
 1. Clone the repositories
    [android-misc-loglibrary](https://github.com/mauriciospinardi/android-misc-loglibrary)
@@ -77,18 +77,18 @@ The Pinpad Service includes a DEMO application, covering the very basics:
 - [MainActivity.java](DEMO/src/main/java/io/cloudwalk/pos/demo/presentation/MainActivity.java)
   shows how to perform local requests.
   - _Check [DEMO.java](DEMO/src/main/java/io/cloudwalk/pos/demo/DEMO.java) for
-    samples of requests made through the `Bundle` API_.
+    samples of requests made through the `JSON` API_.
 
 An ABECS PINPAD natively exchanges `byte[]` streams. However, the Pinpad
-Service allows local requests made through a `Bundle` API, for easier
+Service allows local requests made through a `JSON` API, for easier
 data handling[^2]. The Pinpad Library is the one responsible for the conversion
-between `Bundle` and `byte[]`.  
+between `JSON` and `byte[]`.  
 
-[^2]: `Bundle` API is recommended over `byte` API.
+[^2]: Usage of the `JSON` API is highly recommended over the `byte` API.
 
-- _Bundle_ API
-  - `PinpadManager#abort();`
-  - `PinpadManager#request(Bundle, IServiceCallback);`
+- `JSON` API
+  - `PinpadManager#interrupt();`
+  - `PinpadManager#request(String, Callback);`
 - _byte[]_ API
-  - `PinpadManager#send(byte[], int, IServiceCallback);`
+  - `PinpadManager#send(byte[], int, Callback);`
   - `PinpadManager#receive(byte[], long);`

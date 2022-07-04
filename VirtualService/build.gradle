@@ -9,8 +9,8 @@ android {
         applicationId "io.cloudwalk.pos.pinpadservice"
         minSdk 22
         targetSdk 32
-        versionCode 4
-        versionName "0.0.4"
+        versionCode 5
+        versionName "0.0.5"
 
         buildConfigField 'String', 'BUILD_DATE', "\"${getDate()}\""
 
@@ -42,7 +42,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:16.0.1'
 
     implementation 'io.cloudwalk:loglibrary:1.1.5'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.14'
+    implementation 'io.cloudwalk:utilitieslibrary:1.1.0'
 
     implementation project(path: ':PinpadLibrary')
 }

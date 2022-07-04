@@ -3,63 +3,87 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class RMC {
     private static final String
             TAG = RMC.class.getSimpleName();
 
-    private RMC() {
-        Log.d(TAG, "RMC");
-
-        /* Nothing to do */
-    }
-
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle response = new Bundle();
+        JSONObject request = new JSONObject();
 
-        response.putString(ABECS.CMD_ID,  new String(input, 0,  3));
-        response.putString(ABECS.RMC_MSG, new String(input, 6, 32));
+        request.put(ABECS.CMD_ID,  new String(array, 0,  3));
+        request.put(ABECS.RMC_MSG, new String(array, 6, 32));
 
-        return response;
+        return request.toString();
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
+    public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
+        return CMD.parseResponseDataPacket(array, length);
     }
 
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        stream[1].write(input.getString(ABECS.RMC_MSG).getBytes(UTF_8));
+        byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
+        byte[] RMC_MSG  = null;
 
-        byte[] CMD_DATA = stream[1].toByteArray();
+        try {
+            JSONObject request = new JSONObject(string);
 
-        return DataUtility.concatByteArray(input.getString(ABECS.CMD_ID).getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+            CMD_ID  = request.getString(ABECS.CMD_ID) .getBytes(UTF_8);
+            RMC_MSG = request.getString(ABECS.RMC_MSG).getBytes(UTF_8);
+
+            stream[0].write(CMD_ID);
+            stream[1].write(RMC_MSG);
+
+            byte[] CMD_DATA = null;
+
+            try {
+                CMD_DATA = stream[1].toByteArray();
+
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
+
+            byte[] array = stream[0].toByteArray();
+
+            return array;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1, RMC_MSG);
+        }
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+    public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildResponseDataPacket");
 
-        return PinpadUtility.CMD.buildResponseDataPacket(input);
+        return CMD.buildResponseDataPacket(string);
     }
 }

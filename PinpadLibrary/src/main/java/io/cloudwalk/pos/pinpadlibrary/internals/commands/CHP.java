@@ -3,188 +3,173 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class CHP {
     private static final String
             TAG = CHP.class.getSimpleName();
 
-    private CHP() {
-        Log.d(TAG, "CHP");
-
-        /* Nothing to do */
-    }
-
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle response = new Bundle();
+        JSONObject request = new JSONObject();
 
-        byte[] CMD_ID       = new byte[3];
-        byte[] CHP_SLOT     = new byte[1];
-        byte[] CHP_OPER     = new byte[1];
-        byte[] CHP_CMDLEN   = new byte[3];
-        byte[] CHP_CMD      = null;
-        byte[] CHP_PINFMT   = new byte[1];
-        byte[] CHP_PINMSG   = new byte[32];
+        request.put(ABECS.CMD_ID,   new String(array, 0, 3));
+        request.put(ABECS.CHP_SLOT, new String(array, 6, 1));
+        request.put(ABECS.CHP_OPER, new String(array, 7, 1));
 
-        System.arraycopy(input, 0, CMD_ID,     0, 3);
+        int CHP_CMDLEN = CMD.parseInt(array, 8, 3);
 
-        response.putString(ABECS.CMD_ID, new String(CMD_ID));
-
-        System.arraycopy(input, 6, CHP_SLOT,   0, 1);
-        System.arraycopy(input, 7, CHP_OPER,   0, 1);
-        System.arraycopy(input, 8, CHP_CMDLEN, 0, 3);
-
-        CHP_CMD = new byte[PinpadUtility.getIntFromDigitsArray(CHP_CMDLEN, CHP_CMDLEN.length) * 2];
-
-        response.putString(ABECS.CHP_SLOT, new String(CHP_SLOT));
-        response.putString(ABECS.CHP_OPER, new String(CHP_OPER));
-
-        if (CHP_CMD.length < 1) {
-            return response;
+        if (CHP_CMDLEN > 0) {
+            request.put(ABECS.CHP_CMD,     new String(array, 11, CHP_CMDLEN));
+            request.put(ABECS.CHP_PINFMT,  new String(array, CHP_CMDLEN + 11,  1));
+            request.put(ABECS.CHP_PINMSG,  new String(array, CHP_CMDLEN + 12, 32));
         }
 
-        System.arraycopy(input, 11, CHP_CMD, 0, CHP_CMD.length);
-
-        response.putString(ABECS.CHP_CMD, new String(CHP_CMD));
-
-        if (!response.getString(ABECS.CHP_OPER).equals("3")) {
-            return response;
-        }
-
-        System.arraycopy(input, CHP_CMD.length + 11, CHP_PINFMT, 0, 1);
-        System.arraycopy(input, CHP_CMD.length + 12, CHP_PINMSG, 0, 32);
-
-        response.putString(ABECS.CHP_PINFMT, new String(CHP_PINFMT));
-        response.putString(ABECS.CHP_PINMSG, new String(CHP_PINMSG));
-
-        return response;
+        return request.toString();
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
+    public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        byte[] RSP_ID       = new byte[3];
-        byte[] RSP_STAT     = new byte[3];
-        byte[] CHP_RSPLEN   = new byte[3];
-        byte[] CHP_RSP      = new byte[514];
+        JSONObject[] response = {
+                new JSONObject(),
+                null
+        };
 
-        System.arraycopy(input,  0, RSP_ID,     0,  3);
-        System.arraycopy(input,  3, RSP_STAT,   0,  3);
+        response[0].put(ABECS.RSP_ID, new String(array, 0, 3));
 
-        Bundle response = new Bundle();
+        String RSP_STAT = ABECS.STAT.values()[CMD.parseInt(array, 3, 3)].name();
 
-        response.putString(ABECS.RSP_ID, new String(RSP_ID));
-        response.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
+        response[0].put(ABECS.RSP_STAT, RSP_STAT);
 
-        if (ABECS.STAT.ST_OK != response.getSerializable(ABECS.RSP_STAT)) {
-            return response;
+        switch (RSP_STAT) {
+            case "ST_OK":
+                if (length >= 10) {
+                    int CHP_RSPLEN = CMD.parseInt(array, 9, 3);
+
+                    response[0].put(ABECS.CHP_RSP, new String(array, 12, CHP_RSPLEN));
+                }
+                /* no break */
+
+            default:
+                return response[0].toString();
         }
-
-        System.arraycopy(input, 9, CHP_RSPLEN, 0, 3);
-
-        int i = PinpadUtility.getIntFromDigitsArray(CHP_RSPLEN, CHP_RSPLEN.length) * 2;
-
-        System.arraycopy(input, 12, CHP_RSP,   0, i);
-
-        response.putString(ABECS.CHP_RSP, new String(CHP_RSP, 0, i));
-
-        return response;
     }
 
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String CHP_SLOT     = input.getString(ABECS.CHP_SLOT);
-        String CHP_OPER     = input.getString(ABECS.CHP_OPER);
-        String CHP_CMD      = input.getString(ABECS.CHP_CMD);
-        String CHP_PINFMT   = input.getString(ABECS.CHP_PINFMT);
-        String CHP_PINMSG   = input.getString(ABECS.CHP_PINMSG);
+        byte[] CMD_ID     = null;           byte[] CMD_LEN1   = null;
+        byte[] CHP_SLOT   = null;           byte[] CHP_OPER   = null;
+        byte[] CHP_CMDLEN = null;           byte[] CHP_CMD    = null;
+        byte[] CHP_PINFMT = null;           byte[] CHP_PINMSG = null;
 
-        stream[1].write(CHP_SLOT.getBytes(UTF_8));
-        stream[1].write(CHP_OPER.getBytes(UTF_8));
+        try {
+            JSONObject request = new JSONObject(string);
 
-        byte[] CHP_CMDLEN   = String.format(US, "%03d", (CHP_CMD != null) ? (CHP_CMD.length() / 2) : 0).getBytes(UTF_8);
+            CMD_ID     = request.getString(ABECS.CMD_ID)    .getBytes(UTF_8);
+            CHP_SLOT   = request.getString(ABECS.CHP_SLOT)  .getBytes(UTF_8);
+            CHP_OPER   = request.getString(ABECS.CHP_OPER)  .getBytes(UTF_8);
+            CHP_CMD    = request.optString(ABECS.CHP_CMD)   .getBytes(UTF_8);
+            CHP_PINFMT = request.optString(ABECS.CHP_PINFMT).getBytes(UTF_8);
+            CHP_PINMSG = request.optString(ABECS.CHP_PINMSG).getBytes(UTF_8);
 
-        stream[1].write(CHP_CMDLEN);
+            stream[0].write(CMD_ID);
+            stream[1].write(CHP_SLOT);
+            stream[1].write(CHP_OPER);
 
-        if (CHP_CMD    != null) {
-            stream[1].write(CHP_CMD   .getBytes(UTF_8));
+            CHP_CMDLEN = String.format(US, "%03d", CHP_CMD.length / 2).getBytes(UTF_8);
+
+            stream[1].write(CHP_CMDLEN);
+            stream[1].write(CHP_CMD);
+            stream[1].write(CHP_PINFMT);
+            stream[1].write(CHP_PINMSG);
+
+            byte[] CMD_DATA = null;
+
+            try {
+                CMD_DATA = stream[1].toByteArray();
+
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
+
+            byte[] array = stream[0].toByteArray();
+
+            return array;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1, CHP_SLOT, CHP_OPER, CHP_CMDLEN, CHP_CMD,
+                    CHP_PINFMT, CHP_PINMSG);
         }
-
-        if (CHP_PINFMT != null) {
-            stream[1].write(CHP_PINFMT.getBytes(UTF_8));
-        }
-
-        if (CHP_PINMSG != null) {
-            stream[1].write(CHP_PINMSG.getBytes(UTF_8));
-        }
-
-        byte[] CMD_DATA = stream[1].toByteArray();
-
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+    public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
-        Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+        Log.d(TAG, "buildResponseDataPacket");
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        String RSP_ID       = null;
-        int    RSP_STAT     = ABECS.STAT.ST_INTERR.ordinal();
-        byte[] CHP_RSP      = null;
+        byte[] RSP_ID     = null;       byte[] RSP_STAT   = null;
+        byte[] RSP_LEN1   = null;       byte[] CHP_RSPLEN = null;
+        byte[] CHP_RSP    = null;       byte[] RSP_DATA   = null;
 
-        for (String T : input.keySet()) {
-            switch (T) {
-                case ABECS.RSP_ID:
-                    RSP_ID = input.getString(T);
-                    break;
+        try {
+            JSONObject json = new JSONObject(string);
 
-                case ABECS.RSP_STAT:
-                    RSP_STAT = ((ABECS.STAT) input.getSerializable(T)).ordinal();
-                    break;
+            RSP_ID   = json.getString(ABECS.RSP_ID)  .getBytes(UTF_8);
+            CHP_RSP  = json.optString(ABECS.CHP_RSP) .getBytes(UTF_8);
 
-                case ABECS.CHP_RSP:
-                    CHP_RSP = input.getString(T).getBytes(UTF_8);
-                    break;
-
-                default:
-                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "]");
+            if (CHP_RSP.length > 0) {
+                CHP_RSPLEN = String.format(US, "%03d", CHP_RSP.length / 2).getBytes(UTF_8);
             }
+
+            stream[1].write((CHP_RSPLEN != null) ? CHP_RSPLEN : new byte[0]);
+            stream[1].write(CHP_RSP);
+
+            RSP_STAT = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(ABECS.RSP_STAT)).ordinal()).getBytes(UTF_8);
+
+            RSP_DATA = stream[1].toByteArray();
+
+            RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
+
+            stream[0].write(RSP_ID);
+            stream[0].write(RSP_STAT);
+            stream[0].write(RSP_LEN1);
+            stream[0].write(RSP_DATA);
+
+            byte[] response = stream[0].toByteArray();
+
+            return response;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(RSP_ID, RSP_STAT, RSP_LEN1, CHP_RSPLEN, CHP_RSP, RSP_DATA);
         }
-
-        stream.write(RSP_ID.getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
-
-        if (RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
-            stream.write(0x00);
-            stream.write(0x00);
-            stream.write(0x00);
-
-            return stream.toByteArray();
-        }
-
-        stream.write(String.format(US, "%03d", CHP_RSP.length + 3).getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", CHP_RSP.length / 2).getBytes(UTF_8));
-        stream.write(CHP_RSP);
-
-        return stream.toByteArray();
     }
 }

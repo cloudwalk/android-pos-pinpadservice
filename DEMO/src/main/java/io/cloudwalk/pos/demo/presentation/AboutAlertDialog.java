@@ -7,9 +7,9 @@ import android.content.pm.PackageInfo;
 import android.view.View;
 import android.widget.TextView;
 
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.demo.BuildConfig;
 import io.cloudwalk.pos.demo.R;
-import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.utilitieslibrary.Application;
 
 public class AboutAlertDialog extends AlertDialog {

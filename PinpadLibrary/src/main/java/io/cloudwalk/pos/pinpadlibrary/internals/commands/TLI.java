@@ -3,69 +3,91 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class TLI {
     private static final String
             TAG = TLI.class.getSimpleName();
 
-    private TLI() {
-        Log.d(TAG, "TLI");
-
-        /* Nothing to do */
-    }
-
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle response = new Bundle();
+        JSONObject request = new JSONObject();
 
-        response.putString(ABECS.CMD_ID,      new String(input, 0,  3));
-        response.putString(ABECS.TLI_ACQIDX,  new String(input, 6,  2));
-        response.putString(ABECS.TLI_TABVER,  new String(input, 8, 10));
+        request.put(ABECS.CMD_ID,     new String(array, 0,  3));
+        request.put(ABECS.TLI_ACQIDX, new String(array, 6,  2));
+        request.put(ABECS.TLI_TABVER, new String(array, 8, 10));
 
-        return response;
+        return request.toString();
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
+    public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        return PinpadUtility.CMD.parseResponseDataPacket(input, length);
+        return CMD.parseResponseDataPacket(array, length);
     }
 
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String TLI_ACQIDX   = input.getString(ABECS.TLI_ACQIDX);
-        String TLI_TABVER   = input.getString(ABECS.TLI_TABVER);
+        byte[] CMD_ID     = null;
+        byte[] CMD_LEN1   = null;
+        byte[] TLI_ACQIDX = null;
+        byte[] TLI_TABVER = null;
 
-        stream[1].write(TLI_ACQIDX.getBytes(UTF_8));
-        stream[1].write(TLI_TABVER.getBytes(UTF_8));
+        try {
+            JSONObject request = new JSONObject(string);
 
-        byte[] CMD_DATA = stream[1].toByteArray();
+            CMD_ID     = request.getString(ABECS.CMD_ID)    .getBytes(UTF_8);
+            TLI_ACQIDX = request.getString(ABECS.TLI_ACQIDX).getBytes(UTF_8);
+            TLI_TABVER = request.getString(ABECS.TLI_TABVER).getBytes(UTF_8);
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+            stream[0].write(CMD_ID);
+            stream[1].write(TLI_ACQIDX);
+            stream[1].write(TLI_TABVER);
+
+            byte[] CMD_DATA = null;
+
+            try {
+                CMD_DATA = stream[1].toByteArray();
+
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
+
+            byte[] array = stream[0].toByteArray();
+
+            return array;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1, TLI_ACQIDX, TLI_TABVER);
+        }
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+    public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildResponseDataPacket");
 
-        return PinpadUtility.CMD.buildResponseDataPacket(input);
+        return CMD.buildResponseDataPacket(string);
     }
 }

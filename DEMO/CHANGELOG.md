@@ -8,6 +8,18 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## Known issues
+- Loosing focus for any reason will forcefully restart all DEMO routines.
+- No keyboard interaction is available at the moment: upon multiple choice
+  menus, the first option will be selected automatically.
+
+## [0.0.12] - 2022-07-03
+- Update dependencies.
+- Rollback changes to the history stack in order to fix GPN/GOX critical
+  failures, introduced in release 0.0.6.
+- Replace `Bundle` API by `JSON` API to simplify internal coding and retain
+  request/response data order when parsing data streams.
+
 ## [0.0.11] - 2022-06-15
 - Update application theme.
 - Remove application from backup and restore infrastructure.

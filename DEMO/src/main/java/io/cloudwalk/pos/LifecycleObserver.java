@@ -12,7 +12,7 @@ import android.view.Display;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
@@ -23,8 +23,8 @@ public class LifecycleObserver implements androidx.lifecycle.LifecycleObserver {
     private static final String
             TAG = LifecycleObserver.class.getSimpleName();
 
-    public static AtomicBoolean
-            sBackground = new AtomicBoolean(false);
+    public static AtomicReference<Boolean>
+            sBackground = new AtomicReference<>(false);
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP) // TODO: prefer `DefaultLifecycleObserver` or
                                                // `LifecycleEventObserver` instead
@@ -45,7 +45,7 @@ public class LifecycleObserver implements androidx.lifecycle.LifecycleObserver {
 
                 sBackground.set(true);
 
-                PinpadManager.abort();
+                PinpadManager.interrupt();
 
                 PinpadServer server = sPinpadServer.get();
 

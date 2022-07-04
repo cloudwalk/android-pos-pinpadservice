@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import io.cloudwalk.loglibrary.Application;
 import io.cloudwalk.loglibrary.Log;
 
-public class SharedPreferencesUtility {
+public class SharedPreferencesUtility { // TODO: refactor to use the same approach as InfinitePay Launcher release 1.0.8
     private static final String
             TAG = SharedPreferencesUtility.class.getSimpleName();
 

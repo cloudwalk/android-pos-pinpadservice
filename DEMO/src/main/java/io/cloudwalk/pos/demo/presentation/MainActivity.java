@@ -22,22 +22,22 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.demo.DEMO;
-import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.pos.pinpadserver.PinpadServer;
-import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 import io.cloudwalk.pos.demo.R;
 import io.cloudwalk.pos.demo.adapters.MainAdapter;
 import io.cloudwalk.pos.demo.databinding.ActivityMainBinding;
-import io.cloudwalk.loglibrary.Log;
-import io.cloudwalk.pos.pinpadlibrary.IServiceCallback;
+import io.cloudwalk.pos.pinpadlibrary.ABECS;
+import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
 import io.cloudwalk.pos.pinpadlibrary.managers.PinpadManager;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.pos.pinpadserver.PinpadServer;
+import io.cloudwalk.utilitieslibrary.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private static final String
@@ -50,22 +50,19 @@ public class MainActivity extends AppCompatActivity {
             sSemaphore = new Semaphore(1, true);
 
     private AlertDialog
-            mAboutAlertDialog = null;
+            mAboutAlertDialog   = null;
 
     private MainAdapter
-            mMainAdapter = null;
-
-    private PinpadServer
-            mPinpadServer = null;
+            mMainAdapter        = null;
 
     private RecyclerView
-            mRecyclerView = null;
+            mRecyclerView       = null;
 
     private boolean
-            mAutoScroll = true;
+            mAutoScroll         = true;
 
-    private SpannableString getBullet(@ColorInt int color) {
-        // Log.d(TAG, "getBullet::color [" + color + "]");
+    private SpannableString _getBullet(@ColorInt int color) {
+        // Log.d(TAG, "_getBullet::color [" + color + "]");
 
         SpannableString response = new SpannableString("  ");
 
@@ -74,44 +71,44 @@ public class MainActivity extends AppCompatActivity {
         return response;
     }
 
-    private boolean getAutoScroll() {
-        // Log.d(TAG, "getAutoScroll");
+    private boolean _getAutoScroll() {
+        // Log.d(TAG, "_getAutoScroll");
 
         boolean autoScroll;
 
-        acquire();
+        _acquire();
 
         autoScroll = mAutoScroll;
 
-        release();
+        _release();
 
         return autoScroll;
     }
 
-    private void acquire() {
-        // Log.d(TAG, "acquire");
+    private void _acquire() {
+        // Log.d(TAG, "_acquire");
 
         sSemaphore.acquireUninterruptibly();
     }
 
-    private void release() {
-        // Log.d(TAG, "release");
+    private void _release() {
+        // Log.d(TAG, "_release");
 
         sSemaphore.release();
     }
 
-    private void setAutoScroll(boolean autoScroll) {
-        // Log.d(TAG, "setAutoScroll::autoScroll [" + autoScroll + "]");
+    private void _setAutoScroll(boolean autoScroll) {
+        // Log.d(TAG, "_setAutoScroll::autoScroll [" + autoScroll + "]");
 
-        acquire();
+        _acquire();
 
         mAutoScroll = autoScroll;
 
-        release();
+        _release();
     }
 
-    private void updateContentScrolling(String delim, String message) {
-        // Log.d(TAG, "updateContentScrolling::delim [" + delim + "]");
+    private void _updateContentScrolling(String delim, String message) {
+        // Log.d(TAG, "_updateContentScrolling::delim [" + delim + "]");
 
         String[] trace = null;
 
@@ -134,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
                         int count = mMainAdapter.getItemCount();
 
-                        if (!getAutoScroll()) {
+                        if (!_getAutoScroll()) {
                             return;
                         }
 
@@ -155,8 +152,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updatePinpadContent(String message) {
-        // Log.d(TAG, "updatePinpadContent");
+    private void _updatePinpadContent(String message) {
+        // Log.d(TAG, "_updatePinpadContent");
 
         Semaphore[] semaphore = { new Semaphore(0, true) };
 
@@ -174,26 +171,26 @@ public class MainActivity extends AppCompatActivity {
         semaphore[0].acquireUninterruptibly();
     }
 
-    private void updateStatus(int status, String message) {
-        // Log.d(TAG, "updateStatus::status [" + status + "]");
+    private void _updateStatus(int status, String message) {
+        // Log.d(TAG, "_updateStatus::status [" + status + "]");
 
         SpannableStringBuilder[] content = { new SpannableStringBuilder() };
 
         switch (status) {
             case 0: /* SUCCESS */
-                content[0].append(getBullet(Color.GREEN));
+                content[0].append(_getBullet(Color.GREEN));
                 break;
 
             case 1: /* FAILURE */
-                content[0].append(getBullet(Color.RED));
+                content[0].append(_getBullet(Color.RED));
                 break;
 
             case 2: /* PROCESSING */
-                content[0].append(getBullet(Color.BLUE));
+                content[0].append(_getBullet(Color.BLUE));
                 break;
 
             default:
-                content[0].append(getBullet(Color.GRAY));
+                content[0].append(_getBullet(Color.GRAY));
                 break;
         }
 
@@ -231,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setAutoScroll(true);
+                        _setAutoScroll(true);
 
                         int limit = MAIN_ADAPTER_CONTENT_LIMIT;
 
@@ -269,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
                 Log.d(TAG, "onInterceptTouchEvent");
 
-                setAutoScroll(false);
+                _setAutoScroll(false);
 
                 binding.fab.setVisibility(View.VISIBLE);
 
@@ -298,142 +295,145 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
 
-                IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+                PinpadManager.Callback serviceCallback = new PinpadManager.Callback() {
                     @Override
-                    public int onServiceCallback(Bundle bundle) {
-                        Log.d(TAG, "onServiceCallback");
+                    public int onServiceCallback(String string) {
+                        Log.d(TAG, "onServiceCallback::string [" + string + "]");
 
                         try {
-                            String trace = DataUtility.getJSONObjectFromBundle(bundle, true).toString();
+                            JSONObject json = new JSONObject(string);
 
-                            Log.d(TAG, "onServiceCallback::" + trace);
+                            String pin  = "                ";
+                                   pin += (json.has(NTF_PIN)) ? json.getString(NTF_PIN) : "";
+
+                            String msg  = (json.has(NTF_MSG)) ? json.getString(NTF_MSG) : "";
+
+                            if (!msg.isEmpty()) {
+                                while (msg.charAt(0) == '\n') {
+                                    msg = msg.substring(1);
+                                }
+                            }
+
+                            msg += "\n" + pin.substring(pin.length() - 16);
+
+                            _updatePinpadContent(msg);
+
+                            if (!json.has(NTF_TYPE)) {
+                                return 0;
+                            }
+
+                            switch (Type.values()[json.getInt(NTF_TYPE)]) {
+                                //  case...
+                                //  case...
+                                case NTF_SELECT: return 1;
+                                default:         return 0;
+                            }
                         } catch (Exception exception) {
                             Log.e(TAG, Log.getStackTraceString(exception));
                         }
 
-                        String pin  = "                ";
-                               pin += bundle.getString(NTF_PIN, "");
-
-                        String msg  = bundle.getString(NTF_MSG, "");
-
-                        if (!msg.isEmpty()) {
-                            while (msg.charAt(0) == '\n') msg = msg.substring(1);
-                        }
-
-                        msg += "\n" + pin.substring(pin.length() - 16);
-
-                        updatePinpadContent(msg);
-
-                        switch (bundle.getInt(NTF_TYPE, -99)) {
-                        //  case...
-                        //  case...
-                            case NTF_SELECT: return 1;
-                            default:         return 0;
-                        }
+                        return 0;
                     }
                 };
 
-                updateStatus(2, getString(R.string.warning_local_processing));
+                _updateStatus(2, getString(R.string.warning_local_processing));
 
-                Bundle request;
+                List<String> requestList = new ArrayList<>(0);
 
-                List<Bundle> requestList = new ArrayList<>(0);
+                try {
+                    // requestList.add(DEMO.CLX());
+                    requestList.add(DEMO.GIX());
+                    // requestList.add(DEMO.OPN());
+                    // requestList.add(DEMO.TLI());
 
-                // requestList.add(DEMO.CLX());
-                requestList.add(DEMO.GIX());
-                // requestList.add(DEMO.OPN());
-                // requestList.add(DEMO.TLI());
+                    // for (String TLR : DEMO.TLR()) {
+                    //     requestList.add(TLR);
+                    // }
 
-                // for (Bundle TLR : DEMO.TLR()) requestList.add(TLR);
+                    // requestList.add(DEMO.TLE());
+                    // requestList.add(DEMO.CEX());
+                    // requestList.add(DEMO.GTK());
+                    // requestList.add(DEMO.RMC());
+                    // requestList.add(DEMO.EBX());
+                    // requestList.add(DEMO.GPN());
+                    // requestList.add(DEMO.GCX());
+                    // requestList.add(DEMO.GED());
+                    // requestList.add(DEMO.GOX());
+                    // requestList.add(DEMO.FCX());
+                    // requestList.add(DEMO.MNU());
+                    // requestList.add(DEMO.GCD());
+                    // requestList.add(DEMO.CHP());
+                } catch (Exception exception) {
+                    Log.e(TAG, Log.getStackTraceString(exception));
+                } finally {
+                    PinpadManager.interrupt();
+                }
 
-                // requestList.add(DEMO.TLE());
-                // requestList.add(DEMO.CEX());
-                // requestList.add(DEMO.GTK());
-                // requestList.add(DEMO.RMC());
-                // requestList.add(DEMO.EBX());
-                // requestList.add(DEMO.GPN());
-                // requestList.add(DEMO.GCX());
-                // requestList.add(DEMO.GED());
-                // requestList.add(DEMO.GOX());
-                // requestList.add(DEMO.FCX());
-                // requestList.add(DEMO.MNU());
-                // requestList.add(DEMO.GCD());
-                // requestList.add(DEMO.CHP());
-
-                PinpadManager.abort();
-
-                for (Bundle TX : requestList) {
+                for (String entry : requestList) {
                     try {
-                        updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
+                        _updateContentScrolling(null, "\"TX\": " + (new JSONObject(entry)).toString(4));
 
-                        Bundle RX = PinpadManager.request(TX, serviceCallback);
+                        JSONObject response = new JSONObject(PinpadManager.request(entry, serviceCallback));
 
-                        updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
+                        _updateContentScrolling(null, "\"RX\": " + response.toString(4));
 
                         if (wasStopped()) {
                             return;
                         }
 
-                        switch (RX.getString(ABECS.RSP_ID)) {
+                        switch (response.getString(ABECS.RSP_ID)) {
                             case ABECS.TLI:
                             case ABECS.TLR:
                                 /* Nothing to do */
                                 break;
 
                             default:
-                                updatePinpadContent(label);
+                                _updatePinpadContent(label);
                                 break;
                         }
                     } catch (Exception exception) {
-                        updateContentScrolling(null, Log.getStackTraceString(exception));
+                        _updateContentScrolling(null, Log.getStackTraceString(exception));
                     }
                 }
 
-                // TODO: replace hardcoded strings by values @string.xml
-
-                updateStatus(0, "Finished processing local requests");
+                _updateStatus(0, "Finished processing local requests"); // TODO: replace hardcoded strings by values @string.xml
 
                 PinpadServer.Callback serverCallback = new PinpadServer.Callback() {
                     @Override
-                    public int onPinpadCallback(Bundle bundle) {
+                    public int onPinpadCallback(String string) {
                         try {
-                            return serviceCallback.onServiceCallback(bundle);
+                            return serviceCallback.onServiceCallback(string);
                         } catch (Exception exception) { return -1; }
-                    }
-
-                    @Override
-                    public void onClientConnection(String address) {
-                        // TODO: UX
                     }
 
                     @Override
                     public void onServerFailure(Exception exception) {
                         // TODO: triple vibration and beep
 
-                        updateStatus(1, "Server failure: " + exception.getMessage());
+                        _updateStatus(1, "Server failure: " + exception.getMessage());
 
-                        updatePinpadContent(label);
+                        _updatePinpadContent(label);
                     }
 
                     @Override
-                    public void onServerReceive(byte[] trace, int length) {
+                    public void onServerRecv(byte[] trace, int length) {
                         try {
-                            Bundle TX = PinpadUtility.parseRequestDataPacket(trace, length);
+                            JSONObject TX = new JSONObject(PinpadUtility.parseRequestDataPacket(trace, length));
 
-                            updateContentScrolling(null, "\"TX\": " + DataUtility.getJSONObjectFromBundle(TX).toString(4));
+                            _updateContentScrolling(null, "\"TX\": " + TX.toString(4));
                         } catch (Exception exception) {
                             if (length <= 0) { return; }
 
-                            updateContentScrolling("\n", Log.getByteTraceString(trace, length));
+                            _updateContentScrolling("\n", Log.getByteTraceString(trace, length));
                         }
                     }
 
                     @Override
                     public void onServerSend(byte[] trace, int length) {
                         try {
-                            Bundle RX = PinpadUtility.parseResponseDataPacket(trace, length);
+                            JSONObject RX = new JSONObject(PinpadUtility.parseResponseDataPacket(trace, length));
 
-                            updateContentScrolling(null, "\"RX\": " + DataUtility.getJSONObjectFromBundle(RX).toString(4));
+                            _updateContentScrolling(null, "\"RX\": " + RX.toString(4));
 
                             switch (RX.getString(ABECS.RSP_ID)) {
                                 case ABECS.TLI:
@@ -442,13 +442,13 @@ public class MainActivity extends AppCompatActivity {
                                     break;
 
                                 default:
-                                    updatePinpadContent(label);
+                                    _updatePinpadContent(label);
                                     break;
                             }
                         } catch (Exception exception) {
                             if (length <= 0) { return; }
 
-                            updateContentScrolling("\n", Log.getByteTraceString(trace, length));
+                            _updateContentScrolling("\n", Log.getByteTraceString(trace, length));
                         }
                     }
 
@@ -456,11 +456,11 @@ public class MainActivity extends AppCompatActivity {
                     public void onServerSuccess(String address) {
                         // TODO: vibration and beep
 
-                        updateStatus(0, "Server up an running " + address);
+                        _updateStatus(0, "Server up an running " + address);
                     }
                 };
 
-                updateStatus(2, "Raising server...");
+                _updateStatus(2, "Raising server...");
 
                 try {
                     sPinpadServer.set(new PinpadServer(serverCallback));
@@ -480,6 +480,10 @@ public class MainActivity extends AppCompatActivity {
         mAboutAlertDialog.dismiss();
 
         super.onStop();
+
+        overridePendingTransition(0, 0);
+
+        finishAndRemoveTask();
     }
 
     @Override

@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-### P2-B/EU
+### P2-B
 - Android 7.1.1
 - OS 3.0.52
 - Firmware 348
@@ -17,15 +17,18 @@
 - BC 1.30
 
 ## Known issues
-- PIN keyboard external layout customization is disabled.
-- Callbacks aren't interrupted by `ST_TIMEOUT`. Caller has to oversight time.
-- `MNU` and `GCD` will always disregard user input.
+- PIN keyboard layout external customization is disabled.
+- Callbacks don't run on their own threads, therefore may fail to properly track
+  processing timeout. Caller has to oversight time.
+- `MNU` and `GCD` were not fully developed and may not work as specified.
 - `PP_TLRMEM` and multimedia related TAGs are out of scope and its values
   should be ignored.
 
 ## [1.1.6] - YYYY-MM-DD
 - Update dependencies.
 - Remove application from backup and restore infrastructure.
+- Replace `Bundle` API by `JSON` API to simplify internal coding and retain
+  request/response data order when parsing data streams.
 
 ## [1.1.5] - 2022-03-27
 - Broaden PIN capture activity updates to whenever a callback event is

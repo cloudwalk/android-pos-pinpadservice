@@ -3,161 +3,179 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class GPN {
     private static final String
             TAG = GPN.class.getSimpleName();
 
-    private GPN() {
-        Log.d(TAG, "GPN");
-
-        /* Nothing to do */
-    }
-
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        Bundle response = new Bundle();
+        JSONObject request = new JSONObject();
 
-        response.putString(ABECS.CMD_ID,      new String(input,  0,  3));
-        response.putString(ABECS.GPN_METHOD,  new String(input,  6,  1));
-        response.putString(ABECS.GPN_KEYIDX,  new String(input,  7,  2));
-        response.putString(ABECS.GPN_WKENC,   new String(input,  9, 32));
-        response.putString(ABECS.GPN_PAN,     new String(input, 43, 19));
-        response.putString(ABECS.GPN_ENTRIES, new String(input, 62,  1));
-        response.putString(ABECS.GPN_MIN1,    new String(input, 63,  2));
-        response.putString(ABECS.GPN_MAX1,    new String(input, 65,  2));
-        response.putString(ABECS.GPN_MSG1,    new String(input, 67, 32));
+        request.put(ABECS.CMD_ID,      new String(array,  0,  3));
+        request.put(ABECS.GPN_METHOD,  new String(array,  6,  1));
+        request.put(ABECS.GPN_KEYIDX,  new String(array,  7,  2));
+        request.put(ABECS.GPN_WKENC,   new String(array,  9, 32));
+        request.put(ABECS.GPN_PAN,     new String(array, 43, 19));
+        request.put(ABECS.GPN_ENTRIES, new String(array, 62,  1));
+        request.put(ABECS.GPN_MIN1,    new String(array, 63,  2));
+        request.put(ABECS.GPN_MAX1,    new String(array, 65,  2));
+        request.put(ABECS.GPN_MSG1,    new String(array, 67, 32));
 
-        return response;
+        return request.toString();
     }
 
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
+    public static String parseResponseDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseResponseDataPacket");
 
-        byte[] RSP_ID       = new byte[3];
-        byte[] RSP_STAT     = new byte[3];
-        byte[] GPN_PINBLK   = new byte[16];
-        byte[] GPN_KSN      = new byte[20];
+        JSONObject[] response = {
+                new JSONObject(),
+                null
+        };
 
-        System.arraycopy(input,  0, RSP_ID,     0,  3);
-        System.arraycopy(input,  3, RSP_STAT,   0,  3);
+        response[0].put(ABECS.RSP_ID, new String(array, 0, 3));
 
-        Bundle response = new Bundle();
+        String RSP_STAT = ABECS.STAT.values()[CMD.parseInt(array, 3, 3)].name();
 
-        response.putString(ABECS.RSP_ID, new String(RSP_ID));
-        response.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
+        response[0].put(ABECS.RSP_STAT, RSP_STAT);
 
-        if (ABECS.STAT.ST_OK != response.getSerializable(ABECS.RSP_STAT)) {
-            return response;
+        switch (RSP_STAT) {
+            case "ST_OK":
+                response[0].put(ABECS.GPN_PINBLK, new String(array,  9, 16));
+                response[0].put(ABECS.GPN_KSN,    new String(array, 25, 20));
+                /* no break */
+
+            default:
+                return response[0].toString();
         }
-
-        System.arraycopy(input,  9, GPN_PINBLK, 0, 16);
-        System.arraycopy(input, 25, GPN_KSN,    0, 20);
-
-        response.putString(ABECS.GPN_PINBLK, new String(GPN_PINBLK));
-        response.putString(ABECS.GPN_KSN,    new String(GPN_KSN));
-
-        return response;
     }
 
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
+    public static byte[] buildRequestDataPacket(@NotNull String string)
             throws Exception {
         Log.d(TAG, "buildRequestDataPacket");
 
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String GPN_METHOD   = input.getString(ABECS.GPN_METHOD);
-        String GPN_KEYIDX   = input.getString(ABECS.GPN_KEYIDX);
-        String GPN_WKENC    = input.getString(ABECS.GPN_WKENC);
-        String GPN_PAN      = input.getString(ABECS.GPN_PAN);
-        String GPN_ENTRIES  = input.getString(ABECS.GPN_ENTRIES);
-        String GPN_MIN1     = input.getString(ABECS.GPN_MIN1);
-        String GPN_MAX1     = input.getString(ABECS.GPN_MAX1);
-        String GPN_MSG1     = input.getString(ABECS.GPN_MSG1);
+        byte[] CMD_ID      = null;          byte[] CMD_LEN1    = null;
+        byte[] GPN_METHOD  = null;          byte[] GPN_KEYIDX  = null;
+        byte[] GPN_WKENC   = null;          byte[] GPN_PANLEN  = null;
+        byte[] GPN_ENTRIES = null;          byte[] GPN_MIN1    = null;
+        byte[] GPN_MAX1    = null;          byte[] GPN_MSG1    = null;
 
-        byte[] GPN_PANLEN = String.format(US, "%02d", GPN_PAN.trim().length()).getBytes(UTF_8);
+        try {
+            JSONObject request = new JSONObject(string);
 
-        GPN_PAN = String.format(US, "%19.19s", GPN_PAN);
+            CMD_ID      = request.getString(ABECS.CMD_ID)     .getBytes(UTF_8);
+            GPN_METHOD  = request.getString(ABECS.GPN_METHOD) .getBytes(UTF_8);
+            GPN_KEYIDX  = request.getString(ABECS.GPN_KEYIDX) .getBytes(UTF_8);
+            GPN_WKENC   = request.getString(ABECS.GPN_WKENC)  .getBytes(UTF_8);
+            GPN_ENTRIES = request.getString(ABECS.GPN_ENTRIES).getBytes(UTF_8);
+            GPN_MIN1    = request.getString(ABECS.GPN_MIN1)   .getBytes(UTF_8);
+            GPN_MAX1    = request.getString(ABECS.GPN_MAX1)   .getBytes(UTF_8);
+            GPN_MSG1    = request.getString(ABECS.GPN_MSG1)   .getBytes(UTF_8);
 
-        stream[1].write(GPN_METHOD .getBytes(UTF_8));
-        stream[1].write(GPN_KEYIDX .getBytes(UTF_8));
-        stream[1].write(GPN_WKENC  .getBytes(UTF_8));
-        stream[1].write(GPN_PANLEN);
-        stream[1].write(GPN_PAN    .getBytes(UTF_8));
-        stream[1].write(GPN_ENTRIES.getBytes(UTF_8));
-        stream[1].write(GPN_MIN1   .getBytes(UTF_8));
-        stream[1].write(GPN_MAX1   .getBytes(UTF_8));
-        stream[1].write(GPN_MSG1   .getBytes(UTF_8));
+            String GPN_PAN = request.getString(ABECS.GPN_PAN);
 
-        byte[] CMD_DATA = stream[1].toByteArray();
+            GPN_PANLEN = String.format(US, "%02d",    GPN_PAN.trim().length()).getBytes(UTF_8);
+            GPN_PAN    = String.format(US, "%19.19s", GPN_PAN);
 
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
+            stream[0].write(CMD_ID);
+            stream[1].write(GPN_METHOD);    stream[1].write(GPN_KEYIDX);
+            stream[1].write(GPN_WKENC);     stream[1].write(GPN_PANLEN);
+
+            byte[] array = null;
+
+            try {
+                array = GPN_PAN.getBytes(UTF_8);
+
+                stream[1].write(array);
+            } finally {
+                ByteUtility.clear(array);
+            }
+
+            stream[1].write(GPN_ENTRIES);   stream[1].write(GPN_MIN1);
+            stream[1].write(GPN_MAX1);      stream[1].write(GPN_MSG1);
+
+            byte[] CMD_DATA = null;
+
+            try {
+                CMD_DATA = stream[1].toByteArray();
+
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
+
+            array = stream[0].toByteArray();
+
+            return array;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1, GPN_METHOD, GPN_KEYIDX, GPN_WKENC, GPN_PANLEN,
+                    GPN_ENTRIES, GPN_MIN1, GPN_MAX1, GPN_MSG1);
+        }
     }
 
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
+    public static byte[] buildResponseDataPacket(@NotNull String string)
             throws Exception {
-        Log.d(TAG, "buildResponseDataPacket::input [" + input + "]");
+        Log.d(TAG, "buildResponseDataPacket");
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
 
-        String RSP_ID       = null;
-        int    RSP_STAT     = ABECS.STAT.ST_INTERR.ordinal();
-        byte[] GPN_PINBLK   = null;
-        byte[] GPN_KSN      = null;
+        byte[] RSP_ID     = null;       byte[] RSP_STAT   = null;
+        byte[] RSP_LEN1   = null;       byte[] GPN_PINBLK = null;
+        byte[] GPN_KSN    = null;       byte[] RSP_DATA   = null;
 
-        for (String T : input.keySet()) {
-            switch (T) {
-                case ABECS.RSP_ID:
-                    RSP_ID = input.getString(T);
-                    break;
+        try {
+            JSONObject json = new JSONObject(string);
 
-                case ABECS.RSP_STAT:
-                    RSP_STAT = ((ABECS.STAT) input.getSerializable(T)).ordinal();
-                    break;
+            RSP_ID     = json.getString(ABECS.RSP_ID)    .getBytes(UTF_8);
+            GPN_PINBLK = json.optString(ABECS.GPN_PINBLK).getBytes(UTF_8);
+            GPN_KSN    = json.optString(ABECS.GPN_KSN)   .getBytes(UTF_8);
 
-                case ABECS.GPN_PINBLK:
-                    GPN_PINBLK = input.getString(T).getBytes(UTF_8);
-                    break;
+            stream[1].write(GPN_PINBLK);
+            stream[1].write(GPN_KSN);
 
-                case ABECS.GPN_KSN:
-                    GPN_KSN = input.getString(T).getBytes(UTF_8);
-                    break;
+            RSP_STAT = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(ABECS.RSP_STAT)).ordinal()).getBytes(UTF_8);
 
-                default:
-                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "]");
-            }
+            RSP_DATA = stream[1].toByteArray();
+
+            RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
+
+            stream[0].write(RSP_ID);
+            stream[0].write(RSP_STAT);
+            stream[0].write(RSP_LEN1);
+            stream[0].write(RSP_DATA);
+
+            byte[] response = stream[0].toByteArray();
+
+            return response;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(RSP_ID, RSP_STAT, RSP_LEN1, GPN_PINBLK, GPN_KSN, RSP_DATA);
         }
-
-        stream.write(RSP_ID.getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
-
-        if (RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
-            stream.write(0x00);
-            stream.write(0x00);
-            stream.write(0x00);
-
-            return stream.toByteArray();
-        }
-
-        int RSP_LEN1 = GPN_PINBLK.length + GPN_KSN.length;
-
-        stream.write(String.format(US, "%03d", RSP_LEN1).getBytes(UTF_8));
-        stream.write(GPN_PINBLK); stream.write(GPN_KSN);
-
-        return stream.toByteArray();
     }
 }

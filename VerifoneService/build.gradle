@@ -10,7 +10,7 @@ android {
         minSdk 22
         targetSdk 32
         versionCode 108
-        versionName "1.1.7"
+        versionName "1.1.7-dev"
 
         setProperty("archivesBaseName", "verifone-$applicationId-$versionName-${getDate()}")
     }
@@ -49,7 +49,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:16.0.1'
 
     implementation 'io.cloudwalk:loglibrary:1.1.5'
-    implementation 'io.cloudwalk:utilitieslibrary:1.0.14'
+    implementation 'io.cloudwalk:utilitieslibrary:1.1.0'
 
     debugImplementation files('libs/PPCompX990-v001.31_debug.aar')
     releaseImplementation files('libs/PPCompX990-v001.31.aar')

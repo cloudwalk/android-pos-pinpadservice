@@ -2,7 +2,8 @@ package io.cloudwalk.pos.pinpadservice.presentation;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static io.cloudwalk.pos.pinpadservice.utilities.VerifoneUtility.sAcessoDiretoPinpad;
+
+import static io.cloudwalk.pos.pinpadservice.utilities.PlatformUtility.sAcessoDiretoPinpad;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -46,8 +47,8 @@ public class PinCaptureActivity extends AppCompatActivity {
     private static String
             sApplicationId = null;
 
-    private Map<IdentificacaoTeclaPIN, Integer> getPINViewMap() {
-        // Log.d(TAG, "getPINViewMap");
+    private Map<IdentificacaoTeclaPIN, Integer> _getPINViewMap() {
+        // Log.d(TAG, "_getPINViewMap");
 
         Map<IdentificacaoTeclaPIN, Integer> map = new HashMap<>();
 
@@ -68,8 +69,8 @@ public class PinCaptureActivity extends AppCompatActivity {
         return map;
     }
 
-    private TecladoPINVirtual getTecladoPINVirtual() {
-        // Log.d(TAG, "getTecladoPINVirtual");
+    private TecladoPINVirtual _getTecladoPINVirtual() {
+        // Log.d(TAG, "_getTecladoPINVirtual");
 
         Semaphore semaphore = new Semaphore(0, true);
         View[]    keyboard  = { null };
@@ -85,7 +86,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
         semaphore.acquireUninterruptibly();
 
-        return new TecladoPINVirtual(keyboard[0], getPINViewMap()) {
+        return new TecladoPINVirtual(keyboard[0], _getPINViewMap()) {
             @Override
             public View ObtemView() {
                 return keyboard[0];
@@ -93,7 +94,7 @@ public class PinCaptureActivity extends AppCompatActivity {
 
             @Override
             public Map<IdentificacaoTeclaPIN, Integer> ObtemIdentificacaoTeclasPorId() {
-                return getPINViewMap();
+                return _getPINViewMap();
             }
         };
     }
@@ -146,7 +147,7 @@ public class PinCaptureActivity extends AppCompatActivity {
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        sAcessoDiretoPinpad.InformaTecladoPINVirtual(getTecladoPINVirtual());
+                        sAcessoDiretoPinpad.InformaTecladoPINVirtual(_getTecladoPINVirtual());
 
                         relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 

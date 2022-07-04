@@ -3,171 +3,186 @@ package io.cloudwalk.pos.pinpadlibrary.internals.commands;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.US;
 
-import android.os.Bundle;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 
 import io.cloudwalk.loglibrary.Log;
 import io.cloudwalk.pos.pinpadlibrary.ABECS;
-import io.cloudwalk.pos.pinpadlibrary.internals.utilities.PinpadUtility;
-import io.cloudwalk.utilitieslibrary.utilities.DataUtility;
+import io.cloudwalk.utilitieslibrary.utilities.ByteUtility;
 
 public class OPN {
     private static final String
             TAG = OPN.class.getSimpleName();
 
-    private OPN() {
-        Log.d(TAG, "OPN");
-
-        /* Nothing to do */
-    }
-
-    public static Bundle parseRequestDataPacket(byte[] input, int length)
+    public static String parseRequestDataPacket(byte[] array, int length)
             throws Exception {
         Log.d(TAG, "parseRequestDataPacket");
 
-        byte[] CMD_ID       = new byte[3];
-        byte[] OPN_OPMODE   = new byte[1];
-        byte[] OPN_MODLEN   = new byte[3];
-        byte[] OPN_MOD      = null;
-        byte[] OPN_EXPLEN   = new byte[1];
-        byte[] OPN_EXP      = null;
+        JSONObject request = new JSONObject();
 
-        System.arraycopy(input, 0, CMD_ID, 0, 3);
+        request.put(ABECS.CMD_ID, new String(array, 0, 3));
 
-        Bundle response = new Bundle();
+        if (length > 3) {
+            if (CMD.parseInt(array, 3, 3) > 0) {
+                request.put(ABECS.OPN_OPMODE, new String(array, 6, 1));
 
-        response.putString(ABECS.CMD_ID, new String(CMD_ID));
+                int OPN_MODLEN = CMD.parseInt(array, 7, 3);
 
-        if (length < 7) {
-            return response;
-        }
+                request.put(ABECS.OPN_MOD, new String(array, 10, OPN_MODLEN * 2));
 
-        System.arraycopy(input, 6, OPN_OPMODE, 0, 1);
-        System.arraycopy(input, 7, OPN_MODLEN, 0, 3);
+                OPN_MODLEN = (OPN_MODLEN * 2) + 10;
 
-        OPN_MOD = new byte[PinpadUtility.getIntFromDigitsArray(OPN_MODLEN, OPN_MODLEN.length) * 2];
+                int OPN_EXPLEN = CMD.parseInt(array, OPN_MODLEN++, 1);
 
-        System.arraycopy(input,                  10, OPN_MOD,    0, OPN_MOD.length);
-        System.arraycopy(input, OPN_MOD.length + 10, OPN_EXPLEN, 0, 1);
-
-        response.putString(ABECS.OPN_OPMODE, new String(OPN_OPMODE));
-        response.putString(ABECS.OPN_MOD,    new String(OPN_MOD));
-
-        OPN_EXP = new byte[PinpadUtility.getIntFromDigitsArray(OPN_EXPLEN, OPN_EXPLEN.length) * 2];
-
-        System.arraycopy(input, OPN_MOD.length + 11, OPN_EXP,    0, OPN_EXP.length);
-
-        response.putString(ABECS.OPN_EXP,    new String(OPN_EXP));
-
-        return response;
-    }
-
-    public static Bundle parseResponseDataPacket(byte[] input, int length)
-            throws Exception {
-        Log.d(TAG, "parseResponseDataPacket");
-
-        byte[] RSP_ID       = new byte[3];
-        byte[] RSP_STAT     = new byte[3];
-        byte[] OPN_CRKSLEN  = new byte[3];
-        byte[] OPN_CRKSEC   = new byte[512];
-
-        System.arraycopy(input, 0, RSP_ID,   0, 3);
-        System.arraycopy(input, 3, RSP_STAT, 0, 3);
-
-        Bundle response = new Bundle();
-
-        response.putString(ABECS.RSP_ID, new String(RSP_ID));
-        response.putSerializable(ABECS.RSP_STAT, ABECS.STAT.values()[PinpadUtility.getIntFromDigitsArray(RSP_STAT, RSP_STAT.length)]);
-
-        if (length < 10) {
-            return response;
-        }
-
-        System.arraycopy(input,  9, OPN_CRKSLEN, 0,   3);
-        System.arraycopy(input, 12, OPN_CRKSEC,  0, 512);
-
-        response.putString(ABECS.OPN_CRKSEC, new String(OPN_CRKSEC));
-
-        return response;
-    }
-
-    public static byte[] buildRequestDataPacket(@NotNull Bundle input)
-            throws Exception {
-        Log.d(TAG, "buildRequestDataPacket");
-
-        ByteArrayOutputStream[] stream = { new ByteArrayOutputStream(), new ByteArrayOutputStream() };
-
-        String CMD_ID       = input.getString(ABECS.CMD_ID);
-        String OPN_OPMODE   = input.getString(ABECS.OPN_OPMODE);
-        String OPN_MOD      = input.getString(ABECS.OPN_MOD);
-        String OPN_EXP      = input.getString(ABECS.OPN_EXP);
-
-        if (OPN_OPMODE != null) {
-            stream[1].write(("" + OPN_OPMODE).getBytes(UTF_8));
-
-            byte[] OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length() / 2)).getBytes(UTF_8);
-
-            stream[1].write(OPN_MODLEN);
-            stream[1].write(OPN_MOD.getBytes(UTF_8));
-
-            byte[] OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length() / 2)).getBytes(UTF_8);
-
-            stream[1].write(OPN_EXPLEN);
-            stream[1].write(OPN_EXP.getBytes(UTF_8));
-        }
-
-        byte[] CMD_DATA = stream[1].toByteArray();
-
-        return DataUtility.concatByteArray(CMD_ID.getBytes(UTF_8), String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8), CMD_DATA);
-    }
-
-    public static byte[] buildResponseDataPacket(@NotNull Bundle input)
-            throws Exception {
-        Log.d(TAG, "buildResponseDataPacket");
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-        String RSP_ID       = null;
-        int    RSP_STAT     = ABECS.STAT.ST_INTERR.ordinal();
-        byte[] OPN_CRKSEC   = null;
-
-        for (String T : input.keySet()) {
-            switch (T) {
-                case ABECS.RSP_ID:
-                    RSP_ID = input.getString(T);
-                    break;
-
-                case ABECS.RSP_STAT:
-                    RSP_STAT = ((ABECS.STAT) input.getSerializable(T)).ordinal();
-                    break;
-
-                case ABECS.OPN_CRKSEC:
-                    OPN_CRKSEC = input.getString(T).getBytes(UTF_8);
-                    break;
-
-                default:
-                    throw new RuntimeException("Unknown or unhandled TAG [" + T + "]");
+                request.put(ABECS.OPN_EXP, new String(array, OPN_MODLEN, OPN_EXPLEN * 2));
             }
         }
 
-        stream.write(RSP_ID.getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", RSP_STAT).getBytes(UTF_8));
+        return request.toString();
+    }
 
-        if (OPN_CRKSEC == null || RSP_STAT != ABECS.STAT.ST_OK.ordinal()) {
-            stream.write(0x00);
-            stream.write(0x00);
-            stream.write(0x00);
+    public static String parseResponseDataPacket(byte[] array, int length)
+            throws Exception {
+        Log.d(TAG, "parseResponseDataPacket");
 
-            return stream.toByteArray();
+        JSONObject[] response = {
+                new JSONObject(),
+                null
+        };
+
+        response[0].put(ABECS.RSP_ID, new String(array, 0, 3));
+
+        String RSP_STAT = ABECS.STAT.values()[CMD.parseInt(array, 3, 3)].name();
+
+        response[0].put(ABECS.RSP_STAT, RSP_STAT);
+
+        switch (RSP_STAT) {
+            case "ST_OK":
+                if (length >= 10) {
+                    response[0].put(ABECS.OPN_CRKSEC, new String(array, 12, 512));
+                }
+                /* no break */
+
+            default:
+                return response[0].toString();
         }
+    }
 
-        stream.write(String.format(US, "%03d", OPN_CRKSEC.length + 3).getBytes(UTF_8));
-        stream.write(String.format(US, "%03d", OPN_CRKSEC.length / 2).getBytes(UTF_8));
-        stream.write(OPN_CRKSEC);
+    public static byte[] buildRequestDataPacket(@NotNull String string)
+            throws Exception {
+        Log.d(TAG, "buildRequestDataPacket");
 
-        return stream.toByteArray();
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
+
+        byte[] CMD_ID   = null;
+        byte[] CMD_LEN1 = null;
+
+        try {
+            JSONObject request = new JSONObject(string);
+
+            if (request.has(ABECS.OPN_OPMODE)) {
+                byte[] OPN_OPMODE = null;       byte[] OPN_MODLEN = null;
+                byte[] OPN_MOD    = null;       byte[] OPN_EXPLEN = null;
+                byte[] OPN_EXP    = null;
+
+                try {
+                    OPN_OPMODE = request.getString(ABECS.OPN_OPMODE).getBytes(UTF_8);
+                    OPN_MOD    = request.getString(ABECS.OPN_MOD)   .getBytes(UTF_8);
+                    OPN_EXP    = request.getString(ABECS.OPN_EXP)   .getBytes(UTF_8);
+
+                    stream[1].write(OPN_OPMODE);
+
+                    OPN_MODLEN = String.format(US, "%03d", (OPN_MOD.length / 2)).getBytes(UTF_8);
+
+                    stream[1].write(OPN_MODLEN);
+                    stream[1].write(OPN_MOD);
+
+                    OPN_EXPLEN = String.format(US, "%01d", (OPN_EXP.length / 2)).getBytes(UTF_8);
+
+                    stream[1].write(OPN_EXPLEN);
+                    stream[1].write(OPN_EXP);
+                } finally {
+                    ByteUtility.clear(OPN_OPMODE, OPN_MODLEN, OPN_MOD, OPN_EXPLEN, OPN_EXP);
+                }
+            }
+
+            CMD_ID = request.getString(ABECS.CMD_ID).getBytes(UTF_8);
+
+            stream[0].write(CMD_ID);
+
+            byte[] CMD_DATA = null;
+
+            try {
+                CMD_DATA = stream[1].toByteArray();
+
+                CMD_LEN1 = String.format(US, "%03d", CMD_DATA.length).getBytes(UTF_8);
+
+                stream[0].write(CMD_LEN1);
+                stream[0].write(CMD_DATA);
+            } finally {
+                ByteUtility.clear(CMD_DATA);
+            }
+
+            byte[] array = stream[0].toByteArray();
+
+            return array;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(CMD_ID, CMD_LEN1);
+        }
+    }
+
+    public static byte[] buildResponseDataPacket(@NotNull String string)
+            throws Exception {
+        Log.d(TAG, "buildResponseDataPacket");
+
+        ByteArrayOutputStream[] stream = {
+                new ByteArrayOutputStream(),
+                new ByteArrayOutputStream()
+        };
+
+        byte[] RSP_ID      = null;      byte[] RSP_STAT    = null;
+        byte[] RSP_LEN1    = null;      byte[] OPN_CRKSLEN = null;
+        byte[] OPN_CRKSEC  = null;      byte[] RSP_DATA    = null;
+
+        try {
+            JSONObject json = new JSONObject(string);
+
+            RSP_ID     = json.getString(ABECS.RSP_ID)    .getBytes(UTF_8);
+            OPN_CRKSEC = json.optString(ABECS.OPN_CRKSEC).getBytes(UTF_8);
+
+            if (OPN_CRKSEC.length > 0) {
+                OPN_CRKSLEN = String.format(US, "%03d", OPN_CRKSEC.length / 2).getBytes(UTF_8);
+            }
+
+            stream[1].write((OPN_CRKSLEN != null) ? OPN_CRKSLEN : new byte[0]);
+            stream[1].write(OPN_CRKSEC);
+
+            RSP_STAT = String.format(US, "%03d", ABECS.STAT.valueOf(json.getString(ABECS.RSP_STAT)).ordinal()).getBytes(UTF_8);
+
+            RSP_DATA = stream[1].toByteArray();
+
+            RSP_LEN1 = String.format(US, "%03d", RSP_DATA.length).getBytes(UTF_8);
+
+            stream[0].write(RSP_ID);
+            stream[0].write(RSP_STAT);
+            stream[0].write(RSP_LEN1);
+            stream[0].write(RSP_DATA);
+
+            byte[] response = stream[0].toByteArray();
+
+            return response;
+        } finally {
+            ByteUtility.clear(stream);
+
+            ByteUtility.clear(RSP_ID, RSP_STAT, RSP_LEN1, OPN_CRKSLEN, OPN_CRKSEC, RSP_DATA);
+        }
     }
 }

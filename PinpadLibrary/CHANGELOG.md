@@ -8,6 +8,14 @@
 ### Verifone 
 - Pinpad Service 1.0.3
 
+## Known issues
+- `MNU` and `GCD` are currently unsupported by `JSON` API.
+
+## [1.2.0] - 2022-07-03 - WARNING: incompatible with previous release(s)
+- Update dependencies.
+- Replace `Bundle` API by `JSON` API to simplify internal coding and retain
+  request/response data order when parsing data streams.
+
 ## [1.1.0] - 2022-06-08
 - Update dependencies.
 - Unify handling of TLV data for multiple commands.
@@ -57,7 +65,7 @@
 
 ## [1.0.7] - 2021-11-12
 - Greatly increase consistency of message exchange when using the `Bundle` API.
-- Forcefully send a single `<<CAN>>` byte upon abort requests.
+- Forcefully send a single `<<CAN>>` byte upon interrupt requests.
 
 ## [1.0.6] - 2021-11-12
 - Update logs.
@@ -77,7 +85,7 @@
 
 ## [1.0.1] - 2021-10-04
 - Update dependencies.
-- Forcefully send a triple `<<CAN>>` byte upon abort requests.
+- Forcefully send a triple `<<CAN>>` byte upon interrupt requests.
 
 ## [1.0.0] - 2021-09-30
 - Initial release.

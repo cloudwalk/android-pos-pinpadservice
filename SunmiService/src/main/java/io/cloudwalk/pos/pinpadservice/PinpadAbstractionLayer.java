@@ -58,7 +58,7 @@ public class PinpadAbstractionLayer extends IPinpadService.Stub {
                 byte[]  content;
 
                 try {
-                    File    file   = new File (context.getFilesDir(), "/keymap.dat");
+                    File    file   = new File(context.getFilesDir(), "/keymap.dat");
                     long    length = file.length();
                     boolean exists = file.length() > 0;
 
